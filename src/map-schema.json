@@ -1,0 +1,91 @@
+{
+   "$schema": "http://json-schema.org/draft-04/schema#",
+   "title": "Map Object",
+   "description": "A representation of data for a map",
+   "type": "object",
+   "required": ["map_image", "vertices", "edges"],
+   "properties": {
+      "map_image": {
+         "description": "A URL for the image that will be displayed as the map.",
+         "type": "string"
+      },
+      "vertices": {
+         "description": "A map of all vertices that are in the map's graph. The key is the ID for the vertex.",
+         "type": "array",
+         "items": {
+            "type": "object",
+            "required": ["id", "floor", "location"],
+            "properties": {
+               "id": {
+                  "description": "A unique identifier for the vertex.",
+                  "type": "string"
+               },
+               "floor": {
+                  "description": "The floor of the building that the vertex is on. Must be an integer.",
+                  "type": "number",
+                  "multipleOf": 1
+               },
+               "location": {
+                  "description": "An array in the form [x, y] with the vertex's location.",
+                  "type": "array",
+                  "maxItems": 2,
+                  "minItems": 2,
+                  "items": {
+                     "type": "number"
+                  }
+               },
+               "tags": {
+                  "description": "Tags that can be applied to nodes to note special things like stairs.",
+                  "type": "array",
+                  "items": {
+                     "type": "string",
+                     "enum": ["stairs", "elevator"]
+                  }
+               }
+            }
+         },
+         "otherProperties": false
+      }
+   },
+   "edges": {
+      "description": "Array of edges represented by arrays. All edges are undirected, so order does not matter.",
+      "type": "array",
+      "items": {
+         "type": "array",
+         "minItems": 2,
+         "maxItems": 2,
+         "items": {
+            "type": "string"
+         }
+      }
+   },
+   "rooms": {
+      "description": "Array of rooms. Shows which vertices are entrances for which rooms, metadata about rooms, etc.",
+      "type": "array",
+      "items": {
+         "type": "object",
+         "properties": {
+            "vertices": {
+               "description": "An array of vertex IDs that are entrances to the room",
+               "type": "array",
+               "minItems": 1,
+               "items": {
+                  "type": "string"
+               }
+            },
+            "names": {
+               "description": "Alternate names for a room, like \"cafeteria\".",
+               "type": "array",
+               "minItems": 1,
+               "items": {
+                  "type": "string"
+               }
+            },
+            "preferredName": {
+               "description": "Name for the room that is preferred over the room number. Should also be a member of names.",
+               "type": "string"
+            }
+         }
+      }
+   }
+}

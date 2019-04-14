@@ -1,0 +1,64 @@
+.leaflet-control-search {
+    padding: 0;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    z-index: 2000;
+
+    .search-bar-wrapper {
+        display: flex;
+        flex-direction: row;
+
+        input.search-bar {
+            padding-left: 4px;
+            border: none;
+            font: 12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
+            background-color: #ffffff !important;
+        }
+
+        a.search {
+            border: none;
+            background-color: #ffffff !important;
+        }
+    }
+
+    .results-wrapper {
+        padding: 2px;
+        background-color: #ffffff;
+        overflow-y: auto;
+
+        * {
+            padding: 0;
+            margin: 0;
+
+            .search-result {
+                list-style-type: none;
+                border-bottom: 1px solid black;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+
+                &:last-child {
+                    border: none;
+                }
+
+                .nav-links {
+                    display: flex;
+                    flex-direction: row;
+                    margin-left: auto;
+
+                    * {
+                        margin: auto 0;
+                        font-size: 20px;
+                        border: none;
+                    }
+                }
+            }
+        }
+    }
+
+    .hidden {
+        display: none;
+    }
+}
