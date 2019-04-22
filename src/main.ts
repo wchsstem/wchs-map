@@ -3,7 +3,7 @@ import MiniSearch from "minisearch";
 
 import { settings, Watcher } from "./settings";
 
-import * as mapData from "./map.json";
+import * as mapData from "../dist/map.json";
 import MapData from "./MapData";
 import LSearch, { SearchResult } from "./LSearchPlugin";
 import LRoomLabel from "./LRoomLabelPlugin/LRoomLabelPlugin";
@@ -21,7 +21,8 @@ const leafletMap = L.map("map", {
     center: bounds.getCenter(),
     maxZoom: 3,
     minZoom: 0,
-    maxBounds: bounds.pad(0.5),
+    // maxBounds: bounds.pad(0.5),
+    maxBounds: bounds.pad(1),
     maxBoundsViscosity: 1
 });
 
@@ -78,11 +79,11 @@ function showClickLoc(e: L.LocationEvent) {
 const map = new MapData(mapData);
 
 // Add room number labels
-// TODO: Labels are being placed on doors, place in center of rooms
 const labelGroup = new LRoomLabel();
 for (const room of map.getAllRooms()) {
-    const vert = map.getGraph().getVertex(room.getEntrances()[0]);
-    L.marker([vert.getLocation()[1], vert.getLocation()[0]], {
+    const location = room.getCenter() ? room.getCenter() :
+        map.getGraph().getVertex(room.getEntrances()[0]).getLocation();
+    L.marker([location[1], location[0]], {
         "icon": L.divIcon({
             "html": `<span class="label">${room.getRoomNumber()}</span>`
         }),
@@ -90,6 +91,7 @@ for (const room of map.getAllRooms()) {
     }).addTo(labelGroup);
 }
 labelGroup.addTo(leafletMap);
+labelGroup.enableCollision();
 
 const devLayer = map.createDevLayerGroup();
 

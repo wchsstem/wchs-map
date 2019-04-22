@@ -20,7 +20,9 @@ export default class MapData {
         }>,
         "edges": [string, string][],
         "rooms": Array<{
-            "vertices": string[]
+            "vertices": string[],
+            center?: [number, number],
+            "names": string[]
         }>
     };
 
@@ -35,6 +37,7 @@ export default class MapData {
         "edges": [string, string][],
         "rooms": Array<{
             "vertices": string[],
+            center?: [number, number],
             "names": string[]
         }>
     }) {
@@ -83,7 +86,7 @@ export default class MapData {
                 verticesId.push(this.vertexStringToId.get(vertex));
             }
 
-            this.rooms.set(roomKey, new Room(verticesId, roomKey, room.names));
+            this.rooms.set(roomKey, new Room(verticesId, roomKey, room.names, room.center));
         }
 
         // Create map of room names

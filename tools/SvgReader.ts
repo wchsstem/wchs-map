@@ -6,7 +6,6 @@ import SvgPathInterpreter from "./SvgPathInterpreter";
 type SvgElement = {
     attribs?: {
         id?: string,
-        "inkscape:label"?: string,
         x?: string,
         y?: string,
         width?: string,
@@ -16,53 +15,54 @@ type SvgElement = {
     children?: SvgElement[]
 }
 
-export type RoomData = {
+type RoomData = {
     "center": [number, number]
 }
 
-export default class SvgReader {
-    private handler: DomHandler;
-    private parser: Parser;
+type Rooms = { [roomNumber: string]: RoomData; }
 
-    private rooms: Map<string, RoomData>;
+export default class SvgReader {
+    private promise: Promise<Rooms>;
 
     constructor(file: string) {
-        this.handler = this.createHandler();
-        this.parser = new Parser(this.handler);
+        this.promise = new Promise((resolve, reject) => {
+            const handler = new DomHandler((err, dom) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+            
+                const rooms = {};
 
-        this.rooms = new Map();
+                // Filter doesn't work on generators, so must write custom
+                for (const element of SvgReader.domIterator(dom)) {
+                    if (SvgReader.isRoomElement(element)) {
+                        rooms[SvgReader.getRoomNumber(element)] = {
+                            center: SvgReader.calcCenterOfSvg(element)
+                        };
+                    }
+                }
 
-        fs.readFile(file, (err, data) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-        
-            this.parser.write(data.toString());
-            this.parser.end();
+                resolve(rooms);
+            });
+
+            const parser = new Parser(handler);
+
+            fs.readFile(file, (err, data) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+            
+                parser.write(data.toString());
+                parser.end();
+            });
+                
         });
     }
 
-    private createHandler(): DomHandler {
-        return new DomHandler((err, dom) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-        
-            const rooms = {};
-        
-            // Filter doesn't work on generators, so must write custom
-            for (const element of SvgReader.domIterator(dom)) {
-                if (SvgReader.isRoomElement(element)) {
-                    rooms[SvgReader.getRoomNumber(element)] = {
-                        "center": SvgReader.calcCenterOfSvg(element)
-                    }
-                }
-            }
-        
-            console.log(rooms);
-        });
+    getPromise(): Promise<Rooms> {
+        return this.promise;
     }
 
     private static * domIterator(dom: SvgElement[]): IterableIterator<SvgElement> {
@@ -90,13 +90,18 @@ export default class SvgReader {
             const height = parseFloat(attribs.height);
             const x = parseFloat(attribs.x);
             const y = parseFloat(attribs.y);
-            return [
-                (width - x) / 2 + x,
-                (height - y) / 2 + y
-            ];
+            // These transformations came from my calculator. I don't know why this is correct, but it is.
+            return SvgReader.transformCoords([width / 2 + x, height / 2 + y]);
         } else {
-            return SvgReader.calcCenter(new SvgPathInterpreter(attribs.d).getPoints());
+            return SvgReader.transformCoords(SvgReader.calcCenter(new SvgPathInterpreter(attribs.d).getPoints()));
         }
+    }
+
+    private static transformCoords(coords: [number, number]): [number, number] {
+        return [
+            0.982665546 * coords[0] + 1.734239229,
+            -0.9929277691 * coords[1] + 746.6233232
+        ];
     }
 
     private static calcCenter(points: [number, number][]): [number, number] {
