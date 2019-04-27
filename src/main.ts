@@ -7,6 +7,7 @@ import * as mapData from "../dist/map.json";
 import MapData from "./MapData";
 import LSearch, { SearchResult } from "./LSearchPlugin";
 import LRoomLabel from "./LRoomLabelPlugin/LRoomLabelPlugin";
+import LFloors from "./LFloorsPlugin/LFloorsPlugin";
 import Room from "./Room";
 
 import "../node_modules/leaflet/dist/leaflet.css";
@@ -61,10 +62,6 @@ const search = LSearch.lSearch(
         pathLayer.addTo(leafletMap);
     }).addTo(leafletMap);
 
-L.imageOverlay(mapData.map_image, bounds, {
-    "attribution": "Nathan Varner | <a href='https://www.nathanvarner.com'>https://www.nathanvarner.com</a>"
-}).addTo(leafletMap);
-
 leafletMap.fitBounds(bounds);
 
 const popup = L.popup();
@@ -78,20 +75,31 @@ function showClickLoc(e: L.LocationEvent) {
 // @ts-ignore: How bad can it be?
 const map = new MapData(mapData);
 
-// Add room number labels
-const labelGroup = new LRoomLabel();
+const firstFloorMap = L.imageOverlay(mapData.map_image, bounds, {
+    "attribution": "Nathan Varner | <a href='https://www.nathanvarner.com'>https://www.nathanvarner.com</a>"
+});
+const firstFloorLabelGroup = new LRoomLabel();
 for (const room of map.getAllRooms()) {
     const location = room.getCenter() ? room.getCenter() :
         map.getGraph().getVertex(room.getEntrances()[0]).getLocation();
     L.marker([location[1], location[0]], {
         "icon": L.divIcon({
-            "html": `<span class="label">${room.getRoomNumber()}</span>`
+            "html": room.getRoomNumber(),
+            className: "room-label"
         }),
         "interactive": false
-    }).addTo(labelGroup);
+    }).addTo(firstFloorLabelGroup);
 }
-labelGroup.addTo(leafletMap);
-labelGroup.enableCollision();
+const firstFloor = L.layerGroup([firstFloorMap, firstFloorLabelGroup]);
+
+const secondFloorMap = L.imageOverlay("https://www.telegraph.co.uk/content/dam/Travel/galleries/travel/hubs/thebigpicture/the-big-picture-photography-competition-round-399/summary-xlarge.jpg", bounds);
+
+const floorsMap = new Map();
+floorsMap.set("2", secondFloorMap);
+floorsMap.set("1", firstFloor);
+
+const floors = new LFloors(floorsMap, "1");
+floors.addTo(leafletMap);
 
 const devLayer = map.createDevLayerGroup();
 
@@ -105,14 +113,3 @@ settings.addWatcher("dev", new Watcher((dev: boolean) => {
         leafletMap.off("click", showClickLoc);
     }
 }));
-
-// const collideGroup = new LRoomLabel();
-// L.marker([392.298316, 457.9401639999999], {
-//     "icon": L.divIcon({
-//         // "html": "<span class=\"label\">test</span>"
-//         html: "test",
-//         className: "room-label"
-//     }),
-//     "interactive": false
-// }).addTo(collideGroup);
-// collideGroup.addTo(leafletMap);

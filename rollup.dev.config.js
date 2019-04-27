@@ -37,6 +37,9 @@ export default {
             ]
         }),
         progress(),
-        serve("dist")
+        serve({
+            contentBase: "dist",
+            host: "0.0.0.0"
+        })
     ]
 }

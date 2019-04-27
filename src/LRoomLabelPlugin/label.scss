@@ -2,4 +2,14 @@
     margin: 0 !important;
     width: unset !important;
     height: unset !important;
+    text-shadow: 1px 1px 0 #ffffff,
+        -1px 1px 0 #ffffff,
+        1px -1px 0 #ffffff,
+        -1px -1px 0 #ffffff,
+        0 0 3px #ffffff;
+    transition: opacity 0.2s;
+}
+
+.room-label.invisible {
+    opacity: 0;
 }

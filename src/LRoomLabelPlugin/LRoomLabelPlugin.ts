@@ -21,33 +21,62 @@ export default class LRoomLabel extends L.LayerGroup {
         return this;
     }
 
-    enableCollision() {
-        const rbushBoxes = [];
-        for (const layer of this.hiddenLayers) {
-            rbushBoxes.push(LRoomLabel.bbToRbush(layer["_icon"].getBoundingClientRect()));
-        }
-        this.tree.load(rbushBoxes);
+    onAdd(map: L.Map): this {
+        super.onAdd(map);
+        const that = this;
+        map.on("zoomend", () => {
+            that.reload();
+        });
+        this.reload();
+        return this;
+    }
+
+    onRemove(map: L.Map): this {
+        super.onRemove(map);
+        map.removeEventListener("zoomend");
+        return this;
+    }
+
+    reload() {
+        this.setupRbush();
         this.hideAllLayers();
+        this.showVisibleLayers();
+    }
+
+    private showVisibleLayers() {
+        for (const layer of this.hiddenLayers) {
+            const rbushBb = layer["bb"];
+            if (this.tree.search(rbushBb).length === 1) {
+                layer["_icon"].classList.remove("invisible");
+            } else {
+                this.tree.remove(rbushBb);
+            }
+        }
     }
 
     private hideAllLayers() {
         const shownLayers = super.getLayers();
         for (const layer of shownLayers) {
-            if (layer instanceof L.Marker) {
-                this.hiddenLayers.push(layer);
-            }
-            super.removeLayer(layer);
+            layer["_icon"].classList.add("invisible");
         }
     }
 
-    private createRbushIndex(){}
+    private setupRbush() {
+        this.tree.clear();
+        const rbushBoxes = [];
+        for (const layer of this.hiddenLayers) {
+            layer["bb"] = LRoomLabel.bbToRbush(layer["_icon"].getBoundingClientRect());
+            rbushBoxes.push(layer["bb"]);
+        }
+        this.tree.load(rbushBoxes);
+    }
 
     private static bbToRbush(bb: ClientRect): { minX: number, minY: number, maxX: number, maxY: number } {
         return {
             minX: bb.left,
-            minY: bb.bottom,
+            minY: bb.top,
             maxX: bb.right,
-            maxY: bb.top
+            maxY: bb.bottom
         };
     }
 }

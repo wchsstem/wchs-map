@@ -1,0 +1,21 @@
+.leaflet-control-floors {
+    form {
+        display: flex;
+        flex-direction: column;
+
+        div {
+            input[type="radio"] {
+                display: none;
+            }
+
+            input[type="radio"]:checked + label {
+                background-color: rgba(0, 0, 0, 0.2);
+            }
+
+            label {
+                padding: 5px;
+                font-size: 16px;
+            }
+        }
+    }
+}
