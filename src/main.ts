@@ -75,6 +75,7 @@ function showClickLoc(e: L.LocationEvent) {
 // @ts-ignore: How bad can it be?
 const map = new MapData(mapData);
 
+console.log(mapData);
 const firstFloorMap = L.imageOverlay(mapData.map_image, bounds, {
     "attribution": "Nathan Varner | <a href='https://www.nathanvarner.com'>https://www.nathanvarner.com</a>"
 });
@@ -92,7 +93,7 @@ for (const room of map.getAllRooms()) {
 }
 const firstFloor = L.layerGroup([firstFloorMap, firstFloorLabelGroup]);
 
-const secondFloorMap = L.imageOverlay("https://www.telegraph.co.uk/content/dam/Travel/galleries/travel/hubs/thebigpicture/the-big-picture-photography-competition-round-399/summary-xlarge.jpg", bounds);
+const secondFloorMap = L.imageOverlay("http://127.0.0.1/churchill-map/2nd_floor.svg", bounds);
 
 const floorsMap = new Map();
 floorsMap.set("2", secondFloorMap);

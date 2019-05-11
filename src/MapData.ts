@@ -11,7 +11,7 @@ export default class MapData {
     private roomsFromNames: Map<string, Room[]>
 
     private mapData: {
-        "map_image": string,
+        "map_images": Map<string, string>,
         "vertices": Array<{
             "id": string,
             "floor": number,
@@ -27,7 +27,7 @@ export default class MapData {
     };
 
     constructor(mapData: {
-        "map_image": string,
+        "map_images": Map<string, string>,
         "vertices": Array<{
             "id": string,
             "floor": number,

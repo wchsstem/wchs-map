@@ -5,9 +5,14 @@
    "type": "object",
    "required": ["map_image", "vertices", "edges"],
    "properties": {
-      "map_image": {
-         "description": "A URL for the image that will be displayed as the map.",
-         "type": "string"
+      "map_images": {
+         "description": "An object of URLs for the images that will be displayed as the map. The keys are the floor numbers and the values are the URLs of the images to display.",
+         "type": "object",
+         "patternProperties": {
+            ".*": {
+               "type": "string"
+            }
+         }
       },
       "vertices": {
          "description": "A map of all vertices that are in the map's graph. The key is the ID for the vertex.",
