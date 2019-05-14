@@ -14,15 +14,18 @@ import SvgReader from "./SvgReader";
             });
         }));
 
-        const rooms = await new SvgReader("1st_floor_inkscape.svg").getPromise();
+        for (const floor in mapData["map_images"]) {
+            const rooms = await new SvgReader(`src/${mapData["map_images"][floor]}`).getPromise();
 
-        for (const roomsKey in rooms) {
-            if (mapData.rooms[roomsKey] === undefined) {
-                console.log(`Unknown room: ${roomsKey}`);
-            }
+            for (const roomsKey in rooms) {
+                if (mapData.rooms[roomsKey] === undefined) {
+                    console.log(`Unknown room: ${roomsKey}`);
+                    continue;
+                }
 
-            for (const key in rooms[roomsKey]) {
-                mapData.rooms[roomsKey][key] = rooms[roomsKey][key];
+                for (const key in rooms[roomsKey]) {
+                    mapData.rooms[roomsKey][key] = rooms[roomsKey][key];
+                }
             }
         }
 

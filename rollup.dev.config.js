@@ -7,6 +7,7 @@ import scss from "rollup-plugin-scss";
 import serve from "rollup-plugin-serve";
 import typescript from "rollup-plugin-typescript";
 
+// TODO: Read the SVG files to copy from map.json
 export default {
     input: "./src/main.ts",
     output: {
@@ -21,7 +22,7 @@ export default {
                 "node_modules/rbush/index.js": ["default"],
                 "node_modules/leaflet/dist/leaflet-src.js": [
                     "divIcon", "marker", "layerGroup", "popup", "imageOverlay", "CRS", "map", "LatLngBounds", "Control",
-                    "DomElement", "DomEvent", "Util", "polyline", "circle", "LayerGroup"
+                    "DomElement", "DomEvent", "Util", "polyline", "circle", "LayerGroup" 
                 ]
             }
         }),
@@ -33,7 +34,9 @@ export default {
         }),
         copy({
             assets: [
-                "./src/index.html"
+                "./src/index.html",
+                "./src/1st_floor.svg",
+                "./src/2nd_floor.svg"
             ]
         }),
         progress(),

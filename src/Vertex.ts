@@ -1,11 +1,11 @@
 export default class Vertex {
-    private floor: number;
+    private floor: string;
     private location: [number, number];
     private tags: string[];
     private room?: string;
 
     constructor(vertex: {
-        floor: number,
+        floor: string,
         location: number[],
         tags?: string[],
         room?: string
@@ -18,5 +18,17 @@ export default class Vertex {
 
     getLocation(): [number, number] {
         return this.location;
+    }
+
+    getFloor(): string {
+        return this.floor;
+    }
+
+    hasTag(tag: string): boolean {
+        return this.tags.includes(tag);
+    }
+    
+    getTags(): string[] {
+        return this.tags;
     }
 }

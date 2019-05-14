@@ -3,7 +3,7 @@
    "title": "Map Object",
    "description": "A representation of data for a map",
    "type": "object",
-   "required": ["map_image", "vertices", "edges"],
+   "required": ["map_images", "vertices", "edges"],
    "properties": {
       "map_images": {
          "description": "An object of URLs for the images that will be displayed as the map. The keys are the floor numbers and the values are the URLs of the images to display.",
@@ -26,9 +26,8 @@
                   "type": "string"
                },
                "floor": {
-                  "description": "The floor of the building that the vertex is on. Must be an integer.",
-                  "type": "number",
-                  "multipleOf": 1
+                  "description": "The floor of the building that the vertex is on.",
+                  "type": "string"
                },
                "location": {
                   "description": "An array in the form [x, y] with the vertex's location.",

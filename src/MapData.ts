@@ -14,7 +14,7 @@ export default class MapData {
         "map_images": Map<string, string>,
         "vertices": Array<{
             "id": string,
-            "floor": number,
+            "floor": string,
             "location": [number, number],
             "tags": string[]
         }>,
@@ -30,7 +30,7 @@ export default class MapData {
         "map_images": Map<string, string>,
         "vertices": Array<{
             "id": string,
-            "floor": number,
+            "floor": string,
             "location": [number, number],
             "tags": string[]
         }>,
@@ -151,20 +151,29 @@ export default class MapData {
         return fastestPath;
     }
 
-    createDevLayerGroup(): L.LayerGroup {
+    createDevLayerGroup(floor: string): L.LayerGroup {
         // Create layer showing points and edges
         const devLayer = L.layerGroup();
         for (const edge of this.mapData.edges) {
-            const p = this.graph.getVertex(this.vertexStringToId.get(edge[0])).getLocation();
-            const q = this.graph.getVertex(this.vertexStringToId.get(edge[1])).getLocation();
-            L.polyline([[p[1], p[0]], [q[1], q[0]]]).addTo(devLayer);
+            const p = this.graph.getVertex(this.vertexStringToId.get(edge[0]));
+            const q = this.graph.getVertex(this.vertexStringToId.get(edge[1]));
+            
+            if (p.getFloor() === floor) {
+                const pLoc = p.getLocation();
+                const qLoc = q.getLocation();
+                L.polyline([[pLoc[1], pLoc[0]], [qLoc[1], qLoc[0]]]).addTo(devLayer);
+            }
         }
-        for (const vertex of this.mapData.vertices) {
-            const color = vertex.tags && (vertex.tags.includes("stairs") || vertex.tags.includes("elevator")) ? "#0000ff" : "#00ff00";
-            L.circle([vertex.location[1], vertex.location[0]], {
-                "radius": 1,
-                "color": color
-            }).bindPopup(`${vertex.id}<br/>${vertex.location[0]}, ${vertex.location[1]}`).addTo(devLayer);
+
+        for (const [vertexString, vertexId] of this.vertexStringToId.entries()) {
+            const vertex = this.graph.getVertex(vertexId);
+            if (vertex.getFloor() === floor) {
+                const color = vertex.hasTag("stairs") || vertex.hasTag("elevator") ? "#0000ff" : "#00ff00";
+                L.circle([vertex.getLocation()[1], vertex.getLocation()[0]], {
+                    "radius": 1,
+                    "color": color
+                }).bindPopup(`${vertexString}<br/>${vertex.getLocation()[0]}, ${vertex.getLocation()[1]}`).addTo(devLayer);
+            }
         }
         
         return devLayer;

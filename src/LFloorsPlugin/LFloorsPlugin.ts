@@ -6,12 +6,14 @@ export default class LFloors extends L.LayerGroup {
     private allFloors: Map<string, L.Layer>;
     private control: LFloorsControl;
     private defaultFloor: string;
+    private lastFloor: L.Layer;
 
     constructor(floors: Map<string, L.Layer>, defaultFloor: string, options?: L.LayerOptions){
         super([], options);
         this.allFloors = floors;
         this.defaultFloor = defaultFloor;
-        this.setFloor(this.defaultFloor);
+        this.lastFloor = this.allFloors.get(this.defaultFloor);
+        super.addLayer(this.allFloors.get(defaultFloor));
     }
 
     getFloors(): IterableIterator<string> {
@@ -19,9 +21,13 @@ export default class LFloors extends L.LayerGroup {
     }
     
     setFloor(floor: string): this {
-        super.clearLayers();
         if (this.allFloors.has(floor)) {
-            super.addLayer(this.allFloors.get(floor));
+            const newFloor = this.allFloors.get(floor);
+            if (newFloor !== this.lastFloor) {
+                super.addLayer(newFloor);
+                super.removeLayer(this.lastFloor);
+                this.lastFloor = newFloor;
+            }
         }
         return this;
     }

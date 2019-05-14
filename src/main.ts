@@ -17,6 +17,7 @@ import "./style.scss";
 // Setup map
 // Churchill is 600ft long and 400ft across
 const bounds = new L.LatLngBounds([0, 0], [400, 600]);
+
 const leafletMap = L.map("map", {
     crs: L.CRS.Simple,
     center: bounds.getCenter(),
@@ -75,8 +76,7 @@ function showClickLoc(e: L.LocationEvent) {
 // @ts-ignore: How bad can it be?
 const map = new MapData(mapData);
 
-console.log(mapData);
-const firstFloorMap = L.imageOverlay(mapData.map_image, bounds, {
+const firstFloorMap = L.imageOverlay(mapData.map_images["1"], bounds, {
     "attribution": "Nathan Varner | <a href='https://www.nathanvarner.com'>https://www.nathanvarner.com</a>"
 });
 const firstFloorLabelGroup = new LRoomLabel();
@@ -93,24 +93,44 @@ for (const room of map.getAllRooms()) {
 }
 const firstFloor = L.layerGroup([firstFloorMap, firstFloorLabelGroup]);
 
-const secondFloorMap = L.imageOverlay("http://127.0.0.1/churchill-map/2nd_floor.svg", bounds);
+const secondFloorMap = L.imageOverlay(mapData.map_images["2"], bounds, {
+    "attribution": "Nathan Varner | <a href='https://www.nathanvarner.com'>https://www.nathanvarner.com</a>"
+});
+const secondFloorLabelGroup = new LRoomLabel();
+for (const room of map.getAllRooms()) {
+    const entrances = room.getEntrances();
+    if (entrances.length > 0 && map.getGraph().getVertex(entrances[0]).getFloor() === "2") {
+        const location = room.getCenter() ? room.getCenter() :
+            map.getGraph().getVertex(room.getEntrances()[0]).getLocation();
+        L.marker([location[1], location[0]], {
+            "icon": L.divIcon({
+                "html": room.getRoomNumber(),
+                className: "room-label"
+            }),
+            "interactive": false
+        }).addTo(secondFloorLabelGroup);
+    }
+}
+const secondFloor = L.layerGroup([secondFloorMap, secondFloorLabelGroup]);
 
 const floorsMap = new Map();
-floorsMap.set("2", secondFloorMap);
+floorsMap.set("2", secondFloor);
 floorsMap.set("1", firstFloor);
 
-const floors = new LFloors(floorsMap, "1");
+const floors = new LFloors(floorsMap, "2");
 floors.addTo(leafletMap);
 
-const devLayer = map.createDevLayerGroup();
-
 // Display the dev layer when dev is enabled
+const devLayer1 = map.createDevLayerGroup("1");
+const devLayer2 = map.createDevLayerGroup("2");
 settings.addWatcher("dev", new Watcher((dev: boolean) => {
     if (dev) {
-        leafletMap.addLayer(devLayer);
+        firstFloor.addLayer(devLayer1);
+        secondFloor.addLayer(devLayer2);
         leafletMap.on("click", showClickLoc);
     } else {
-        leafletMap.removeLayer(devLayer);
+        firstFloor.removeLayer(devLayer1);
+        secondFloor.removeLayer(devLayer2);
         leafletMap.off("click", showClickLoc);
     }
 }));

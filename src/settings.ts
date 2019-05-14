@@ -39,4 +39,4 @@ export class Watcher {
 }
 
 export const settings = new Settings();
-settings.updateData("dev", false);
+settings.updateData("dev", true);

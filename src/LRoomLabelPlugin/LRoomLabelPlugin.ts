@@ -23,17 +23,14 @@ export default class LRoomLabel extends L.LayerGroup {
 
     onAdd(map: L.Map): this {
         super.onAdd(map);
-        const that = this;
-        map.on("zoomend", () => {
-            that.reload();
-        });
+        map.on("zoomend", this.reload, this);
         this.reload();
         return this;
     }
 
     onRemove(map: L.Map): this {
         super.onRemove(map);
-        map.removeEventListener("zoomend");
+        map.removeEventListener("zoomend", this.reload, this);
         return this;
     }
 
