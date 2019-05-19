@@ -1,7 +1,8 @@
 image: node:latest
 
-stage: deploy
-script:
+pages:
+  stage: deploy
+  script:
   - npm install
   - npm run compileMapJson
   - npm run build
