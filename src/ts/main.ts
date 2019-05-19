@@ -3,10 +3,10 @@ import MiniSearch from "minisearch";
 
 import { settings, Watcher } from "./settings";
 
-import * as mapData from "../dist/map.json";
+import * as mapData from "../../dist/map.json";
 import MapData from "./MapData";
-import LSearch, { SearchResult } from "./LSearchPlugin/LSearchPlugin";
-import LFloors from "./LFloorsPlugin/LFloorsPlugin";
+import LSearch, { SearchResult } from "../LSearchPlugin/LSearchPlugin";
+import LFloors from "../LFloorsPlugin/LFloorsPlugin";
 import Room from "./Room";
 
 import "../node_modules/leaflet/dist/leaflet.css";

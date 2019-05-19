@@ -1,6 +1,6 @@
 import * as L from "leaflet";
 
-import Room from "../Room";
+import Room from "../ts/Room";
 
 import "./search.scss";
 

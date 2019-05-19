@@ -9,7 +9,7 @@ import typescript from "rollup-plugin-typescript";
 
 // TODO: Read the SVG files to copy from map.json
 export default {
-    input: "./src/main.ts",
+    input: "./src/ts/main.ts",
     output: {
         file: "./dist/bundle.js",
         format: "iife",

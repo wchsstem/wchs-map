@@ -1,7 +1,7 @@
 import * as L from "leaflet";
 
 import "./floors.scss";
-import MapData from "../MapData";
+import MapData from "../ts/MapData";
 import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
 
 export default class LFloors extends L.LayerGroup {

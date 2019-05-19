@@ -4,7 +4,7 @@ import * as L from "leaflet";
 import { default as rbush } from "rbush";
 
 import "./label.scss";
-import MapData from "../MapData";
+import MapData from "../ts/MapData";
 
 export default class LRoomLabel extends L.LayerGroup {
     private tree: any;

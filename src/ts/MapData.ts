@@ -2,7 +2,7 @@ import * as L from "leaflet";
 
 import Graph from "./Graph";
 import Room from "./Room";
-import Vertex from "./Vertex";
+import Vertex from "../Vertex";
 
 export default class MapData {
     private vertexStringToId: Map<String, number>;
