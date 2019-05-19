@@ -21,7 +21,7 @@
     "htmlparser2": "^3.10.1",
     "rollup": "^1.8.0",
     "rollup-plugin-commonjs": "^9.2.3",
-    "rollup-plugin-copy-assets": "^1.1.0",
+    "rollup-plugin-copy": "^2.0.1",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^4.0.1",
     "rollup-plugin-progress": "^1.1.1",

@@ -79,7 +79,7 @@ function showClickLoc(e: L.LocationEvent) {
 // @ts-ignore: How bad can it be?
 const map = new MapData(mapData);
 const attribution = "Nathan Varner | <a href='https://www.nathanvarner.com'>https://www.nathanvarner.com</a>";
-const floors = new LFloors(["2", "1"], map, bounds, { "attribution": attribution });
+const floors = new LFloors(["2", "1"], "1", map, bounds, { "attribution": attribution });
 floors.addTo(leafletMap);
 
 // Display the dev layer when dev is enabled

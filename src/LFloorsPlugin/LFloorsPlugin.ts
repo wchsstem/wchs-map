@@ -12,12 +12,13 @@ export default class LFloors extends L.LayerGroup {
 
     /**
      * Creates a new layer that allows for switching between floors of a building.
-     * @param floors An array of all the floor numbers. The first in the array is the default
+     * @param floors An array of all the floor numbers
+     * @param defaultFloor The floor to start on
      * @param map The map data object for the map
      * @param bounds The bonds of the map
      * @param options Any extra Leaflet layer options
      */
-    constructor(floors: string[], map: MapData, bounds: L.LatLngBounds, options?: L.LayerOptions) {
+    constructor(floors: string[], defaultFloor: string, map: MapData, bounds: L.LatLngBounds, options?: L.LayerOptions) {
         super([], options);
 
         this.allFloors = new Map();
@@ -27,7 +28,7 @@ export default class LFloors extends L.LayerGroup {
             this.allFloors.set(floor, L.layerGroup([floorMap, floorLabelGroup]));
         }
 
-        this.defaultFloor = floors[0];
+        this.defaultFloor = defaultFloor;
         this.lastFloor = this.allFloors.get(this.defaultFloor);
         super.addLayer(this.lastFloor);
     }

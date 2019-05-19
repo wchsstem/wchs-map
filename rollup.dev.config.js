@@ -1,5 +1,5 @@
 import commonjs from "rollup-plugin-commonjs";
-import copy from "rollup-plugin-copy-assets";
+import copy from "rollup-plugin-copy";
 import json from "rollup-plugin-json";
 import progress from "rollup-plugin-progress";
 import resolve from "rollup-plugin-node-resolve";
@@ -33,10 +33,11 @@ export default {
             preferConst: true
         }),
         copy({
-            assets: [
+            targets: [
                 "./src/index.html",
                 "./src/assets/"
-            ]
+            ],
+            outputFolder: "dist"
         }),
         progress(),
         serve({

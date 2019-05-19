@@ -1,12 +1,20 @@
-html, body, #map {
+html, body {
     width: 100%;
     height: 100%;
     padding: 0;
     margin: 0;
 }
 
+body {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
 #map {
     background-color: #00000000;
+    flex-grow: 1;
 }
 
 .search-bar {
