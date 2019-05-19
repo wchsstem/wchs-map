@@ -9,8 +9,8 @@ import LSearch, { SearchResult } from "../LSearchPlugin/LSearchPlugin";
 import LFloors from "../LFloorsPlugin/LFloorsPlugin";
 import Room from "./Room";
 
-import "../node_modules/leaflet/dist/leaflet.css";
-import "./style.scss";
+import "../../node_modules/leaflet/dist/leaflet.css";
+import "../style.scss";
 
 // Setup map
 // Churchill is 600ft long and 400ft across
