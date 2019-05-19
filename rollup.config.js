@@ -1,19 +1,19 @@
 import commonjs from "rollup-plugin-commonjs";
-import copy from "rollup-plugin-copy-assets";
+import copy from "rollup-plugin-copy";
 import json from "rollup-plugin-json";
 import progress from "rollup-plugin-progress";
 import resolve from "rollup-plugin-node-resolve";
 import scss from "rollup-plugin-scss";
-import serve from "rollup-plugin-serve";
 import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript";
 
 export default {
-    input: "./src/main.ts",
+    input: "./src/ts/main.ts",
     output: {
         file: "./dist/bundle.js",
         format: "iife",
-        compact: true
+        compact: true,
+        sourcemap: false
     },
     plugins: [
         resolve(),
@@ -21,8 +21,10 @@ export default {
             namedExports: {
                 "node_modules/rbush/index.js": ["default"],
                 "node_modules/leaflet/dist/leaflet-src.js": [
-                    "divIcon", "marker", "layerGroup", "popup", "imageOverlay", "CRS", "map", "LatLngBounds", "Control",
-                    "DomElement", "DomEvent", "Util", "polyline", "circle"
+                    "divIcon", "marker", "layerGroup", "popup", "imageOverlay",
+                    "CRS", "map", "LatLngBounds", "Control", "DomElement",
+                    "DomEvent", "Util", "polyline", "circle", "LayerGroup",
+                    "icon"
                 ]
             }
         }),
@@ -33,12 +35,13 @@ export default {
             preferConst: true
         }),
         copy({
-            assets: [
-                "./src/index.html"
-            ]
+            targets: [
+                "./src/index.html",
+                "./src/assets/"
+            ],
+            outputFolder: "dist"
         }),
         terser(),
-        progress(),
-        serve("dist")
+        progress()
     ]
 }

@@ -21,8 +21,10 @@ export default {
             namedExports: {
                 "node_modules/rbush/index.js": ["default"],
                 "node_modules/leaflet/dist/leaflet-src.js": [
-                    "divIcon", "marker", "layerGroup", "popup", "imageOverlay", "CRS", "map", "LatLngBounds", "Control",
-                    "DomElement", "DomEvent", "Util", "polyline", "circle", "LayerGroup", "icon"
+                    "divIcon", "marker", "layerGroup", "popup", "imageOverlay",
+                    "CRS", "map", "LatLngBounds", "Control", "DomElement",
+                    "DomEvent", "Util", "polyline", "circle", "LayerGroup",
+                    "icon"
                 ]
             }
         }),
