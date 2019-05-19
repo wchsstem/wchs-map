@@ -38,7 +38,7 @@
     "typescript": "^3.3.3333"
   },
   "dependencies": {
-    "leaflet": "^1.4.0",
+    "leaflet": "^1.5.1",
     "minisearch": "^1.2.0",
     "rbush": "^2.0.2"
   }
