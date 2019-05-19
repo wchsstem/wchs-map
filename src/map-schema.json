@@ -88,6 +88,15 @@
             "preferredName": {
                "description": "Name for the room that is preferred over the room number. Should also be a member of names.",
                "type": "string"
+            },
+            "center": {
+               "description": "The location where a marker should be placed to represent the room. Does not have to be the geometric center.",
+               "type": "array",
+               "minItems": 2,
+               "maxItems": 2,
+               "items": {
+                  "type": "number"
+               }
             }
          }
       }

@@ -1,23 +1,43 @@
 import * as L from "leaflet";
 
 import "./floors.scss";
+import MapData from "../MapData";
+import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
 
 export default class LFloors extends L.LayerGroup {
-    private allFloors: Map<string, L.Layer>;
+    private allFloors: Map<string, L.LayerGroup>;
     private control: LFloorsControl;
     private defaultFloor: string;
     private lastFloor: L.Layer;
 
-    constructor(floors: Map<string, L.Layer>, defaultFloor: string, options?: L.LayerOptions){
+    /**
+     * Creates a new layer that allows for switching between floors of a building.
+     * @param floors An array of all the floor numbers. The first in the array is the default
+     * @param map The map data object for the map
+     * @param bounds The bonds of the map
+     * @param options Any extra Leaflet layer options
+     */
+    constructor(floors: string[], map: MapData, bounds: L.LatLngBounds, options?: L.LayerOptions) {
         super([], options);
-        this.allFloors = floors;
-        this.defaultFloor = defaultFloor;
+
+        this.allFloors = new Map();
+        for (const floor of floors) {
+            const floorMap = L.imageOverlay(map.getMapImageUrl(floor), bounds);
+            const floorLabelGroup = new LRoomLabel(map, floor);
+            this.allFloors.set(floor, L.layerGroup([floorMap, floorLabelGroup]));
+        }
+
+        this.defaultFloor = floors[0];
         this.lastFloor = this.allFloors.get(this.defaultFloor);
-        super.addLayer(this.allFloors.get(defaultFloor));
+        super.addLayer(this.lastFloor);
     }
 
     getFloors(): IterableIterator<string> {
         return this.allFloors.keys();
+    }
+
+    getFloor(number: string): L.LayerGroup {
+        return this.allFloors.get(number);
     }
     
     setFloor(floor: string): this {

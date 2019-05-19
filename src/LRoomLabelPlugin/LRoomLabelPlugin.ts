@@ -4,15 +4,31 @@ import * as L from "leaflet";
 import { default as rbush } from "rbush";
 
 import "./label.scss";
+import MapData from "../MapData";
 
 export default class LRoomLabel extends L.LayerGroup {
     private tree: any;
     private hiddenLayers: L.Marker[];
 
-    constructor(options?: L.LayerOptions){
+    constructor(map: MapData, floor: string, options?: L.LayerOptions){
         super([], options);
         this.tree = rbush();
         this.hiddenLayers = [];
+
+        for (const room of map.getAllRooms()) {
+            const entrances = room.getEntrances();
+            if (entrances.length > 0 && map.getGraph().getVertex(entrances[0]).getFloor() === floor) {
+                const location = room.getCenter() ? room.getCenter() :
+                    map.getGraph().getVertex(room.getEntrances()[0]).getLocation();
+                this.addLayer(L.marker([location[1], location[0]], {
+                    "icon": L.divIcon({
+                        "html": room.getRoomNumber(),
+                        className: "room-label"
+                    }),
+                    "interactive": false
+                }));
+            }
+        }
     }
 
     addLayer(layer: L.Marker):  this {

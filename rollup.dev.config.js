@@ -22,7 +22,7 @@ export default {
                 "node_modules/rbush/index.js": ["default"],
                 "node_modules/leaflet/dist/leaflet-src.js": [
                     "divIcon", "marker", "layerGroup", "popup", "imageOverlay", "CRS", "map", "LatLngBounds", "Control",
-                    "DomElement", "DomEvent", "Util", "polyline", "circle", "LayerGroup" 
+                    "DomElement", "DomEvent", "Util", "polyline", "circle", "LayerGroup", "icon"
                 ]
             }
         }),
@@ -36,7 +36,8 @@ export default {
             assets: [
                 "./src/index.html",
                 "./src/1st_floor.svg",
-                "./src/2nd_floor.svg"
+                "./src/2nd_floor.svg",
+                "./src/assets/"
             ]
         }),
         progress(),

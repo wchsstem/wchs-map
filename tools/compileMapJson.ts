@@ -24,7 +24,13 @@ import SvgReader from "./SvgReader";
                 }
 
                 for (const key in rooms[roomsKey]) {
-                    mapData.rooms[roomsKey][key] = rooms[roomsKey][key];
+                    if (mapData.rooms[roomsKey][key] === undefined) {
+                        if (roomsKey === "234") {
+                            console.log(key);
+                            console.log(mapData.rooms[roomsKey][key]);
+                        }
+                        mapData.rooms[roomsKey][key] = rooms[roomsKey][key];
+                    }
                 }
             }
         }

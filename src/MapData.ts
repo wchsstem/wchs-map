@@ -9,22 +9,8 @@ export default class MapData {
     private graph: Graph<number, Vertex>;
     private rooms: Map<string, Room>;
     private roomsFromNames: Map<string, Room[]>
-
-    private mapData: {
-        "map_images": Map<string, string>,
-        "vertices": Array<{
-            "id": string,
-            "floor": string,
-            "location": [number, number],
-            "tags": string[]
-        }>,
-        "edges": [string, string][],
-        "rooms": Array<{
-            "vertices": string[],
-            center?: [number, number],
-            "names": string[]
-        }>
-    };
+    private images: Map<string, string>;
+    private edges: [string, string][];
 
     constructor(mapData: {
         "map_images": Map<string, string>,
@@ -41,8 +27,6 @@ export default class MapData {
             "names": string[]
         }>
     }) {
-        this.mapData = mapData;
-
         // Create vertex string to id map
         this.vertexStringToId = new Map();
         let nextVertexId = 0;
@@ -83,7 +67,11 @@ export default class MapData {
             const verticesString: string[] = room.vertices;
             const verticesId: number[] = [];
             for (const vertex of verticesString) {
-                verticesId.push(this.vertexStringToId.get(vertex));
+                if (this.vertexStringToId.get(vertex) === undefined) {
+                    console.log(`Unknown vertex: ${vertex}`);
+                } else {
+                    verticesId.push(this.vertexStringToId.get(vertex));
+                }
             }
 
             this.rooms.set(roomKey, new Room(verticesId, roomKey, room.names, room.center));
@@ -99,6 +87,9 @@ export default class MapData {
                 this.roomsFromNames.get(name).push(room);
             }
         }
+
+        this.images = mapData.map_images;
+        this.edges = mapData.edges;
     }
 
     getGraph(): Graph<number, Vertex> {
@@ -154,11 +145,11 @@ export default class MapData {
     createDevLayerGroup(floor: string): L.LayerGroup {
         // Create layer showing points and edges
         const devLayer = L.layerGroup();
-        for (const edge of this.mapData.edges) {
+        for (const edge of this.edges) {
             const p = this.graph.getVertex(this.vertexStringToId.get(edge[0]));
             const q = this.graph.getVertex(this.vertexStringToId.get(edge[1]));
             
-            if (p.getFloor() === floor) {
+            if (p.getFloor() === floor && q.getFloor() === floor) {
                 const pLoc = p.getLocation();
                 const qLoc = q.getLocation();
                 L.polyline([[pLoc[1], pLoc[0]], [qLoc[1], qLoc[0]]]).addTo(devLayer);
@@ -179,17 +170,51 @@ export default class MapData {
         return devLayer;
     }
 
-    createLayerGroupFromPath(path: number[]): L.LayerGroup {
-        const layer = L.layerGroup();
+    /**
+     * Create layer groups displaying a path, one for each floor of a building.
+     * @param path The path to create a group for
+     */
+    createLayerGroupsFromPath(path: number[]): Map<string, L.LayerGroup> {
+        const layers = new Map();
         let last = path[0];
 
         for (const vert of path) {
-            const p = this.graph.getVertex(last).getLocation();
-            const q = this.graph.getVertex(vert).getLocation();
-            L.polyline([[p[1], p[0]], [q[1], q[0]]], { "color": "#ff0000" }).addTo(layer);
+            const p = this.graph.getVertex(last);
+            const q = this.graph.getVertex(vert);
+            const pLoc = p.getLocation();
+            const qLoc = q.getLocation();
+
+            if (p.getFloor() === q.getFloor()) {
+                // Same floor, draw path from p to q
+                if (!layers.has(p.getFloor())) {
+                    layers.set(p.getFloor(), L.layerGroup());
+                }
+                L.polyline([[pLoc[1], pLoc[0]], [qLoc[1], qLoc[0]]], { "color": "#ff0000" }).addTo(layers.get(p.getFloor()));
+            } else {
+                // Different floor, change floors
+                if (!layers.has(p.getFloor())) {
+                    layers.set(p.getFloor(), L.layerGroup());
+                }
+
+                if (!layers.has(q.getFloor())) {
+                    layers.set(q.getFloor(), L.layerGroup());
+                }
+
+                const stairIcon = L.icon({
+                    iconUrl: "assets/icons/stair.svg",
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                });
+                L.marker([pLoc[1], pLoc[0]], { icon: stairIcon }).addTo(layers.get(p.getFloor()));
+                L.marker([qLoc[1], qLoc[0]], { icon: stairIcon }).addTo(layers.get(q.getFloor()));
+            }
             last = vert;
         }
 
-        return layer;
+        return layers;
+    }
+
+    getMapImageUrl(floorNumber: string): string {
+        return this.images[floorNumber];
     }
 }

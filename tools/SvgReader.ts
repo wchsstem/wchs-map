@@ -90,7 +90,6 @@ export default class SvgReader {
             const height = parseFloat(attribs.height);
             const x = parseFloat(attribs.x);
             const y = parseFloat(attribs.y);
-            // These transformations came from my calculator. I don't know why this is correct, but it is.
             return SvgReader.transformCoords([width / 2 + x, height / 2 + y]);
         } else {
             return SvgReader.transformCoords(SvgReader.calcCenter(new SvgPathInterpreter(attribs.d).getPoints()));
