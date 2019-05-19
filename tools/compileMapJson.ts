@@ -36,7 +36,7 @@ import SvgReader from "./SvgReader";
         }
 
         await new Promise((resolve, reject) => {
-            fs.writeFile("dist/map.json", JSON.stringify(mapData), (err) => {
+            fs.writeFile("src/map_compiled.json", JSON.stringify(mapData), (err) => {
                 reject(err);
             });
         });

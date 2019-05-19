@@ -3,7 +3,7 @@ import MiniSearch from "minisearch";
 
 import { settings, Watcher } from "./settings";
 
-import * as mapData from "../map.json";
+import * as mapData from "../map_compiled.json";
 import MapData from "./MapData";
 import LSearch, { SearchResult } from "../LSearchPlugin/LSearchPlugin";
 import LFloors from "../LFloorsPlugin/LFloorsPlugin";
