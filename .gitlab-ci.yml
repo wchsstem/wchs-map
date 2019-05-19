@@ -1,0 +1,17 @@
+
+image: node:latest
+
+stage: deploy
+  script:
+  - npm install
+  - npm run compileMapJson
+  - npm run build
+  - mv dist public
+  - apt-get update -qq && apt-get install -y -qq sshpass
+  - export SSHPASS=$USER_PASS
+  - sshpass -e scp -o stricthostkeychecking=no -r public/* gitlab@54.39.146.11:/var/www/wchs.nvarner.me/public_html
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
