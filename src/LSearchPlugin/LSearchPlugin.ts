@@ -1,6 +1,8 @@
 import * as L from "leaflet";
 
-import Room from "./Room";
+import Room from "../Room";
+
+import "./search.scss";
 
 export default class LSearch extends L.Control {
     private searchHandler: (query: string) => SearchResult[];

@@ -5,12 +5,11 @@ import { settings, Watcher } from "./settings";
 
 import * as mapData from "../dist/map.json";
 import MapData from "./MapData";
-import LSearch, { SearchResult } from "./LSearchPlugin";
+import LSearch, { SearchResult } from "./LSearchPlugin/LSearchPlugin";
 import LFloors from "./LFloorsPlugin/LFloorsPlugin";
 import Room from "./Room";
 
 import "../node_modules/leaflet/dist/leaflet.css";
-import "./lsearch.scss";
 import "./style.scss";
 
 // Setup map

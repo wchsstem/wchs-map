@@ -35,8 +35,6 @@ export default {
         copy({
             assets: [
                 "./src/index.html",
-                "./src/1st_floor.svg",
-                "./src/2nd_floor.svg",
                 "./src/assets/"
             ]
         }),
