@@ -1,3 +1,9 @@
+@import "include_media";
+
+$breakpoints: (phone: 640px,
+               tablet: 1000px,
+               desktop: 1024px) !default;
+
 html, body {
     width: 100%;
     height: 100%;
@@ -5,23 +11,39 @@ html, body {
     margin: 0;
 }
 
-body {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: row;
-}
-
 #map {
     background-color: #00000000;
     flex-grow: 1;
 }
 
+body {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
 #sidebar {
-    max-width: 25%;
+    max-height: 25%;
+    overflow-y: auto;
     padding: 8px;
     background-color: #eeeeee;
     box-shadow: 2px 0 5px 1px #00000060;
+}
+
+$breakpoints: (phone: 640px,
+               tablet: 1000px,
+               desktop: 1024px);
+
+@include media(">phone") {
+    body {
+        flex-direction: row;
+    }
+
+    #sidebar {
+        max-height: unset;
+        max-width: 25%;
+    }
 }
 
 .search-bar {
