@@ -25,7 +25,7 @@ export default class LFloors extends L.LayerGroup {
         for (const floor of floors) {
             const floorMap = L.imageOverlay(map.getMapImageUrl(floor), bounds);
             const floorLabelGroup = new LRoomLabel(map, floor, (room) => {
-                alert("test");
+                alert(`Room number: ${room.getRoomNumber()}\nRoom names: ${JSON.stringify(room.getNames())}`);
             });
             this.allFloors.set(floor, L.layerGroup([floorMap, floorLabelGroup]));
         }

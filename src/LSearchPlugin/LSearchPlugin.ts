@@ -14,11 +14,10 @@ export default class LSearch extends L.Control {
     private from: Room;
     private to: Room;
 
-    constructor(
-        searchHandler: (query: string) => SearchResult[],
-        selectHandler: (choice: SearchResult) => void,
-        fromToChangeHandler: (from: Room, to: Room) => void,
-        options?: L.ControlOptions) {
+    constructor(searchHandler: (query: string) => SearchResult[],
+                selectHandler: (choice: SearchResult) => void,
+                fromToChangeHandler: (from: Room, to: Room) => void,
+                options?: L.ControlOptions) {
         super(options);
         this.searchHandler = searchHandler;
         this.selectHandler = selectHandler;

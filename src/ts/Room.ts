@@ -2,6 +2,7 @@ export default class Room {
     private vertexEntrances: number[];
     private roomNumber: string;
     private names: string[];
+    private namesAsString: string;
     private center: [number, number] | undefined;
 
     constructor(vertexEntrances: number[], roomNumber: string, names: string[]=[],
@@ -9,6 +10,7 @@ export default class Room {
         this.vertexEntrances = vertexEntrances;
         this.roomNumber = roomNumber;
         this.names = names;
+        this.namesAsString = JSON.stringify(this.names);
         this.center = center;
     }
 
