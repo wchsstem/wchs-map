@@ -5,12 +5,14 @@ import { default as rbush } from "rbush";
 
 import "./label.scss";
 import MapData from "../ts/MapData";
+import Room from "../ts/Room";
 
 export default class LRoomLabel extends L.LayerGroup {
     private tree: any;
     private hiddenLayers: L.Marker[];
 
-    constructor(map: MapData, floor: string, options?: L.LayerOptions){
+    constructor(map: MapData, floor: string, onLabelClick: (room: Room) => void,
+                options?: L.LayerOptions) {
         super([], options);
         this.tree = rbush();
         this.hiddenLayers = [];
@@ -20,13 +22,18 @@ export default class LRoomLabel extends L.LayerGroup {
             if (entrances.length > 0 && map.getGraph().getVertex(entrances[0]).getFloor() === floor) {
                 const location = room.getCenter() ? room.getCenter() :
                     map.getGraph().getVertex(room.getEntrances()[0]).getLocation();
-                this.addLayer(L.marker([location[1], location[0]], {
+                
+                const roomNumberMarker =  L.marker([location[1], location[0]], {
                     "icon": L.divIcon({
                         "html": room.getRoomNumber(),
                         className: "room-label"
                     }),
-                    "interactive": false
-                }));
+                    "interactive": true
+                });
+                roomNumberMarker.on("click", (event) => {
+                    onLabelClick(room);
+                });
+                this.addLayer(roomNumberMarker);
             }
         }
     }

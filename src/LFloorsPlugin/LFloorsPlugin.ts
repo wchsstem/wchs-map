@@ -24,7 +24,9 @@ export default class LFloors extends L.LayerGroup {
         this.allFloors = new Map();
         for (const floor of floors) {
             const floorMap = L.imageOverlay(map.getMapImageUrl(floor), bounds);
-            const floorLabelGroup = new LRoomLabel(map, floor);
+            const floorLabelGroup = new LRoomLabel(map, floor, (room) => {
+                alert("test");
+            });
             this.allFloors.set(floor, L.layerGroup([floorMap, floorLabelGroup]));
         }
 
@@ -82,11 +84,9 @@ export default class LFloors extends L.LayerGroup {
 
 class LFloorsControl extends L.Control {
     private floors: LFloors;
-    private id: string;
 
     constructor(floors: LFloors, options?: L.ControlOptions) {
         super(options);
-        this.id = `${Math.random()}`;
         this.floors = floors;
     }
 
@@ -104,36 +104,25 @@ class LFloorsControl extends L.Control {
         base.classList.add("leaflet-control");
         base.classList.add("leaflet-control-floors");
 
-        const form = document.createElement("form");
         for (const floor of this.floors.getFloors()) {
-            const name = `floors_${this.id}`;
-            const id = `${name}_${floor}`;
-
-            const container = document.createElement("div");
-
-            const radio = document.createElement("input");
-            radio.setAttribute("type", "radio");
-            radio.setAttribute("name", name);
-            radio.setAttribute("id", id);
-            radio.addEventListener("click", () => {
+            const a = document.createElement("a");
+            a.setAttribute("href", "#");
+            a.addEventListener("click", () => {
                 this.floors.setFloor(floor);
+                for (const otherFloorA of Array.from(base.children)) {
+                    otherFloorA.classList.remove("selected");
+                }
+                a.classList.add("selected");
             });
             if (floor === this.floors.getDefaultFloor()) {
-                radio.setAttribute("checked", "checked");
+                a.classList.add("selected");
             }
-
-            const label = document.createElement("label");
-            label.setAttribute("for", id);
 
             const text = document.createTextNode(floor);
             
-            container.appendChild(radio);
-            label.append(text);
-            container.appendChild(label)
-            form.appendChild(container);
+            a.appendChild(text);
+            base.appendChild(a);
         }
-
-        base.appendChild(form);
 
         L.DomEvent.disableClickPropagation(base);
         L.DomEvent.disableScrollPropagation(base);
