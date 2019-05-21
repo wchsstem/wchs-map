@@ -25,7 +25,19 @@ export default class LFloors extends L.LayerGroup {
         for (const floor of floors) {
             const floorMap = L.imageOverlay(map.getMapImageUrl(floor), bounds);
             const floorLabelGroup = new LRoomLabel(map, floor, (room) => {
+                const marker = L.marker([room.getCenter()[1], room.getCenter()[0]], {
+                    icon: L.icon({
+                        iconUrl: "https://leafletjs.com/examples/custom-icons/leaf-green.png",
+                        iconSize:     [38, 95], // size of the icon
+                        shadowSize:   [50, 64], // size of the shadow
+                        iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+                        shadowAnchor: [4, 62],  // the same for the shadow
+                        popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+                    })
+                });
+                super.addLayer(marker);
                 alert(`Room number: ${room.getRoomNumber()}\nRoom names: ${JSON.stringify(room.getNames())}`);
+                super.removeLayer(marker);
             });
             this.allFloors.set(floor, L.layerGroup([floorMap, floorLabelGroup]));
         }

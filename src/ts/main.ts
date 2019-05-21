@@ -21,8 +21,7 @@ const leafletMap = L.map("map", {
     center: bounds.getCenter(),
     maxZoom: 3,
     minZoom: 0,
-    // maxBounds: bounds.pad(0.5),
-    maxBounds: bounds.pad(1),
+    maxBounds: bounds.pad(0.5),
     maxBoundsViscosity: 1
 });
 
