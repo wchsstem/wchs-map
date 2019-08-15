@@ -15,6 +15,7 @@
             border: none;
             font: 12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
             background-color: #ffffff !important;
+            width: 10em;
         }
 
         a.search {
@@ -60,5 +61,10 @@
 
     .hidden {
         display: none;
+    }
+}
+.leaflet-control-search.focus {
+    input.search-bar {
+        width: 30em;
     }
 }

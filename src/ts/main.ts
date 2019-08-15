@@ -53,6 +53,7 @@ const search = LSearch.lSearch(
     (from: Room, to: Room): void => {
         if (pathLayers !== undefined) {
             for (const [key, layer] of pathLayers) {
+                console.log(`Removing: ${key}`);
                 leafletMap.removeLayer(layer);
             }
         }

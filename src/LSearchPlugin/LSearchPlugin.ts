@@ -104,6 +104,13 @@ export default class LSearch extends L.Control {
             }
         });
 
+        searchBar.addEventListener("focus", () => {
+            controlElement.classList.add("focus");
+        });
+        searchBar.addEventListener("blur", () => {
+            controlElement.classList.remove("focus");
+        });
+
         searchButton.addEventListener("click", () => {
             this.onSearch(searchBar.value);
         });

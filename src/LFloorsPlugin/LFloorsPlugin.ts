@@ -92,6 +92,14 @@ export default class LFloors extends L.LayerGroup {
         map.removeControl(this.control);
         return this;
     }
+
+    removeLayer(layer: L.Layer): this {
+        super.removeLayer(layer);
+        for (const [id, floor] of this.allFloors) {
+            floor.removeLayer(layer);
+        }
+        return this;
+    }
 }
 
 class LFloorsControl extends L.Control {
