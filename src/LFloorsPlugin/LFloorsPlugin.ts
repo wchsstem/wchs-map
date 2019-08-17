@@ -4,11 +4,15 @@ import "./floors.scss";
 import MapData from "../ts/MapData";
 import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
 
-export default class LFloors extends L.LayerGroup {
+export class LFloors extends L.LayerGroup {
     private allFloors: Map<string, L.LayerGroup>;
     private control: LFloorsControl;
     private defaultFloor: string;
-    private lastFloor: L.Layer;
+    private currentFloor: L.LayerGroup;
+    private currentFloorNumber: string;
+
+    // Stores all additions to the map by floor number
+    private additions: Map<string, Set<LSomeLayerWithFloor>>;
 
     /**
      * Creates a new layer that allows for switching between floors of a building.
@@ -43,8 +47,11 @@ export default class LFloors extends L.LayerGroup {
         }
 
         this.defaultFloor = defaultFloor;
-        this.lastFloor = this.allFloors.get(this.defaultFloor);
-        super.addLayer(this.lastFloor);
+        this.currentFloor = this.allFloors.get(this.defaultFloor);
+        this.currentFloorNumber = this.defaultFloor;
+        super.addLayer(this.currentFloor);
+
+        this.additions = new Map();
     }
 
     getFloors(): IterableIterator<string> {
@@ -54,23 +61,63 @@ export default class LFloors extends L.LayerGroup {
     getFloor(number: string): L.LayerGroup {
         return this.allFloors.get(number);
     }
+
+    private startDrawingFloor(floor: L.LayerGroup, floorNumber: string) {
+        super.addLayer(floor);
+        if (this.additions.has(floorNumber)) {
+            for (const addition of this.additions.get(floorNumber)) {
+                floor.addLayer(addition);
+            }
+        }
+    }
+
+    private stopDrawingFloor(floor: L.LayerGroup, floorNumber: string) {
+        if (this.additions.has(floorNumber)) {
+            for (const addition of this.additions.get(floorNumber)) {
+                floor.removeLayer(addition);
+            }
+        }
+        super.removeLayer(floor);
+    }
     
     setFloor(floor: string): this {
         if (this.allFloors.has(floor)) {
             const newFloor = this.allFloors.get(floor);
-            if (newFloor !== this.lastFloor) {
-                super.addLayer(newFloor);
-                super.removeLayer(this.lastFloor);
-                this.lastFloor = newFloor;
+            if (newFloor !== this.currentFloor) {
+                this.stopDrawingFloor(this.currentFloor, this.currentFloorNumber);
+
+                this.currentFloor = newFloor;
+                this.currentFloorNumber = floor;
+
+                this.startDrawingFloor(this.currentFloor, this.currentFloorNumber);
             }
         }
         return this;
     }
 
-    /**
-     * Methods such as addLayer should not be called directly.
-     */
-    addLayer(layer: L.Layer): this {
+    addLayer(layer: LSomeLayerWithFloor): this {
+        const floorNumber = layer.getFloorNumber();
+
+        // Add set for floor if it does not exist
+        if (!this.additions.has(floorNumber)) {
+            this.additions.set(floorNumber, new Set());
+        }
+
+        this.additions.get(floorNumber).add(layer);
+
+        if (floorNumber === this.currentFloorNumber) {
+            this.currentFloor.addLayer(layer);
+        }
+
+        return this;
+    }
+
+    removeLayer(layer: LSomeLayerWithFloor): this {
+        const floorNumber = layer.getFloorNumber();
+        if (floorNumber === this.currentFloorNumber) {
+            this.currentFloor.removeLayer(layer);
+        }
+        this.additions.get(floorNumber).delete(layer);
         return this;
     }
 
@@ -90,14 +137,6 @@ export default class LFloors extends L.LayerGroup {
     onRemove(map: L.Map): this {
         super.onRemove(map);
         map.removeControl(this.control);
-        return this;
-    }
-
-    removeLayer(layer: L.Layer): this {
-        super.removeLayer(layer);
-        for (const [id, floor] of this.allFloors) {
-            floor.removeLayer(layer);
-        }
         return this;
     }
 }
@@ -148,5 +187,41 @@ class LFloorsControl extends L.Control {
         L.DomEvent.disableScrollPropagation(base);
 
         return base;
+    }
+}
+
+export type LSomeLayerWithFloor = LLayerWithFloor | LLayerGroupWithFloor;
+
+export interface LLayerWithFloorOptions extends L.LayerOptions {
+    floorNumber?: string;
+}
+
+export class LLayerWithFloor extends L.Layer {
+    private floorNumber: string;
+
+    constructor(options?: LLayerWithFloorOptions) {
+        super(options);
+        if (options) {
+            this.floorNumber = options.floorNumber || "";
+        }
+    }
+
+    public getFloorNumber(): string {
+        return this.floorNumber;
+    }
+}
+
+export class LLayerGroupWithFloor extends L.LayerGroup {
+    private floorNumber: string;
+
+    constructor(layers?: L.Layer[], options?: LLayerWithFloorOptions) {
+        super(layers, options);
+        if (options) {
+            this.floorNumber = options.floorNumber || "";
+        }
+    }
+
+    public getFloorNumber(): string {
+        return this.floorNumber;
     }
 }

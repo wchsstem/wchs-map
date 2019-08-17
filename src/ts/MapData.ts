@@ -3,6 +3,7 @@ import * as L from "leaflet";
 import Graph from "./Graph";
 import Room from "./Room";
 import Vertex from "../Vertex";
+import { LSomeLayerWithFloor, LLayerGroupWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 
 export default class MapData {
     private vertexStringToId: Map<String, number>;
@@ -142,9 +143,9 @@ export default class MapData {
         return fastestPath;
     }
 
-    createDevLayerGroup(floor: string): L.LayerGroup {
+    createDevLayerGroup(floor: string): LSomeLayerWithFloor {
         // Create layer showing points and edges
-        const devLayer = L.layerGroup();
+        const devLayer = new LLayerGroupWithFloor();
         for (const edge of this.edges) {
             const p = this.graph.getVertex(this.vertexStringToId.get(edge[0]));
             const q = this.graph.getVertex(this.vertexStringToId.get(edge[1]));
@@ -166,6 +167,14 @@ export default class MapData {
                 }).bindPopup(`${vertexString}<br/>${vertex.getLocation()[0]}, ${vertex.getLocation()[1]}`).addTo(devLayer);
             }
         }
+
+        // TODO: Find a better solution
+        // @ts-ignore
+        devLayer.floorNumber = floor;
+        // @ts-ignore
+        devLayer.getFloorNumber = function() {
+            return floor;
+        }
         
         return devLayer;
     }
@@ -174,7 +183,7 @@ export default class MapData {
      * Create layer groups displaying a path, one for each floor of a building.
      * @param path The path to create a group for
      */
-    createLayerGroupsFromPath(path: number[]): Map<string, L.LayerGroup> {
+    createLayerGroupsFromPath(path: number[]): Set<LSomeLayerWithFloor> {
         const layers = new Map();
         let last = path[0];
 
@@ -187,17 +196,17 @@ export default class MapData {
             if (p.getFloor() === q.getFloor()) {
                 // Same floor, draw path from p to q
                 if (!layers.has(p.getFloor())) {
-                    layers.set(p.getFloor(), L.layerGroup());
+                    layers.set(p.getFloor(), new LLayerGroupWithFloor([], { floorNumber: p.getFloor() }));
                 }
                 L.polyline([[pLoc[1], pLoc[0]], [qLoc[1], qLoc[0]]], { "color": "#ff0000" }).addTo(layers.get(p.getFloor()));
             } else {
                 // Different floor, change floors
                 if (!layers.has(p.getFloor())) {
-                    layers.set(p.getFloor(), L.layerGroup());
+                    layers.set(p.getFloor(), new LLayerGroupWithFloor([], { floorNumber: p.getFloor() }));
                 }
 
                 if (!layers.has(q.getFloor())) {
-                    layers.set(q.getFloor(), L.layerGroup());
+                    layers.set(q.getFloor(), new LLayerGroupWithFloor([], { floorNumber: q.getFloor() }));
                 }
 
                 const stairIcon = L.icon({
@@ -211,7 +220,7 @@ export default class MapData {
             last = vert;
         }
 
-        return layers;
+        return new Set(layers.values());
     }
 
     getMapImageUrl(floorNumber: string): string {

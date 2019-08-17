@@ -24,7 +24,7 @@ export default {
                     "divIcon", "marker", "layerGroup", "popup", "imageOverlay",
                     "CRS", "map", "LatLngBounds", "Control", "DomElement",
                     "DomEvent", "Util", "polyline", "circle", "LayerGroup",
-                    "icon"
+                    "icon", "Layer"
                 ]
             }
         }),
