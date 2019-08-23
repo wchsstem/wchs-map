@@ -5,7 +5,7 @@ import { default as rbush } from "rbush";
 import "./label.scss";
 import MapData from "../ts/MapData";
 import { genRoomPopup } from "../GenHtml/GenHtml";
-import { SidebarState, SidebarController } from "../SidebarControl/SidebarControl";
+import { SidebarState, SidebarController } from "../Sidebar/SidebarController";
 import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 
 export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFloor {

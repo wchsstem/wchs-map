@@ -6,7 +6,7 @@ import MapData from "./MapData";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../style.scss";
-import { SidebarController } from "../SidebarControl/SidebarControl";
+import { SidebarController } from "../Sidebar/SidebarController";
 import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
 
 // Setup map

@@ -4,7 +4,7 @@ import "./sidebar.scss";
 import { genButton, genElText, genTextInput } from "../GenHtml/GenHtml";
 import Room from "../ts/Room";
 import MapData from "../ts/MapData";
-import { SearchState } from "./SearchState";
+import { RoomSearch } from "./RoomSearch";
 import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 
 export enum SidebarState {
@@ -63,16 +63,12 @@ export class SidebarController {
 
         switch (state) {
             case SidebarState.SEARCH:
-                const searchState = new SearchState(this, this.map);
+                const searchState = new RoomSearch(this, this.map);
 
                 const searchBar = genTextInput("Search");
-                const searchButton = genButton("🔍");
-                searchButton.setAttribute("aria-label", "Search");
-                searchButton.classList.add("search-button");
 
                 const rootEl = document.createElement("div");
                 rootEl.appendChild(searchBar);
-                rootEl.appendChild(searchButton);
 
                 this.sidebar.appendChild(rootEl);
 
@@ -85,14 +81,10 @@ export class SidebarController {
                 results.classList.add("leaflet-style");
                 results.classList.add("hidden");
                 this.sidebar.appendChild(results);
-                this.stateData.set("resultsEl", results);
 
                 searchBar.addEventListener("input", () => {
-                    searchState.onSearch(searchBar.value);
-                });
-
-                searchButton.addEventListener("click", () => {
-                    searchState.onSearch(searchBar.value);
+                    searchState.search(searchBar.value)
+                        .updateElementWithResults(results);
                 });
                 
                 break;
