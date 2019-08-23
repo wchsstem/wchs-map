@@ -62,8 +62,8 @@ export class SidebarController {
         }
 
         switch (state) {
-            case SidebarState.SEARCH:
-                const searchState = new RoomSearch(this, this.map);
+            case SidebarState.SEARCH: {
+                const roomSearch = new RoomSearch(this, this.map);
 
                 const searchBar = genTextInput("Search");
 
@@ -83,23 +83,56 @@ export class SidebarController {
                 this.sidebar.appendChild(results);
 
                 searchBar.addEventListener("input", () => {
-                    searchState.search(searchBar.value)
-                        .updateElementWithResults(results);
+                    roomSearch.search(searchBar.value)
+                        .updateElementWithResults(results, (result) => {
+                            const room = result.getRoom();
+                            this.moveToRoom(room, true);
+                        });
                 });
-                
+                }
                 break;
-            case SidebarState.NAVIGATION:
+            case SidebarState.NAVIGATION: {
+                const roomSearch = new RoomSearch(this, this.map);
                 this.createHeader("Navigation");
                 this.sidebar.classList.add("full");
                 
                 const fromInput = genTextInput("From");
                 const toInput = genTextInput("To");
 
+                const searchResults = document.createElement("div");
+                searchResults.classList.add("results-wrapper");
+                searchResults.classList.add("leaflet-style");
+                searchResults.classList.add("hidden");
+
+                fromInput.addEventListener("input", (e) => {
+                    this.clearNav();
+                    roomSearch.search(fromInput.value)
+                        .updateElementWithResults(searchResults, (result) => {
+                            this.setNavFrom(result.getRoom());
+                            while (searchResults.hasChildNodes()) {
+                                searchResults.removeChild(searchResults.lastChild);
+                            }
+                        });
+                });
+
+                toInput.addEventListener("input", () => {
+                    this.clearNav();
+                    roomSearch.search(toInput.value)
+                        .updateElementWithResults(searchResults, (result) => {
+                            this.setNavTo(result.getRoom());
+                            while (searchResults.hasChildNodes) {
+                                searchResults.removeChild(searchResults.lastChild);
+                            }
+                        });
+                });
+
                 this.stateData.set("fromInput", fromInput);
                 this.stateData.set("toInput", toInput);
 
                 this.sidebar.append(fromInput);
                 this.sidebar.append(toInput);
+                this.sidebar.append(searchResults);
+                }
                 break;
         }
         this.state = state;
@@ -147,16 +180,20 @@ export class SidebarController {
         const to = this.stateData.get("to");
 
         if (from && to) {
-            if (this.pathLayers !== undefined) {
-                for (const layer of this.pathLayers) {
-                    this.floorsLayer.removeLayer(layer);
-                }
-            }
+            this.clearNav();
 
             const path = this.map.findBestPath(from, to);
             this.pathLayers = this.map.createLayerGroupsFromPath(path);
             for (const layer of this.pathLayers) {
                 this.floorsLayer.addLayer(layer);
+            }
+        }
+    }
+
+    private clearNav() {
+        if (this.pathLayers !== undefined) {
+            for (const layer of this.pathLayers) {
+                this.floorsLayer.removeLayer(layer);
             }
         }
     }

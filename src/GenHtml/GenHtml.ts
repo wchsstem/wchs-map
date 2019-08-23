@@ -38,18 +38,16 @@ export function genTextInput(placeholder: string, content?: string): HTMLInputEl
     return inputEl;
 }
 
-export function genRoomPopup(room: Room, navigateToHandler: () => void, navigateFromHandler: () => void): HTMLElement {
+export function genRoomPopup(room: Room, navigateToHandler: () => void): HTMLElement {
     const roomNameTn = document.createTextNode(room.getName());
     const roomNameEl = document.createElement("h2");
     roomNameEl.appendChild(roomNameTn);
 
-    const navToButton = genButton("Navigate to room", navigateToHandler);
-    const navFromButton = genButton("Navigate from room", navigateFromHandler);
+    const navToButton = genButton("Navigate", navigateToHandler);
 
     const rootEl = document.createElement("div");
     rootEl.appendChild(roomNameEl);
     rootEl.appendChild(navToButton);
-    rootEl.appendChild(navFromButton);
     
     return rootEl;
 }

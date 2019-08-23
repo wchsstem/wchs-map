@@ -24,7 +24,7 @@ import SvgReader from "./SvgReader";
                 }
 
                 for (const key in rooms[roomsKey]) {
-                    if (mapData.rooms[roomsKey][key] === undefined) {
+                    if (!mapData.rooms[roomsKey][key]) {
                         mapData.rooms[roomsKey][key] = rooms[roomsKey][key];
                     }
                 }

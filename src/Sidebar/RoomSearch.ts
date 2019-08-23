@@ -42,7 +42,7 @@ export class SearchResults {
         this.sidebarController = sidebarController;
     }
 
-    public updateElementWithResults(resultsEl: HTMLElement) {
+    public updateElementWithResults(resultsEl: HTMLElement, onClickResult: (result: SearchResult) => void) {
         if (this.query === "") {
             resultsEl.classList.add("hidden");
             return;
@@ -59,8 +59,8 @@ export class SearchResults {
             for (const result of this.searchResults) {
                 const element = result.createHtml();
                 element.addEventListener("click", () => {
-                    const room = result.getRoom();
-                    this.sidebarController.moveToRoom(room, true);
+                    onClickResult(result);
+                    resultsEl.classList.add("hidden");
                 });
                 list.appendChild(element);
             }

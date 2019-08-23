@@ -9,6 +9,10 @@ import "../style.scss";
 import { SidebarController } from "../Sidebar/SidebarController";
 import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
 
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/serviceWorker.js");
+}
+
 // Setup map
 // Churchill is 600ft long and 400ft across
 const bounds = new L.LatLngBounds([0, 0], [400, 600]);

@@ -8,43 +8,58 @@ import serve from "rollup-plugin-serve";
 import typescript from "rollup-plugin-typescript";
 
 // TODO: Read the SVG files to copy from map.json
-export default {
-    input: "./src/ts/main.ts",
-    output: {
-        file: "./dist/bundle.js",
-        format: "iife",
-        sourcemap: true
+export default [
+    {
+        input: "./src/ts/main.ts",
+        output: {
+            file: "./dist/bundle.js",
+            format: "iife",
+            sourcemap: true
+        },
+        plugins: [
+            resolve(),
+            commonjs({
+                namedExports: {
+                    "node_modules/rbush/index.js": ["default"],
+                    "node_modules/leaflet/dist/leaflet-src.js": [
+                        "divIcon", "marker", "layerGroup", "popup", "imageOverlay",
+                        "CRS", "map", "LatLngBounds", "Control", "DomElement",
+                        "DomEvent", "Util", "polyline", "circle", "LayerGroup",
+                        "icon", "Layer"
+                    ]
+                }
+            }),
+            typescript(),
+            scss(),
+            json({
+                exclude: "node_modules/**",
+                preferConst: true
+            }),
+            copy({
+                targets: [
+                    "./src/index.html",
+                    "./src/assets/",
+                    "./src/manifest.json"
+                ],
+                outputFolder: "dist"
+            }),
+            progress(),
+            serve({
+                contentBase: "dist",
+                host: "0.0.0.0"
+            })
+        ]
     },
-    plugins: [
-        resolve(),
-        commonjs({
-            namedExports: {
-                "node_modules/rbush/index.js": ["default"],
-                "node_modules/leaflet/dist/leaflet-src.js": [
-                    "divIcon", "marker", "layerGroup", "popup", "imageOverlay",
-                    "CRS", "map", "LatLngBounds", "Control", "DomElement",
-                    "DomEvent", "Util", "polyline", "circle", "LayerGroup",
-                    "icon", "Layer"
-                ]
-            }
-        }),
-        typescript(),
-        scss(),
-        json({
-            exclude: "node_modules/**",
-            preferConst: true
-        }),
-        copy({
-            targets: [
-                "./src/index.html",
-                "./src/assets/"
-            ],
-            outputFolder: "dist"
-        }),
-        progress(),
-        serve({
-            contentBase: "dist",
-            host: "0.0.0.0"
-        })
-    ]
-}
+    {
+        input: "./src/ts/serviceWorker.ts",
+        output: {
+            file: "./dist/serviceWorker.js",
+            format: "iife",
+            sourcemap: true
+        },
+        plugins: [
+            typescript(),
+            progress()
+        ]
+    }
+]

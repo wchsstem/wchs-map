@@ -2,8 +2,6 @@ import * as L from "leaflet";
 
 import "./floors.scss";
 import MapData from "../ts/MapData";
-import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
-import { SidebarController } from "../Sidebar/SidebarController";
 
 export class LFloors extends L.LayerGroup {
     private allFloors: Map<string, L.LayerGroup>;

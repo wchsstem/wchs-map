@@ -13,6 +13,10 @@ $breakpoints: (phone: 640px,
     max-height: 100%;
     box-sizing: border-box;
 
+    h1 {
+        color: #333;
+    }
+
     div {
         display: flex;
     }
@@ -33,7 +37,6 @@ $breakpoints: (phone: 640px,
         padding: 0;
         display: flex;
         overflow-y: auto;
-        // max-height: 70vh;
 
         ul {
             list-style-type: none;
@@ -64,7 +67,7 @@ $breakpoints: (phone: 640px,
     height: 40%;
     overflow-y: auto;
     background-color: #ffffff;
-    box-shadow: 2px 0 5px 1px #00000060;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
 
     .closeButton {
         margin: auto 0 auto auto;

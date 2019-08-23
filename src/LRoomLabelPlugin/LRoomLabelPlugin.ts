@@ -36,9 +36,6 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                 room.setNumberMarker(roomNumberMarker);
                 roomNumberMarker.bindPopup(genRoomPopup(room, () => {
                     sidebarController.setState(SidebarState.NAVIGATION);
-                    sidebarController.setNavFrom(room);
-                }, () => {
-                    sidebarController.setState(SidebarState.NAVIGATION);
                     sidebarController.setNavTo(room);
                 }));
                 roomNumberMarker.on("click", () => {

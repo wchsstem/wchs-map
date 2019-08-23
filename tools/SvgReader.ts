@@ -40,6 +40,18 @@ export default class SvgReader {
                         rooms[SvgReader.getRoomNumber(element)] = {
                             center: SvgReader.calcCenterOfSvg(element)
                         };
+
+                        console.log("Room number: ", SvgReader.getRoomNumber(element));
+
+                        if (SvgReader.getRoomNumber(element) === "room130C") {
+                            console.log("130C:")
+                            console.log(element);
+                        }
+                    }
+
+                    if (!SvgReader.isRoomElement(element) && element.attribs && element.attribs.id) {
+                        
+                        console.log("Strange", element.attribs.id);
                     }
                 }
 
