@@ -1,41 +1,56 @@
 import * as L from "leaflet";
-
 // @ts-ignore rbush does export default
 import { default as rbush } from "rbush";
 
 import "./label.scss";
 import MapData from "../ts/MapData";
-import Room from "../ts/Room";
+import { genRoomPopup } from "../GenHtml/GenHtml";
+import { SidebarState, SidebarController } from "../SidebarControl/SidebarControl";
+import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 
-export default class LRoomLabel extends L.LayerGroup {
+export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFloor {
     private tree: any;
     private hiddenLayers: L.Marker[];
+    private floorNumber: string;
 
-    constructor(map: MapData, floor: string, onLabelClick: (room: Room) => void,
-                options?: L.LayerOptions) {
+    constructor(map: MapData, floorNumber: string,
+    sidebarController: SidebarController, options?: L.LayerOptions) {
         super([], options);
         this.tree = rbush();
         this.hiddenLayers = [];
+        this.floorNumber = floorNumber;
 
         for (const room of map.getAllRooms()) {
             const entrances = room.getEntrances();
-            if (entrances.length > 0 && map.getGraph().getVertex(entrances[0]).getFloor() === floor) {
+            if (entrances.length > 0 && map.getGraph().getVertex(entrances[0]).getFloor() === floorNumber) {
                 const location = room.getCenter() ? room.getCenter() :
                     map.getGraph().getVertex(room.getEntrances()[0]).getLocation();
                 
                 const roomNumberMarker =  L.marker([location[1], location[0]], {
                     "icon": L.divIcon({
-                        "html": room.getRoomNumber(),
+                        "html": room.getShortName(),
                         className: "room-label"
                     }),
                     "interactive": true
                 });
-                roomNumberMarker.on("click", (event) => {
-                    onLabelClick(room);
+                room.setNumberMarker(roomNumberMarker);
+                roomNumberMarker.bindPopup(genRoomPopup(room, () => {
+                    sidebarController.setState(SidebarState.NAVIGATION);
+                    sidebarController.setNavFrom(room);
+                }, () => {
+                    sidebarController.setState(SidebarState.NAVIGATION);
+                    sidebarController.setNavTo(room);
+                }));
+                roomNumberMarker.on("click", () => {
+                    roomNumberMarker.openPopup();
                 });
                 this.addLayer(roomNumberMarker);
             }
         }
+    }
+
+    public getFloorNumber(): string {
+        return this.floorNumber;
     }
 
     addLayer(layer: L.Marker):  this {

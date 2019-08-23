@@ -109,7 +109,7 @@ export default class MapData {
         return this.roomsFromNames.get(name);
     }
 
-    findBastPath(src: Room, dest: Room): number[] {
+    findBestPath(src: Room, dest: Room): number[] {
         let fastestTree = undefined;
         let shortestDistance = undefined;
         let destVertex = undefined;
@@ -145,7 +145,9 @@ export default class MapData {
 
     createDevLayerGroup(floor: string): LSomeLayerWithFloor {
         // Create layer showing points and edges
-        const devLayer = new LLayerGroupWithFloor();
+        const devLayer = new LLayerGroupWithFloor([], {
+            floorNumber: floor
+        });
         for (const edge of this.edges) {
             const p = this.graph.getVertex(this.vertexStringToId.get(edge[0]));
             const q = this.graph.getVertex(this.vertexStringToId.get(edge[1]));
@@ -166,14 +168,6 @@ export default class MapData {
                     "color": color
                 }).bindPopup(`${vertexString}<br/>${vertex.getLocation()[0]}, ${vertex.getLocation()[1]}`).addTo(devLayer);
             }
-        }
-
-        // TODO: Find a better solution
-        // @ts-ignore
-        devLayer.floorNumber = floor;
-        // @ts-ignore
-        devLayer.getFloorNumber = function() {
-            return floor;
         }
         
         return devLayer;

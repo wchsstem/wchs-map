@@ -1,9 +1,14 @@
+import { titleCap } from "./utils";
+
+// TODO: Store floor number
 export default class Room {
     private vertexEntrances: number[];
     private roomNumber: string;
     private names: string[];
     private namesAsString: string;
     private center: [number, number] | undefined;
+    // TODO: Is there a better way to do this?
+    private numberMarker: L.Marker | undefined;
 
     constructor(vertexEntrances: number[], roomNumber: string, names: string[]=[],
         center: [number, number] | undefined=undefined) {
@@ -12,6 +17,15 @@ export default class Room {
         this.names = names;
         this.namesAsString = JSON.stringify(this.names);
         this.center = center;
+        this.numberMarker = undefined;
+    }
+
+    setNumberMarker(numberMarker: L.Marker) {
+        this.numberMarker = numberMarker;
+    }
+
+    getNumberMarker(): L.Marker {
+        return this.numberMarker;
     }
 
     getEntrances(): number[] {
@@ -24,6 +38,22 @@ export default class Room {
 
     getNames(): string[] {
         return this.names;
+    }
+
+    getName(): string {
+        const names = this.getNames();
+        if (names.length > 0) {
+            return `${titleCap(names[0])} (${this.getRoomNumber()})`;
+        }
+        return this.getRoomNumber();
+    }
+
+    getShortName(): string {
+        const names = this.getNames();
+        if (names.length > 0) {
+            return titleCap(names[0]);
+        }
+        return this.getRoomNumber();
     }
 
     getCenter(): [number, number] {

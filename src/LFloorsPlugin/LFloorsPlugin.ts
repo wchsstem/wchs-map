@@ -3,6 +3,7 @@ import * as L from "leaflet";
 import "./floors.scss";
 import MapData from "../ts/MapData";
 import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
+import { SidebarController } from "../SidebarControl/SidebarControl";
 
 export class LFloors extends L.LayerGroup {
     private allFloors: Map<string, L.LayerGroup>;
@@ -12,7 +13,7 @@ export class LFloors extends L.LayerGroup {
     private currentFloorNumber: string;
 
     // Stores all additions to the map by floor number
-    private additions: Map<string, Set<LSomeLayerWithFloor>>;
+    private additions: Map<string, Set<L.Layer>>;
 
     /**
      * Creates a new layer that allows for switching between floors of a building.
@@ -22,28 +23,19 @@ export class LFloors extends L.LayerGroup {
      * @param bounds The bonds of the map
      * @param options Any extra Leaflet layer options
      */
-    constructor(floors: string[], defaultFloor: string, map: MapData, bounds: L.LatLngBounds, options?: L.LayerOptions) {
+    constructor(floors: string[], defaultFloor: string, map: MapData,
+        bounds: L.LatLngBounds, //sidebarController: SidebarController,
+        options?: L.LayerOptions) {
         super([], options);
 
         this.allFloors = new Map();
         for (const floor of floors) {
             const floorMap = L.imageOverlay(map.getMapImageUrl(floor), bounds);
-            const floorLabelGroup = new LRoomLabel(map, floor, (room) => {
-                const marker = L.marker([room.getCenter()[1], room.getCenter()[0]], {
-                    icon: L.icon({
-                        iconUrl: "https://leafletjs.com/examples/custom-icons/leaf-green.png",
-                        iconSize:     [38, 95], // size of the icon
-                        shadowSize:   [50, 64], // size of the shadow
-                        iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
-                        shadowAnchor: [4, 62],  // the same for the shadow
-                        popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
-                    })
-                });
-                super.addLayer(marker);
-                alert(`Room number: ${room.getRoomNumber()}\nRoom names: ${JSON.stringify(room.getNames())}`);
-                super.removeLayer(marker);
-            });
-            this.allFloors.set(floor, L.layerGroup([floorMap, floorLabelGroup]));
+            // const floorLabelGroup = new LRoomLabel(map, floor, (room, roomNumberMarker) => {
+            //     roomNumberMarker.openPopup();
+            // }, sidebarController);
+            // this.allFloors.set(floor, L.layerGroup([floorMap, floorLabelGroup]));
+            this.allFloors.set(floor, L.layerGroup([floorMap]));
         }
 
         this.defaultFloor = defaultFloor;
@@ -80,10 +72,12 @@ export class LFloors extends L.LayerGroup {
         super.removeLayer(floor);
     }
     
-    setFloor(floor: string): this {
+    public setFloor(floor: string): this {
         if (this.allFloors.has(floor)) {
             const newFloor = this.allFloors.get(floor);
             if (newFloor !== this.currentFloor) {
+                this.control.setFloor(this.currentFloorNumber, floor);
+
                 this.stopDrawingFloor(this.currentFloor, this.currentFloorNumber);
 
                 this.currentFloor = newFloor;
@@ -95,9 +89,12 @@ export class LFloors extends L.LayerGroup {
         return this;
     }
 
-    addLayer(layer: LSomeLayerWithFloor): this {
+    public addLayer(layer: LSomeLayerWithFloor): this {
         const floorNumber = layer.getFloorNumber();
+        return this.addLayerToFloor(layer, floorNumber);
+    }
 
+    public addLayerToFloor(layer: L.Layer, floorNumber: string): this {
         // Add set for floor if it does not exist
         if (!this.additions.has(floorNumber)) {
             this.additions.set(floorNumber, new Set());
@@ -117,7 +114,11 @@ export class LFloors extends L.LayerGroup {
         if (floorNumber === this.currentFloorNumber) {
             this.currentFloor.removeLayer(layer);
         }
-        this.additions.get(floorNumber).delete(layer);
+
+        const floorAdditions = this.additions.get(floorNumber);
+        if (floorAdditions) {
+            floorAdditions.delete(layer);
+        }
         return this;
     }
 
@@ -143,10 +144,12 @@ export class LFloors extends L.LayerGroup {
 
 class LFloorsControl extends L.Control {
     private floors: LFloors;
+    private floorControls: Map<String, HTMLElement>;
 
     constructor(floors: LFloors, options?: L.ControlOptions) {
         super(options);
         this.floors = floors;
+        this.floorControls = new Map();
     }
 
     initialize(options: L.ControlOptions): void {
@@ -162,6 +165,8 @@ class LFloorsControl extends L.Control {
         base.classList.add("leaflet-bar");
         base.classList.add("leaflet-control");
         base.classList.add("leaflet-control-floors");
+        
+        this.floorControls.clear();
 
         for (const floor of this.floors.getFloors()) {
             const a = document.createElement("a");
@@ -181,6 +186,8 @@ class LFloorsControl extends L.Control {
             
             a.appendChild(text);
             base.appendChild(a);
+
+            this.floorControls.set(floor, a);
         }
 
         L.DomEvent.disableClickPropagation(base);
@@ -188,15 +195,22 @@ class LFloorsControl extends L.Control {
 
         return base;
     }
+
+    public setFloor(oldFloorNumber: string, newFloorNumber: string) {
+        this.floorControls.get(oldFloorNumber).classList.remove("selected");
+        this.floorControls.get(newFloorNumber).classList.add("selected");
+    }
 }
 
-export type LSomeLayerWithFloor = LLayerWithFloor | LLayerGroupWithFloor;
+export interface LSomeLayerWithFloor extends L.Layer {
+    getFloorNumber(): string;
+}
 
 export interface LLayerWithFloorOptions extends L.LayerOptions {
     floorNumber?: string;
 }
 
-export class LLayerWithFloor extends L.Layer {
+export class LLayerWithFloor extends L.Layer implements LSomeLayerWithFloor {
     private floorNumber: string;
 
     constructor(options?: LLayerWithFloorOptions) {
@@ -211,7 +225,7 @@ export class LLayerWithFloor extends L.Layer {
     }
 }
 
-export class LLayerGroupWithFloor extends L.LayerGroup {
+export class LLayerGroupWithFloor extends L.LayerGroup implements LSomeLayerWithFloor {
     private floorNumber: string;
 
     constructor(layers?: L.Layer[], options?: LLayerWithFloorOptions) {
