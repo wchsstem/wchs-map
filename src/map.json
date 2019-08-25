@@ -5455,7 +5455,8 @@
         "100": {
             "vertices": [
                 "R100:0"
-            ]
+            ],
+            "names": ["health room", "nurse's office", "nurses office"]
         },
         "102": {
             "vertices": [
@@ -5475,7 +5476,9 @@
         "107": {
             "vertices": [
                 "R107:0"
-            ]
+            ],
+            "center": [489.9375, 36.9375],
+            "names": ["guidance", "guidance office", "counselors", "counseling office"]
         },
         "110": {
             "vertices": [
@@ -5560,7 +5563,9 @@
         "127": {
             "vertices": [
                 "R127:0"
-            ]
+            ],
+            "names": ["auditorium", "theater"],
+            "center": [92.75, 89.75]
         },
         "128": {
             "vertices": [
@@ -5605,7 +5610,8 @@
         "137": {
             "vertices": [
                 "R137:0"
-            ]
+            ],
+            "names": ["side gym", "aux gym", "auxiliary gym"]
         },
         "138": {
             "vertices": [
@@ -5615,7 +5621,9 @@
         "139": {
             "vertices": [
                 "R139:0"
-            ]
+            ],
+            "names": ["girls' locker room", "girls locker room"],
+            "center": [193.875, 226.75]
         },
         "140": {
             "vertices": [
@@ -5636,7 +5644,8 @@
             "vertices": [
                 "R143:0",
                 "R143:1"
-            ]
+            ],
+            "names": ["weight room", "exercise room"]
         },
         "144": {
             "vertices": [
@@ -5713,7 +5722,8 @@
         "157": {
             "vertices": [
                 "R157:0"
-            ]
+            ],
+            "names": ["school store"]
         },
         "158": {
             "vertices": [
@@ -5740,7 +5750,9 @@
                 "R163:0",
                 "R163:1",
                 "R163:2"
-            ]
+            ],
+            "center": [317.5, 249.75],
+            "names": ["gym", "main gym"]
         },
         "164": {
             "vertices": [
@@ -5770,7 +5782,9 @@
         "169": {
             "vertices": [
                 "R169:0"
-            ]
+            ],
+            "names": ["boys' locker room", "boys locker room"],
+            "center": [193.875, 276.5]
         },
         "170": {
             "vertices": [
@@ -5951,7 +5965,8 @@
         "130C": {
             "vertices": [
                 "R130C:0"
-            ]
+            ],
+            "center": [280.6875, 151.1875]
         },
         "137A": {
             "vertices": [

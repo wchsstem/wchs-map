@@ -21,9 +21,12 @@ const leafletMap = L.map("map", {
     crs: L.CRS.Simple,
     center: bounds.getCenter(),
     maxZoom: 3,
-    minZoom: 0,
+    minZoom: -1,
     maxBounds: bounds.pad(0.5),
-    maxBoundsViscosity: 1
+    maxBoundsViscosity: 1,
+    zoomSnap: 0,
+    zoomDelta: 0.4,
+    wheelPxPerZoomLevel: 75
 });
 
 leafletMap.fitBounds(bounds);

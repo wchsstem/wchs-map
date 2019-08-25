@@ -12,6 +12,7 @@ $breakpoints: (phone: 640px,
     left: 45px;
     max-height: 100%;
     box-sizing: border-box;
+    overscroll-behavior: none;
 
     h1 {
         color: #333;
