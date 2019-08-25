@@ -70,6 +70,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
     }
 
     reload() {
+        this.centerLabels();
         this.setupRbush();
         this.hideAllLayers();
         this.showVisibleLayers();
@@ -90,6 +91,21 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         const shownLayers = super.getLayers();
         for (const layer of shownLayers) {
             layer["_icon"].classList.add("invisible");
+        }
+    }
+
+    private centerLabels() {
+        for (const label of this.hiddenLayers) {
+            const icon: HTMLElement = label["_icon"];
+            icon.style.width = "";
+            icon.style.height = "";
+
+            const bb: ClientRect = icon.getBoundingClientRect();
+            const width = bb.width;
+            const height = bb.height;
+            
+            icon.style.marginTop = `${-(height / 2)}px`;
+            icon.style.marginLeft = `${-(width / 2)}px`;
         }
     }
 

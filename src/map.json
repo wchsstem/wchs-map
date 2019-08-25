@@ -5641,7 +5641,9 @@
         "144": {
             "vertices": [
                 "R144:0"
-            ]
+            ],
+            "names": ["office", "main office"],
+            "center": [515.875, 158.125]
         },
         "145": {
             "vertices": [
@@ -5706,8 +5708,7 @@
             "names": [
                 "cafeteria",
                 "lunch room"
-            ],
-            "preferredName": "Cafeteria"
+            ]
         },
         "157": {
             "vertices": [
@@ -6319,7 +6320,8 @@
             "vertices": ["R244:0"]
         },
         "245": {
-            "vertices": ["R245:0"]
+            "vertices": ["R245:0"],
+            "names": ["library", "media center"]
         },
         "246": {
             "vertices": ["R246:0"]
