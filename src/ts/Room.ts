@@ -5,6 +5,7 @@ export default class Room {
     private roomNumber: string;
     private floorNumber: string;
     private names: string[];
+    // TODO: Remove this
     private namesAsString: string;
     // TODO: Set this equal to the position of an entrance if there is no center
     private center: [number, number] | undefined;
