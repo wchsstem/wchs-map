@@ -38,7 +38,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                 }));
                 roomNumberMarker.on("click", () => {
                     roomNumberMarker.openPopup();
-                    super.addLayer(L.polygon(room.getOutline()));
+                    super.addLayer(L.polygon(room.getOutline().map((point) => [point[1], point[0]])));
                 });
                 this.addLayer(roomNumberMarker);
             }
@@ -77,11 +77,13 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
 
     private showVisibleLayers() {
         for (const layer of this.hiddenLayers) {
-            const rbushBb = layer["bb"];
-            if (this.tree.search(rbushBb).length === 1) {
-                layer["_icon"].classList.remove("invisible");
-            } else {
-                this.tree.remove(rbushBb);
+            if (LRoomLabel.layerIsMarker(layer)) {
+                const rbushBb = layer["bb"];
+                if (this.tree.search(rbushBb).length === 1) {
+                    layer["_icon"].classList.remove("invisible");
+                } else {
+                    this.tree.remove(rbushBb);
+                }
             }
         }
     }
@@ -89,7 +91,9 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
     private hideAllLayers() {
         const shownLayers = super.getLayers();
         for (const layer of shownLayers) {
-            layer["_icon"].classList.add("invisible");
+            if (LRoomLabel.layerIsMarker(layer)) {
+                layer["_icon"].classList.add("invisible");
+            }
         }
     }
 
@@ -125,5 +129,10 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
             maxX: bb.right,
             maxY: bb.bottom
         };
+    }
+
+    private static layerIsMarker(layer: L.Layer): boolean {
+        // TODO: find a better way to tell (i.e. less hacky, documented, works even if layer is hidden)
+        return "_icon" in layer;
     }
 }

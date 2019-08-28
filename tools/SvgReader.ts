@@ -44,7 +44,6 @@ export default class SvgReader {
                     }
 
                     if (!SvgReader.isRoomElement(element) && element.attribs && element.attribs.id) {
-                        
                         console.log("Strange", element.attribs.id);
                     }
                 }
