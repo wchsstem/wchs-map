@@ -12,6 +12,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
     private tree: any;
     private hiddenLayers: L.Marker[];
     private floorNumber: string;
+    private roomOutlines: L.Polygon[];
 
     constructor(map: MapData, floorNumber: string,
     sidebarController: SidebarController, options?: L.LayerOptions) {
@@ -19,10 +20,21 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         this.tree = rbush();
         this.hiddenLayers = [];
         this.floorNumber = floorNumber;
+        this.roomOutlines = [];
 
         for (const room of map.getAllRooms()) {
-            const entrances = room.getEntrances();
-            if (entrances.length > 0 && map.getGraph().getVertex(entrances[0]).getFloor() === floorNumber) {
+            if (room.getFloorNumber() === floorNumber) {
+                if (room.getOutline()) {
+                    const outline = L.polygon(room.getOutline().map((point) => [point[1], point[0]]));
+                    this.roomOutlines.push(outline);
+                    super.addLayer(outline);
+                    if (floorNumber === "2") {
+                        console.log(room)
+                    }
+                } else {
+                    console.log("Bad room", room);
+                }
+
                 const location = room.getCenter();
                 const roomNumberMarker =  L.marker([location[1], location[0]], {
                     "icon": L.divIcon({
@@ -38,7 +50,6 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                 }));
                 roomNumberMarker.on("click", () => {
                     roomNumberMarker.openPopup();
-                    super.addLayer(L.polygon(room.getOutline().map((point) => [point[1], point[0]])));
                 });
                 this.addLayer(roomNumberMarker);
             }
