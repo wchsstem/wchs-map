@@ -13,7 +13,6 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/serviceWorker.js");
 }
 
-// Setup map
 // Churchill is 600ft long and 400ft across
 const bounds = new L.LatLngBounds([0, 0], [400, 600]);
 
@@ -32,10 +31,10 @@ const leafletMap = L.map("map", {
 leafletMap.fitBounds(bounds);
 
 // @ts-ignore: JSON works fine here
-const map = new MapData(mapData);
+const map = new MapData(mapData, bounds);
 
-const attribution = "Nathan Varner | <a href='https://www.nathanvarner.com'>https://www.nathanvarner.com</a>";
-const floors = new LFloors(["2", "1"], "1", map, bounds, { "attribution": attribution });
+const attribution = "<a href='https://www.nathanvarner.com'>Nathan Varner</a>";
+const floors = new LFloors(map, "1", { "attribution": attribution });
 floors.addTo(leafletMap);
 
 const sidebarEl = document.getElementById("sidebar");
@@ -44,7 +43,7 @@ const sidebarController = new SidebarController(sidebarEl, map, floors, leafletM
 floors.addLayer(new LRoomLabel(map, "1", sidebarController));
 floors.addLayer(new LRoomLabel(map, "2", sidebarController));
 
-// Display dev layer, mouse click location when dev is enabled
+// Display dev layer and location of mouse click when dev is enabled
 const devLayer1 = map.createDevLayerGroup("1");
 const devLayer2 = map.createDevLayerGroup("2");
 

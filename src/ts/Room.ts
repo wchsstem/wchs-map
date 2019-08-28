@@ -6,11 +6,13 @@ export default class Room {
     private roomNumber: string;
     private names: string[];
     private namesAsString: string;
+    // TODO: Set this equal to the position of an entrance if there is no center
     private center: [number, number] | undefined;
+    private outline: [number, number][];
     // TODO: Is there a better way to do this?
     private numberMarker: L.Marker | undefined;
 
-    constructor(vertexEntrances: number[], roomNumber: string, names: string[]=[],
+    constructor(vertexEntrances: number[], roomNumber: string, names: string[]=[], outline: [number, number][],
         center: [number, number] | undefined=undefined) {
         this.vertexEntrances = vertexEntrances;
         this.roomNumber = roomNumber;
@@ -18,6 +20,7 @@ export default class Room {
         this.namesAsString = JSON.stringify(this.names);
         this.center = center;
         this.numberMarker = undefined;
+        this.outline = outline;
     }
 
     setNumberMarker(numberMarker: L.Marker) {
@@ -58,5 +61,9 @@ export default class Room {
 
     getCenter(): [number, number] {
         return this.center;
+    }
+
+    getOutline(): [number, number][] {
+        return this.outline;
     }
 }

@@ -5,30 +5,36 @@ import Room from "./Room";
 import Vertex from "../Vertex";
 import { LSomeLayerWithFloor, LLayerGroupWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 
+export type FloorData = {
+    number: string,
+    image: string
+}
+
 export default class MapData {
     private vertexStringToId: Map<String, number>;
     private graph: Graph<number, Vertex>;
     private rooms: Map<string, Room>;
-    private roomsFromNames: Map<string, Room[]>
-    private images: Map<string, string>;
+    private roomsFromNames: Map<string, Room[]>;
+    private floors: FloorData[];
     private edges: [string, string][];
+    private bounds: L.LatLngBounds;
 
     constructor(mapData: {
-        "map_images": Map<string, string>,
-        "vertices": Array<{
-            "id": string,
-            "floor": string,
-            "location": [number, number],
-            "tags": string[]
+        floors: FloorData[],
+        vertices: Array<{
+            id: string,
+            floor: string,
+            location: [number, number],
+            tags: string[]
         }>,
-        "edges": [string, string][],
-        "rooms": Array<{
-            "vertices": string[],
+        edges: [string, string][],
+        rooms: Array<{
+            vertices: string[],
             center?: [number, number],
-            "names": string[]
+            outline: [number, number][],
+            names: string[]
         }>
-    }) {
-        // Create vertex string to id map
+    }, bounds: L.LatLngBounds) {
         this.vertexStringToId = new Map();
         let nextVertexId = 0;
         for (const vertex of mapData.vertices) {
@@ -36,14 +42,11 @@ export default class MapData {
             nextVertexId++;
         }
 
-        // Create graph
         this.graph = new Graph<number, Vertex>();
-        // Load vertices into graph
         for (const vertex of mapData.vertices) {
             this.graph.addVertex(this.vertexStringToId.get(vertex.id), new Vertex(vertex));
         }
 
-        // Load edges into graph
         for (const edge of mapData.edges) {
             const pId = this.vertexStringToId.get(edge[0]);
             const qId = this.vertexStringToId.get(edge[1]);
@@ -61,7 +64,6 @@ export default class MapData {
         // Create map of rooms
         this.rooms = new Map();
         for (const roomKey of Object.keys(mapData.rooms)) {
-            // @ts-ignore: mapData.rooms can be indexed
             const room = mapData.rooms[roomKey];
 
             // Turn the string array into a number array
@@ -75,7 +77,7 @@ export default class MapData {
                 }
             }
 
-            this.rooms.set(roomKey, new Room(verticesId, roomKey, room.names, room.center));
+            this.rooms.set(roomKey, new Room(verticesId, roomKey, room.names, room.outline, room.center));
         }
 
         // Create map of room names
@@ -89,8 +91,13 @@ export default class MapData {
             }
         }
 
-        this.images = mapData.map_images;
+        this.floors = mapData.floors;
         this.edges = mapData.edges;
+        this.bounds = bounds;
+    }
+
+    getBounds(): L.LatLngBounds {
+        return this.bounds;
     }
 
     getGraph(): Graph<number, Vertex> {
@@ -217,7 +224,7 @@ export default class MapData {
         return new Set(layers.values());
     }
 
-    getMapImageUrl(floorNumber: string): string {
-        return this.images[floorNumber];
+    getFloors(): FloorData[] {
+        return this.floors;
     }
 }

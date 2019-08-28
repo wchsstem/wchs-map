@@ -40,6 +40,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                 }));
                 roomNumberMarker.on("click", () => {
                     roomNumberMarker.openPopup();
+                    super.addLayer(L.polygon(room.getOutline()));
                 });
                 this.addLayer(roomNumberMarker);
             }

@@ -3,15 +3,25 @@
    "title": "Map Object",
    "description": "A representation of data for a map",
    "type": "object",
-   "required": ["map_images", "vertices", "edges"],
+   "required": ["floors", "vertices", "edges"],
    "properties": {
-      "map_images": {
-         "description": "An object of URLs for the images that will be displayed as the map. The keys are the floor numbers and the values are the URLs of the images to display.",
-         "type": "object",
-         "patternProperties": {
-            ".*": {
-               "type": "string"
-            }
+      "floors": {
+         "description": "An array of objects representing floors.",
+         "type": "array",
+         "items": {
+            "description": "An object that represents a floor.",
+            "type": "object",
+            "properties": {
+               "number": {
+                  "description": "The number of the floor. Does not have to be a floor; strings such as \"G\" are allowed.",
+                  "type": "string"
+               },
+               "image": {
+                  "description": "A URL to an image of the map of the floor.",
+                  "type": "string"
+               }
+            },
+            "required": ["number", "image"]
          }
       },
       "vertices": {

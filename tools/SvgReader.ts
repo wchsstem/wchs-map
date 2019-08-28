@@ -38,15 +38,9 @@ export default class SvgReader {
                 for (const element of SvgReader.domIterator(dom)) {
                     if (SvgReader.isRoomElement(element)) {
                         rooms[SvgReader.getRoomNumber(element)] = {
-                            center: SvgReader.calcCenterOfSvg(element)
+                            center: SvgReader.calcCenterOfSvg(element),
+                            outline: SvgReader.getRoomOutline(element)
                         };
-
-                        console.log("Room number: ", SvgReader.getRoomNumber(element));
-
-                        if (SvgReader.getRoomNumber(element) === "room130C") {
-                            console.log("130C:")
-                            console.log(element);
-                        }
                     }
 
                     if (!SvgReader.isRoomElement(element) && element.attribs && element.attribs.id) {
@@ -109,9 +103,13 @@ export default class SvgReader {
     }
 
     private static transformCoords(coords: [number, number]): [number, number] {
+        // return [
+        //     0.982665546 * coords[0] + 1.734239229,
+        //     -0.9929277691 * coords[1] + 746.6233232
+        // ];
         return [
-            0.982665546 * coords[0] + 1.734239229,
-            -0.9929277691 * coords[1] + 746.6233232
+            (590.53807 / 600) * coords[0] + 1.734239229,
+            -coords[1] + 745
         ];
     }
 
@@ -123,5 +121,25 @@ export default class SvgReader {
                 index * prev[1] / (index + 1) + curr[1] / (index + 1),
             ];
         })
+    }
+
+    private static getRoomOutline(element: SvgElement): [number, number][] {
+        const attribs = element.attribs;
+    
+        if (attribs.x && attribs.y && attribs.width && attribs.height) {
+            const width = parseFloat(attribs.width);
+            const height = parseFloat(attribs.height);
+            const x = parseFloat(attribs.x);
+            const y = parseFloat(attribs.y);
+            return [[x, y], [x, y + height], [x + width, y + height], [x + width, y]]
+                .map((point: [number, number]) => {
+                    return SvgReader.transformCoords(point);
+                });
+        } else {
+            return new SvgPathInterpreter(attribs.d).getPoints()
+                .map((point: [number, number]) => {
+                    return SvgReader.transformCoords(point);
+                });
+        }
     }
 }

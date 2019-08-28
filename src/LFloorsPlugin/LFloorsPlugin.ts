@@ -6,7 +6,7 @@ import MapData from "../ts/MapData";
 export class LFloors extends L.LayerGroup {
     private allFloors: Map<string, L.LayerGroup>;
     private control: LFloorsControl;
-    private defaultFloor: string;
+    private defaultFloorNumber: string;
     private currentFloor: L.LayerGroup;
     private currentFloorNumber: string;
 
@@ -15,30 +15,25 @@ export class LFloors extends L.LayerGroup {
 
     /**
      * Creates a new layer that allows for switching between floors of a building.
-     * @param floors An array of all the floor numbers
-     * @param defaultFloor The floor to start on
      * @param map The map data object for the map
-     * @param bounds The bonds of the map
+     * @param defaultFloorNumber The number of the floor to start on
      * @param options Any extra Leaflet layer options
      */
-    constructor(floors: string[], defaultFloor: string, map: MapData,
-        bounds: L.LatLngBounds, //sidebarController: SidebarController,
-        options?: L.LayerOptions) {
+    constructor(map: MapData, defaultFloorNumber: string, options: L.LayerOptions) {
         super([], options);
 
         this.allFloors = new Map();
-        for (const floor of floors) {
-            const floorMap = L.imageOverlay(map.getMapImageUrl(floor), bounds);
-            // const floorLabelGroup = new LRoomLabel(map, floor, (room, roomNumberMarker) => {
-            //     roomNumberMarker.openPopup();
-            // }, sidebarController);
-            // this.allFloors.set(floor, L.layerGroup([floorMap, floorLabelGroup]));
-            this.allFloors.set(floor, L.layerGroup([floorMap]));
+
+        // Reversing the array means that floors are ordered intuitively in the JSON (1, 2, 3...) and intuitively in the
+        // control (higher floors on top)
+        for (const floorData of map.getFloors().reverse()) {
+            const floorMap = L.imageOverlay(floorData.image, map.getBounds());
+            this.allFloors.set(floorData.number, L.layerGroup([floorMap]));
         }
 
-        this.defaultFloor = defaultFloor;
-        this.currentFloor = this.allFloors.get(this.defaultFloor);
-        this.currentFloorNumber = this.defaultFloor;
+        this.defaultFloorNumber = defaultFloorNumber;
+        this.currentFloor = this.allFloors.get(this.defaultFloorNumber);
+        this.currentFloorNumber = this.defaultFloorNumber;
         super.addLayer(this.currentFloor);
 
         this.additions = new Map();
@@ -121,14 +116,13 @@ export class LFloors extends L.LayerGroup {
     }
 
     getDefaultFloor(): string {
-        return this.defaultFloor;
+        return this.defaultFloorNumber;
     }
 
     onAdd(map: L.Map): this {
         super.onAdd(map);
-        this.control = new LFloorsControl(this, {
-            position: "bottomleft"
-        });
+        this.control = new LFloorsControl(this.getFloors(), this.getDefaultFloor(), (floor) => { this.setFloor(floor) },
+            { position: "bottomleft" });
         this.control.addTo(map);
         return this;
     }
@@ -141,12 +135,17 @@ export class LFloors extends L.LayerGroup {
 }
 
 class LFloorsControl extends L.Control {
-    private floors: LFloors;
+    private floors: IterableIterator<string>;
+    private defaultFloor: string;
+    private setFloorCallback: (floor: string) => void;
     private floorControls: Map<String, HTMLElement>;
 
-    constructor(floors: LFloors, options?: L.ControlOptions) {
+    constructor(floors: IterableIterator<string>, defaultFloor: string, setFloorCallback: (floor: string) => void,
+        options?: L.ControlOptions) {
         super(options);
         this.floors = floors;
+        this.defaultFloor = defaultFloor;
+        this.setFloorCallback = setFloorCallback;
         this.floorControls = new Map();
     }
 
@@ -166,17 +165,17 @@ class LFloorsControl extends L.Control {
         
         this.floorControls.clear();
 
-        for (const floor of this.floors.getFloors()) {
+        for (const floor of this.floors) {
             const a = document.createElement("a");
             a.setAttribute("href", "#");
             a.addEventListener("click", () => {
-                this.floors.setFloor(floor);
+                this.setFloorCallback(floor);
                 for (const otherFloorA of Array.from(base.children)) {
                     otherFloorA.classList.remove("selected");
                 }
                 a.classList.add("selected");
             });
-            if (floor === this.floors.getDefaultFloor()) {
+            if (floor === this.defaultFloor) {
                 a.classList.add("selected");
             }
 

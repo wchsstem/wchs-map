@@ -1,9 +1,15 @@
 {
     "$schema": "./map-schema.json",
-    "map_images": {
-        "1": "assets/map/1st_floor.svg",
-        "2": "assets/map/2nd_floor.svg"
-    },
+    "floors": [
+        {
+            "number": "1",
+            "image": "assets/map/1st_floor.svg"
+        },
+        {
+            "number": "2",
+            "image": "assets/map/2nd_floor.svg"
+        }
+    ],
     "vertices": [
         {
             "id": "I0:6:0",
