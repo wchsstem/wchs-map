@@ -14,8 +14,8 @@ import SvgReader from "./SvgReader";
             });
         }));
 
-        for (const floor in mapData["map_images"]) {
-            const rooms = await new SvgReader(`src/${mapData["map_images"][floor]}`).getPromise();
+        for (const floor of mapData["floors"]) {
+            const rooms = await new SvgReader(`src/${floor["image"]}`).getPromise();
 
             for (const roomsKey in rooms) {
                 if (mapData.rooms[roomsKey] === undefined) {

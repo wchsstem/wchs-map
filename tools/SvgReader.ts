@@ -108,7 +108,7 @@ export default class SvgReader {
         //     -0.9929277691 * coords[1] + 746.6233232
         // ];
         return [
-            (590.53807 / 600) * coords[0] + 1.734239229,
+            (595 / 600) * coords[0] + 1.734239229,
             -coords[1] + 745
         ];
     }
