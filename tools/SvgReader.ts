@@ -103,13 +103,9 @@ export default class SvgReader {
     }
 
     private static transformCoords(coords: [number, number]): [number, number] {
-        // return [
-        //     0.982665546 * coords[0] + 1.734239229,
-        //     -0.9929277691 * coords[1] + 746.6233232
-        // ];
         return [
-            (595 / 600) * coords[0] + 1.734239229,
-            -coords[1] + 745
+            coords[0] - 5.1875,
+            -coords[1] + 750
         ];
     }
 
