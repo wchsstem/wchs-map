@@ -63,8 +63,11 @@ export default class MapData {
 
         // Create map of rooms
         this.rooms = new Map();
+        // TODO: Change to "roomKey in", rename roomKey
         for (const roomKey of Object.keys(mapData.rooms)) {
             const room = mapData.rooms[roomKey];
+
+            const floorNumber = this.graph.getVertex(this.vertexStringToId.get(room.vertices[0])).getFloor();
 
             // Turn the string array into a number array
             const verticesString: string[] = room.vertices;
@@ -77,7 +80,7 @@ export default class MapData {
                 }
             }
 
-            this.rooms.set(roomKey, new Room(verticesId, roomKey, room.names, room.outline, room.center));
+            this.rooms.set(roomKey, new Room(verticesId, roomKey, floorNumber, room.names, room.outline, room.center));
         }
 
         // Create map of room names

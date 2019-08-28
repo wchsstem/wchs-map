@@ -142,8 +142,7 @@ export class SidebarController {
         const location = room.getCenter() ? room.getCenter() :
             this.map.getGraph().getVertex(room.getEntrances()[0]).getLocation();
         this.leafletMap.setView([location[1], location[0]], 3);
-        // TODO: Replace with floor info from Room
-        this.floorsLayer.setFloor(room.getRoomNumber().charAt(0));
+        this.floorsLayer.setFloor(room.getFloorNumber());
         if (openPopup) {
             room.getNumberMarker().openPopup();
         }

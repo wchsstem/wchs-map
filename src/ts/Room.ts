@@ -1,9 +1,9 @@
 import { titleCap } from "./utils";
 
-// TODO: Store floor number
 export default class Room {
     private vertexEntrances: number[];
     private roomNumber: string;
+    private floorNumber: string;
     private names: string[];
     private namesAsString: string;
     // TODO: Set this equal to the position of an entrance if there is no center
@@ -12,10 +12,11 @@ export default class Room {
     // TODO: Is there a better way to do this?
     private numberMarker: L.Marker | undefined;
 
-    constructor(vertexEntrances: number[], roomNumber: string, names: string[]=[], outline: [number, number][],
+    constructor(vertexEntrances: number[], roomNumber: string, floorNumber: string, names: string[]=[], outline: [number, number][],
         center: [number, number] | undefined=undefined) {
         this.vertexEntrances = vertexEntrances;
         this.roomNumber = roomNumber;
+        this.floorNumber = floorNumber;
         this.names = names;
         this.namesAsString = JSON.stringify(this.names);
         this.center = center;
@@ -57,6 +58,10 @@ export default class Room {
             return titleCap(names[0]);
         }
         return this.getRoomNumber();
+    }
+
+    getFloorNumber(): string {
+        return this.floorNumber;
     }
 
     getCenter(): [number, number] {
