@@ -1,4 +1,4 @@
-const CACHE_NAME = "WCHS-map-v0.0";
+const CACHE_NAME = "WCHS-map-v0.1";
 const toCache = [
     "/",
     "/bundle.css",
@@ -42,4 +42,20 @@ self.addEventListener("fetch", (e) => {
                 });
             })
     );
+});
+
+self.addEventListener("activate", (e) => {
+    // Clear all old caches when a new service worker takes over
+    // @ts-ignore: Valid for SW install event
+    e.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cacheName) => {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            )
+        })
+    )
 });
