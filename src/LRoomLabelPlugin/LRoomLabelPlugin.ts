@@ -24,17 +24,6 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
 
         for (const room of map.getAllRooms()) {
             if (room.getFloorNumber() === floorNumber) {
-                if (room.getOutline()) {
-                    const outline = L.polygon(room.getOutline().map((point) => [point[1], point[0]]));
-                    this.roomOutlines.push(outline);
-                    super.addLayer(outline);
-                    if (floorNumber === "2") {
-                        console.log(room)
-                    }
-                } else {
-                    console.log("Bad room", room);
-                }
-
                 const location = room.getCenter();
                 const roomNumberMarker =  L.marker([location[1], location[0]], {
                     "icon": L.divIcon({
@@ -48,9 +37,21 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                     sidebarController.setState(SidebarState.NAVIGATION);
                     sidebarController.setNavTo(room);
                 }));
-                roomNumberMarker.on("click", () => {
-                    roomNumberMarker.openPopup();
-                });
+
+                if (room.getOutline()) {
+                    const outline = L.polygon(room.getOutline().map((point) => [point[1], point[0]]), {
+                        stroke: false,
+                        color: "#7DB534"
+                    });
+                    this.roomOutlines.push(outline);
+                    super.addLayer(outline);
+                    outline.on("click", () => {
+                        roomNumberMarker.openPopup();
+                    });
+                } else {
+                    console.log("Bad room", room);
+                }
+
                 this.addLayer(roomNumberMarker);
             }
         }
