@@ -13,7 +13,12 @@ export class RoomSearch {
         this.sidebarController = sidebarController;
         this.map = map;
         this.miniSearch = new MiniSearch({
-            "fields": ["namesAsString", "roomNumber"],
+            "fields": ["names", "roomNumber"],
+            "extractField": (room: Room, fieldName: string) => {
+                const value = room[fieldName];
+                // Turn arrays (names) into space seperated string
+                return Array.isArray(value) ? value.join(" ") : value;
+            },
             "searchOptions": {
                 "prefix": true
             },
