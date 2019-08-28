@@ -23,9 +23,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         for (const room of map.getAllRooms()) {
             const entrances = room.getEntrances();
             if (entrances.length > 0 && map.getGraph().getVertex(entrances[0]).getFloor() === floorNumber) {
-                const location = room.getCenter() ? room.getCenter() :
-                    map.getGraph().getVertex(room.getEntrances()[0]).getLocation();
-                
+                const location = room.getCenter();
                 const roomNumberMarker =  L.marker([location[1], location[0]], {
                     "icon": L.divIcon({
                         "html": room.getShortName(),

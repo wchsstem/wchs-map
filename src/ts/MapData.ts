@@ -66,7 +66,9 @@ export default class MapData {
         for (const roomNumber in mapData.rooms) {
             const room = mapData.rooms[roomNumber];
 
-            const floorNumber = this.graph.getVertex(this.vertexStringToId.get(room.vertices[0])).getFloor();
+            const someVertex = this.graph.getVertex(this.vertexStringToId.get(room.vertices[0]));
+            const floorNumber = someVertex.getFloor();
+            const center = room.center ? room.center : someVertex.getLocation();
 
             // Turn the string array into a number array
             const verticesString: string[] = room.vertices;
@@ -79,7 +81,8 @@ export default class MapData {
                 }
             }
 
-            this.rooms.set(roomNumber, new Room(verticesId, roomNumber, floorNumber, room.names, room.outline, room.center));
+
+            this.rooms.set(roomNumber, new Room(verticesId, roomNumber, floorNumber, room.names, room.outline, center));
         }
 
         // Create map of room names

@@ -5,14 +5,13 @@ export default class Room {
     private roomNumber: string;
     private floorNumber: string;
     private names: string[];
-    // TODO: Set this equal to the position of an entrance if there is no center
-    private center: [number, number] | undefined;
+    // The center may not be the geometric center. It can be any point that represents the room.
+    private center: [number, number];
     private outline: [number, number][];
-    // TODO: Is there a better way to do this?
     private numberMarker: L.Marker | undefined;
 
-    constructor(vertexEntrances: number[], roomNumber: string, floorNumber: string, names: string[]=[], outline: [number, number][],
-        center: [number, number] | undefined=undefined) {
+    constructor(vertexEntrances: number[], roomNumber: string, floorNumber: string, names: string[]=[],
+        outline: [number, number][], center: [number, number]) {
         this.vertexEntrances = vertexEntrances;
         this.roomNumber = roomNumber;
         this.floorNumber = floorNumber;

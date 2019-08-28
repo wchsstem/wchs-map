@@ -139,8 +139,7 @@ export class SidebarController {
     }
 
     public moveToRoom(room: Room, openPopup: boolean = false) {
-        const location = room.getCenter() ? room.getCenter() :
-            this.map.getGraph().getVertex(room.getEntrances()[0]).getLocation();
+        const location = room.getCenter();
         this.leafletMap.setView([location[1], location[0]], 3);
         this.floorsLayer.setFloor(room.getFloorNumber());
         if (openPopup) {
