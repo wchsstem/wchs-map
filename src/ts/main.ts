@@ -28,7 +28,7 @@ const leafletMap = L.map("map", {
     wheelPxPerZoomLevel: 75
 });
 
-leafletMap.fitBounds(bounds);
+leafletMap.fitBounds(bounds.pad(0.05));
 
 // @ts-ignore: JSON works fine here
 const map = new MapData(mapData, bounds);
