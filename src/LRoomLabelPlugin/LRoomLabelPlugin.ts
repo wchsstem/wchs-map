@@ -5,8 +5,8 @@ import { default as rbush } from "rbush";
 import "./label.scss";
 import MapData from "../ts/MapData";
 import { genRoomPopup } from "../GenHtml/GenHtml";
-import { SidebarState, SidebarController } from "../Sidebar/SidebarController";
 import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
+import { showRoomInfo } from "../Sidebar/SidebarController";
 
 export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFloor {
     private tree: any;
@@ -14,8 +14,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
     private floorNumber: string;
     private roomOutlines: L.Polygon[];
 
-    constructor(map: MapData, floorNumber: string,
-    sidebarController: SidebarController, options?: L.LayerOptions) {
+    constructor(map: MapData, floorNumber: string, options?: L.LayerOptions) {
         super([], options);
         this.tree = rbush();
         this.hiddenLayers = [];
@@ -33,10 +32,9 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                     "interactive": true
                 });
                 room.setNumberMarker(roomNumberMarker);
-                roomNumberMarker.bindPopup(genRoomPopup(room, () => {
-                    sidebarController.setState(SidebarState.NAVIGATION);
-                    sidebarController.setNavTo(room);
-                }));
+                roomNumberMarker.on("click", () => {
+                    showRoomInfo(room);
+                });
 
                 if (room.getOutline()) {
                     const outline = L.polygon(room.getOutline().map((point) => [point[1], point[0]]), {
@@ -46,7 +44,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                     this.roomOutlines.push(outline);
                     super.addLayer(outline);
                     outline.on("click", () => {
-                        roomNumberMarker.openPopup();
+                        showRoomInfo(room);
                     });
                 } else {
                     console.log("Bad room", room);

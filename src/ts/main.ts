@@ -1,7 +1,7 @@
 import * as L from "leaflet";
 
 import { settings, Watcher } from "./settings";
-import * as mapData from "../map_compiled.json";
+import * as mapDataJson from "../map_compiled.json";
 import MapData from "./MapData";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
@@ -10,8 +10,6 @@ import { createSidebar } from "../Sidebar/SidebarController";
 import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "leaflet-sidebar-v2";
-import { RoomSearch } from "../Sidebar/RoomSearch";
-import { genTextInput } from "../GenHtml/GenHtml";
 
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/serviceWorker.js");
@@ -20,7 +18,7 @@ if ("serviceWorker" in navigator) {
 // Churchill is 600ft long and 400ft across
 const bounds = new L.LatLngBounds([0, 0], [400, 600]);
 
-const leafletMap = L.map("map", {
+const map = L.map("map", {
     crs: L.CRS.Simple,
     center: bounds.getCenter(),
     maxZoom: 3,
@@ -32,40 +30,40 @@ const leafletMap = L.map("map", {
     wheelPxPerZoomLevel: 75
 });
 
-leafletMap.fitBounds(bounds.pad(0.05));
+map.fitBounds(bounds.pad(0.05));
 
 // @ts-ignore: JSON works fine here
-const map = new MapData(mapData, bounds);
+const mapData = new MapData(mapDataJson, bounds);
 
 const attribution = "<a href='https://www.nathanvarner.com' target='_blank'>Nathan Varner</a>";
-const floors = new LFloors(map, "1", { "attribution": attribution });
-floors.addTo(leafletMap);
+const floors = new LFloors(mapData, "1", { "attribution": attribution });
+floors.addTo(map);
 
 // Create sidebar
-createSidebar(leafletMap, map);
+createSidebar(map, mapData);
 
-// floors.addLayer(new LRoomLabel(map, "1", sidebarController));
-// floors.addLayer(new LRoomLabel(map, "2", sidebarController));
+floors.addLayer(new LRoomLabel(mapData, "1"));
+floors.addLayer(new LRoomLabel(mapData, "2"));
 
 // Display dev layer and location of mouse click when dev is enabled
-const devLayer1 = map.createDevLayerGroup("1");
-const devLayer2 = map.createDevLayerGroup("2");
+const devLayer1 = mapData.createDevLayerGroup("1");
+const devLayer2 = mapData.createDevLayerGroup("2");
 
 const locationPopup = L.popup();
 function showClickLoc(e: L.LocationEvent) {
     locationPopup.setLatLng(e.latlng)
         .setContent(`${e.latlng.lng}, ${e.latlng.lat}`)
-        .openOn(leafletMap);
+        .openOn(map);
 }
 
 settings.addWatcher("dev", new Watcher((dev: boolean) => {
     if (dev) {
         floors.addLayer(devLayer1);
         floors.addLayer(devLayer2);
-        leafletMap.on("click", showClickLoc);
+        map.on("click", showClickLoc);
     } else {
         floors.removeLayer(devLayer1);
         floors.removeLayer(devLayer2);
-        leafletMap.off("click", showClickLoc);
+        map.off("click", showClickLoc);
     }
 }));

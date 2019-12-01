@@ -7,8 +7,16 @@ import "./sidebar.scss";
 import Room from "../ts/Room";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 
+let sidebar: Sidebar | null = null;
+
 export function createSidebar(map: L.Map, mapData: MapData) {
-    new Sidebar(map, mapData);
+    sidebar = new Sidebar(map, mapData);
+}
+
+export function showRoomInfo(room: Room) {
+    if (sidebar !== null) {
+        sidebar.openInfoForRoom(room);
+    }
 }
 
 class Sidebar {
@@ -56,10 +64,7 @@ class Sidebar {
         searchBar.addEventListener("input", () => {
             roomSearch.search(searchBar.value).updateElementWithResults(resultContainer, (result) => {
                 const room = result.getRoom();
-                thiz.sidebar.removePanel("info");
-                thiz.sidebar.addPanel(this.createInfoPanel(room));
-                thiz.sidebar.open("info");
-                thiz.moveToRoom(room);
+                thiz.openInfoForRoom(room);
             });
         });
 
@@ -112,6 +117,13 @@ class Sidebar {
             title: "Room Info",
             pane: infoPane
         };
+    }
+
+    public openInfoForRoom(room: Room) {
+        this.sidebar.removePanel("info");
+        this.sidebar.addPanel(this.createInfoPanel(room));
+        this.sidebar.open("info");
+        this.moveToRoom(room);
     }
 
     // Utils
