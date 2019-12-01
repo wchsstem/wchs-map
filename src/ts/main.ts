@@ -6,10 +6,12 @@ import MapData from "./MapData";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../style.scss";
-import { SidebarController } from "../Sidebar/SidebarController";
+import { createSidebar } from "../Sidebar/SidebarController";
 import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "leaflet-sidebar-v2";
+import { RoomSearch } from "../Sidebar/RoomSearch";
+import { genTextInput } from "../GenHtml/GenHtml";
 
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/serviceWorker.js");
@@ -32,27 +34,15 @@ const leafletMap = L.map("map", {
 
 leafletMap.fitBounds(bounds.pad(0.05));
 
-const sidebar = L.control.sidebar({
-    container: "sidebar",
-    closeButton: true
-}).addTo(leafletMap);
-
-sidebar.addPanel({
-    "id": "search",
-    "tab": "<i class=\"fas fa-search-location\"></i>",
-    "title": "Search",
-    "pane": "<input type=\"text\" id=\"searchbar\"></input>"
-});
-
 // @ts-ignore: JSON works fine here
 const map = new MapData(mapData, bounds);
+
+// Create sidebar
+createSidebar(leafletMap, map);
 
 const attribution = "<a href='https://www.nathanvarner.com' target='_blank'>Nathan Varner</a>";
 const floors = new LFloors(map, "1", { "attribution": attribution });
 floors.addTo(leafletMap);
-
-// const sidebarEl = document.getElementById("sidebar");
-// const sidebarController = new SidebarController(sidebarEl, map, floors, leafletMap);
 
 // floors.addLayer(new LRoomLabel(map, "1", sidebarController));
 // floors.addLayer(new LRoomLabel(map, "2", sidebarController));

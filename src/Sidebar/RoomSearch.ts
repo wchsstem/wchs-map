@@ -2,16 +2,13 @@ import MiniSearch from "minisearch";
 
 import Room from "../ts/Room";
 import MapData from "../ts/MapData";
-import { SidebarController } from "./SidebarController";
 
 export class RoomSearch {
-    private sidebarController: SidebarController;
-    private map: MapData;
+    private mapData: MapData;
     private miniSearch: any;
 
-    constructor(sidebarController: SidebarController, map: MapData) {
-        this.sidebarController = sidebarController;
-        this.map = map;
+    constructor(mapData: MapData) {
+        this.mapData = mapData;
         this.miniSearch = new MiniSearch({
             "fields": ["names", "roomNumber"],
             "extractField": (room: Room, fieldName: string) => {
@@ -24,27 +21,25 @@ export class RoomSearch {
             },
             "idField": "roomNumber"
         });
-        this.miniSearch.addAll(this.map.getAllRooms());
+        this.miniSearch.addAll(this.mapData.getAllRooms());
     }
 
     public search(query: string): SearchResults {
         const results = this.miniSearch.search(query).map((result: { "id": string }) => {
-            return new SearchResult(this.map.getRoom(result.id));
+            return new SearchResult(this.mapData.getRoom(result.id));
         });
         
-        return new SearchResults(query, results, this.sidebarController);
+        return new SearchResults(query, results);
     }
 }
 
 export class SearchResults {
     private query: string;
     private searchResults: SearchResult[];
-    private sidebarController: SidebarController;
 
-    constructor(query: string, searchResults: SearchResult[], sidebarController: SidebarController) {
+    constructor(query: string, searchResults: SearchResult[]) {
         this.query = query;
         this.searchResults = searchResults;
-        this.sidebarController = sidebarController;
     }
 
     public updateElementWithResults(resultsEl: HTMLElement, onClickResult: (result: SearchResult) => void) {
@@ -65,7 +60,6 @@ export class SearchResults {
                 const element = result.createHtml();
                 element.addEventListener("click", () => {
                     onClickResult(result);
-                    resultsEl.classList.add("hidden");
                 });
                 list.appendChild(element);
             }

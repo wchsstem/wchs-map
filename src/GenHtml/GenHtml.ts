@@ -23,12 +23,16 @@ export function genButton(label: string, onClick?: () => void): HTMLElement {
     return rootEl;
 }
 
-export function genTextInput(placeholder: string, content?: string): HTMLInputElement {
+export function genTextInput(placeholder: string, content?: string, border: boolean = true): HTMLInputElement {
     const inputEl = document.createElement("input");
     inputEl.classList.add("leaflet-style");
     inputEl.classList.add("search-bar");
     inputEl.setAttribute("type", "text");
     inputEl.setAttribute("placeholder", placeholder);
+
+    if (!border) {
+        inputEl.classList.add("no-border");
+    }
 
     if (content) {
         const contentTn = document.createTextNode(content);

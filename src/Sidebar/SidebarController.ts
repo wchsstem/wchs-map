@@ -1,198 +1,159 @@
 import * as L from "leaflet";
+import { RoomSearch } from "./RoomSearch";
+import { genTextInput } from "../GenHtml/GenHtml";
+import MapData from "../ts/MapData";
 
 import "./sidebar.scss";
-import { genButton, genElText, genTextInput } from "../GenHtml/GenHtml";
 import Room from "../ts/Room";
-import MapData from "../ts/MapData";
-import { RoomSearch } from "./RoomSearch";
-import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
+import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 
-export enum SidebarState {
-    SEARCH,
-    NAVIGATION
+export function createSidebar(map: L.Map, mapData: MapData) {
+    new Sidebar(map, mapData);
 }
 
-export class SidebarController {
-    private sidebar: HTMLElement;
-    private state: SidebarState;
-    private stateData: Map<string, any>;
-    private map: MapData;
-    private floorsLayer: LFloors;
-    private leafletMap: L.Map;
-    private pathLayers: Set<LSomeLayerWithFloor>;
+class Sidebar {
+    private map: L.Map;
+    private sidebar: L.Control.Sidebar;
+    private floorsLayer: LFloors | null;
 
-    constructor(sidebar: HTMLElement, map: MapData, floorsLayer: LFloors, leafletMap: L.Map) {
-        this.sidebar = sidebar;
-        this.stateData = new Map();
+    constructor(map: L.Map, mapData: MapData) {
         this.map = map;
-        this.floorsLayer = floorsLayer;
-        this.leafletMap = leafletMap;
-        this.setState(SidebarState.SEARCH);
-    }
-
-    public getStateData(key: string): any {
-        return this.stateData.get(key);
-    }
-
-    public createHeader(title: string) {
-        const label = genElText("h1", title);
-
-        const closeButton = genButton("Close", () => {
-            this.setState(SidebarState.SEARCH);
+        this.sidebar = L.control.sidebar({
+            autopan: true,
+            container: "sidebar",
+            closeButton: true
         });
-        closeButton.classList.add("closeButton");
+        this.sidebar.addTo(this.map);
 
-        const rootEl = document.createElement("div");
-        rootEl.append(label);
-        rootEl.append(closeButton);
+        this.floorsLayer = null;
+        this.map.eachLayer((layer) => {
+            // @ts-ignore: Truthy if layer is LFloors, otherwise falsy
+            if (layer.getDefaultFloor) {
+                this.floorsLayer = <LFloors> layer;
+            }
+        });
 
-        this.sidebar.append(rootEl);
+        const roomSearch = new RoomSearch(mapData);
+        this.sidebar.addPanel(this.createSearchPanel(roomSearch));
     }
 
-    public setState(state: SidebarState) {
-        if (this.state == state) {
-            return;
-        }
+    // Search panel
+    private createSearchPanel(roomSearch: RoomSearch) {
+        const searchBarContainer = document.createElement("div");
+        searchBarContainer.classList.add("search-wrapper");
 
-        this.stateData.clear();
+        const searchBar = genTextInput("Search");
+        searchBarContainer.appendChild(searchBar);
 
-        this.sidebar.className = "";
-        while (this.sidebar.hasChildNodes()) {
-            this.sidebar.removeChild(this.sidebar.lastChild);
-        }
+        const resultContainer = document.createElement("div");
+        resultContainer.classList.add("results-wrapper");
+        resultContainer.classList.add("leaflet-style");
+        resultContainer.classList.add("hidden");
 
-        switch (state) {
-            case SidebarState.SEARCH: {
-                const roomSearch = new RoomSearch(this, this.map);
+        const thiz = this;
+        searchBar.addEventListener("input", () => {
+            roomSearch.search(searchBar.value).updateElementWithResults(resultContainer, (result) => {
+                const room = result.getRoom();
+                thiz.sidebar.removePanel("info");
+                thiz.sidebar.addPanel(this.createInfoPanel(room));
+                thiz.sidebar.open("info");
+                thiz.moveToRoom(room);
+            });
+        });
 
-                const searchBar = genTextInput("Search");
+        const searchPane = Sidebar.createPaneElement("Search", [searchBarContainer, resultContainer]);
 
-                const rootEl = document.createElement("div");
-                rootEl.appendChild(searchBar);
-
-                this.sidebar.appendChild(rootEl);
-
-                this.sidebar.classList.add("leaflet-control");
-                L.DomEvent.disableClickPropagation(this.sidebar);
-                L.DomEvent.disableScrollPropagation(this.sidebar);
-
-                const results = document.createElement("div");
-                results.classList.add("results-wrapper");
-                results.classList.add("leaflet-style");
-                results.classList.add("hidden");
-                this.sidebar.appendChild(results);
-
-                searchBar.addEventListener("input", () => {
-                    roomSearch.search(searchBar.value)
-                        .updateElementWithResults(results, (result) => {
-                            const room = result.getRoom();
-                            this.moveToRoom(room, true);
-                        });
-                });
-                }
-                break;
-            case SidebarState.NAVIGATION: {
-                const roomSearch = new RoomSearch(this, this.map);
-                this.createHeader("Navigation");
-                this.sidebar.classList.add("full");
-                
-                const fromInput = genTextInput("From");
-                const toInput = genTextInput("To");
-
-                const searchResults = document.createElement("div");
-                searchResults.classList.add("results-wrapper");
-                searchResults.classList.add("leaflet-style");
-                searchResults.classList.add("hidden");
-
-                fromInput.addEventListener("input", (e) => {
-                    this.clearNav();
-                    roomSearch.search(fromInput.value)
-                        .updateElementWithResults(searchResults, (result) => {
-                            this.setNavFrom(result.getRoom());
-                            while (searchResults.hasChildNodes()) {
-                                searchResults.removeChild(searchResults.lastChild);
-                            }
-                        });
-                });
-
-                toInput.addEventListener("input", () => {
-                    this.clearNav();
-                    roomSearch.search(toInput.value)
-                        .updateElementWithResults(searchResults, (result) => {
-                            this.setNavTo(result.getRoom());
-                            while (searchResults.hasChildNodes) {
-                                searchResults.removeChild(searchResults.lastChild);
-                            }
-                        });
-                });
-
-                this.stateData.set("fromInput", fromInput);
-                this.stateData.set("toInput", toInput);
-
-                this.sidebar.append(fromInput);
-                this.sidebar.append(toInput);
-                this.sidebar.append(searchResults);
-                }
-                break;
-        }
-        this.state = state;
+        return {
+            id: "search",
+            tab: "<i class=\"fas fa-search-location\"></i>",
+            title: "Search",
+            pane: searchPane
+        };
     }
 
-    public moveToRoom(room: Room, openPopup: boolean = false) {
+    // Info panel
+    private createInfoPanel(room: Room) {
+        const paneElements = [];
+
+        const roomName = document.createElement("h2");
+        const roomNameText = document.createTextNode(room.getName());
+        roomName.appendChild(roomNameText);
+        paneElements.push(roomName);
+
+        const roomFloor = document.createElement("span");
+        const roomFloorText = document.createTextNode(`Floor: ${room.getFloorNumber()}`);
+        roomFloor.appendChild(roomFloorText);
+        paneElements.push(roomFloor);
+
+        const names = room.getNames();
+        if (names.length > 0) {
+            const roomNamesDesc = document.createElement("h3");
+            const roomNamesDescText = document.createTextNode("Known as:");
+            roomNamesDesc.appendChild(roomNamesDescText);
+            paneElements.push(roomNamesDesc);
+
+            const roomNames = document.createElement("ul");
+            for (const name of names) {
+                const roomName = document.createElement("li");
+                const roomNameText = document.createTextNode(name);
+                roomName.appendChild(roomNameText);
+                roomNames.appendChild(roomName);
+            };
+            paneElements.push(roomNames);
+        }
+
+        const infoPane = Sidebar.createPaneElement("Room Info", paneElements);
+
+        return {
+            id: "info",
+            tab: "<i class=\"fas fa-info\"></i>",
+            title: "Room Info",
+            pane: infoPane
+        };
+    }
+
+    // Utils
+    private moveToRoom(room: Room, openPopup: boolean = false) {
         const location = room.getCenter();
-        this.leafletMap.setView([location[1], location[0]], 3);
-        this.floorsLayer.setFloor(room.getFloorNumber());
+        this.map.setView([location[1], location[0]], 3);
+        if (this.floorsLayer !== null) {
+            this.floorsLayer.setFloor(room.getFloorNumber());
+        }
         if (openPopup) {
             room.getNumberMarker().openPopup();
         }
     }
 
-    public setNavFrom(from: Room) {
-        if (this.state !== SidebarState.NAVIGATION) {
-            console.error("Cannot set nav from if state is not NAVIGATION");
-            return;
-        }
-
-        this.stateData.set("from", from);
-        const fromInput: HTMLInputElement = this.stateData.get("fromInput");
-        fromInput.value = from.getName();
-
-        this.calcNavIfNeeded();
-    }
-
-    public setNavTo(to: Room) {
-        if (this.state !== SidebarState.NAVIGATION) {
-            console.error("Cannot set nav to if state is not NAVIGATION");
-            return;
-        }
-
-        this.stateData.set("to", to);
-        const toInput: HTMLInputElement = this.stateData.get("toInput");
-        toInput.value = to.getName();
-
-        this.calcNavIfNeeded();
-    }
-
-    private calcNavIfNeeded() {
-        const from = this.stateData.get("from");
-        const to = this.stateData.get("to");
-
-        if (from && to) {
-            this.clearNav();
-
-            const path = this.map.findBestPath(from, to);
-            this.pathLayers = this.map.createLayerGroupsFromPath(path);
-            for (const layer of this.pathLayers) {
-                this.floorsLayer.addLayer(layer);
+    private static createPaneElement(title: string, content: HTMLElement | HTMLElement[]): HTMLElement {
+        const pane = document.createElement("div");
+        pane.classList.add("leaflet-sidebar-pane");
+    
+        const header = document.createElement("h1");
+        header.classList.add("leaflet-sidebar-header");
+        pane.appendChild(header);
+    
+        const titleNode = document.createTextNode(title);
+        header.appendChild(titleNode);
+    
+        const closeSpan = document.createElement("span");
+        closeSpan.classList.add("leaflet-sidebar-close");
+        header.appendChild(closeSpan);
+    
+        const closeIcon = document.createElement("i");
+        closeIcon.classList.add("fas");
+        closeIcon.classList.add("fa-caret-left");
+        closeSpan.appendChild(closeIcon);
+    
+        // @ts-ignore: Checking for array type
+        if (content.length) {
+            for (const el of content) {
+                pane.appendChild(el);
             }
+        } else {
+            // @ts-ignore: Single HTML element
+            pane.appendChild(content);
         }
-    }
-
-    private clearNav() {
-        if (this.pathLayers !== undefined) {
-            for (const layer of this.pathLayers) {
-                this.floorsLayer.removeLayer(layer);
-            }
-        }
+        
+        return pane;
     }
 }

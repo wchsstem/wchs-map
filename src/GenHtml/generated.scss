@@ -7,6 +7,10 @@
     margin: 4px;
 }
 
+.no-border {
+    border: 0;
+}
+
 a.button {
     text-decoration: none;
     color: #000000 !important;
@@ -20,4 +24,5 @@ a:hover.button {
 
 .search-bar {
     margin-bottom: 5px;
+    width: 100%;
 }
