@@ -27,8 +27,10 @@ class Sidebar {
 
         this.floorsLayer = null;
         this.map.eachLayer((layer) => {
+            console.log(layer);
             // @ts-ignore: Truthy if layer is LFloors, otherwise falsy
             if (layer.getDefaultFloor) {
+                console.log("Got it");
                 this.floorsLayer = <LFloors> layer;
             }
         });

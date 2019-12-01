@@ -37,12 +37,12 @@ leafletMap.fitBounds(bounds.pad(0.05));
 // @ts-ignore: JSON works fine here
 const map = new MapData(mapData, bounds);
 
-// Create sidebar
-createSidebar(leafletMap, map);
-
 const attribution = "<a href='https://www.nathanvarner.com' target='_blank'>Nathan Varner</a>";
 const floors = new LFloors(map, "1", { "attribution": attribution });
 floors.addTo(leafletMap);
+
+// Create sidebar
+createSidebar(leafletMap, map);
 
 // floors.addLayer(new LRoomLabel(map, "1", sidebarController));
 // floors.addLayer(new LRoomLabel(map, "2", sidebarController));
