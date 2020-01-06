@@ -1,17 +1,31 @@
 #sidebar {
-    .search-wrapper {
+    .nav-label {
+        width: 3em;
+        text-align: right;
+    }
+
+    .wrapper {
         background-color: white;
         padding: 0;
         display: flex;
         overflow-y: auto;
     }
 
+    .swap-button {
+        align-self: center;
+        transform: rotate(90deg);
+    }
+
+    .input-wrapper {
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .header-wrapper {
+        margin-top: 0.8em;
+    }
+
     .results-wrapper {
-        background-color: white;
-        padding: 0;
-        display: flex;
-        overflow-y: auto;
-    
         ul {
             list-style-type: none;
             padding: 0;
@@ -33,5 +47,30 @@
     
     .results-wrapper.hidden {
         display: none;
+    }
+
+    h2 {
+        margin: 0;
+    }
+
+    .button {
+        font-size: 12pt;
+        width: 40px;
+        height: 40px;
+    }
+
+    .push-right {
+        margin-left: auto;
+    }
+
+    .settings-container {
+        list-style-type: none;
+        display: flex;
+        flex-direction: column;
+
+        .setting-container {
+            display: flex;
+            align-items: center;
+        }
     }
 }

@@ -10,6 +10,7 @@ import { createSidebar } from "../Sidebar/SidebarController";
 import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "leaflet-sidebar-v2";
+import { Portal } from "../Portal/Portal";
 
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/serviceWorker.js");

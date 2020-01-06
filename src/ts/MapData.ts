@@ -215,10 +215,16 @@ export default class MapData {
                     layers.set(q.getFloor(), new LLayerGroupWithFloor([], { floorNumber: q.getFloor() }));
                 }
 
-                const stairIcon = L.icon({
-                    iconUrl: "assets/icons/stair.svg",
-                    iconSize: [32, 32],
-                    iconAnchor: [16, 16]
+                // TODO: Add proper floor indexing so we don't have to hope that floors are integers
+                const pFloorNumber = parseInt(p.getFloor());
+                const qFloorNumber = parseInt(q.getFloor());
+
+                
+                // These icons aren't actually stairs, but they look close enough to get the idea across
+                // They also look much nicer than my poor attempt at creating a stair icon
+                const stairIcon = L.divIcon({
+                    html: pFloorNumber < qFloorNumber ? "<i class=\"fas fa-sort-amount-up-alt stair-icon\"></i>" : "<i class=\"fas fa-sort-amount-down-alt stair-icon\"></i>",
+                    iconSize: [36, 36]
                 });
                 L.marker([pLoc[1], pLoc[0]], { icon: stairIcon }).addTo(layers.get(p.getFloor()));
                 L.marker([qLoc[1], qLoc[0]], { icon: stairIcon }).addTo(layers.get(q.getFloor()));
