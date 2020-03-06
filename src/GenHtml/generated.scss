@@ -1,0 +1,28 @@
+.leaflet-style {
+    border-radius: 4px;
+    font: 14px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    padding: 4px;
+    background-color: #ffffff;
+    margin: 4px;
+}
+
+.no-border {
+    border: 0;
+}
+
+a.button {
+    text-decoration: none;
+    color: #000000 !important;
+    line-height: 30px;
+    text-align: center;
+}
+
+a:hover.button {
+    background-color: #f4f4f4;
+}
+
+.search-bar {
+    margin-bottom: 5px;
+    width: 100%;
+}

@@ -1,0 +1,47 @@
+{
+  "name": "churchill-map",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "compileMapJson": "ts-node tools/compileMapJson.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c",
+    "watch": "rollup -c rollup.dev.config.js -w"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/domhandler": "^2.4.1",
+    "@types/htmlparser2": "^3.10.0",
+    "@types/leaflet": "^1.4.3",
+    "@types/rbush": "^2.0.2",
+    "babelrc-rollup": "^3.0.0",
+    "domhandler": "^2.4.2",
+    "htmlparser2": "^3.10.1",
+    "rollup": "^1.8.0",
+    "rollup-plugin-commonjs": "^9.2.3",
+    "rollup-plugin-copy": "^2.0.1",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^4.0.1",
+    "rollup-plugin-progress": "^1.1.1",
+    "rollup-plugin-scss": "^1.0.1",
+    "rollup-plugin-serve": "^1.0.1",
+    "rollup-plugin-terser": "^4.0.4",
+    "rollup-plugin-typescript": "^1.0.1",
+    "sass": "^1.17.3",
+    "svg-path-parser": "^1.1.0",
+    "svg-polygon-center": "^1.0.2",
+    "ts-node": "^8.0.3",
+    "tslib": "^1.9.3",
+    "typescript": "^3.3.3333"
+  },
+  "dependencies": {
+    "leaflet": "^1.6.0",
+    "leaflet-sidebar-v2": "^3.2.1",
+    "minisearch": "^1.2.0",
+    "node-sass": "^4.12.0",
+    "rbush": "^2.0.2"
+  }
+}

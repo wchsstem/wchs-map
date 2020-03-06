@@ -1,0 +1,110 @@
+{
+   "$schema": "http://json-schema.org/draft-04/schema#",
+   "title": "Map Object",
+   "description": "A representation of data for a map",
+   "type": "object",
+   "required": ["floors", "vertices", "edges"],
+   "properties": {
+      "floors": {
+         "description": "An array of objects representing floors.",
+         "type": "array",
+         "items": {
+            "description": "An object that represents a floor.",
+            "type": "object",
+            "properties": {
+               "number": {
+                  "description": "The number of the floor. Does not have to be a floor; strings such as \"G\" are allowed.",
+                  "type": "string"
+               },
+               "image": {
+                  "description": "A URL to an image of the map of the floor.",
+                  "type": "string"
+               }
+            },
+            "required": ["number", "image"]
+         }
+      },
+      "vertices": {
+         "description": "A map of all vertices that are in the map's graph. The key is the ID for the vertex.",
+         "type": "array",
+         "items": {
+            "type": "object",
+            "required": ["id", "floor", "location"],
+            "properties": {
+               "id": {
+                  "description": "A unique identifier for the vertex.",
+                  "type": "string"
+               },
+               "floor": {
+                  "description": "The floor of the building that the vertex is on.",
+                  "type": "string"
+               },
+               "location": {
+                  "description": "An array in the form [x, y] with the vertex's location.",
+                  "type": "array",
+                  "maxItems": 2,
+                  "minItems": 2,
+                  "items": {
+                     "type": "number"
+                  }
+               },
+               "tags": {
+                  "description": "Tags that can be applied to nodes to note special things like stairs.",
+                  "type": "array",
+                  "items": {
+                     "type": "string",
+                     "enum": ["stairs", "elevator"]
+                  }
+               }
+            }
+         },
+         "otherProperties": false
+      }
+   },
+   "edges": {
+      "description": "Array of edges represented by arrays. All edges are undirected, so order does not matter.",
+      "type": "array",
+      "items": {
+         "type": "array",
+         "minItems": 2,
+         "maxItems": 2,
+         "items": {
+            "type": "string"
+         }
+      }
+   },
+   "rooms": {
+      "description": "Array of rooms. Shows which vertices are entrances for which rooms, metadata about rooms, etc.",
+      "type": "array",
+      "items": {
+         "type": "object",
+         "properties": {
+            "vertices": {
+               "description": "An array of vertex IDs that are entrances to the room",
+               "type": "array",
+               "minItems": 1,
+               "items": {
+                  "type": "string"
+               }
+            },
+            "names": {
+               "description": "Alternate names for a room, like \"cafeteria\".",
+               "type": "array",
+               "minItems": 1,
+               "items": {
+                  "type": "string"
+               }
+            },
+            "center": {
+               "description": "The location where a marker should be placed to represent the room. Does not have to be the geometric center.",
+               "type": "array",
+               "minItems": 2,
+               "maxItems": 2,
+               "items": {
+                  "type": "number"
+               }
+            }
+         }
+      }
+   }
+}

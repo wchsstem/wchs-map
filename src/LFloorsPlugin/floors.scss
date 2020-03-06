@@ -1,0 +1,12 @@
+.leaflet-control-floors {
+        display: flex;
+        flex-direction: column;
+        
+        a.selected {
+            background-color: #e0e0e0;
+        }
+
+        a {
+            font-size: 16px;
+        }
+}

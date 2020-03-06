@@ -1,0 +1,22 @@
+.room-label {
+    text-shadow: 1px 1px 0 #ffffff,
+        -1px 1px 0 #ffffff,
+        1px -1px 0 #ffffff,
+        -1px -1px 0 #ffffff,
+        0 0 3px #ffffff;
+    transition: opacity 0.2s;
+}
+
+.room-label.invisible {
+    opacity: 0;
+}
+
+.stair-icon {
+    font-size: 24px;
+    border-radius: 3px;
+    padding: 6px;
+}
+
+.leaflet-div-icon {
+    border-radius: 100px;
+}

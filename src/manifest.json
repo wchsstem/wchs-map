@@ -1,0 +1,20 @@
+{
+    "short_name": "WCHS Map",
+    "name": "Churchill Map",
+    "icons": [
+        {
+            "src": "/assets/app-icon/icon-192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/assets/app-icon/icon-512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "start_url": "/",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "theme_color": "#ffffff"
+}
