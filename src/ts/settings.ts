@@ -45,5 +45,4 @@ export class Watcher {
 // The only places that should update settings are right below here, to set defaults, and in the Settings sidebar code,
 // to allow the user to change them.
 export const settings = new Settings();
-settings.updateData("Enable Portal Panel (alpha)", false);
 settings.updateData("dev", false);

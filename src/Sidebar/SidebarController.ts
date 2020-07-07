@@ -7,7 +7,6 @@ import "./sidebar.scss";
 import Room from "../ts/Room";
 import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 import { settings, Watcher } from "../ts/settings";
-import { Portal } from "../Portal/Portal";
 
 let sidebar: Sidebar | null = null;
 
@@ -55,14 +54,6 @@ class Sidebar {
 
         this.mapData = mapData;
 
-        settings.addWatcher("Enable Portal Panel (alpha)", new Watcher((enable) => {
-            if (enable) {
-                this.sidebar.addPanel(this.createPortalPanel());
-            } else {
-                this.sidebar.removePanel("portal");
-            }
-        }));
-
         const roomSearch = new RoomSearch(mapData);
         this.sidebar.addPanel(this.createSearchPanel(roomSearch));
 
@@ -74,60 +65,9 @@ class Sidebar {
         this.toInput = toInput;
         this.sidebar.addPanel(navPanel);
 
+        this.sidebar.addPanel(this.createSchedulePanel(roomSearch));
+
         this.sidebar.addPanel(this.createSettingsPanel());
-    }
-
-    // Portal panel
-    private createPortalPanel(): L.Control.PanelOptions {
-        const beta = Sidebar.elWithText("p", "Currently in alpha. Doesn't work yet.");
-        const info = Sidebar.elWithText("p", "Download your Portal page and upload the HTML file here.");
-
-        const siteUpload = document.createElement("input");
-        siteUpload.setAttribute("type", "file");
-        siteUpload.setAttribute("accept", "text/html");
-
-        const errorBox = document.createElement("p");
-
-        siteUpload.addEventListener("change", () => {
-            if (siteUpload.files.length === 0) {
-                return;
-            }
-
-            errorBox.innerText = "";
-
-            const file = siteUpload.files[0];
-            if (file.type !== "text/html") {
-                errorBox.innerText = "Wrong file type uploaded.";
-                return;
-            }
-
-            
-            if(file.size > MAX_FILE_SIZE) {
-                errorBox.innerText = "File size is greater than 2 MB.";
-                return;
-            }
-
-            const reader = new FileReader();
-
-            reader.addEventListener("error", () => {
-                errorBox.innerText = "There was an error reading the file.";
-            });
-
-            reader.addEventListener("load", (result) => {
-                errorBox.innerText = result.target.result.toString();
-            });
-
-            reader.readAsText(file);
-        });
-
-        const portalPane = Sidebar.createPaneElement("Search", [siteUpload, errorBox]);
-
-        return {
-            id: "portal",
-            tab: "<i class=\"fas fa-sign-in-alt\"></i>",
-            title: "MCPS Portal",
-            pane: portalPane
-        };
     }
 
     // Search panel
@@ -191,6 +131,48 @@ class Sidebar {
             tab: "<i class=\"fas fa-info\"></i>",
             title: "Room Info",
             pane: infoPane
+        };
+    }
+    
+    // Schedule panel
+    private createSchedulePanel(roomSearch: RoomSearch): L.Control.PanelOptions {
+        const inputsContainer = document.createElement("div");
+        inputsContainer.classList.add("wrapper");
+        inputsContainer.classList.add("input-wrapper");
+
+        function makeUpdatePeriod(period: string): (room?: Room) => void {
+            return (room?: Room): void => {
+                console.log("Room", room);
+                settings.updateData(period, room ? room.getRoomNumber() : "");
+            };
+        }
+
+        for (const [id, name, title] of [
+            ["pd1", "Pd. 1", undefined],
+            ["pd2", "Pd. 2", undefined],
+            ["pd3", "Pd. 3", undefined],
+            ["pd4", "Pd. 4", undefined],
+            ["pd5", "Lunch", "Pd. 5"],
+            ["pd6", "Pd. 6", undefined],
+            ["pd7", "Pd. 7", undefined],
+            ["pd9", "Pd. 9", undefined],
+            ["hr", "HR", "Homeroom"],
+        ]) {
+            const update1 = makeUpdatePeriod(id);
+            const [pd1InputContainer, pd1Input] = Sidebar.createAutocompleteBox(name, roomSearch, update1, update1, title);
+            settings.addWatcher(id, new Watcher((newValue: string) => {
+                pd1Input.value = newValue ? newValue : "";
+            }));
+            inputsContainer.appendChild(pd1InputContainer);
+        }
+        
+        const searchPane = Sidebar.createPaneElement("Schedule", [inputsContainer]);
+
+        return {
+            id: "schedule",
+            tab: "<i class=\"fas fa-calendar-alt\"></i>",
+            title: "Schedule",
+            pane: searchPane
         };
     }
 
@@ -451,6 +433,71 @@ class Sidebar {
         }
         
         return pane;
+    }
+
+    /**
+     * Create a box with room name/number autocomplete
+     * @param label 
+     * @param roomSearch 
+     * @param onSelectRoom 
+     * @param onNoRoomSelected 
+     * @param title 
+     * @returns Autocomplete container element, input element
+     */
+    private static createAutocompleteBox(
+        label: string,
+        roomSearch: RoomSearch,
+        onSelectRoom?: (room: Room) => void,
+        onNoRoomSelected?: () => void,
+        title?: string
+    ): [HTMLElement, HTMLInputElement] {
+        const container = document.createElement("div");
+        container.classList.add("wrapper");
+        container.classList.add("input-wrapper");
+
+        const inputContainer = document.createElement("div");
+        inputContainer.classList.add("wrapper");
+
+        const inputLabel = Sidebar.elWithText("label", label);
+        inputLabel.classList.add("leaflet-style");
+        inputLabel.classList.add("no-border");
+        inputLabel.classList.add("nav-label");
+        if (title) {
+            inputLabel.setAttribute("title", title);
+        }
+        inputContainer.appendChild(inputLabel);
+
+        const input = genTextInput();
+        inputContainer.appendChild(input);
+
+        container.appendChild(inputContainer);
+
+        // Result container
+        // Attached to the text box, disappears when the box loses focus
+        const resultContainer = document.createElement("div");
+        resultContainer.classList.add("wrapper");
+        resultContainer.classList.add("results-wrapper");
+        resultContainer.classList.add("leaflet-style");
+        resultContainer.classList.add("hidden");
+        container.appendChild(resultContainer);
+
+        let roomSelected = false;
+        input.addEventListener("input", () => {
+            roomSelected = false;
+            roomSearch.search(input.value).updateElementWithResults(resultContainer, (result) => {
+                input.value = result.getRoom().getRoomNumber();
+                resultContainer.classList.add("hidden");
+                console.log("test");
+                if (onSelectRoom) {
+                    console.log("Result");
+                    console.log(result);
+                    onSelectRoom(result.getRoom());
+                }
+                roomSelected = true;
+            });
+        });
+        
+        return [container, input];
     }
 
     private static elWithText(elementName: string, content?: string): HTMLElement {
