@@ -140,6 +140,10 @@ class Sidebar {
         inputsContainer.classList.add("wrapper");
         inputsContainer.classList.add("input-wrapper");
 
+        const warning = document.createElement("p");
+        warning.innerText = "This feature is in alpha and doesn't yet work right.";
+        inputsContainer.appendChild(warning);
+
         function makeUpdatePeriod(period: string): (room?: Room) => void {
             return (room?: Room): void => {
                 console.log("Room", room);
@@ -155,17 +159,17 @@ class Sidebar {
             ["pd5", "Lunch", "Pd. 5"],
             ["pd6", "Pd. 6", undefined],
             ["pd7", "Pd. 7", undefined],
-            ["pd9", "Pd. 9", undefined],
+            ["pd8", "Pd. 8", undefined],
             ["hr", "HR", "Homeroom"],
         ]) {
-            const update1 = makeUpdatePeriod(id);
-            const [pd1InputContainer, pd1Input] = Sidebar.createAutocompleteBox(name, roomSearch, update1, update1, title);
+            const update = makeUpdatePeriod(id);
+            const [inputContainer, input] = Sidebar.createAutocompleteBox(name, roomSearch, update, update, title);
             settings.addWatcher(id, new Watcher((newValue: string) => {
-                pd1Input.value = newValue ? newValue : "";
+                input.value = newValue ? newValue : "";
             }));
-            inputsContainer.appendChild(pd1InputContainer);
+            inputsContainer.appendChild(inputContainer);
         }
-        
+
         const searchPane = Sidebar.createPaneElement("Schedule", [inputsContainer]);
 
         return {
