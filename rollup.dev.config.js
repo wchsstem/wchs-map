@@ -48,11 +48,11 @@ export default [
             serve({
                 contentBase: "dist",
                 host: "0.0.0.0",
-                https: {
-                    // Generate via `openssl req -nodes -new -x509 -keyout server.key -out server.cert`
-                    key: fs.readFileSync("./ssl/server.key"),
-                    cert: fs.readFileSync("./ssl/server.cert")
-                }
+                // https: {
+                //     // Generate via `openssl req -nodes -new -x509 -keyout server.key -out server.cert`
+                //     key: fs.readFileSync("./ssl/server.key"),
+                //     cert: fs.readFileSync("./ssl/server.cert")
+                // }
             })
         ]
     },

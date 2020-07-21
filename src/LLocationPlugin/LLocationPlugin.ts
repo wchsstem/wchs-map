@@ -6,11 +6,11 @@ import { settings, Watcher } from "../ts/settings";
 export class LLocation extends L.LayerGroup {
     private control: LLocationControl;
 
+    private positionState: PositionState;
     private latestPosition: [number, number];
     private latestAccuracyRadius: number;
 
     private hidingLocation: boolean;
-
     private accuracyCircle: L.Circle | undefined;
     private positionPoint: L.CircleMarker | undefined;
 
@@ -26,6 +26,8 @@ export class LLocation extends L.LayerGroup {
         }
 
         super([], options);
+
+        this.positionState = PositionState.Unknown;
 
         settings.addWatcher("hiding-location", new Watcher((hidingLocation: boolean) => {
             this.onChangeHidingLocation(hidingLocation);
@@ -62,19 +64,36 @@ export class LLocation extends L.LayerGroup {
     }
 
     private locate(): void {
-        // TODO: Deal with no location yet obtained
-        this.map.flyToBounds(this.accuracyCircle.getBounds().pad(0.05));
+        this.map.flyTo([this.latestPosition[1], this.latestPosition[0]], 2.5);
     }
 
     private onPositionUpdate(latestPosition: Position): void {
         const coords = latestPosition.coords;
 
+        if (LLocation.latLongNearChurchill(coords.latitude, coords.longitude)) {
+            this.setPositionStateNearChurchill(coords);
+        } else {
+            this.setPositionStateNotNearChurchill();
+        }
+    }
+
+    private onPositionError(error: PositionError): void {
+        console.log("Error getting position", error);
+        this.setPositionStateUnknown();
+    }
+
+    private setPositionStateNearChurchill(coords: Coordinates): void {
+        this.positionState = PositionState.NearChurchill;
+
         this.latestAccuracyRadius = LLocation.metersToFeet(coords.accuracy);
         this.latestPosition = LLocation.latLongToChurchillSpace(coords.latitude, coords.longitude);
         const latestPositionLeaflet: [number, number] = [this.latestPosition[1], this.latestPosition[0]];
 
-        if (this.positionPoint) { super.removeLayer(this.positionPoint); }
-        if (this.accuracyCircle) { super.removeLayer(this.accuracyCircle); }
+        // Remove only if these are not null
+        if (this.positionPoint) {
+            super.removeLayer(this.positionPoint);
+            super.removeLayer(this.accuracyCircle);
+        }
 
         this.positionPoint = L.circleMarker(latestPositionLeaflet, { radius: 1 });
         this.accuracyCircle = L.circle(latestPositionLeaflet, {
@@ -86,15 +105,40 @@ export class LLocation extends L.LayerGroup {
             super.addLayer(this.positionPoint);
             super.addLayer(this.accuracyCircle);
         }
+
+        // When near Churchill, location is available
+        this.control.onLocationAvailable();
     }
 
-    private onPositionError(error: PositionError): void {
-        console.log("Error getting position", error);
+    private setPositionStateNotNearChurchill(): void {
+        // TODO: Switch to lower accuracy GPS readings
+        this.positionState = PositionState.NotNearChurchill;
+
+        // Remove only if these are not null
+        if (this.positionPoint) {
+            super.removeLayer(this.positionPoint);
+            super.removeLayer(this.accuracyCircle);
+        }
+
+        // When not near Churchill, location is not available
+        this.control.onLocationNotAvailable();
+    }
+
+    private setPositionStateUnknown(): void {
+        this.positionState = PositionState.Unknown;
+
+        // Remove only if these are not null
+        if (this.positionPoint) {
+            super.removeLayer(this.positionPoint);
+            super.removeLayer(this.accuracyCircle);
+        }
+
+        this.control.onLocationNotAvailable();
     }
 
     private onChangeHidingLocation(hidingLocation: boolean): void {
         this.hidingLocation = hidingLocation;
-        if (this.positionPoint) {
+        if (this.positionPoint && this.positionState == PositionState.NearChurchill) {
             if (this.hidingLocation) {
                 super.removeLayer(this.positionPoint);
                 super.removeLayer(this.accuracyCircle);
@@ -122,7 +166,27 @@ export class LLocation extends L.LayerGroup {
         return [x, y];
     }
 
+    /**
+     * Determines if a lat-long coordinate is near Churchill. Any point within Churchill's campus (school building,
+     * parking lots, fields, etc.) should be near Churchill. Points that are physically close to Churchill may be
+     * considered near. Points far from Churchill should never be considered near.
+     */
+    private static latLongNearChurchill(latitude: number, longitude: number): boolean {
+        // Bounding box completely containing Churchill and school grounds
+        const latMax = 39.04569;
+        const latMin = 39.04068;
+        const longMax = -77.17082;
+        const longMin = -77.17723;
+        return latMax >= latitude && latitude >= latMin && longMax >= longitude && longitude >= longMin;
+    }
+
     private static metersToFeet(meters: number): number {
         return meters * 3.28084;
     }
+}
+
+enum PositionState {
+    Unknown,
+    NearChurchill,
+    NotNearChurchill
 }

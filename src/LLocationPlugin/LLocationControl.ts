@@ -1,9 +1,8 @@
 import * as L from "leaflet";
 
-import { LLocation } from "./LLocationPlugin";
-
 export class LLocationControl extends L.Control {
     private locateCallback: () => void;
+    private button: HTMLElement;
 
     /**
      * Creates a new control that moves the map to the user's location.
@@ -21,20 +20,30 @@ export class LLocationControl extends L.Control {
         base.classList.add("leaflet-control");
         base.classList.add("leaflet-control-floors");
 
-        const a = document.createElement("a");
-        a.setAttribute("href", "#");
-        a.addEventListener("click", this.locateCallback);
+        this.button = document.createElement("a");
+        this.button.setAttribute("href", "#");
+        this.button.classList.add("leaflet-disabled");
 
         const pinIcon = document.createElement("i");
         pinIcon.classList.add("fas");
         pinIcon.classList.add("fa-map-pin");
-        a.appendChild(pinIcon);
+        this.button.appendChild(pinIcon);
 
-        base.appendChild(a);
+        base.appendChild(this.button);
 
         L.DomEvent.disableClickPropagation(base);
         L.DomEvent.disableScrollPropagation(base);
 
         return base;
+    }
+
+    public onLocationAvailable(): void {
+        this.button.addEventListener("click", this.locateCallback);
+        this.button.classList.remove("leaflet-disabled");
+    }
+
+    public onLocationNotAvailable(): void {
+        this.button.removeEventListener("click", this.locateCallback);
+        this.button.classList.add("leaflet-disabled");
     }
 }

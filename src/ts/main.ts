@@ -1,16 +1,20 @@
+import * as mapDataJson from "../map_compiled.json";
+
 import * as L from "leaflet";
+import "../../node_modules/leaflet/dist/leaflet.css";
 
 import { settings, Watcher } from "./settings";
-import * as mapDataJson from "../map_compiled.json";
 import MapData from "./MapData";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
-import "../../node_modules/leaflet/dist/leaflet.css";
-import "../style.scss";
 import { createSidebar } from "../Sidebar/SidebarController";
 import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
-import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
-import "leaflet-sidebar-v2";
 import { LLocation } from "../LLocationPlugin/LLocationPlugin";
+
+import "leaflet-sidebar-v2";
+import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
+
+import "../style.scss";
+import "../assets/fontawesome/all.min.css"
 
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/serviceWorker.js");
