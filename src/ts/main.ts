@@ -10,7 +10,7 @@ import { createSidebar } from "../Sidebar/SidebarController";
 import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "leaflet-sidebar-v2";
-import { Portal } from "../Portal/Portal";
+import { LLocation } from "../LLocationPlugin/LLocationPlugin";
 
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/serviceWorker.js");
@@ -36,9 +36,14 @@ map.fitBounds(bounds.pad(0.05));
 // @ts-ignore: JSON works fine here
 const mapData = new MapData(mapDataJson, bounds);
 
-const attribution = "<a href='https://www.nathanvarner.com' target='_blank'>Nathan Varner</a>";
+const attribution = "<a href='https://www.nathanvarner.com' target='_blank'>© Nathan Varner</a>";
 const floors = new LFloors(mapData, "1", { "attribution": attribution });
 floors.addTo(map);
+
+if ("geolocation" in navigator) {
+    const location = new LLocation({});
+    location.addTo(map);
+}
 
 // Create sidebar
 createSidebar(map, mapData);

@@ -341,19 +341,29 @@ class Sidebar {
         settingsContainer.classList.add("wrapper");
         settingsContainer.classList.add("settings-container");
 
-        for (const [name, value] of settings.getAllSettings()) {
-            let setting = null;
+        settings.addWatcher("setting-display", new Watcher((settingDisplay) => {
+            // Remove current children
+            settingsContainer.innerHTML = "";
 
-            if (typeof value === "string") {
-                setting = Sidebar.createStringSetting(name, value);
-            } else if (typeof value === "boolean") {
-                setting = Sidebar.createBooleanSetting(name, value);
-            }
+            const allSettings = settings.getAllSettings();
 
-            if (setting !== null) {
-                settingsContainer.appendChild(setting);
+            for (const setting of settingDisplay) {
+                let settingElement = null;
+                const displayName = setting["display-name"];
+                const id = setting["id"];
+                const value = allSettings.get(id);
+
+                if (typeof value === "string") {
+                    settingElement = Sidebar.createStringSetting(displayName, id, value);
+                } else if (typeof value === "boolean") {
+                    settingElement = Sidebar.createBooleanSetting(displayName, id, value);
+                }
+
+                if (settingElement !== null) {
+                    settingsContainer.appendChild(settingElement);
+                }
             }
-        }
+        }));
 
         const settingsPane = Sidebar.createPaneElement("Settings", settingsContainer);
 
@@ -376,20 +386,20 @@ class Sidebar {
         return container;
     }
 
-    private static createStringSetting(name: string, value: string): HTMLLIElement {
+    private static createStringSetting(name: string, id: string, value: string): HTMLLIElement {
         const control = genTextInput("", value);
         control.addEventListener("change", () => {
-            settings.updateData(name, control.value);
+            settings.updateData(id, control.value);
         });
         return Sidebar.createSetting(name, control);
     }
 
-    private static createBooleanSetting(name: string, value: boolean): HTMLLIElement {
+    private static createBooleanSetting(name: string, id: string, value: boolean): HTMLLIElement {
         const control = document.createElement("input");
         control.setAttribute("type", "checkbox");
         control.checked = value;
         control.addEventListener("change", () => {
-            settings.updateData(name, control.checked);
+            settings.updateData(id, control.checked);
         });
         return Sidebar.createSetting(name, control);
     }

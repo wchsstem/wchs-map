@@ -1,4 +1,4 @@
-const CACHE_NAME = "WCHS-map-v0.2";
+const CACHE_NAME = "WCHS-map-v0.3";
 const toCache = [
     "/",
     "/bundle.css",

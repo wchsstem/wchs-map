@@ -6,6 +6,7 @@ import resolve from "rollup-plugin-node-resolve";
 import scss from "rollup-plugin-scss";
 import serve from "rollup-plugin-serve";
 import typescript from "rollup-plugin-typescript";
+import * as fs from "fs";
 
 // TODO: Read the SVG files to copy from map.json
 export default [
@@ -25,7 +26,7 @@ export default [
                         "divIcon", "marker", "layerGroup", "popup", "imageOverlay",
                         "CRS", "map", "LatLngBounds", "Control", "DomElement",
                         "DomEvent", "Util", "polyline", "circle", "LayerGroup",
-                        "icon", "Layer", "polygon", "control"
+                        "icon", "Layer", "polygon", "control", "circleMarker"
                     ]
                 }
             }),
@@ -46,7 +47,12 @@ export default [
             progress(),
             serve({
                 contentBase: "dist",
-                host: "0.0.0.0"
+                host: "0.0.0.0",
+                https: {
+                    // Generate via `openssl req -nodes -new -x509 -keyout server.key -out server.cert`
+                    key: fs.readFileSync("./ssl/server.key"),
+                    cert: fs.readFileSync("./ssl/server.cert")
+                }
             })
         ]
     },

@@ -61,6 +61,16 @@ export class Watcher {
 // The only places that should update settings are right below here, to set defaults, and in the Settings sidebar code,
 // to allow the user to change them.
 export const settings = new Settings();
+settings.updateData("setting-display", [
+    {
+        "id": "dev",
+        "display-name": "Developer Mode"
+    },
+    {
+        "id": "hiding-location",
+        "display-name": "Hide Location Dot?"
+    }
+]);
 settings.setDefault("dev", false);
 settings.setDefault("pd1", "");
 settings.setDefault("pd2", "");
@@ -71,3 +81,4 @@ settings.setDefault("pd6", "");
 settings.setDefault("pd7", "");
 settings.setDefault("pd8", "");
 settings.setDefault("hr", "");
+settings.setDefault("hiding-location", false);
