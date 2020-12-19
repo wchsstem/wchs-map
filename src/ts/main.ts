@@ -26,7 +26,12 @@ const mapData = new MapData(mapDataJson, bounds);
 
 // Initialize geocoder
 // TODO: Add entrances
-const definitions = mapData.getAllRooms().map(room => new GeocoderDefinition(room.getName(), room.getNames(), "", [], new BuildingLocationWithEntrances(room.getCenter(), [])))
+const definitions = mapData.getAllRooms().map(room => {
+    const graph = mapData.getGraph();
+    const entranceLocations = room.getEntrances().map(entranceVertex => graph.getVertex(entranceVertex).getLocation());
+    const location = new BuildingLocationWithEntrances(room.getCenter(), entranceLocations);
+    return new GeocoderDefinition(room.getName(), room.getNames(), "", [], location);
+});
 const definitionSet = GeocoderDefinitionSet.fromDefinitions(definitions).unwrap();
 geocoder.addDefinitionSet(definitionSet);
 

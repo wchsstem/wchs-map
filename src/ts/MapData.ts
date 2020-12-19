@@ -193,10 +193,11 @@ export default class MapData {
             const vertex = this.graph.getVertex(vertexId);
             if (vertex.getLocation().floor === floor) {
                 const color = vertex.hasTag("stairs") || vertex.hasTag("elevator") ? "#0000ff" : "#00ff00";
+                const location = vertex.getLocation().xy;
                 L.circle(vertex.getLocation().xy, {
                     "radius": 1,
                     "color": color
-                }).bindPopup(`${vertexString}<br/>${vertex.getLocation().xy[1]}, ${vertex.getLocation().xy[0]}`).addTo(devLayer);
+                }).bindPopup(`${vertexString}<br/>${location.lng}, ${location.lat}`).addTo(devLayer);
             }
         }
         
@@ -246,8 +247,8 @@ export default class MapData {
                     html: qFloorNumber < pFloorNumber ? "<i class=\"fas fa-sort-amount-up-alt stair-icon\"></i>" : "<i class=\"fas fa-sort-amount-down-alt stair-icon\"></i>",
                     iconSize: [36, 36]
                 });
-                L.marker([pLoc[1], pLoc[0]], { icon: stairIcon }).addTo(layers.get(pFloor));
-                L.marker([qLoc[1], qLoc[0]], { icon: stairIcon }).addTo(layers.get(qFloor));
+                L.marker(pLoc.xy, { icon: stairIcon }).addTo(layers.get(pFloor));
+                L.marker(qLoc.xy, { icon: stairIcon }).addTo(layers.get(qFloor));
             }
             last = vert;
         }
@@ -262,9 +263,6 @@ export default class MapData {
     private getClosestVertex(location: BuildingLocation): number {
         const idVertexToIdDistance = function(idVertex: [number, Vertex]): [number, Option<number>] {
             const [id, vertex] = idVertex;
-            if (vertex.getLocation().floor == location.floor) {
-                console.log("locs", vertex.getLocation().xy, location.xy, vertex.getLocation().distanceTo(location).unwrap());
-            }
             return [id, vertex.getLocation().distanceTo(location)];
         }
 
@@ -274,6 +272,7 @@ export default class MapData {
             .map(([id, distanceOption]) => [id, distanceOption.unwrap()])
             .reduce(([minimumId, minimumDistance], [id, distance]) =>
                 distance < minimumDistance ? [id, distance] : [minimumId, minimumDistance]);
+        console.log("dist", _distance);
         
         return closestId;
     }
