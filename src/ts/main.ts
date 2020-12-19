@@ -10,7 +10,9 @@ import { createSidebar } from "../Sidebar/SidebarController";
 import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "leaflet-sidebar-v2";
-import { Portal } from "../Portal/Portal";
+import { GeocoderDefinition, GeocoderDefinitionSet } from "./Geocoder";
+import { geocoder } from "./utils";
+import { BuildingLocationWithEntrances } from "./BuildingLocation";
 
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/serviceWorker.js");
@@ -19,6 +21,16 @@ if ("serviceWorker" in navigator) {
 // Churchill is 600ft long and 400ft across
 const bounds = new L.LatLngBounds([0, 0], [400, 600]);
 
+// @ts-ignore: JSON works fine here
+const mapData = new MapData(mapDataJson, bounds);
+
+// Initialize geocoder
+// TODO: Add entrances
+const definitions = mapData.getAllRooms().map(room => new GeocoderDefinition(room.getName(), room.getNames(), "", [], new BuildingLocationWithEntrances(room.getCenter(), [])))
+const definitionSet = GeocoderDefinitionSet.fromDefinitions(definitions).unwrap();
+geocoder.addDefinitionSet(definitionSet);
+
+// Create map
 const map = L.map("map", {
     crs: L.CRS.Simple,
     center: bounds.getCenter(),
@@ -32,9 +44,6 @@ const map = L.map("map", {
 });
 
 map.fitBounds(bounds.pad(0.05));
-
-// @ts-ignore: JSON works fine here
-const mapData = new MapData(mapDataJson, bounds);
 
 const attribution = "<a href='https://www.nathanvarner.com' target='_blank'>Nathan Varner</a>";
 const floors = new LFloors(mapData, "1", { "attribution": attribution });

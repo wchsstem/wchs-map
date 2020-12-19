@@ -21,6 +21,10 @@ export default class Graph<K, V> {
         return this.vertices.get(p);
     }
 
+    getIdsAndVertices(): [K, V][] {
+        return [...this.vertices.entries()];
+    }
+
     getNeighbors(v: K): Array<K> {
         let result = [];
         for (const u of this.adjList.get(v)) {

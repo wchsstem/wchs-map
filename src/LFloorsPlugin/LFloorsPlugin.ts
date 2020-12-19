@@ -83,22 +83,33 @@ export class LFloors extends L.LayerGroup {
     }
 
     public addLayer(layer: LSomeLayerWithFloor): this {
+        console.log("added", layer);
+        console.log("additions", this.additions);
         const floorNumber = layer.getFloorNumber();
         return this.addLayerToFloor(layer, floorNumber);
     }
 
     public addLayerToFloor(layer: L.Layer, floorNumber: string): this {
+        console.log("add layer to floor");
         // Add set for floor if it does not exist
         if (!this.additions.has(floorNumber)) {
             this.additions.set(floorNumber, new Set());
         }
 
+        console.log(1);
+
         this.additions.get(floorNumber).add(layer);
 
+        console.log(2);
+
         if (floorNumber === this.currentFloorNumber) {
+            console.log("layer", layer, layer["_layers"]);
+            console.log("layer2", this.currentFloor["_layers"]);
             this.currentFloor.addLayer(layer);
         }
 
+        console.log(3);
+        console.log("additions2", this.additions);
         return this;
     }
 

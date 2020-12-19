@@ -1,3 +1,6 @@
+import { BuildingLocationWithEntrances } from "./BuildingLocation";
+import { Geocoder } from "./Geocoder";
+
 export function capFirstLetter(toCap: string): string {
     if (toCap.length < 1) {
         return "";
@@ -10,3 +13,6 @@ export function titleCap(toCap: string): string {
         .map((word) => capFirstLetter(word))
         .join(" ");
 }
+
+const geocoder: Geocoder<BuildingLocationWithEntrances> = new Geocoder();
+export { geocoder };

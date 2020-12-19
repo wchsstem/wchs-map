@@ -1,8 +1,8 @@
-import commonjs from "rollup-plugin-commonjs";
+import commonjs from "@rollup/plugin-commonjs";
 import copy from "rollup-plugin-copy";
 import json from "rollup-plugin-json";
 import progress from "rollup-plugin-progress";
-import resolve from "rollup-plugin-node-resolve";
+import resolve from "@rollup/plugin-node-resolve";
 import scss from "rollup-plugin-scss";
 import serve from "rollup-plugin-serve";
 import typescript from "rollup-plugin-typescript";
@@ -18,17 +18,7 @@ export default [
         },
         plugins: [
             resolve(),
-            commonjs({
-                namedExports: {
-                    "node_modules/rbush/index.js": ["default"],
-                    "node_modules/leaflet/dist/leaflet-src.js": [
-                        "divIcon", "marker", "layerGroup", "popup", "imageOverlay",
-                        "CRS", "map", "LatLngBounds", "Control", "DomElement",
-                        "DomEvent", "Util", "polyline", "circle", "LayerGroup",
-                        "icon", "Layer", "polygon", "control"
-                    ]
-                }
-            }),
+            commonjs(),
             typescript(),
             scss(),
             json({

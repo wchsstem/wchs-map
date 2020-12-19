@@ -6,7 +6,12 @@ import MapData from "../ts/MapData";
 import "./sidebar.scss";
 import Room from "../ts/Room";
 import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
-import { settings } from "../ts/settings";
+import { settings, Watcher } from "../ts/settings";
+import { Course, Synergy } from "../Synergy/Synergy";
+import { GeocoderDefinition, GeocoderSuggestion } from "../ts/Geocoder";
+import { BuildingLocation, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
+import { geocoder } from "../ts/utils";
+import { None, Option, Some } from "@hqoss/monads";
 
 let sidebar: Sidebar | null = null;
 
@@ -16,7 +21,7 @@ export function createSidebar(map: L.Map, mapData: MapData) {
 
 export function showRoomInfo(room: Room) {
     if (sidebar !== null) {
-        sidebar.openInfoForRoom(room);
+        sidebar.openInfoForName(room.getName());
     }
 }
 
@@ -25,13 +30,13 @@ const MAX_FILE_SIZE = 2*1024*1024;
 class Sidebar {
     private map: L.Map;
     private sidebar: L.Control.Sidebar;
-    private floorsLayer: LFloors | null;
+    private floorsLayer: Option<LFloors>;
     private pathLayers: Set<LSomeLayerWithFloor>;
 
     private mapData: MapData;
 
-    private fromRoom: Room | null;
-    private toRoom: Room | null;
+    private fromDefinition: Option<GeocoderDefinition<BuildingLocationWithEntrances>>;
+    private toDefinition: Option<GeocoderDefinition<BuildingLocationWithEntrances>>;
     private fromInput: HTMLInputElement;
     private toInput: HTMLInputElement;
 
@@ -43,24 +48,30 @@ class Sidebar {
         });
         this.sidebar.addTo(this.map);
 
-        this.floorsLayer = null;
+        this.floorsLayer = None;
         this.map.eachLayer((layer) => {
             // @ts-ignore: Truthy if layer is LFloors, otherwise falsy
             // TODO: Can instanceof be used here?
             if (layer.getDefaultFloor) {
-                this.floorsLayer = <LFloors> layer;
+                this.floorsLayer = Some(<LFloors> layer);
             }
         });
 
         this.mapData = mapData;
 
-        this.sidebar.addPanel(this.createPortalPanel());
+        settings.addWatcher("Enable Synergy Panel (alpha)", new Watcher((enable) => {
+            if (enable) {
+                this.sidebar.addPanel(this.createSynergyPanel());
+            } else {
+                this.sidebar.removePanel("synergy");
+            }
+        }));
 
         const roomSearch = new RoomSearch(mapData);
         this.sidebar.addPanel(this.createSearchPanel(roomSearch));
 
-        this.fromRoom = null;
-        this.toRoom = null;
+        this.fromDefinition = None;
+        this.toDefinition = None;
 
         const [navPanel, fromInput, toInput] = this.createNavPanel(roomSearch);
         this.fromInput = fromInput;
@@ -70,13 +81,17 @@ class Sidebar {
         this.sidebar.addPanel(this.createSettingsPanel());
     }
 
-    // Portal panel
-    private createPortalPanel(): L.Control.PanelOptions {
+    // Synergy panel
+    private createSynergyPanel(): L.Control.PanelOptions {
+        const beta = Sidebar.elWithText("p", "Currently in alpha. Doesn't work yet.");
+        const info = Sidebar.elWithText("p", "Download your Synergy page and upload the HTML file here.");
+
         const siteUpload = document.createElement("input");
         siteUpload.setAttribute("type", "file");
         siteUpload.setAttribute("accept", "text/html");
 
         const errorBox = document.createElement("p");
+        const courses = document.createElement("ol");
 
         siteUpload.addEventListener("change", () => {
             if (siteUpload.files.length === 0) {
@@ -104,19 +119,24 @@ class Sidebar {
             });
 
             reader.addEventListener("load", (result) => {
-                errorBox.innerText = result.target.result.toString();
+                const synergyPage = result.target.result.toString();
+                const synergy = new Synergy(synergyPage);
+                for (const course of synergy.getCourses()) {
+                    courses.appendChild(course.toHtmlLi());
+                    console.log(course.toString());
+                }
             });
 
             reader.readAsText(file);
         });
-
-        const portalPane = Sidebar.createPaneElement("Search", [siteUpload, errorBox]);
+            
+        const synergyPane = Sidebar.createPaneElement("Synergy", [siteUpload, errorBox, courses]);
 
         return {
-            id: "portal",
+            id: "synergy",
             tab: "<i class=\"fas fa-sign-in-alt\"></i>",
-            title: "MCPS Portal",
-            pane: portalPane
+            title: "Synergy",
+            pane: synergyPane
         };
     }
 
@@ -136,9 +156,10 @@ class Sidebar {
 
         const thiz = this;
         searchBar.addEventListener("input", () => {
-            roomSearch.search(searchBar.value).updateElementWithResults(resultContainer, (result) => {
-                const room = result.getRoom();
-                thiz.openInfoForRoom(room);
+            const query = searchBar.value;
+            const results = geocoder.getSuggestionsFrom(query);
+            this.updateWithResults(query, results, resultContainer, (result) => {
+                thiz.openInfoForName(result.name);
             });
         });
 
@@ -152,26 +173,57 @@ class Sidebar {
         };
     }
 
+    // TODO: Where should this go? Used by multiple panels
+    private updateWithResults(
+        query: string,
+        results: GeocoderSuggestion[],
+        resultContainer: HTMLElement,
+        onClickResult: (result: GeocoderSuggestion) => void
+    ) {
+        if (query === "") {
+            resultContainer.classList.add("hidden");
+            return;
+        }
+
+        resultContainer.classList.remove("hidden");
+
+        while (resultContainer.hasChildNodes()) {
+            resultContainer.removeChild(resultContainer.firstChild);
+        }
+
+        if (results.length > 0) {
+            const list = document.createElement("ul");
+            for (const result of results) {
+                const resultElement = document.createElement("li");
+                resultElement.classList.add("search-result");
+                resultElement.appendChild(document.createTextNode(result.name));
+                resultElement.addEventListener("click", () => {
+                    onClickResult(result);
+                });
+                list.appendChild(resultElement);
+            }
+
+            resultContainer.appendChild(list);
+        } else {
+            const noResults = document.createTextNode("No results");
+            resultContainer.appendChild(noResults);
+        }
+    }
+
     // Info panel
-    private createInfoPanel(room: Room): L.Control.PanelOptions {
+    private createInfoPanel(definition: GeocoderDefinition<BuildingLocationWithEntrances>): L.Control.PanelOptions {
         const paneElements = [];
 
-        this.createInfoPanelHeader(paneElements, room);
+        this.createInfoPanelHeader(paneElements, definition);
 
-        const roomFloor = Sidebar.elWithText("span", `Floor: ${room.getFloorNumber()}`);
+        const roomFloor = Sidebar.elWithText("span", `Floor: ${definition.location.getCenter().floor}`);
         paneElements.push(roomFloor);
 
-        const names = room.getNames();
-        if (names.length > 0) {
-            const roomNamesDesc = Sidebar.elWithText("h3", "Known as:");
-            paneElements.push(roomNamesDesc);
-
-            const roomNames = document.createElement("ul");
-            for (const name of names) {
-                const roomName = Sidebar.elWithText("li", name);
-                roomNames.appendChild(roomName);
-            };
-            paneElements.push(roomNames);
+        if (definition.description.length !== 0) {
+            const descriptionEl = document.createElement("p");
+            const descriptionText = document.createTextNode(definition.description);
+            descriptionEl.appendChild(descriptionText);
+            paneElements.push(descriptionEl);
         }
 
         const infoPane = Sidebar.createPaneElement("Room Info", paneElements);
@@ -184,36 +236,44 @@ class Sidebar {
         };
     }
 
-    private createInfoPanelHeader(paneElements: HTMLElement[], room: Room) {
+    private createInfoPanelHeader(
+        paneElements: HTMLElement[],
+        definition: GeocoderDefinition<BuildingLocationWithEntrances>
+    ) {
         const header = document.createElement("div");
         header.classList.add("wrapper");
         header.classList.add("header-wrapper");
         paneElements.push(header);
 
         const roomName = document.createElement("h2");
-        const roomNameText = document.createTextNode(room.getName());
+        const roomNameText = document.createTextNode(definition.name);
         roomName.appendChild(roomNameText);
         header.appendChild(roomName);
 
         const thiz = this;
 
         const viewRoomButton = Sidebar.button("fa-map-pin", () => {
-            thiz.moveToRoom(room);
+            thiz.moveToDefinedLocation(definition);
         }, "Show room");
         viewRoomButton.classList.add("push-right");
         header.appendChild(viewRoomButton);
 
         const navButton = Sidebar.button("fa-location-arrow", () => {
-            thiz.navigateTo(room);
+            thiz.navigateTo(Some(definition));
         }, "Navigate");
         header.appendChild(navButton);
     }
 
-    public openInfoForRoom(room: Room) {
-        this.sidebar.removePanel("info");
-        this.sidebar.addPanel(this.createInfoPanel(room));
-        this.sidebar.open("info");
-        this.moveToRoom(room);
+    public openInfoForName(name: string) {
+        geocoder.getDefinitionFromName(name).match({
+            some: location => {
+                this.sidebar.removePanel("info");
+                this.sidebar.addPanel(this.createInfoPanel(location));
+                this.sidebar.open("info");
+                this.moveToDefinedLocation(location);
+            },
+            none: () => {}
+        });
     }
 
     // Nav panel
@@ -262,17 +322,21 @@ class Sidebar {
         resultContainer.classList.add("hidden");
 
         fromInput.addEventListener("input", () => {
-            roomSearch.search(fromInput.value).updateElementWithResults(resultContainer, (result) => {
-                const room = result.getRoom();
-                thiz.navigateFrom(room);
+            const query = fromInput.value;
+            const results = geocoder.getSuggestionsFrom(query);
+            this.updateWithResults(query, results, resultContainer, (result) => {
+                const definition = geocoder.getDefinitionFromName(result.name).unwrap();
+                thiz.navigateFrom(Some(definition));
                 Sidebar.clearResults(resultContainer);
             });
         });
 
         toInput.addEventListener("input", () => {
-            roomSearch.search(toInput.value).updateElementWithResults(resultContainer, (result) => {
-                const room = result.getRoom();
-                thiz.navigateTo(room);
+            const query = toInput.value;
+            const results = geocoder.getSuggestionsFrom(query);
+            this.updateWithResults(query, results, resultContainer, (result) => {
+                const definition = geocoder.getDefinitionFromName(result.name).unwrap();
+                thiz.navigateTo(Some(definition));
                 Sidebar.clearResults(resultContainer);
             });
         });
@@ -289,53 +353,69 @@ class Sidebar {
         return [panelOptions, fromInput, toInput];
     }
 
-    public navigateTo(room: Room) {
-        this.toRoom = room;
-        if (!room) {
-            this.toInput.value = "";
-        } else {
-            this.toInput.value = room.getName();
-        }
+    // TODO: Should this really be Option?
+    public navigateTo(definition: Option<GeocoderDefinition<BuildingLocationWithEntrances>>) {
+        this.toDefinition = definition;
+        this.toInput.value = definition.match({
+            some: room => room.name,
+            none: ""
+        });
         this.sidebar.open("nav");
-
         this.calcNavIfNeeded();
     }
 
-    public navigateFrom(room: Room) {
-        this.fromRoom = room;
-        if (!room) {
-            this.fromInput.value = "";
-        } else {
-            this.fromInput.value = room.getName();
-        }
+    public navigateFrom(definition: Option<GeocoderDefinition<BuildingLocationWithEntrances>>) {
+        this.fromDefinition = definition;
+        this.fromInput.value = definition.match({
+            some: room => room.name,
+            none: ""
+        });
         this.sidebar.open("nav");
-
         this.calcNavIfNeeded();
     }
 
     public swapNav() {
-        const from = this.fromRoom;
-        this.navigateFrom(this.toRoom);
+        const from = this.fromDefinition;
+        this.navigateFrom(this.toDefinition);
         this.navigateTo(from);
     }
 
     private calcNavIfNeeded() {
-        if (this.fromRoom && this.toRoom) {
-            this.clearNav();
-            this.pathLayers = this.mapData.createLayerGroupsFromPath(this.mapData.findBestPath(this.fromRoom, this.toRoom));
-            if (this.floorsLayer !== undefined) {
-                for (const layer of this.pathLayers) {
-                    this.floorsLayer.addLayer(layer);
-                }
-            }
+        console.log("Calc if needed");
+        if (this.fromDefinition.isSome() && this.toDefinition.isSome()) {
+            this.calcNav(this.fromDefinition.unwrap(), this.toDefinition.unwrap());
         }
     }
 
+    private calcNav(
+        fromDefinition: GeocoderDefinition<BuildingLocationWithEntrances>,
+        toDefinition: GeocoderDefinition<BuildingLocationWithEntrances>
+    ) {
+        this.clearNav();
+        const path = this.mapData.findBestPath(fromDefinition, toDefinition);
+        console.log("path", path);
+        this.pathLayers = this.mapData.createLayerGroupsFromPath(path);
+        this.floorsLayer.match({
+            some: floorsLayer => {
+                for (const layer of this.pathLayers) {
+                    floorsLayer.addLayer(layer);
+                }
+            },
+            none: () => {}
+        });
+    }
+
     private clearNav() {
+        // TODO: Is this check needed?
         if (this.pathLayers !== undefined) {
-            for (const layer of this.pathLayers) {
-                this.floorsLayer.removeLayer(layer);
-            }
+            this.floorsLayer.match({
+                some: floorsLayer => {
+                    for (const layer of this.pathLayers) {
+                        floorsLayer.removeLayer(layer);
+                    }
+                },
+                none: () => {}
+            });
         }
     }
 
@@ -399,15 +479,17 @@ class Sidebar {
     }
 
     // Utils
-    private moveToRoom(room: Room, openPopup: boolean = false) {
-        const location = room.getCenter();
-        this.map.setView([location[1], location[0]], 3);
-        if (this.floorsLayer !== null) {
-            this.floorsLayer.setFloor(room.getFloorNumber());
-        }
-        if (openPopup) {
-            room.getNumberMarker().openPopup();
-        }
+    private moveToDefinedLocation(definition: GeocoderDefinition<BuildingLocationWithEntrances>, openPopup: boolean = false) {
+        const location = definition.location.getCenter();
+        this.map.setView(location.xy, 3);
+        this.floorsLayer.match({
+            some: floorsLayer => floorsLayer.setFloor(location.floor),
+            none: () => {} 
+        })
+        // TODO: Find way to get room or access number marker
+        // if (openPopup) {
+        //     room.getNumberMarker().openPopup();
+        // }
     }
 
     private static createPaneElement(title: string, content: HTMLElement | HTMLElement[]): HTMLElement {

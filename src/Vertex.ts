@@ -1,7 +1,10 @@
+import { LatLng } from "leaflet";
+import { BuildingLocation } from "./ts/BuildingLocation";
+
 export default class Vertex {
-    private floor: string;
-    private location: [number, number];
+    private location: BuildingLocation;
     private tags: string[];
+    // TODO: Can this be removed?
     private room?: string;
 
     constructor(vertex: {
@@ -10,18 +13,13 @@ export default class Vertex {
         tags?: string[],
         room?: string
     }) {
-        this.floor = vertex.floor;
-        this.location = [vertex.location[0], vertex.location[1]];
+        this.location = new BuildingLocation(new LatLng(vertex.location[1], vertex.location[0]), vertex.floor);
         this.tags = vertex.tags || [];
         this.room = vertex.room;
     }
 
-    getLocation(): [number, number] {
+    getLocation(): BuildingLocation {
         return this.location;
-    }
-
-    getFloor(): string {
-        return this.floor;
     }
 
     hasTag(tag: string): boolean {

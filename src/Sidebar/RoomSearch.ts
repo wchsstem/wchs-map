@@ -5,7 +5,7 @@ import MapData from "../ts/MapData";
 
 export class RoomSearch {
     private mapData: MapData;
-    private miniSearch: any;
+    private miniSearch: MiniSearch;
 
     constructor(mapData: MapData) {
         this.mapData = mapData;
@@ -13,7 +13,7 @@ export class RoomSearch {
             "fields": ["names", "roomNumber"],
             "extractField": (room: Room, fieldName: string) => {
                 const value = room[fieldName];
-                // Turn arrays (names) into space seperated string
+                // Turn arrays (names) into space separated string
                 return Array.isArray(value) ? value.join(" ") : value;
             },
             "searchOptions": {

@@ -1,9 +1,12 @@
 import * as L from "leaflet";
+import { Option } from "@hqoss/monads";
 
 import Graph from "./Graph";
 import Room from "./Room";
 import Vertex from "../Vertex";
 import { LSomeLayerWithFloor, LLayerGroupWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
+import { GeocoderDefinition } from "./Geocoder";
+import { BuildingLocation, BuildingLocationWithEntrances } from "./BuildingLocation";
 
 export type FloorData = {
     number: string,
@@ -56,7 +59,9 @@ export default class MapData {
 
             const pLoc = p.getLocation();
             const qLoc = q.getLocation();
-            const distance = Math.sqrt((pLoc[0] - qLoc[0]) ** 2 + (pLoc[1] - qLoc[1]) ** 2);
+            // Weight of 10 for stairs
+            // TODO: remove magic constant
+            const distance = pLoc.distanceTo(qLoc).unwrapOr(10);
 
             this.graph.addEdge(pId, qId, distance);
         }
@@ -67,8 +72,10 @@ export default class MapData {
             const room = mapData.rooms[roomNumber];
 
             const someVertex = this.graph.getVertex(this.vertexStringToId.get(room.vertices[0]));
-            const floorNumber = someVertex.getFloor();
-            const center = room.center ? room.center : someVertex.getLocation();
+            const floorNumber = someVertex.getLocation().floor;
+            const center = room.center
+                ? new BuildingLocation(new L.LatLng(room.center[1], room.center[0]), floorNumber)
+                : someVertex.getLocation();
 
             // Turn the string array into a number array
             const verticesString: string[] = room.vertices;
@@ -82,7 +89,7 @@ export default class MapData {
             }
 
 
-            this.rooms.set(roomNumber, new Room(verticesId, roomNumber, floorNumber, room.names, room.outline, center));
+            this.rooms.set(roomNumber, new Room(verticesId, roomNumber, room.names, room.outline, center));
         }
 
         // Create map of room names
@@ -121,27 +128,38 @@ export default class MapData {
         return this.roomsFromNames.get(name);
     }
 
-    findBestPath(src: Room, dest: Room): number[] {
+    // TODO: Make this work with arbitrary points
+    findBestPath(
+        src: GeocoderDefinition<BuildingLocationWithEntrances>,
+        dest: GeocoderDefinition<BuildingLocationWithEntrances>
+    ): number[] {
         let fastestTree = undefined;
         let shortestDistance = undefined;
         let destVertex = undefined;
     
         // Look through all exits from the source
-        for (const exit of src.getEntrances()) {
-            const [distances, tree] = this.graph.dijkstra(exit);
+        for (const exitLocation of src.location.getEntrances()) {
+            const exitId = this.getClosestVertex(exitLocation);
+            console.log("exit", exitId);
+            const [distances, tree] = this.graph.dijkstra(exitId);
     
             // Look through all entrances to the destination
-            for (const entrance of dest.getEntrances()) {
+            for (const entranceLocation of dest.location.getEntrances()) {
+                const entranceId = this.getClosestVertex(entranceLocation);
+                console.log("entrance", entranceId);
+
                 // Find the distance between the source and destination
-                const distance = distances.get(entrance);
+                const distance = distances.get(entranceId);
                 // If the distance is shortest, choose it
                 if (shortestDistance === undefined || distance < shortestDistance) {
                     shortestDistance = distance;
                     fastestTree = tree;
-                    destVertex = entrance;
+                    destVertex = entranceId;
                 }
             }
         }
+
+        console.log("tree", fastestTree);
     
         const fastestPath: number[] = [];
         let nextPlace = destVertex;
@@ -164,21 +182,21 @@ export default class MapData {
             const p = this.graph.getVertex(this.vertexStringToId.get(edge[0]));
             const q = this.graph.getVertex(this.vertexStringToId.get(edge[1]));
             
-            if (p.getFloor() === floor && q.getFloor() === floor) {
+            if (p.getLocation().floor === floor && q.getLocation().floor === floor) {
                 const pLoc = p.getLocation();
                 const qLoc = q.getLocation();
-                L.polyline([[pLoc[1], pLoc[0]], [qLoc[1], qLoc[0]]]).addTo(devLayer);
+                L.polyline([pLoc.xy, qLoc.xy]).addTo(devLayer);
             }
         }
 
         for (const [vertexString, vertexId] of this.vertexStringToId.entries()) {
             const vertex = this.graph.getVertex(vertexId);
-            if (vertex.getFloor() === floor) {
+            if (vertex.getLocation().floor === floor) {
                 const color = vertex.hasTag("stairs") || vertex.hasTag("elevator") ? "#0000ff" : "#00ff00";
-                L.circle([vertex.getLocation()[1], vertex.getLocation()[0]], {
+                L.circle(vertex.getLocation().xy, {
                     "radius": 1,
                     "color": color
-                }).bindPopup(`${vertexString}<br/>${vertex.getLocation()[0]}, ${vertex.getLocation()[1]}`).addTo(devLayer);
+                }).bindPopup(`${vertexString}<br/>${vertex.getLocation().xy[1]}, ${vertex.getLocation().xy[0]}`).addTo(devLayer);
             }
         }
         
@@ -198,36 +216,38 @@ export default class MapData {
             const q = this.graph.getVertex(vert);
             const pLoc = p.getLocation();
             const qLoc = q.getLocation();
+            const pFloor = pLoc.floor;
+            const qFloor = qLoc.floor;
 
-            if (p.getFloor() === q.getFloor()) {
+            if (pFloor === qFloor) {
                 // Same floor, draw path from p to q
-                if (!layers.has(p.getFloor())) {
-                    layers.set(p.getFloor(), new LLayerGroupWithFloor([], { floorNumber: p.getFloor() }));
+                if (!layers.has(pFloor)) {
+                    layers.set(pFloor, new LLayerGroupWithFloor([], { floorNumber: pFloor }));
                 }
-                L.polyline([[pLoc[1], pLoc[0]], [qLoc[1], qLoc[0]]], { "color": "#ff0000" }).addTo(layers.get(p.getFloor()));
+                L.polyline([pLoc.xy, qLoc.xy], { "color": "#ff0000" }).addTo(layers.get(pFloor));
             } else {
                 // Different floor, change floors
-                if (!layers.has(p.getFloor())) {
-                    layers.set(p.getFloor(), new LLayerGroupWithFloor([], { floorNumber: p.getFloor() }));
+                if (!layers.has(pFloor)) {
+                    layers.set(pFloor, new LLayerGroupWithFloor([], { floorNumber: pFloor }));
                 }
 
-                if (!layers.has(q.getFloor())) {
-                    layers.set(q.getFloor(), new LLayerGroupWithFloor([], { floorNumber: q.getFloor() }));
+                if (!layers.has(qFloor)) {
+                    layers.set(qFloor, new LLayerGroupWithFloor([], { floorNumber: qFloor }));
                 }
 
                 // TODO: Add proper floor indexing so we don't have to hope that floors are integers
-                const pFloorNumber = parseInt(p.getFloor());
-                const qFloorNumber = parseInt(q.getFloor());
+                const pFloorNumber = parseInt(pFloor);
+                const qFloorNumber = parseInt(qFloor);
 
                 
                 // These icons aren't actually stairs, but they look close enough to get the idea across
                 // They also look much nicer than my poor attempt at creating a stair icon
                 const stairIcon = L.divIcon({
-                    html: pFloorNumber < qFloorNumber ? "<i class=\"fas fa-sort-amount-up-alt stair-icon\"></i>" : "<i class=\"fas fa-sort-amount-down-alt stair-icon\"></i>",
+                    html: qFloorNumber < pFloorNumber ? "<i class=\"fas fa-sort-amount-up-alt stair-icon\"></i>" : "<i class=\"fas fa-sort-amount-down-alt stair-icon\"></i>",
                     iconSize: [36, 36]
                 });
-                L.marker([pLoc[1], pLoc[0]], { icon: stairIcon }).addTo(layers.get(p.getFloor()));
-                L.marker([qLoc[1], qLoc[0]], { icon: stairIcon }).addTo(layers.get(q.getFloor()));
+                L.marker([pLoc[1], pLoc[0]], { icon: stairIcon }).addTo(layers.get(pFloor));
+                L.marker([qLoc[1], qLoc[0]], { icon: stairIcon }).addTo(layers.get(qFloor));
             }
             last = vert;
         }
@@ -237,5 +257,24 @@ export default class MapData {
 
     getFloors(): FloorData[] {
         return this.floors;
+    }
+
+    private getClosestVertex(location: BuildingLocation): number {
+        const idVertexToIdDistance = function(idVertex: [number, Vertex]): [number, Option<number>] {
+            const [id, vertex] = idVertex;
+            if (vertex.getLocation().floor == location.floor) {
+                console.log("locs", vertex.getLocation().xy, location.xy, vertex.getLocation().distanceTo(location).unwrap());
+            }
+            return [id, vertex.getLocation().distanceTo(location)];
+        }
+
+        const [closestId, _distance] = this.graph.getIdsAndVertices()
+            .map(idVertexToIdDistance)
+            .filter(([_id, distance]) => distance.isSome())
+            .map(([id, distanceOption]) => [id, distanceOption.unwrap()])
+            .reduce(([minimumId, minimumDistance], [id, distance]) =>
+                distance < minimumDistance ? [id, distance] : [minimumId, minimumDistance]);
+        
+        return closestId;
     }
 }
