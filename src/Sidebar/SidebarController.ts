@@ -51,7 +51,6 @@ class Sidebar {
         this.floorsLayer = None;
         this.map.eachLayer((layer) => {
             if (layer instanceof LFloors) {
-                console.log("got it", layer);
                 this.floorsLayer = Some(<LFloors> layer);
             }
         });
@@ -122,7 +121,6 @@ class Sidebar {
                 const synergy = new Synergy(synergyPage);
                 for (const course of synergy.getCourses()) {
                     courses.appendChild(course.toHtmlLi());
-                    console.log(course.toString());
                 }
             });
 
@@ -342,7 +340,6 @@ class Sidebar {
     }
 
     private calcNavIfNeeded() {
-        console.log("Calc if needed");
         if (this.fromDefinition.isSome() && this.toDefinition.isSome()) {
             this.calcNav(this.fromDefinition.unwrap(), this.toDefinition.unwrap());
         }
@@ -354,7 +351,6 @@ class Sidebar {
     ) {
         this.clearNav();
         const path = this.mapData.findBestPath(fromDefinition, toDefinition);
-        console.log("path", path);
         this.pathLayers = this.mapData.createLayerGroupsFromPath(path);
         this.floorsLayer.match({
             some: floorsLayer => {

@@ -139,13 +139,11 @@ export default class MapData {
         // Look through all exits from the source
         for (const exitLocation of src.location.getEntrances()) {
             const exitId = this.getClosestVertex(exitLocation);
-            console.log("exit", exitId);
             const [distances, tree] = this.graph.dijkstra(exitId);
     
             // Look through all entrances to the destination
             for (const entranceLocation of dest.location.getEntrances()) {
                 const entranceId = this.getClosestVertex(entranceLocation);
-                console.log("entrance", entranceId);
 
                 // Find the distance between the source and destination
                 const distance = distances.get(entranceId);
@@ -157,8 +155,6 @@ export default class MapData {
                 }
             }
         }
-
-        console.log("tree", fastestTree);
     
         const fastestPath: number[] = [];
         let nextPlace = destVertex;
@@ -271,7 +267,6 @@ export default class MapData {
             .map(([id, distanceOption]) => [id, distanceOption.unwrap()])
             .reduce(([minimumId, minimumDistance], [id, distance]) =>
                 distance < minimumDistance ? [id, distance] : [minimumId, minimumDistance]);
-        console.log("dist", _distance);
         
         return closestId;
     }
