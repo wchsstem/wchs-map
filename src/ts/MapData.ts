@@ -13,6 +13,8 @@ export type FloorData = {
     image: string
 }
 
+const STAIRS_WEIGHT = 10;
+
 export default class MapData {
     private vertexStringToId: Map<String, number>;
     private graph: Graph<number, Vertex>;
@@ -59,9 +61,7 @@ export default class MapData {
 
             const pLoc = p.getLocation();
             const qLoc = q.getLocation();
-            // Weight of 10 for stairs
-            // TODO: remove magic constant
-            const distance = pLoc.distanceTo(qLoc).unwrapOr(10);
+            const distance = pLoc.distanceTo(qLoc).unwrapOr(STAIRS_WEIGHT);
 
             this.graph.addEdge(pId, qId, distance);
         }
@@ -128,7 +128,6 @@ export default class MapData {
         return this.roomsFromNames.get(name);
     }
 
-    // TODO: Make this work with arbitrary points
     findBestPath(
         src: GeocoderDefinition<BuildingLocationWithEntrances>,
         dest: GeocoderDefinition<BuildingLocationWithEntrances>

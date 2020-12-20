@@ -4,8 +4,6 @@ import { BuildingLocation } from "./ts/BuildingLocation";
 export default class Vertex {
     private location: BuildingLocation;
     private tags: string[];
-    // TODO: Can this be removed?
-    private room?: string;
 
     constructor(vertex: {
         floor: string,

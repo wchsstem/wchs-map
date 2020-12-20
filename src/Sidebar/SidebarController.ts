@@ -50,9 +50,8 @@ class Sidebar {
 
         this.floorsLayer = None;
         this.map.eachLayer((layer) => {
-            // @ts-ignore: Truthy if layer is LFloors, otherwise falsy
-            // TODO: Can instanceof be used here?
-            if (layer.getDefaultFloor) {
+            if (layer instanceof LFloors) {
+                console.log("got it", layer);
                 this.floorsLayer = Some(<LFloors> layer);
             }
         });
@@ -158,7 +157,7 @@ class Sidebar {
         searchBar.addEventListener("input", () => {
             const query = searchBar.value;
             const results = geocoder.getSuggestionsFrom(query);
-            this.updateWithResults(query, results, resultContainer, (result) => {
+            Sidebar.updateWithResults(query, results, resultContainer, (result) => {
                 thiz.openInfoForName(result.name);
             });
         });
@@ -171,43 +170,6 @@ class Sidebar {
             title: "Search",
             pane: searchPane
         };
-    }
-
-    // TODO: Where should this go? Used by multiple panels
-    private updateWithResults(
-        query: string,
-        results: GeocoderSuggestion[],
-        resultContainer: HTMLElement,
-        onClickResult: (result: GeocoderSuggestion) => void
-    ) {
-        if (query === "") {
-            resultContainer.classList.add("hidden");
-            return;
-        }
-
-        resultContainer.classList.remove("hidden");
-
-        while (resultContainer.hasChildNodes()) {
-            resultContainer.removeChild(resultContainer.firstChild);
-        }
-
-        if (results.length > 0) {
-            const list = document.createElement("ul");
-            for (const result of results) {
-                const resultElement = document.createElement("li");
-                resultElement.classList.add("search-result");
-                resultElement.appendChild(document.createTextNode(result.name));
-                resultElement.addEventListener("click", () => {
-                    onClickResult(result);
-                });
-                list.appendChild(resultElement);
-            }
-
-            resultContainer.appendChild(list);
-        } else {
-            const noResults = document.createTextNode("No results");
-            resultContainer.appendChild(noResults);
-        }
     }
 
     // Info panel
@@ -324,7 +286,7 @@ class Sidebar {
         fromInput.addEventListener("input", () => {
             const query = fromInput.value;
             const results = geocoder.getSuggestionsFrom(query);
-            this.updateWithResults(query, results, resultContainer, (result) => {
+            Sidebar.updateWithResults(query, results, resultContainer, (result) => {
                 const definition = geocoder.getDefinitionFromName(result.name).unwrap();
                 thiz.navigateFrom(Some(definition));
                 Sidebar.clearResults(resultContainer);
@@ -334,7 +296,7 @@ class Sidebar {
         toInput.addEventListener("input", () => {
             const query = toInput.value;
             const results = geocoder.getSuggestionsFrom(query);
-            this.updateWithResults(query, results, resultContainer, (result) => {
+            Sidebar.updateWithResults(query, results, resultContainer, (result) => {
                 const definition = geocoder.getDefinitionFromName(result.name).unwrap();
                 thiz.navigateTo(Some(definition));
                 Sidebar.clearResults(resultContainer);
@@ -353,7 +315,6 @@ class Sidebar {
         return [panelOptions, fromInput, toInput];
     }
 
-    // TODO: Should this really be Option?
     public navigateTo(definition: Option<GeocoderDefinition<BuildingLocationWithEntrances>>) {
         this.toDefinition = definition;
         this.toInput.value = definition.match({
@@ -406,7 +367,6 @@ class Sidebar {
     }
 
     private clearNav() {
-        // TODO: Is this check needed?
         if (this.pathLayers !== undefined) {
             this.floorsLayer.match({
                 some: floorsLayer => {
@@ -479,17 +439,13 @@ class Sidebar {
     }
 
     // Utils
-    private moveToDefinedLocation(definition: GeocoderDefinition<BuildingLocationWithEntrances>, openPopup: boolean = false) {
+    private moveToDefinedLocation(definition: GeocoderDefinition<BuildingLocationWithEntrances>) {
         const location = definition.location.getCenter();
         this.map.setView(location.xy, 3);
         this.floorsLayer.match({
             some: floorsLayer => floorsLayer.setFloor(location.floor),
             none: () => {} 
-        })
-        // TODO: Find way to get room or access number marker
-        // if (openPopup) {
-        //     room.getNumberMarker().openPopup();
-        // }
+        });
     }
 
     private static createPaneElement(title: string, content: HTMLElement | HTMLElement[]): HTMLElement {
@@ -560,5 +516,41 @@ class Sidebar {
             resultContainer.removeChild(resultContainer.lastChild);
         }
         resultContainer.classList.add("hidden");
+    }
+
+    private static updateWithResults(
+        query: string,
+        results: GeocoderSuggestion[],
+        resultContainer: HTMLElement,
+        onClickResult: (result: GeocoderSuggestion) => void
+    ) {
+        if (query === "") {
+            resultContainer.classList.add("hidden");
+            return;
+        }
+
+        resultContainer.classList.remove("hidden");
+
+        while (resultContainer.hasChildNodes()) {
+            resultContainer.removeChild(resultContainer.firstChild);
+        }
+
+        if (results.length > 0) {
+            const list = document.createElement("ul");
+            for (const result of results) {
+                const resultElement = document.createElement("li");
+                resultElement.classList.add("search-result");
+                resultElement.appendChild(document.createTextNode(result.name));
+                resultElement.addEventListener("click", () => {
+                    onClickResult(result);
+                });
+                list.appendChild(resultElement);
+            }
+
+            resultContainer.appendChild(list);
+        } else {
+            const noResults = document.createTextNode("No results");
+            resultContainer.appendChild(noResults);
+        }
     }
 }

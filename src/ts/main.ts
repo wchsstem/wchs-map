@@ -25,7 +25,6 @@ const bounds = new L.LatLngBounds([0, 0], [400, 600]);
 const mapData = new MapData(mapDataJson, bounds);
 
 // Initialize geocoder
-// TODO: Add entrances
 const definitions = mapData.getAllRooms().map(room => {
     const graph = mapData.getGraph();
     const entranceLocations = room.getEntrances().map(entranceVertex => graph.getVertex(entranceVertex).getLocation());
