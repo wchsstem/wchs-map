@@ -79,7 +79,7 @@ class Sidebar {
 
     // Synergy panel
     private createSynergyPanel(): L.Control.PanelOptions {
-        const beta = Sidebar.elWithText("p", "Currently in alpha. Doesn't work yet.");
+        const beta = Sidebar.elWithText("p", "Currently in alpha. Doesn't fully work yet.");
         const info = Sidebar.elWithText("p", "Download your Synergy page and upload the HTML file here.");
 
         const siteUpload = document.createElement("input");
@@ -361,23 +361,41 @@ class Sidebar {
         settingsContainer.classList.add("wrapper");
         settingsContainer.classList.add("settings-container");
 
-        for (const [name, value] of settings.getAllSettings()) {
-            let setting = null;
+        let watchers: [string, Watcher][] = [];
 
-            if (name === "name-mapping") {
-                continue;
+        settings.addWatcher("name-mapping", new Watcher(mapping => {
+            while (settingsContainer.hasChildNodes()) {
+                settingsContainer.removeChild(settingsContainer.lastChild);
             }
+            watchers.forEach(([id, watcher]) => settings.removeWatcher(id, watcher));
+            watchers = [];
 
-            if (typeof value === "string") {
-                setting = Sidebar.createStringSetting(name, value);
-            } else if (typeof value === "boolean") {
-                setting = Sidebar.createBooleanSetting(name, value);
-            }
+            console.log(settings.getAllSettingNames());
 
-            if (setting !== null) {
-                settingsContainer.appendChild(setting);
-            }
-        }
+            settings.getAllSettingNames()
+            .filter(name => name !== "name-mapping")
+            .forEach(name => {
+                const container = document.createElement("div");
+                settingsContainer.appendChild(container);
+                const watcher = new Watcher(data => {
+                    while (container.hasChildNodes()) {
+                        container.removeChild(container.lastChild);
+                    }
+
+                    let setting = null;
+                    if (typeof data === "string") {
+                        setting = Sidebar.createStringSetting(name, data, mapping);
+                    } else if (typeof data === "boolean") {
+                        setting = Sidebar.createBooleanSetting(name, data, mapping);
+                    }
+                    if (setting !== null) {
+                        container.appendChild(setting);
+                    }
+                });
+                watchers.push([name, watcher]);
+                settings.addWatcher(name, watcher);
+            });
+        }));
 
         const settingsPane = Sidebar.createPaneElement("Settings", settingsContainer);
 
@@ -394,29 +412,28 @@ class Sidebar {
         const container = document.createElement("li");
         container.classList.add("setting-container");
 
-        const label = settings.getSetting("name-mapping")[name];
-        container.appendChild(Sidebar.elWithText("label", label));
+        container.appendChild(Sidebar.elWithText("label", name));
         container.appendChild(control);
 
         return container;
     }
 
-    private static createStringSetting(name: string, value: string): HTMLLIElement {
+    private static createStringSetting(name: string, value: string, mapping: object): HTMLLIElement {
         const control = genTextInput("", value);
         control.addEventListener("change", () => {
             settings.updateData(name, control.value);
         });
-        return Sidebar.createSetting(name, control);
+        return Sidebar.createSetting(mapping[name], control);
     }
 
-    private static createBooleanSetting(name: string, value: boolean): HTMLLIElement {
+    private static createBooleanSetting(name: string, value: boolean, mapping: object): HTMLLIElement {
         const control = document.createElement("input");
         control.setAttribute("type", "checkbox");
         control.checked = value;
         control.addEventListener("change", () => {
             settings.updateData(name, control.checked);
         });
-        return Sidebar.createSetting(name, control);
+        return Sidebar.createSetting(mapping[name], control);
     }
 
     // Utils

@@ -32,6 +32,15 @@ class Settings {
         watcher.onChange(this.data.get(dataId));
     }
 
+    removeWatcher(dataId: string, watcher: Watcher): void {
+        const watchers = this.watchers.get(dataId).filter(currentWatcher => currentWatcher !== watcher);
+        this.watchers.set(dataId, watchers);
+    }
+
+    getAllSettingNames(): string[] {
+        return [...this.data.keys()];
+    }
+
     getAllSettings(): Map<string, any> {
         return this.data;
     }
