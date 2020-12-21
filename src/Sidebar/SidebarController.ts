@@ -125,7 +125,7 @@ class Sidebar {
             reader.readAsText(file);
         });
             
-        const synergyPane = Sidebar.createPaneElement("Synergy", [siteUpload, errorBox, courses]);
+        const synergyPane = Sidebar.createPaneElement("Synergy", [beta, info, siteUpload, errorBox, courses]);
 
         return {
             id: "synergy",
