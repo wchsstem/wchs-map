@@ -38,10 +38,10 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@hqoss/monads": "^0.4.0",
     "leaflet": "^1.7.0",
     "leaflet-sidebar-v2": "^3.2.3",
     "minisearch": "^3.0.0",
+    "monads": "git+https://gitlab.com/nvarner/typescript-monads.git",
     "node-sass": "^4.14.1",
     "rbush": "^2.0.2"
   }

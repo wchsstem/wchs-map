@@ -1,5 +1,5 @@
 import * as L from "leaflet";
-import { Option } from "@hqoss/monads";
+import { Option } from "monads";
 
 import Graph from "./Graph";
 import Room from "./Room";

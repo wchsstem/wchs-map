@@ -1,5 +1,6 @@
-import { Option, Some, None } from "@hqoss/monads";
+import { Option, Some, None } from "monads";
 import MiniSearch from "minisearch";
+import { fromMap } from "monads/dist/lib/option/option";
 
 export class GeocoderSuggestion {
     public readonly name: string;
@@ -105,6 +106,11 @@ export class GeocoderDefinitionSet<T> {
 export class Geocoder<T> {
     private search: MiniSearch;
     private definitionsByName: Map<string, GeocoderDefinition<T>>;
+    /**
+     * Definitions indexed by alternate names. They are not guaranteed to be unique, so some definitions may be
+     * overwritten. This should only be used as a failsafe if `definitionsByName` does not contain a requested name.
+     */
+    private definitionsByAlternateName: Map<string, GeocoderDefinition<T>>;
     private allNames: Set<string>;
 
     constructor() {
@@ -120,6 +126,7 @@ export class Geocoder<T> {
             }
         });
         this.definitionsByName = new Map();
+        this.definitionsByAlternateName = new Map();
         this.allNames = new Set();
     }
 
@@ -130,7 +137,11 @@ export class Geocoder<T> {
         }
 
         const newDefinitions = definitionSet.getDefinitions().filter(definition => !this.allNames.has(definition.name));
-        newDefinitions.forEach(definition => this.definitionsByName.set(definition.name, definition));
+        newDefinitions.forEach(definition => {
+            this.definitionsByName.set(definition.name, definition);
+            definition.alternateNames.forEach(alternateName =>
+                this.definitionsByAlternateName.set(alternateName, definition));
+        });
         this.search.addAll(newDefinitions);
         definitionSet.getNames().forEach(name => this.allNames.add(name));
 
@@ -156,8 +167,7 @@ export class Geocoder<T> {
     }
 
     public getDefinitionFromName(name: string): Option<GeocoderDefinition<T>> {
-        const definitionResult = this.definitionsByName.get(name);
-        if (!definitionResult) { return None; }
-        return Some(definitionResult);
+        return fromMap(this.definitionsByName, name)
+            .or(fromMap(this.definitionsByAlternateName, name));
     }
 }

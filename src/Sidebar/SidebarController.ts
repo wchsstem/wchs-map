@@ -11,18 +11,16 @@ import { Course, Synergy } from "../Synergy/Synergy";
 import { GeocoderDefinition, GeocoderSuggestion } from "../ts/Geocoder";
 import { BuildingLocation, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
 import { geocoder } from "../ts/utils";
-import { None, Option, Some } from "@hqoss/monads";
+import { None, Option, Some } from "monads";
 
-let sidebar: Sidebar | null = null;
+let sidebar: Option<Sidebar> = None;
 
-export function createSidebar(map: L.Map, mapData: MapData) {
-    sidebar = new Sidebar(map, mapData);
+export function createSidebar(map: L.Map, mapData: MapData): void {
+    sidebar = Some(new Sidebar(map, mapData));
 }
 
-export function showRoomInfo(room: Room) {
-    if (sidebar !== null) {
-        sidebar.openInfoForName(room.getName());
-    }
+export function showRoomInfo(room: Room): void {
+    sidebar.ifSome(sidebar => sidebar.openInfoForName(room.getName()));
 }
 
 const MAX_FILE_SIZE = 2*1024*1024;
@@ -225,14 +223,11 @@ class Sidebar {
     }
 
     public openInfoForName(name: string) {
-        geocoder.getDefinitionFromName(name).match({
-            some: location => {
-                this.sidebar.removePanel("info");
-                this.sidebar.addPanel(this.createInfoPanel(location));
-                this.sidebar.open("info");
-                this.moveToDefinedLocation(location);
-            },
-            none: () => {}
+        geocoder.getDefinitionFromName(name).ifSome(location => {
+            this.sidebar.removePanel("info");
+            this.sidebar.addPanel(this.createInfoPanel(location));
+            this.sidebar.open("info");
+            this.moveToDefinedLocation(location);
         });
     }
 
@@ -348,31 +343,16 @@ class Sidebar {
     private calcNav(
         fromDefinition: GeocoderDefinition<BuildingLocationWithEntrances>,
         toDefinition: GeocoderDefinition<BuildingLocationWithEntrances>
-    ) {
+    ): void {
         this.clearNav();
         const path = this.mapData.findBestPath(fromDefinition, toDefinition);
         this.pathLayers = this.mapData.createLayerGroupsFromPath(path);
-        this.floorsLayer.match({
-            some: floorsLayer => {
-                for (const layer of this.pathLayers) {
-                    floorsLayer.addLayer(layer);
-                }
-            },
-            none: () => {}
-        });
+        this.floorsLayer.ifSome(floorsLayer => this.pathLayers.forEach(layer => floorsLayer.addLayer(layer)));
     }
 
-    private clearNav() {
-        if (this.pathLayers !== undefined) {
-            this.floorsLayer.match({
-                some: floorsLayer => {
-                    for (const layer of this.pathLayers) {
-                        floorsLayer.removeLayer(layer);
-                    }
-                },
-                none: () => {}
-            });
-        }
+    private clearNav(): void {
+        if (this.pathLayers === undefined) { return; }
+        this.floorsLayer.ifSome(floorsLayer => this.pathLayers.forEach(layer => floorsLayer.removeLayer(layer)));
     }
 
     // Settings panel
@@ -435,13 +415,11 @@ class Sidebar {
     }
 
     // Utils
-    private moveToDefinedLocation(definition: GeocoderDefinition<BuildingLocationWithEntrances>) {
+    private moveToDefinedLocation(definition: GeocoderDefinition<BuildingLocationWithEntrances>): void {
         const location = definition.location.getCenter();
+        // TODO: Better option than always using zoom 3?
         this.map.setView(location.xy, 3);
-        this.floorsLayer.match({
-            some: floorsLayer => floorsLayer.setFloor(location.floor),
-            none: () => {} 
-        });
+        this.floorsLayer.ifSome(floorsLayer => floorsLayer.setFloor(location.floor));
     }
 
     private static createPaneElement(title: string, content: HTMLElement | HTMLElement[]): HTMLElement {
