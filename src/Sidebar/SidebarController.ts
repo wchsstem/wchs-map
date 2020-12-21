@@ -55,7 +55,7 @@ class Sidebar {
 
         this.mapData = mapData;
 
-        settings.addWatcher("Enable Synergy Panel (alpha)", new Watcher((enable) => {
+        settings.addWatcher("synergy", new Watcher((enable) => {
             if (enable) {
                 this.sidebar.addPanel(this.createSynergyPanel());
             } else {
@@ -364,6 +364,10 @@ class Sidebar {
         for (const [name, value] of settings.getAllSettings()) {
             let setting = null;
 
+            if (name === "name-mapping") {
+                continue;
+            }
+
             if (typeof value === "string") {
                 setting = Sidebar.createStringSetting(name, value);
             } else if (typeof value === "boolean") {
@@ -390,7 +394,8 @@ class Sidebar {
         const container = document.createElement("li");
         container.classList.add("setting-container");
 
-        container.appendChild(Sidebar.elWithText("label", name));
+        const label = settings.getSetting("name-mapping")[name];
+        container.appendChild(Sidebar.elWithText("label", label));
         container.appendChild(control);
 
         return container;

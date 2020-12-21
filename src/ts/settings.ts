@@ -16,6 +16,13 @@ class Settings {
         }
     }
 
+    /**
+     * Should be used very rarely; always use addWatcher when possible!
+     */
+    getSetting(dataId: string): any {
+        return this.data.get(dataId);
+    }
+
     addWatcher(dataId: string, watcher: Watcher): void {
         if (!this.watchers.has(dataId)) {
             this.watchers.set(dataId, []);
@@ -45,5 +52,12 @@ export class Watcher {
 // The only places that should update settings are right below here, to set defaults, and in the Settings sidebar code,
 // to allow the user to change them.
 export const settings = new Settings();
-settings.updateData("Enable Synergy Panel (alpha)", false);
+
+// This is a special setting that maps the setting IDs to user friendly names. It is not displayed in the sidebar.
+settings.updateData("name-mapping", {
+    "synergy": "Enable Synergy Panel (alpha)",
+    "dev": "Developer Mode"
+});
+
+settings.updateData("synergy", false);
 settings.updateData("dev", false);
