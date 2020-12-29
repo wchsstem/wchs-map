@@ -5,10 +5,20 @@ class Settings {
     constructor() {
         this.data = new Map();
         this.watchers = new Map();
+
+        if (typeof(Storage) !== "undefined") {
+            for (const key in window.localStorage) {
+                this.updateData(key, JSON.parse(window.localStorage.getItem(key)));
+            }
+        }
     }
 
     updateData(id: string, data: any): void {
         this.data.set(id, data);
+        if (typeof(Storage) !== "undefined") {
+            window.localStorage.setItem(id, JSON.stringify(data));
+        }
+
         if (this.watchers.has(id)) {
             for (const watcher of this.watchers.get(id)) {
                 watcher.onChange(data);
@@ -21,6 +31,12 @@ class Settings {
      */
     getSetting(dataId: string): any {
         return this.data.get(dataId);
+    }
+    
+    setDefault(id: string, defaultValue: any): void {
+        if (!this.data.has(id)) {
+            this.updateData(id, defaultValue);
+        }
     }
 
     addWatcher(dataId: string, watcher: Watcher): void {
@@ -65,8 +81,19 @@ export const settings = new Settings();
 // This is a special setting that maps the setting IDs to user friendly names. It is not displayed in the sidebar.
 settings.updateData("name-mapping", {
     "synergy": "Enable Synergy Panel (alpha)",
-    "dev": "Developer Mode"
+    "dev": "Developer Mode",
+    "hiding-location": "Hide Location Dot?"
 });
 
-settings.updateData("synergy", false);
-settings.updateData("dev", false);
+settings.setDefault("synergy", false);
+settings.setDefault("dev", false);
+settings.setDefault("pd1", "");
+settings.setDefault("pd2", "");
+settings.setDefault("pd3", "");
+settings.setDefault("pd4", "");
+settings.setDefault("pd5", "");
+settings.setDefault("pd6", "");
+settings.setDefault("pd7", "");
+settings.setDefault("pd8", "");
+settings.setDefault("hr", "");
+settings.setDefault("hiding-location", false);

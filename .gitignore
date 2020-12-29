@@ -3,3 +3,4 @@
 dist
 node_modules
 src/map_compiled.json
+ssl/

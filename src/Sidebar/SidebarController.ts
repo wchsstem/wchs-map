@@ -74,6 +74,7 @@ class Sidebar {
         this.toInput = toInput;
         this.sidebar.addPanel(navPanel);
 
+        this.sidebar.addPanel(this.createSchedulePanel(roomSearch));
         this.sidebar.addPanel(this.createSettingsPanel());
     }
 
@@ -194,6 +195,52 @@ class Sidebar {
         };
     }
 
+    // Schedule panel
+    private createSchedulePanel(roomSearch: RoomSearch): L.Control.PanelOptions {
+        const inputsContainer = document.createElement("div");
+        inputsContainer.classList.add("wrapper");
+        inputsContainer.classList.add("input-wrapper");
+
+        const warning = document.createElement("p");
+        warning.innerText = "This feature is in alpha and doesn't yet work right.";
+        inputsContainer.appendChild(warning);
+
+        function makeUpdatePeriod(period: string): (room?: Room) => void {
+            return (room?: Room): void => {
+                console.log("Room", room);
+                settings.updateData(period, room ? room.getRoomNumber() : "");
+            };
+        }
+
+        for (const [id, name, title] of [
+            ["pd1", "Pd. 1", undefined],
+            ["pd2", "Pd. 2", undefined],
+            ["pd3", "Pd. 3", undefined],
+            ["pd4", "Pd. 4", undefined],
+            ["pd5", "Lunch", "Pd. 5"],
+            ["pd6", "Pd. 6", undefined],
+            ["pd7", "Pd. 7", undefined],
+            ["pd8", "Pd. 8", undefined],
+            ["hr", "HR", "Homeroom"],
+        ]) {
+            const update = makeUpdatePeriod(id);
+            const [inputContainer, input] = Sidebar.createAutocompleteBox(name, roomSearch, update, update, title);
+            settings.addWatcher(id, new Watcher((newValue: string) => {
+                input.value = newValue ? newValue : "";
+            }));
+            inputsContainer.appendChild(inputContainer);
+        }
+
+        const searchPane = Sidebar.createPaneElement("Schedule", [inputsContainer]);
+
+        return {
+            id: "schedule",
+            tab: "<i class=\"fas fa-calendar-alt\"></i>",
+            title: "Schedule",
+            pane: searchPane
+        };
+    }
+    
     private createInfoPanelHeader(
         paneElements: HTMLElement[],
         definition: GeocoderDefinition<BuildingLocationWithEntrances>
@@ -548,5 +595,71 @@ class Sidebar {
             const noResults = document.createTextNode("No results");
             resultContainer.appendChild(noResults);
         }
+    }
+
+    // TODO
+    /**
+     * Create a box with room name/number autocomplete
+     * @param label 
+     * @param roomSearch 
+     * @param onSelectRoom 
+     * @param onNoRoomSelected 
+     * @param title 
+     * @returns Autocomplete container element, input element
+     */
+    private static createAutocompleteBox(
+        label: string,
+        roomSearch: RoomSearch,
+        onSelectRoom?: (room: Room) => void,
+        onNoRoomSelected?: () => void,
+        title?: string
+    ): [HTMLElement, HTMLInputElement] {
+        const container = document.createElement("div");
+        container.classList.add("wrapper");
+        container.classList.add("input-wrapper");
+
+        const inputContainer = document.createElement("div");
+        inputContainer.classList.add("wrapper");
+
+        const inputLabel = Sidebar.elWithText("label", label);
+        inputLabel.classList.add("leaflet-style");
+        inputLabel.classList.add("no-border");
+        inputLabel.classList.add("nav-label");
+        if (title) {
+            inputLabel.setAttribute("title", title);
+        }
+        inputContainer.appendChild(inputLabel);
+
+        const input = genTextInput();
+        inputContainer.appendChild(input);
+
+        container.appendChild(inputContainer);
+
+        // Result container
+        // Attached to the text box, disappears when the box loses focus
+        const resultContainer = document.createElement("div");
+        resultContainer.classList.add("wrapper");
+        resultContainer.classList.add("results-wrapper");
+        resultContainer.classList.add("leaflet-style");
+        resultContainer.classList.add("hidden");
+        container.appendChild(resultContainer);
+
+        let roomSelected = false;
+        input.addEventListener("input", () => {
+            roomSelected = false;
+            roomSearch.search(input.value).updateElementWithResults(resultContainer, (result) => {
+                input.value = result.getRoom().getRoomNumber();
+                resultContainer.classList.add("hidden");
+                console.log("test");
+                if (onSelectRoom) {
+                    console.log("Result");
+                    console.log(result);
+                    onSelectRoom(result.getRoom());
+                }
+                roomSelected = true;
+            });
+        });
+        
+        return [container, input];
     }
 }

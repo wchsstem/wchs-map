@@ -1,7 +1,9 @@
+import * as mapDataJson from "../map_compiled.json";
+
 import * as L from "leaflet";
+import "../../node_modules/leaflet/dist/leaflet.css";
 
 import { settings, Watcher } from "./settings";
-import * as mapDataJson from "../map_compiled.json";
 import MapData from "./MapData";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
@@ -13,6 +15,7 @@ import "leaflet-sidebar-v2";
 import { GeocoderDefinition, GeocoderDefinitionSet } from "./Geocoder";
 import { geocoder } from "./utils";
 import { BuildingLocationWithEntrances } from "./BuildingLocation";
+import { LLocation } from "../LLocationPlugin/LLocationPlugin";
 
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/serviceWorker.js");
@@ -49,9 +52,14 @@ const map = L.map("map", {
 
 map.fitBounds(bounds.pad(0.05));
 
-const attribution = "<a href='https://www.nathanvarner.com' target='_blank'>Nathan Varner</a>";
+const attribution = "<a href='https://www.nathanvarner.com' target='_blank'>© Nathan Varner</a>";
 const floors = new LFloors(mapData, "1", { "attribution": attribution });
 floors.addTo(map);
+
+if ("geolocation" in navigator) {
+    const location = new LLocation({});
+    location.addTo(map);
+}
 
 // Create sidebar
 createSidebar(map, mapData);
