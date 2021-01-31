@@ -74,7 +74,6 @@ class Sidebar {
         this.toInput = toInput;
         this.sidebar.addPanel(navPanel);
 
-        this.sidebar.addPanel(this.createSchedulePanel(roomSearch));
         this.sidebar.addPanel(this.createSettingsPanel());
     }
 
@@ -192,52 +191,6 @@ class Sidebar {
             tab: "<i class=\"fas fa-info\"></i>",
             title: "Room Info",
             pane: infoPane
-        };
-    }
-
-    // Schedule panel
-    private createSchedulePanel(roomSearch: RoomSearch): L.Control.PanelOptions {
-        const inputsContainer = document.createElement("div");
-        inputsContainer.classList.add("wrapper");
-        inputsContainer.classList.add("input-wrapper");
-
-        const warning = document.createElement("p");
-        warning.innerText = "This feature is in alpha and doesn't yet work right.";
-        inputsContainer.appendChild(warning);
-
-        function makeUpdatePeriod(period: string): (room?: Room) => void {
-            return (room?: Room): void => {
-                console.log("Room", room);
-                settings.updateData(period, room ? room.getRoomNumber() : "");
-            };
-        }
-
-        for (const [id, name, title] of [
-            ["pd1", "Pd. 1", undefined],
-            ["pd2", "Pd. 2", undefined],
-            ["pd3", "Pd. 3", undefined],
-            ["pd4", "Pd. 4", undefined],
-            ["pd5", "Lunch", "Pd. 5"],
-            ["pd6", "Pd. 6", undefined],
-            ["pd7", "Pd. 7", undefined],
-            ["pd8", "Pd. 8", undefined],
-            ["hr", "HR", "Homeroom"],
-        ]) {
-            const update = makeUpdatePeriod(id);
-            const [inputContainer, input] = Sidebar.createAutocompleteBox(name, roomSearch, update, title);
-            settings.addWatcher(id, new Watcher((newValue: string) => {
-                input.value = newValue ? newValue : "";
-            }));
-            inputsContainer.appendChild(inputContainer);
-        }
-
-        const searchPane = Sidebar.createPaneElement("Schedule", [inputsContainer]);
-
-        return {
-            id: "schedule",
-            tab: "<i class=\"fas fa-calendar-alt\"></i>",
-            title: "Schedule",
-            pane: searchPane
         };
     }
     
