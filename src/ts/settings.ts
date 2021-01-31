@@ -1,64 +1,79 @@
+import { fromMap, Option } from "monads/dist/lib/option/option";
+
 class Settings {
-    private data: Map<string, any>;
-    private watchers: Map<string, Watcher[]>;
-
-    constructor() {
-        this.data = new Map();
-        this.watchers = new Map();
-
-        if (typeof(Storage) !== "undefined") {
-            for (const key in window.localStorage) {
-                this.updateData(key, JSON.parse(window.localStorage.getItem(key)));
-            }
-        }
-    }
-
-    updateData(id: string, data: any): void {
-        this.data.set(id, data);
-        if (typeof(Storage) !== "undefined") {
-            window.localStorage.setItem(id, JSON.stringify(data));
-        }
-
-        if (this.watchers.has(id)) {
-            for (const watcher of this.watchers.get(id)) {
-                watcher.onChange(data);
-            }
-        }
-    }
+    private data: Map<string, unknown>;
+    private prefix: string;
 
     /**
-     * Should be used very rarely; always use addWatcher when possible!
+     * @param prefix An arbitrary but unique string that represents this specific settings object in which underscores
+     * are prohibited
      */
-    getSetting(dataId: string): any {
-        return this.data.get(dataId);
+    public constructor(prefix: string) {
+        this.data = new Map();
+        this.prefix = prefix;
+    }
+
+    protected loadSavedData() {
+        if (typeof(Storage) !== "undefined") {
+            for (const key in window.localStorage) {
+                if (key.startsWith(`${this.prefix}_`)) {
+                    const unprefixedKey = key.substring(this.prefix.length + 1);
+                    this.updateData(unprefixedKey, JSON.parse(window.localStorage.getItem(key)));
+                }
+            }
+        }
+    }
+
+    protected updateData(id: string, data: unknown): void {
+        this.data.set(id, data);
+        if (typeof(Storage) !== "undefined") {
+            window.localStorage.setItem(`${this.prefix}_${id}`, JSON.stringify(data));
+        }
+    }
+
+    protected getData(id: string): Option<unknown> {
+        return fromMap(this.data, id);
     }
     
-    setDefault(id: string, defaultValue: any): void {
+    setDefault(id: string, defaultValue: unknown): void {
         if (!this.data.has(id)) {
             this.updateData(id, defaultValue);
         }
     }
 
-    addWatcher(dataId: string, watcher: Watcher): void {
+    public getAllSettingNames(): string[] {
+        return [...this.data.keys()];
+    }
+}
+
+class MutableSettings extends Settings {
+    private watchers: Map<string, Watcher[]>;
+
+    /**
+     * @param prefix An arbitrary but unique string that represents this specific settings object
+     */
+    public constructor(prefix: string) {
+        super(prefix);
+        this.watchers = new Map();
+        super.loadSavedData();
+    }
+
+    public updateData(id: string, data: any) {
+        super.updateData(id, data);
+        fromMap(this.watchers, id).ifSome(watchers => watchers.forEach(watcher => watcher.onChange(data)));
+    }
+
+    public addWatcher(dataId: string, watcher: Watcher): void {
         if (!this.watchers.has(dataId)) {
             this.watchers.set(dataId, []);
         }
-
         this.watchers.get(dataId).push(watcher);
-        watcher.onChange(this.data.get(dataId));
+        super.getData(dataId).ifSome((data) => watcher.onChange(data));
     }
 
-    removeWatcher(dataId: string, watcher: Watcher): void {
+    public removeWatcher(dataId: string, watcher: Watcher): void {
         const watchers = this.watchers.get(dataId).filter(currentWatcher => currentWatcher !== watcher);
         this.watchers.set(dataId, watchers);
-    }
-
-    getAllSettingNames(): string[] {
-        return [...this.data.keys()];
-    }
-
-    getAllSettings(): Map<string, any> {
-        return this.data;
     }
 }
 
@@ -69,24 +84,55 @@ export class Watcher {
         this.changeHandler = changeHandler;
     }
 
-    onChange(newValue: any): void {
+    public onChange(newValue: any): void {
         this.changeHandler(newValue);
     }
 }
 
+class ImmutableSettings extends Settings {
+    public constructor(prefix: string, settings: Map<string, unknown>) {
+        super(prefix);
+        settings.forEach((data, id) => {
+            super.updateData(id, data);
+        });
+        // Don't load saved data
+        // TODO: Maybe saving should be mutable only?
+    }
+
+    getSetting(dataId: string): Option<unknown> {
+        return super.getData(dataId);
+    }
+}
+
+// Settings about the settings that should be hidden and immutable to the user without using browser developer tools.
+const metaSettingsData = new Map();
+metaSettingsData.set("hidden-settings", [
+    "pd1",
+    "pd2",
+    "pd3",
+    "pd4",
+    "pd5",
+    "pd6",
+    "pd7",
+    "pd8",
+    "hr"
+]);
+
+// Maps setting IDs to user friendly names
+const nameMapping = new Map();
+nameMapping.set("synergy", "Enable Synergy Panel (alpha)");
+nameMapping.set("dev", "Developer Mode");
+nameMapping.set("hiding-location", "Hide Location Dot?");
+metaSettingsData.set("name-mapping", nameMapping);
+
+export const metaSettings = new ImmutableSettings("meta", metaSettingsData);
+
 // The only places that should update settings are right below here, to set defaults, and in the Settings sidebar code,
 // to allow the user to change them.
-export const settings = new Settings();
-
-// This is a special setting that maps the setting IDs to user friendly names. It is not displayed in the sidebar.
-settings.updateData("name-mapping", {
-    "synergy": "Enable Synergy Panel (alpha)",
-    "dev": "Developer Mode",
-    "hiding-location": "Hide Location Dot?"
-});
-
-settings.setDefault("synergy", false);
+export const settings = new MutableSettings("settings");
 settings.setDefault("dev", false);
+settings.setDefault("synergy", false);
+settings.setDefault("hiding-location", false);
 settings.setDefault("pd1", "");
 settings.setDefault("pd2", "");
 settings.setDefault("pd3", "");
@@ -96,4 +142,3 @@ settings.setDefault("pd6", "");
 settings.setDefault("pd7", "");
 settings.setDefault("pd8", "");
 settings.setDefault("hr", "");
-settings.setDefault("hiding-location", false);

@@ -18,7 +18,9 @@ export function genButton(label: string, onClick?: () => void): HTMLElement {
     rootEl.setAttribute("href", "#");
     rootEl.setAttribute("role", "button");
     rootEl.appendChild(labelEl);
-    rootEl.addEventListener("click", onClick);
+    if (onClick) {
+        rootEl.addEventListener("click", onClick);
+    }
 
     return rootEl;
 }

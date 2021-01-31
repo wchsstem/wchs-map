@@ -8,12 +8,10 @@ export default class Vertex {
     constructor(vertex: {
         floor: string,
         location: number[],
-        tags?: string[],
-        room?: string
+        tags?: string[]
     }) {
         this.location = new BuildingLocation(new LatLng(vertex.location[1], vertex.location[0]), vertex.floor);
         this.tags = vertex.tags || [];
-        this.room = vertex.room;
     }
 
     getLocation(): BuildingLocation {

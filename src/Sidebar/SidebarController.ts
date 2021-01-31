@@ -6,7 +6,7 @@ import MapData from "../ts/MapData";
 import "./sidebar.scss";
 import Room from "../ts/Room";
 import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
-import { settings, Watcher } from "../ts/settings";
+import { metaSettings, settings, Watcher } from "../ts/settings";
 import { Course, Synergy } from "../Synergy/Synergy";
 import { GeocoderDefinition, GeocoderSuggestion } from "../ts/Geocoder";
 import { BuildingLocation, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
@@ -224,7 +224,7 @@ class Sidebar {
             ["hr", "HR", "Homeroom"],
         ]) {
             const update = makeUpdatePeriod(id);
-            const [inputContainer, input] = Sidebar.createAutocompleteBox(name, roomSearch, update, update, title);
+            const [inputContainer, input] = Sidebar.createAutocompleteBox(name, roomSearch, update, title);
             settings.addWatcher(id, new Watcher((newValue: string) => {
                 input.value = newValue ? newValue : "";
             }));
@@ -410,39 +410,38 @@ class Sidebar {
 
         let watchers: [string, Watcher][] = [];
 
-        settings.addWatcher("name-mapping", new Watcher(mapping => {
-            while (settingsContainer.hasChildNodes()) {
-                settingsContainer.removeChild(settingsContainer.lastChild);
-            }
-            watchers.forEach(([id, watcher]) => settings.removeWatcher(id, watcher));
-            watchers = [];
+        while (settingsContainer.hasChildNodes()) {
+            settingsContainer.removeChild(settingsContainer.lastChild);
+        }
+        watchers.forEach(([id, watcher]) => settings.removeWatcher(id, watcher));
+        watchers = [];
 
-            console.log(settings.getAllSettingNames());
+        const hiddenSettings: String[] = metaSettings.getSetting("hidden-settings").unwrap() as String[];
+        const nameMapping: Map<string, string> = metaSettings.getSetting("name-mapping").unwrap() as Map<string, string>;
 
-            settings.getAllSettingNames()
-            .filter(name => name !== "name-mapping")
-            .forEach(name => {
-                const container = document.createElement("div");
-                settingsContainer.appendChild(container);
-                const watcher = new Watcher(data => {
-                    while (container.hasChildNodes()) {
-                        container.removeChild(container.lastChild);
-                    }
+        settings.getAllSettingNames()
+        .filter(name => hiddenSettings.indexOf(name) < 0)
+        .forEach(name => {
+            const container = document.createElement("div");
+            settingsContainer.appendChild(container);
+            const watcher = new Watcher(data => {
+                while (container.hasChildNodes()) {
+                    container.removeChild(container.lastChild);
+                }
 
-                    let setting = null;
-                    if (typeof data === "string") {
-                        setting = Sidebar.createStringSetting(name, data, mapping);
-                    } else if (typeof data === "boolean") {
-                        setting = Sidebar.createBooleanSetting(name, data, mapping);
-                    }
-                    if (setting !== null) {
-                        container.appendChild(setting);
-                    }
-                });
-                watchers.push([name, watcher]);
-                settings.addWatcher(name, watcher);
+                let setting = null;
+                if (typeof data === "string") {
+                    setting = Sidebar.createStringSetting(name, data, nameMapping);
+                } else if (typeof data === "boolean") {
+                    setting = Sidebar.createBooleanSetting(name, data, nameMapping);
+                }
+                if (setting !== null) {
+                    container.appendChild(setting);
+                }
             });
-        }));
+            watchers.push([name, watcher]);
+            settings.addWatcher(name, watcher);
+        });
 
         const settingsPane = Sidebar.createPaneElement("Settings", settingsContainer);
 
@@ -465,22 +464,22 @@ class Sidebar {
         return container;
     }
 
-    private static createStringSetting(name: string, value: string, mapping: object): HTMLLIElement {
+    private static createStringSetting(name: string, value: string, nameMapping: Map<string, string>): HTMLLIElement {
         const control = genTextInput("", value);
         control.addEventListener("change", () => {
             settings.updateData(name, control.value);
         });
-        return Sidebar.createSetting(mapping[name], control);
+        return Sidebar.createSetting(nameMapping.get(name), control);
     }
 
-    private static createBooleanSetting(name: string, value: boolean, mapping: object): HTMLLIElement {
+    private static createBooleanSetting(name: string, value: boolean, nameMapping: Map<string, string>): HTMLLIElement {
         const control = document.createElement("input");
         control.setAttribute("type", "checkbox");
         control.checked = value;
         control.addEventListener("change", () => {
             settings.updateData(name, control.checked);
         });
-        return Sidebar.createSetting(mapping[name], control);
+        return Sidebar.createSetting(nameMapping.get(name), control);
     }
 
     // Utils
@@ -611,7 +610,6 @@ class Sidebar {
         label: string,
         roomSearch: RoomSearch,
         onSelectRoom?: (room: Room) => void,
-        onNoRoomSelected?: () => void,
         title?: string
     ): [HTMLElement, HTMLInputElement] {
         const container = document.createElement("div");
@@ -650,10 +648,7 @@ class Sidebar {
             roomSearch.search(input.value).updateElementWithResults(resultContainer, (result) => {
                 input.value = result.getRoom().getRoomNumber();
                 resultContainer.classList.add("hidden");
-                console.log("test");
                 if (onSelectRoom) {
-                    console.log("Result");
-                    console.log(result);
                     onSelectRoom(result.getRoom());
                 }
                 roomSelected = true;

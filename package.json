@@ -7,7 +7,8 @@
     "compileMapJson": "ts-node tools/compileMapJson.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rollup -c",
-    "watch": "rollup -c rollup.dev.config.js -w"
+    "watch": "rollup -c rollup.dev.config.js -w",
+    "check": "tsc --noEmit --strict --noFallthroughCasesInSwitch"
   },
   "keywords": [],
   "author": "",
