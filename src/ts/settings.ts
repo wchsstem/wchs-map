@@ -1,4 +1,4 @@
-import { fromMap, Option } from "monads/dist/lib/option/option";
+import { fromMap, Option } from "monads";
 
 class Settings {
     private data: Map<string, unknown>;
@@ -18,7 +18,9 @@ class Settings {
             for (const key in window.localStorage) {
                 if (key.startsWith(`${this.prefix}_`)) {
                     const unprefixedKey = key.substring(this.prefix.length + 1);
-                    this.updateData(unprefixedKey, JSON.parse(window.localStorage.getItem(key)));
+                    // @ts-ignore: Must exist in localStorage, so not null
+                    const data: string = window.localStorage.getItem(key);
+                    this.updateData(unprefixedKey, JSON.parse(data));
                 }
             }
         }
@@ -58,21 +60,23 @@ class MutableSettings extends Settings {
         super.loadSavedData();
     }
 
-    public updateData(id: string, data: any) {
+    public updateData(id: string, data: any): void {
         super.updateData(id, data);
         fromMap(this.watchers, id).ifSome(watchers => watchers.forEach(watcher => watcher.onChange(data)));
     }
 
     public addWatcher(dataId: string, watcher: Watcher): void {
-        if (!this.watchers.has(dataId)) {
-            this.watchers.set(dataId, []);
-        }
-        this.watchers.get(dataId).push(watcher);
+        const watchersForId = fromMap(this.watchers, dataId).unwrapOr([]);
+        watchersForId.push(watcher);
+        this.watchers.set(dataId, watchersForId);
+
         super.getData(dataId).ifSome((data) => watcher.onChange(data));
     }
 
     public removeWatcher(dataId: string, watcher: Watcher): void {
-        const watchers = this.watchers.get(dataId).filter(currentWatcher => currentWatcher !== watcher);
+        const watchers = fromMap(this.watchers, dataId)
+            .unwrapOr([])
+            .filter(currentWatcher => currentWatcher !== watcher);
         this.watchers.set(dataId, watchers);
     }
 }

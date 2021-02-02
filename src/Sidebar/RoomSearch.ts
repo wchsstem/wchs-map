@@ -12,6 +12,7 @@ export class RoomSearch {
         this.miniSearch = new MiniSearch({
             "fields": ["names", "roomNumber"],
             "extractField": (room: Room, fieldName: string) => {
+                // @ts-ignore
                 const value = room[fieldName];
                 // Turn arrays (names) into space separated string
                 return Array.isArray(value) ? value.join(" ") : value;
@@ -50,7 +51,7 @@ export class SearchResults {
 
         resultsEl.classList.remove("hidden");
 
-        while (resultsEl.hasChildNodes()) {
+        while (resultsEl.firstChild !== null) {
             resultsEl.removeChild(resultsEl.firstChild);
         }
 

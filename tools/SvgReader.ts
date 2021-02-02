@@ -16,7 +16,8 @@ type SvgElement = {
 }
 
 type RoomData = {
-    "center": [number, number]
+    "center": [number, number],
+    "outline": [number, number][]
 }
 
 type Rooms = { [roomNumber: string]: RoomData; }
@@ -32,7 +33,7 @@ export default class SvgReader {
                     return;
                 }
             
-                const rooms = {};
+                const rooms: Rooms = {};
 
                 // Filter doesn't work on generators, so must write custom
                 for (const element of SvgReader.domIterator(dom)) {
@@ -80,23 +81,43 @@ export default class SvgReader {
     }
     
     private static isRoomElement(element: SvgElement): boolean {
-        return element.attribs && element.attribs.id && /room(.+)/.test(element.attribs.id);
+        return element.attribs !== undefined && element.attribs.id !== undefined && /room(.+)/.test(element.attribs.id);
     }
     
     private static getRoomNumber(element: SvgElement): string {
-        return /room(.+)/.exec(element.attribs.id)[1];
+        if (element.attribs === undefined || element.attribs.id === undefined) {
+            // TODO: Proper error handling
+            throw "Can't get ID from SVG element";
+        }
+
+        const result = /room(.+)/.exec(element.attribs.id);
+        if (result === null) {
+            // TODO: Proper error handling
+            throw "Can't get room number from ID";
+        }
+        return result[1];
     }
     
     private static calcCenterOfSvg(element: SvgElement): [number, number] {
         const attribs = element.attribs;
     
-        if (attribs.x && attribs.y && attribs.width && attribs.height) {
+        if (
+            attribs !== undefined
+            && attribs.x !== undefined
+            && attribs.y !== undefined
+            && attribs.width !== undefined
+            && attribs.height !== undefined
+        ) {
             const width = parseFloat(attribs.width);
             const height = parseFloat(attribs.height);
             const x = parseFloat(attribs.x);
             const y = parseFloat(attribs.y);
             return SvgReader.transformCoords([width / 2 + x, height / 2 + y]);
         } else {
+            if (attribs === undefined || attribs.d === undefined) {
+                // TODO: Proper error handling
+                throw "Couldn't find the center of the SVG";
+            }
             return SvgReader.transformCoords(SvgReader.calcCenter(new SvgPathInterpreter(attribs.d).getPoints()));
         }
     }
@@ -121,16 +142,27 @@ export default class SvgReader {
     private static getRoomOutline(element: SvgElement): [number, number][] {
         const attribs = element.attribs;
     
-        if (attribs.x && attribs.y && attribs.width && attribs.height) {
+        if (
+            attribs !== undefined
+            && attribs.x !== undefined
+            && attribs.y !== undefined
+            && attribs.width !== undefined
+            && attribs.height !== undefined
+        ) {
             const width = parseFloat(attribs.width);
             const height = parseFloat(attribs.height);
             const x = parseFloat(attribs.x);
             const y = parseFloat(attribs.y);
-            return [[x, y], [x, y + height], [x + width, y + height], [x + width, y]]
-                .map((point: [number, number]) => {
-                    return SvgReader.transformCoords(point);
-                });
+
+            const points: [number, number][] = [[x, y], [x, y + height], [x + width, y + height], [x + width, y]]
+            return points.map((point: [number, number]) => {
+                return SvgReader.transformCoords(point);
+            });
         } else {
+            if (attribs === undefined || attribs.d === undefined) {
+                // TODO: Proper error handling
+                throw "Couldn't find the outline of room";
+            }
             return new SvgPathInterpreter(attribs.d).getPoints()
                 .map((point: [number, number]) => {
                     return SvgReader.transformCoords(point);

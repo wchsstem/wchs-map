@@ -46,6 +46,7 @@ export class GeocoderDefinitionSet<T> {
     private constructor(definitions: GeocoderDefinition<T>[], names: Set<string>) {
         this.definitions = definitions;
         this.names = names;
+        this.geocoder = None;
     }
 
     public static fromDefinitions<U>(definitions: GeocoderDefinition<U>[]): Option<GeocoderDefinitionSet<U>> {

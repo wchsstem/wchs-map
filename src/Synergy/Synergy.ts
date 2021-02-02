@@ -47,7 +47,14 @@ export class Synergy {
         while ((courseNameMatch = COURSE_NAME_REGEX.exec(synergyPage)) !== null) {
             const period = courseNameMatch[1];
             const name = courseNameMatch[2];
-            const roomNumber = ROOM_NUMBER_REGEX.exec(synergyPage)[1];
+
+            const roomNumberResult = ROOM_NUMBER_REGEX.exec(synergyPage);
+            // TODO: Proper error handling
+            if (roomNumberResult === null) {
+                throw "Invalid page";
+            }
+            const roomNumber = roomNumberResult[1];
+
             const course = new Course(period, name, roomNumber)
             courses.push(course);
             definitions.push(course.getDefinition());

@@ -30,7 +30,6 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                     }),
                     "interactive": true
                 });
-                room.setNumberMarker(roomNumberMarker);
                 roomNumberMarker.on("click", () => {
                     showRoomInfo(room);
                 });
@@ -87,8 +86,12 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
     private showVisibleLayers() {
         for (const layer of this.hiddenLayers) {
             if (LRoomLabel.layerIsMarker(layer)) {
+                // This is all very hacky and doesn't use documented functionality
+
+                // @ts-ignore: can't index "bb" but does exist on object
                 const rbushBb = layer["bb"];
                 if (this.tree.search(rbushBb).length === 1) {
+                    // @ts-ignore: can't index "_icon" but does exist on object
                     layer["_icon"].classList.remove("invisible");
                 } else {
                     this.tree.remove(rbushBb);
@@ -101,6 +104,8 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         const shownLayers = super.getLayers();
         for (const layer of shownLayers) {
             if (LRoomLabel.layerIsMarker(layer)) {
+                // This is very hacky and doesn't use documented functionality
+                // @ts-ignore: can't index "_icon" but does exist on object
                 layer["_icon"].classList.add("invisible");
             }
         }
@@ -108,6 +113,8 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
 
     private centerLabels() {
         for (const label of this.hiddenLayers) {
+            // This is very hacky and doesn't use documented functionality
+            // @ts-ignore: can't index "_icon" but does exist on object
             const icon: HTMLElement = label["_icon"];
             icon.style.width = "";
             icon.style.height = "";
@@ -125,7 +132,10 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         this.tree.clear();
         const rbushBoxes = [];
         for (const layer of this.hiddenLayers) {
+            // This is all very hacky and doesn't use documented functionality
+            // @ts-ignore: can't index "bb" or "_icon" but do exist on object
             layer["bb"] = LRoomLabel.bbToRbush(layer["_icon"].getBoundingClientRect());
+            // @ts-ignore: can't index "bb" but does exist on object
             rbushBoxes.push(layer["bb"]);
         }
         this.tree.load(rbushBoxes);

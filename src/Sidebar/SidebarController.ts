@@ -11,7 +11,7 @@ import { Course, Synergy } from "../Synergy/Synergy";
 import { GeocoderDefinition, GeocoderSuggestion } from "../ts/Geocoder";
 import { BuildingLocation, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
 import { geocoder } from "../ts/utils";
-import { None, Option, Some } from "monads";
+import { fromMap, None, Option, Some } from "monads";
 
 let sidebar: Option<Sidebar> = None;
 
@@ -53,6 +53,8 @@ class Sidebar {
             }
         });
 
+        this.pathLayers = new Set();
+
         this.mapData = mapData;
 
         settings.addWatcher("synergy", new Watcher((enable) => {
@@ -90,7 +92,7 @@ class Sidebar {
         const courses = document.createElement("ol");
 
         siteUpload.addEventListener("change", () => {
-            if (siteUpload.files.length === 0) {
+            if (siteUpload.files === null || siteUpload.files.length === 0) {
                 return;
             }
 
@@ -115,6 +117,11 @@ class Sidebar {
             });
 
             reader.addEventListener("load", (result) => {
+                if (result.target === null || result.target.result === null) {
+                    errorBox.innerText = "There was an error loading the file.";
+                    return;
+                }
+
                 const synergyPage = result.target.result.toString();
                 const synergy = new Synergy(synergyPage);
                 for (const course of synergy.getCourses()) {
@@ -170,7 +177,7 @@ class Sidebar {
 
     // Info panel
     private createInfoPanel(definition: GeocoderDefinition<BuildingLocationWithEntrances>): L.Control.PanelOptions {
-        const paneElements = [];
+        const paneElements: HTMLElement[] = [];
 
         this.createInfoPanelHeader(paneElements, definition);
 
@@ -351,7 +358,6 @@ class Sidebar {
     }
 
     private clearNav(): void {
-        if (this.pathLayers === undefined) { return; }
         this.floorsLayer.ifSome(floorsLayer => this.pathLayers.forEach(layer => floorsLayer.removeLayer(layer)));
     }
 
@@ -363,8 +369,8 @@ class Sidebar {
 
         let watchers: [string, Watcher][] = [];
 
-        while (settingsContainer.hasChildNodes()) {
-            settingsContainer.removeChild(settingsContainer.lastChild);
+        while (settingsContainer.firstChild !== null) {
+            settingsContainer.removeChild(settingsContainer.firstChild);
         }
         watchers.forEach(([id, watcher]) => settings.removeWatcher(id, watcher));
         watchers = [];
@@ -378,8 +384,8 @@ class Sidebar {
             const container = document.createElement("div");
             settingsContainer.appendChild(container);
             const watcher = new Watcher(data => {
-                while (container.hasChildNodes()) {
-                    container.removeChild(container.lastChild);
+                while (container.firstChild !== null) {
+                    container.removeChild(container.firstChild);
                 }
 
                 let setting = null;
@@ -422,7 +428,9 @@ class Sidebar {
         control.addEventListener("change", () => {
             settings.updateData(name, control.value);
         });
-        return Sidebar.createSetting(nameMapping.get(name), control);
+
+        const mappedName = fromMap(nameMapping, name).unwrapOr(name);
+        return Sidebar.createSetting(mappedName, control);
     }
 
     private static createBooleanSetting(name: string, value: boolean, nameMapping: Map<string, string>): HTMLLIElement {
@@ -432,7 +440,9 @@ class Sidebar {
         control.addEventListener("change", () => {
             settings.updateData(name, control.checked);
         });
-        return Sidebar.createSetting(nameMapping.get(name), control);
+
+        const mappedName = fromMap(nameMapping, name).unwrapOr(name);
+        return Sidebar.createSetting(mappedName, control);
     }
 
     // Utils
@@ -507,8 +517,8 @@ class Sidebar {
     }
 
     private static clearResults(resultContainer: HTMLElement) {
-        while (resultContainer.hasChildNodes()) {
-            resultContainer.removeChild(resultContainer.lastChild);
+        while (resultContainer.firstChild !== null) {
+            resultContainer.removeChild(resultContainer.firstChild);
         }
         resultContainer.classList.add("hidden");
     }
@@ -526,7 +536,7 @@ class Sidebar {
 
         resultContainer.classList.remove("hidden");
 
-        while (resultContainer.hasChildNodes()) {
+        while (resultContainer.firstChild !== null) {
             resultContainer.removeChild(resultContainer.firstChild);
         }
 

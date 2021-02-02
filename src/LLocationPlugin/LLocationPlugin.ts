@@ -2,19 +2,19 @@ import * as L from "leaflet";
 
 import { LLocationControl } from "./LLocationControl";
 import { settings, Watcher } from "../ts/settings";
+import { None, Option, Some } from "monads";
 
 export class LLocation extends L.LayerGroup {
     private control: LLocationControl;
 
     private positionState: PositionState;
-    private latestPosition: [number, number];
-    private latestAccuracyRadius: number;
+    private latestPosition: Option<[number, number]>;
+    private latestAccuracyRadius: Option<number>;
 
     private hidingLocation: boolean;
-    private accuracyCircle: L.Circle | undefined;
-    private positionPoint: L.CircleMarker | undefined;
+    private positionMarker: Option<PositionMarker>;
 
-    private map: L.Map;
+    private map: Option<L.Map>;
 
     /**
      * Creates a new layer that shows the user's location on the map.
@@ -27,11 +27,20 @@ export class LLocation extends L.LayerGroup {
 
         super([], options);
 
-        this.positionState = PositionState.Unknown;
+        this.control = new LLocationControl(() => { this.locate() }, { position: "topright" });
 
+        this.positionState = PositionState.Unknown;
+        this.latestPosition = None;
+        this.latestAccuracyRadius = None;
+        
+        this.hidingLocation = false;
         settings.addWatcher("hiding-location", new Watcher((hidingLocation: boolean) => {
             this.onChangeHidingLocation(hidingLocation);
         }));
+
+        this.positionMarker = None;
+
+        this.map = None;
 
         const onPositionUpdate = (latestPosition: Position) => {
             this.onPositionUpdate(latestPosition);
@@ -50,9 +59,8 @@ export class LLocation extends L.LayerGroup {
 
     onAdd(map: L.Map): this {
         super.onAdd(map);
-        this.control = new LLocationControl(() => { this.locate() }, { position: "topright" });
         this.control.addTo(map);
-        this.map = map;
+        this.map = Some(map);
 
         return this;
     }
@@ -64,7 +72,11 @@ export class LLocation extends L.LayerGroup {
     }
 
     private locate(): void {
-        this.map.flyTo([this.latestPosition[1], this.latestPosition[0]], 2.5);
+        this.latestPosition.ifSome(position => {
+            this.map.ifSome(map => {
+                map.flyTo([position[1], position[0]], 2.5);
+            });
+        });
     }
 
     private onPositionUpdate(latestPosition: Position): void {
@@ -85,25 +97,17 @@ export class LLocation extends L.LayerGroup {
     private setPositionStateNearChurchill(coords: Coordinates): void {
         this.positionState = PositionState.NearChurchill;
 
-        this.latestAccuracyRadius = LLocation.metersToFeet(coords.accuracy);
-        this.latestPosition = LLocation.latLongToChurchillSpace(coords.latitude, coords.longitude);
-        const latestPositionLeaflet: [number, number] = [this.latestPosition[1], this.latestPosition[0]];
+        const latestAccuracyRadius = LLocation.metersToFeet(coords.accuracy);
+        const latestPosition = LLocation.latLongToChurchillSpace(coords.latitude, coords.longitude);
 
-        // Remove only if these are not null
-        if (this.positionPoint) {
-            super.removeLayer(this.positionPoint);
-            super.removeLayer(this.accuracyCircle);
-        }
+        this.latestAccuracyRadius = Some(latestAccuracyRadius);
+        this.latestPosition = Some(latestPosition);
 
-        this.positionPoint = L.circleMarker(latestPositionLeaflet, { radius: 1 });
-        this.accuracyCircle = L.circle(latestPositionLeaflet, {
-            stroke: false,
-            radius: this.latestAccuracyRadius
-        });
-
+        this.positionMarker.ifSome(positionMarker => super.removeLayer(positionMarker));
+        const positionMarker = new PositionMarker(latestPosition, latestAccuracyRadius);
+        this.positionMarker = Some(positionMarker);
         if (!this.hidingLocation) {
-            super.addLayer(this.positionPoint);
-            super.addLayer(this.accuracyCircle);
+            super.addLayer(positionMarker);
         }
 
         // When near Churchill, location is available
@@ -114,11 +118,7 @@ export class LLocation extends L.LayerGroup {
         // TODO: Switch to lower accuracy GPS readings
         this.positionState = PositionState.NotNearChurchill;
 
-        // Remove only if these are not null
-        if (this.positionPoint) {
-            super.removeLayer(this.positionPoint);
-            super.removeLayer(this.accuracyCircle);
-        }
+        this.positionMarker.ifSome(positionMarker => super.removeLayer(positionMarker));
 
         // When not near Churchill, location is not available
         this.control.onLocationNotAvailable();
@@ -127,26 +127,23 @@ export class LLocation extends L.LayerGroup {
     private setPositionStateUnknown(): void {
         this.positionState = PositionState.Unknown;
 
-        // Remove only if these are not null
-        if (this.positionPoint) {
-            super.removeLayer(this.positionPoint);
-            super.removeLayer(this.accuracyCircle);
-        }
+        this.positionMarker.ifSome(positionMarker => super.removeLayer(positionMarker));
 
         this.control.onLocationNotAvailable();
     }
 
     private onChangeHidingLocation(hidingLocation: boolean): void {
         this.hidingLocation = hidingLocation;
-        if (this.positionPoint && this.positionState == PositionState.NearChurchill) {
-            if (this.hidingLocation) {
-                super.removeLayer(this.positionPoint);
-                super.removeLayer(this.accuracyCircle);
-            } else {
-                super.addLayer(this.positionPoint);
-                super.addLayer(this.accuracyCircle);
+        
+        this.positionMarker.ifSome(positionMarker => {
+            if (this.positionState == PositionState.NearChurchill) {
+                if (this.hidingLocation) {
+                    super.removeLayer(positionMarker);
+                } else {
+                    super.addLayer(positionMarker);
+                }
             }
-        }
+        });
     }
 
     private static latLongToChurchillSpace(latitude: number, longitude: number): [number, number] {
@@ -189,4 +186,18 @@ enum PositionState {
     Unknown,
     NearChurchill,
     NotNearChurchill
+}
+
+class PositionMarker extends L.LayerGroup {
+    constructor(position: [number, number], accuracyRadius: number) {
+        const positionLeaflet = new L.LatLng(position[1], position[0]);
+
+        const positionPoint = L.circleMarker(positionLeaflet, { radius: 1 });
+        const accuracyCircle = L.circle(positionLeaflet, {
+            stroke: false,
+            radius: accuracyRadius,
+        });
+
+        super([positionPoint, accuracyCircle]);
+    }
 }

@@ -72,7 +72,7 @@ const devLayer1 = mapData.createDevLayerGroup("1");
 const devLayer2 = mapData.createDevLayerGroup("2");
 
 const locationPopup = L.popup();
-function showClickLoc(e: L.LocationEvent) {
+function showClickLoc(e: L.LeafletMouseEvent): void {
     locationPopup.setLatLng(e.latlng)
         .setContent(`${e.latlng.lng}, ${e.latlng.lat}`)
         .openOn(map);

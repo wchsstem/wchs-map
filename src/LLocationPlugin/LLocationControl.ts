@@ -2,7 +2,7 @@ import * as L from "leaflet";
 
 export class LLocationControl extends L.Control {
     private locateCallback: () => void;
-    private button: HTMLElement;
+    private locateButton: HTMLElement;
 
     /**
      * Creates a new control that moves the map to the user's location.
@@ -12,6 +12,20 @@ export class LLocationControl extends L.Control {
     constructor(locateCallback: () => void,  options?: L.ControlOptions) {
         super(options);
         this.locateCallback = locateCallback;
+        this.locateButton = LLocationControl.createLocateButton();
+    }
+
+    private static createLocateButton(): HTMLElement {
+        const button = document.createElement("a");
+        button.setAttribute("href", "#");
+        button.classList.add("leaflet-disabled");
+
+        const icon = document.createElement("i");
+        icon.classList.add("fas");
+        icon.classList.add("fa-map-pin");
+        button.appendChild(icon);
+
+        return button;
     }
 
     onAdd(_map: L.Map): HTMLElement {
@@ -19,17 +33,7 @@ export class LLocationControl extends L.Control {
         base.classList.add("leaflet-bar");
         base.classList.add("leaflet-control");
         base.classList.add("leaflet-control-floors");
-
-        this.button = document.createElement("a");
-        this.button.setAttribute("href", "#");
-        this.button.classList.add("leaflet-disabled");
-
-        const pinIcon = document.createElement("i");
-        pinIcon.classList.add("fas");
-        pinIcon.classList.add("fa-map-pin");
-        this.button.appendChild(pinIcon);
-
-        base.appendChild(this.button);
+        base.appendChild(this.locateButton);
 
         L.DomEvent.disableClickPropagation(base);
         L.DomEvent.disableScrollPropagation(base);
@@ -38,12 +42,12 @@ export class LLocationControl extends L.Control {
     }
 
     public onLocationAvailable(): void {
-        this.button.addEventListener("click", this.locateCallback);
-        this.button.classList.remove("leaflet-disabled");
+        this.locateButton.addEventListener("click", this.locateCallback);
+        this.locateButton.classList.remove("leaflet-disabled");
     }
 
     public onLocationNotAvailable(): void {
-        this.button.removeEventListener("click", this.locateCallback);
-        this.button.classList.add("leaflet-disabled");
+        this.locateButton.removeEventListener("click", this.locateCallback);
+        this.locateButton.classList.add("leaflet-disabled");
     }
 }

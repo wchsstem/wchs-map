@@ -25,6 +25,7 @@ import SvgReader from "./SvgReader";
 
                 for (const key in rooms[roomsKey]) {
                     if (!mapData.rooms[roomsKey][key]) {
+                        // @ts-ignore: Can index RoomData
                         mapData.rooms[roomsKey][key] = rooms[roomsKey][key];
                     }
                 }

@@ -1,5 +1,5 @@
 import * as L from "leaflet";
-import { Option } from "monads";
+import { fromMap, Option } from "monads";
 
 import Graph from "./Graph";
 import Room from "./Room";
@@ -49,12 +49,13 @@ export default class MapData {
 
         this.graph = new Graph<number, Vertex>();
         for (const vertex of mapData.vertices) {
-            this.graph.addVertex(this.vertexStringToId.get(vertex.id), new Vertex(vertex));
+            const vertexId = fromMap(this.vertexStringToId, vertex.id).unwrap();
+            this.graph.addVertex(vertexId, new Vertex(vertex));
         }
 
         for (const edge of mapData.edges) {
-            const pId = this.vertexStringToId.get(edge[0]);
-            const qId = this.vertexStringToId.get(edge[1]);
+            const pId = fromMap(this.vertexStringToId, edge[0]).unwrap();
+            const qId = fromMap(this.vertexStringToId, edge[1]).unwrap();
 
             const p = this.graph.getVertex(pId);
             const q = this.graph.getVertex(qId);
@@ -71,7 +72,7 @@ export default class MapData {
         for (const roomNumber in mapData.rooms) {
             const room = mapData.rooms[roomNumber];
 
-            const someVertex = this.graph.getVertex(this.vertexStringToId.get(room.vertices[0]));
+            const someVertex = this.graph.getVertex(fromMap(this.vertexStringToId, room.vertices[0]).unwrap());
             const floorNumber = someVertex.getLocation().floor;
             const center = room.center
                 ? new BuildingLocation(new L.LatLng(room.center[1], room.center[0]), floorNumber)
@@ -84,7 +85,7 @@ export default class MapData {
                 if (this.vertexStringToId.get(vertex) === undefined) {
                     console.log(`Unknown vertex: ${vertex}`);
                 } else {
-                    verticesId.push(this.vertexStringToId.get(vertex));
+                    verticesId.push(fromMap(this.vertexStringToId, vertex).unwrap());
                 }
             }
 
@@ -99,7 +100,7 @@ export default class MapData {
                 if (!this.roomsFromNames.has(name)) {
                     this.roomsFromNames.set(name, []);
                 }
-                this.roomsFromNames.get(name).push(room);
+                fromMap(this.roomsFromNames, name).unwrap().push(room);
             }
         }
 
@@ -117,7 +118,7 @@ export default class MapData {
     }
 
     getRoom(roomId: string): Room {
-        return this.rooms.get(roomId);
+        return fromMap(this.rooms, roomId).unwrap();
     }
 
     getAllRooms(): Room[] {
@@ -125,16 +126,16 @@ export default class MapData {
     }
 
     getRoomsFromName(name: string): Room[] {
-        return this.roomsFromNames.get(name);
+        return fromMap(this.roomsFromNames, name).unwrap();
     }
 
     findBestPath(
         src: GeocoderDefinition<BuildingLocationWithEntrances>,
         dest: GeocoderDefinition<BuildingLocationWithEntrances>
     ): number[] {
-        let fastestTree = undefined;
-        let shortestDistance = undefined;
-        let destVertex = undefined;
+        let fastestTree = null;
+        let shortestDistance = null;
+        let destVertex = null;
     
         // Look through all exits from the source
         for (const exitLocation of src.location.getEntrances()) {
@@ -146,14 +147,19 @@ export default class MapData {
                 const entranceId = this.getClosestVertex(entranceLocation);
 
                 // Find the distance between the source and destination
-                const distance = distances.get(entranceId);
+                const distance = fromMap(distances, entranceId).unwrap();
                 // If the distance is shortest, choose it
-                if (shortestDistance === undefined || distance < shortestDistance) {
+                if (shortestDistance === null || distance < shortestDistance) {
                     shortestDistance = distance;
                     fastestTree = tree;
                     destVertex = entranceId;
                 }
             }
+        }
+
+        if (fastestTree === null || destVertex === null) {
+            // TODO: Proper error handling
+            throw "No path between vertices";
         }
     
         const fastestPath: number[] = [];
@@ -161,7 +167,8 @@ export default class MapData {
     
         while (fastestTree.get(nextPlace) !== undefined) {
             fastestPath.push(nextPlace);
-            nextPlace = fastestTree.get(nextPlace);
+            // @ts-ignore: Guaranteed not to be null
+            nextPlace = fromMap(fastestTree, nextPlace).unwrap();
         }
         fastestPath.push(nextPlace);
     
@@ -174,8 +181,8 @@ export default class MapData {
             floorNumber: floor
         });
         for (const edge of this.edges) {
-            const p = this.graph.getVertex(this.vertexStringToId.get(edge[0]));
-            const q = this.graph.getVertex(this.vertexStringToId.get(edge[1]));
+            const p = this.graph.getVertex(fromMap(this.vertexStringToId, edge[0]).unwrap());
+            const q = this.graph.getVertex(fromMap(this.vertexStringToId, edge[1]).unwrap());
             
             if (p.getLocation().floor === floor && q.getLocation().floor === floor) {
                 const pLoc = p.getLocation();

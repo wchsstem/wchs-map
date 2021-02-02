@@ -1,11 +1,12 @@
 import * as L from "leaflet";
+import { Some, None, Option, fromMap } from "monads";
 
 import "./floors.scss";
 import MapData from "../ts/MapData";
 
 export class LFloors extends L.LayerGroup {
     private allFloors: Map<string, L.LayerGroup>;
-    private control: LFloorsControl;
+    private control: Option<LFloorsControl>;
     private defaultFloorNumber: string;
     private currentFloor: L.LayerGroup;
     private currentFloorNumber: string;
@@ -23,6 +24,7 @@ export class LFloors extends L.LayerGroup {
         super([], options);
 
         this.allFloors = new Map();
+        this.control = None;
 
         // Reversing the array means that floors are ordered intuitively in the JSON (1, 2, 3...) and intuitively in the
         // control (higher floors on top)
@@ -32,7 +34,8 @@ export class LFloors extends L.LayerGroup {
         }
 
         this.defaultFloorNumber = defaultFloorNumber;
-        this.currentFloor = this.allFloors.get(this.defaultFloorNumber);
+
+        this.currentFloor = fromMap(this.allFloors, this.defaultFloorNumber).unwrap();
         this.currentFloorNumber = this.defaultFloorNumber;
         super.addLayer(this.currentFloor);
 
@@ -43,33 +46,24 @@ export class LFloors extends L.LayerGroup {
         return this.allFloors.keys();
     }
 
-    getFloor(number: string): L.LayerGroup {
-        return this.allFloors.get(number);
-    }
-
     private startDrawingFloor(floor: L.LayerGroup, floorNumber: string) {
         super.addLayer(floor);
-        if (this.additions.has(floorNumber)) {
-            for (const addition of this.additions.get(floorNumber)) {
-                floor.addLayer(addition);
-            }
-        }
+        fromMap(this.additions, floorNumber).ifSome(additions => {
+            additions.forEach(addition => floor.addLayer(addition));
+        });
     }
 
     private stopDrawingFloor(floor: L.LayerGroup, floorNumber: string) {
-        if (this.additions.has(floorNumber)) {
-            for (const addition of this.additions.get(floorNumber)) {
-                floor.removeLayer(addition);
-            }
-        }
+        fromMap(this.additions, floorNumber).ifSome(additions => {
+            additions.forEach(addition => floor.removeLayer(addition));
+        });
         super.removeLayer(floor);
     }
     
     public setFloor(floor: string): this {
-        if (this.allFloors.has(floor)) {
-            const newFloor = this.allFloors.get(floor);
+        fromMap(this.allFloors, floor).ifSome(newFloor => {
             if (newFloor !== this.currentFloor) {
-                this.control.setFloor(this.currentFloorNumber, floor);
+                this.control.ifSome(control => control.setFloor(this.currentFloorNumber, floor));
 
                 this.stopDrawingFloor(this.currentFloor, this.currentFloorNumber);
 
@@ -78,7 +72,8 @@ export class LFloors extends L.LayerGroup {
 
                 this.startDrawingFloor(this.currentFloor, this.currentFloorNumber);
             }
-        }
+        });
+
         return this;
     }
 
@@ -88,12 +83,9 @@ export class LFloors extends L.LayerGroup {
     }
 
     public addLayerToFloor(layer: L.Layer, floorNumber: string): this {
-        // Add set for floor if it does not exist
-        if (!this.additions.has(floorNumber)) {
-            this.additions.set(floorNumber, new Set());
-        }
-
-        this.additions.get(floorNumber).add(layer);
+        const floorLayers = fromMap(this.additions, floorNumber).unwrapOr(new Set());
+        floorLayers.add(layer);
+        this.additions.set(floorNumber, floorLayers);
 
         if (floorNumber === this.currentFloorNumber) {
             this.currentFloor.addLayer(layer);
@@ -121,15 +113,23 @@ export class LFloors extends L.LayerGroup {
 
     onAdd(map: L.Map): this {
         super.onAdd(map);
-        this.control = new LFloorsControl(this.getFloors(), this.getDefaultFloor(), (floor) => { this.setFloor(floor) },
-            { position: "bottomleft" });
-        this.control.addTo(map);
+        
+        const control = new LFloorsControl(
+            this.getFloors(),
+            this.getDefaultFloor(),
+            (floor) => { this.setFloor(floor) },
+            { position: "bottomleft" }
+        );
+        control.addTo(map);
+
+        this.control = Some(control);
+
         return this;
     }
 
     onRemove(map: L.Map): this {
         super.onRemove(map);
-        map.removeControl(this.control);
+        this.control.ifSome(control => map.removeControl(control));
         return this;
     }
 }
@@ -194,8 +194,10 @@ class LFloorsControl extends L.Control {
     }
 
     public setFloor(oldFloorNumber: string, newFloorNumber: string) {
-        this.floorControls.get(oldFloorNumber).classList.remove("selected");
-        this.floorControls.get(newFloorNumber).classList.add("selected");
+        fromMap(this.floorControls, oldFloorNumber)
+            .ifSome(oldControl => oldControl.classList.remove("selected"));
+        fromMap(this.floorControls, newFloorNumber)
+            .ifSome(newControl => newControl.classList.add("selected"));
     }
 }
 
@@ -207,29 +209,12 @@ export interface LLayerWithFloorOptions extends L.LayerOptions {
     floorNumber?: string;
 }
 
-export class LLayerWithFloor extends L.Layer implements LSomeLayerWithFloor {
-    private floorNumber: string;
-
-    constructor(options?: LLayerWithFloorOptions) {
-        super(options);
-        if (options) {
-            this.floorNumber = options.floorNumber || "";
-        }
-    }
-
-    public getFloorNumber(): string {
-        return this.floorNumber;
-    }
-}
-
 export class LLayerGroupWithFloor extends L.LayerGroup implements LSomeLayerWithFloor {
     private floorNumber: string;
 
-    constructor(layers?: L.Layer[], options?: LLayerWithFloorOptions) {
+    constructor(layers: L.Layer[], options: LLayerWithFloorOptions) {
         super(layers, options);
-        if (options) {
-            this.floorNumber = options.floorNumber || "";
-        }
+        this.floorNumber = options.floorNumber || "";
     }
 
     public getFloorNumber(): string {
