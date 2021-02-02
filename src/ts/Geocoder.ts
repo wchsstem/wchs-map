@@ -49,17 +49,18 @@ export class GeocoderDefinitionSet<T> {
         this.geocoder = None;
     }
 
-    public static fromDefinitions<U>(definitions: GeocoderDefinition<U>[]): Option<GeocoderDefinitionSet<U>> {
+    public static fromDefinitions<U>(definitions: GeocoderDefinition<U>[]): GeocoderDefinitionSet<U> {
         const namesSoFar: Set<string> = new Set();
         for (const definition of definitions) {
             if (namesSoFar.has(definition.name)) {
                 // Duplicate names are not allowed
-                return None;
+                // TODO: Proper error handling
+                throw "Cannot have multiple definitions with the same name";
             }
             namesSoFar.add(definition.name);
         }
 
-        return Some(new GeocoderDefinitionSet(definitions, namesSoFar));
+        return new GeocoderDefinitionSet(definitions, namesSoFar);
     }
 
     public addDefinition(definition: GeocoderDefinition<T>) {
@@ -96,7 +97,7 @@ export class GeocoderDefinitionSet<T> {
      * @returns `true` if the reference was saved, `false` if the reference was not saved because there already was one
      */
     public setGeocoder(geocoder: Geocoder<T>): boolean {
-        if (this.geocoder) {
+        if (this.geocoder.isSome()) {
             return false;
         }
         this.geocoder = Some(geocoder);
@@ -145,6 +146,8 @@ export class Geocoder<T> {
         });
         this.search.addAll(newDefinitions);
         definitionSet.getNames().forEach(name => this.allNames.add(name));
+
+        console.log("geocoder", this);
 
         return true;
     }

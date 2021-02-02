@@ -32,15 +32,14 @@ export class LLocation extends L.LayerGroup {
         this.positionState = PositionState.Unknown;
         this.latestPosition = None;
         this.latestAccuracyRadius = None;
+
+        this.positionMarker = None;
+        this.map = None;
         
         this.hidingLocation = false;
         settings.addWatcher("hiding-location", new Watcher((hidingLocation: boolean) => {
             this.onChangeHidingLocation(hidingLocation);
         }));
-
-        this.positionMarker = None;
-
-        this.map = None;
 
         const onPositionUpdate = (latestPosition: Position) => {
             this.onPositionUpdate(latestPosition);
@@ -90,7 +89,6 @@ export class LLocation extends L.LayerGroup {
     }
 
     private onPositionError(error: PositionError): void {
-        console.log("Error getting position", error);
         this.setPositionStateUnknown();
     }
 

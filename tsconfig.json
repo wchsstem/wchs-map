@@ -2,6 +2,7 @@
     "compilerOptions": {
         "resolveJsonModule": true,
         "moduleResolution": "node",
-        "downlevelIteration": true
+        "downlevelIteration": true,
+        "strict": true
     }
 }

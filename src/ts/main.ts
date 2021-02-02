@@ -34,7 +34,8 @@ const definitions = mapData.getAllRooms().map(room => {
     const location = new BuildingLocationWithEntrances(room.getCenter(), entranceLocations);
     return new GeocoderDefinition(room.getName(), room.getNames(), "", [], location);
 });
-const definitionSet = GeocoderDefinitionSet.fromDefinitions(definitions).unwrap();
+const definitionSet = GeocoderDefinitionSet.fromDefinitions(definitions);
+console.log(definitionSet, definitions);
 geocoder.addDefinitionSet(definitionSet);
 
 // Create map
