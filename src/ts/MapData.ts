@@ -163,14 +163,15 @@ export default class MapData {
         }
     
         const fastestPath: number[] = [];
-        let nextPlace = destVertex;
+        let nextPlace: number | null = destVertex;
     
-        while (fastestTree.get(nextPlace) !== undefined) {
+        while (nextPlace !== null && fastestTree.get(nextPlace) !== undefined) {
             fastestPath.push(nextPlace);
-            // @ts-ignore: Guaranteed not to be null
             nextPlace = fromMap(fastestTree, nextPlace).unwrap();
         }
-        fastestPath.push(nextPlace);
+        if (nextPlace !== null) {
+            fastestPath.push(nextPlace);
+        }
     
         return fastestPath;
     }

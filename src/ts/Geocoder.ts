@@ -147,8 +147,6 @@ export class Geocoder<T> {
         this.search.addAll(newDefinitions);
         definitionSet.getNames().forEach(name => this.allNames.add(name));
 
-        console.log("geocoder", this);
-
         return true;
     }
 
