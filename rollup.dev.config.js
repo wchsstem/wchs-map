@@ -2,11 +2,10 @@ import commonjs from "@rollup/plugin-commonjs";
 import copy from "rollup-plugin-copy";
 import json from "rollup-plugin-json";
 import progress from "rollup-plugin-progress";
-import resolve from "@rollup/plugin-node-resolve";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 import scss from "rollup-plugin-scss";
 import serve from "rollup-plugin-serve";
 import typescript from "rollup-plugin-typescript";
-import * as fs from "fs";
 
 // TODO: Read the SVG files to copy from map.json
 export default [
@@ -18,7 +17,7 @@ export default [
             sourcemap: true
         },
         plugins: [
-            resolve(),
+            nodeResolve(),
             commonjs(),
             typescript(),
             scss(),

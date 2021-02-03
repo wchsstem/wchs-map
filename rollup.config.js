@@ -2,7 +2,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import copy from "rollup-plugin-copy";
 import json from "rollup-plugin-json";
 import progress from "rollup-plugin-progress";
-import resolve from "@rollup/plugin-node-resolve";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 import scss from "rollup-plugin-scss";
 import { terser } from "rollup-plugin-terser";
 import typescript from "rollup-plugin-typescript";
@@ -17,7 +17,7 @@ export default [
             sourcemap: false
         },
         plugins: [
-            resolve(),
+            nodeResolve(),
             commonjs(),
             typescript(),
             scss(),
