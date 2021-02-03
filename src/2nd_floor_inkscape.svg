@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -16,14 +14,14 @@
    height="4.1666641in"
    viewBox="0 0 590.53807 399.99974"
    sodipodi:docname="2nd_floor_inkscape.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    inkscape:export-filename="/home/nathan/Programming/Web/churchill-map/1st_floor.png"
    inkscape:export-xdpi="500"
    inkscape:export-ydpi="500"
    style="enable-background:new"><metadata
      id="metadata939"><rdf:RDF><cc:Work
          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title /></cc:Work></rdf:RDF></metadata><defs
      id="defs937"><inkscape:path-effect
        effect="skeletal"
        id="path-effect954"
@@ -85,18 +83,18 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="3192"
-     inkscape:window-height="1706"
+     inkscape:window-width="1594"
+     inkscape:window-height="822"
      id="namedview935"
      showgrid="false"
      units="in"
      inkscape:document-units="pt"
-     inkscape:zoom="14.839584"
-     inkscape:cx="391.76559"
-     inkscape:cy="205.97732"
-     inkscape:window-x="3200"
-     inkscape:window-y="812"
-     inkscape:window-maximized="0"
+     inkscape:zoom="10.49317"
+     inkscape:cx="491.04746"
+     inkscape:cy="233.52288"
+     inkscape:window-x="1920"
+     inkscape:window-y="100"
+     inkscape:window-maximized="1"
      inkscape:current-layer="layer2"
      showguides="true"
      inkscape:measure-start="0,0"
@@ -104,7 +102,8 @@
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
-     fit-margin-bottom="0" /><g
+     fit-margin-bottom="0"
+     inkscape:document-rotation="0" /><g
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Rooms"
@@ -154,7 +153,7 @@
        x="503.46106"
        height="26.351706"
        width="34.151367"
-       id="room153"
+       id="room253"
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.60237718;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        inkscape:label="" /><rect
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.60237718;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -517,7 +516,7 @@
        id="room242A"
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.60237718;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" /><rect
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.60237718;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect1259"
+       id="room242Z"
        width="10.679962"
        height="9.7037964"
        x="485.8811"
@@ -703,8 +702,8 @@
        width="33.926788"
        id="rect1318"
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.60237718;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" /><path
-       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.60237718;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 475.00467,459.79562 28.45639,-2.3e-4 v 26.3517 l -16.201,3e-5 v -13.3314 l -12.25539,2.3e-4 z"
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.602377;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 475.00467,459.79562 28.45639,-2.3e-4 v 26.3517 l -16.201,3e-5 v -12.92728 l -12.25539,2.3e-4 z"
        id="rect1320"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccccc" /><rect
@@ -757,8 +756,8 @@
        width="7.5473938"
        id="rect1337"
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.60237718;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" /><path
-       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.60237718;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 382.57007,500.17523 43.44702,0 v -18.78618 h 11.55688 v -8.16878 l 33.92679,10e-6 -1.5e-4,88.05277 H 422.4633 v 4.57381 h -39.89323 z"
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.602377;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 382.57007,500.17523 h 43.44702 v -18.78618 h 11.55688 v -8.16878 l 33.92679,-3.1e-4 -1.5e-4,88.05309 H 422.4633 v 4.57381 h -39.89323 z"
        id="room245"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccccccccc"
@@ -805,10 +804,10 @@
        inkscape:label="" /><rect
        y="459.79562"
        x="458.29266"
-       height="13.020327"
+       height="13.424446"
        width="16.712006"
        id="rect1317"
-       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.60237718;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" /><rect
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.602377;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" /><rect
        y="549.67792"
        x="335.16348"
        height="26.793394"
