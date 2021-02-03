@@ -57,14 +57,6 @@ class Sidebar {
 
         this.mapData = mapData;
 
-        settings.addWatcher("synergy", new Watcher((enable) => {
-            if (enable) {
-                this.sidebar.addPanel(this.createSynergyPanel());
-            } else {
-                this.sidebar.removePanel("synergy");
-            }
-        }));
-
         const roomSearch = new RoomSearch(mapData);
         this.sidebar.addPanel(this.createSearchPanel(roomSearch));
 
@@ -77,6 +69,14 @@ class Sidebar {
         this.sidebar.addPanel(navPanel);
 
         this.sidebar.addPanel(this.createSettingsPanel());
+
+        settings.addWatcher("synergy", new Watcher((enable) => {
+            if (enable) {
+                this.sidebar.addPanel(this.createSynergyPanel());
+            } else {
+                this.sidebar.removePanel("synergy");
+            }
+        }));
     }
 
     // Synergy panel

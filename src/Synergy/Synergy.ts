@@ -29,7 +29,6 @@ export class Course {
 
     public getDefinition(): GeocoderDefinition<BuildingLocationWithEntrances> {
         const location = geocoder.getDefinitionFromName(this.roomNumber).unwrap().location;
-        console.log(this.name);
         return new GeocoderDefinition(`Period ${this.period}`, [this.name], "", ["course"], location);
     }
 }
@@ -62,7 +61,7 @@ export class Synergy {
 
         this.courses = courses;
         // Names should be unique because every class has a unique period number
-        this.definitionSet = GeocoderDefinitionSet.fromDefinitions(definitions).unwrap();
+        this.definitionSet = GeocoderDefinitionSet.fromDefinitions(definitions);
         geocoder.addDefinitionSet(this.definitionSet);
     }
 
