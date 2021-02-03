@@ -540,8 +540,8 @@ class Sidebar {
             resultContainer.removeChild(resultContainer.firstChild);
         }
 
+        const list = document.createElement("ul");
         if (results.length > 0) {
-            const list = document.createElement("ul");
             for (const result of results) {
                 const resultElement = document.createElement("li");
                 resultElement.classList.add("search-result");
@@ -554,8 +554,15 @@ class Sidebar {
 
             resultContainer.appendChild(list);
         } else {
+            const container = document.createElement("li");
+            container.classList.add("search-result");
+
             const noResults = document.createTextNode("No results");
-            resultContainer.appendChild(noResults);
+            container.appendChild(noResults);
+
+            list.appendChild(container);
+
+            resultContainer.appendChild(list);
         }
     }
 

@@ -55,8 +55,8 @@ export class SearchResults {
             resultsEl.removeChild(resultsEl.firstChild);
         }
 
+        const list = document.createElement("ul");
         if (this.searchResults.length > 0) {
-            const list = document.createElement("ul");
             for (const result of this.searchResults) {
                 const element = result.createHtml();
                 element.addEventListener("click", () => {
@@ -64,12 +64,16 @@ export class SearchResults {
                 });
                 list.appendChild(element);
             }
-
-            resultsEl.appendChild(list);
         } else {
+            const container = document.createElement("li");
+            container.classList.add("search-result");
+
             const noResults = document.createTextNode("No results");
-            resultsEl.appendChild(noResults);
+            container.appendChild(noResults);
+
+            list.appendChild(container);
         }
+        resultsEl.appendChild(list);
     }
 }
 
