@@ -1,6 +1,6 @@
 import { Option, Some, None } from "monads";
 import MiniSearch from "minisearch";
-import { fromMap } from "monads/dist/lib/option/option";
+import { fromMap } from "monads";
 
 export class GeocoderSuggestion {
     public readonly name: string;
