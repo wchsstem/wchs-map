@@ -1,4 +1,4 @@
-import { fromMap, None, Option, Some } from "monads";
+import { fromMap, None, Option, Some } from "@nvarner/monads";
 
 export default class Graph<K, V> {
     private adjList: Map<K, Array<[K, number]>>;

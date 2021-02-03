@@ -1,4 +1,4 @@
-import { fromMap, Option } from "monads";
+import { fromMap, Option } from "@nvarner/monads";
 
 class Settings {
     private data: Map<string, unknown>;

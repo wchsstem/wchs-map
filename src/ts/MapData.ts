@@ -1,5 +1,5 @@
 import * as L from "leaflet";
-import { fromMap, Option } from "monads";
+import { fromMap, Option } from "@nvarner/monads";
 
 import Graph from "./Graph";
 import Room from "./Room";

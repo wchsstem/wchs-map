@@ -1,4 +1,4 @@
-import { Option, Some, None } from "monads";
+import { Option, Some, None } from "@nvarner/monads";
 
 import { BuildingLocationWithEntrances } from "./BuildingLocation";
 import { Geocoder } from "./Geocoder";

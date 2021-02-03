@@ -1,5 +1,5 @@
 import * as L from "leaflet";
-import { Some, None, Option, fromMap } from "monads";
+import { Some, None, Option, fromMap } from "@nvarner/monads";
 
 import "./floors.scss";
 import MapData from "../ts/MapData";

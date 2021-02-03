@@ -1,4 +1,4 @@
-import { None, Option, Some } from "monads";
+import { None, Option, Some } from "@nvarner/monads";
 import { BuildingLocation } from "./BuildingLocation";
 import { titleCap } from "./utils";
 

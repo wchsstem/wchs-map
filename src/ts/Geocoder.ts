@@ -1,6 +1,5 @@
-import { Option, Some, None } from "monads";
+import { Option, Some, None, fromMap } from "@nvarner/monads";
 import MiniSearch from "minisearch";
-import { fromMap } from "monads";
 
 export class GeocoderSuggestion {
     public readonly name: string;

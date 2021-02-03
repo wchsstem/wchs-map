@@ -11,7 +11,7 @@ import { Course, Synergy } from "../Synergy/Synergy";
 import { GeocoderDefinition, GeocoderSuggestion } from "../ts/Geocoder";
 import { BuildingLocation, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
 import { geocoder } from "../ts/utils";
-import { fromMap, None, Option, Some } from "monads";
+import { fromMap, None, Option, Some } from "@nvarner/monads";
 
 let sidebar: Option<Sidebar> = None;
 

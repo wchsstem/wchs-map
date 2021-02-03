@@ -1,4 +1,4 @@
-import { Option, Some, None } from "monads";
+import { Option, Some, None } from "@nvarner/monads";
 import { LatLng } from "leaflet";
 
 export class BuildingLocation {
