@@ -4,6 +4,7 @@ pages:
   stage: deploy
   script:
   - npm install --unsafe-perm=true --allow-root --loglevel verbose
+  - npm install --unsafe-perm --allow-root "git+https://gitlab.com/nvarner/typescript-monads.git" --loglevel verbose
   - npm run compileMapJson
   - npm run build
   - mv dist public
