@@ -4,7 +4,10 @@ const toCache = [
     "/bundle.css",
     "/bundle.js",
     "/assets/map/1st_floor.svg",
-    "/assets/map/2nd_floor.svg"
+    "/assets/map/2nd_floor.svg",
+    "/assets/fontawesome/webfonts/fa-solid-900.woff2",
+    "/assets/app-icon/icon-192.png",
+    "/assets/app-icon/icon-512.png"
 ];
 
 self.addEventListener("install", (e) => {

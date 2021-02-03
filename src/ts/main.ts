@@ -3,6 +3,8 @@ import * as mapDataJson from "../map_compiled.json";
 import * as L from "leaflet";
 import "../../node_modules/leaflet/dist/leaflet.css";
 
+import "../assets/fontawesome/all.min.css";
+
 import { settings, Watcher } from "./settings";
 import MapData from "./MapData";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
