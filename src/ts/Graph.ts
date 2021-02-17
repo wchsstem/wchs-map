@@ -19,6 +19,16 @@ export default class Graph<K, V> {
         fromMap(this.adjList, q).unwrap().push([p, weight]);
     }
 
+    /**
+     * Adds a directed edge from p to q with a given weight
+     * @param p Vertex to start from
+     * @param q Vertex to end on
+     * @param weight Weight of the edge
+     */
+    addDirectedEdge(p: K, q: K, weight: number) {
+        fromMap(this.adjList, p).unwrap().push([q, weight]);
+    }
+
     getVertex(p: K): V {
         return fromMap(this.vertices, p).unwrap();
     }
@@ -58,15 +68,13 @@ export default class Graph<K, V> {
             q.splice(q.indexOf(u), 1);
 
             for (const v of this.getNeighbors(u)) {
-                const alt = fromMap(dist, u).unwrap() + this.getWeight(v, u);
+                const alt = fromMap(dist, u).unwrap() + this.getWeight(u, v);
                 if (alt < fromMap(dist, v).unwrap()) {
                     dist.set(v, alt);
                     prev.set(v, u);
                 }
             }
         }
-
-        prev
 
         return [dist, prev as Map<K, K>];
     }

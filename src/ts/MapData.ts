@@ -1,5 +1,5 @@
 import * as L from "leaflet";
-import { fromMap, Option } from "@nvarner/monads";
+import { fromMap, None, Option, Some } from "@nvarner/monads";
 
 import Graph from "./Graph";
 import Room from "./Room";
@@ -21,7 +21,7 @@ export default class MapData {
     private rooms: Map<string, Room>;
     private roomsFromNames: Map<string, Room[]>;
     private floors: FloorData[];
-    private edges: [string, string][];
+    private edges: [string, string, Option<boolean>][];
     private bounds: L.LatLngBounds;
 
     constructor(mapData: {
@@ -32,7 +32,7 @@ export default class MapData {
             location: [number, number],
             tags: string[]
         }>,
-        edges: [string, string][],
+        edges: [string, string, boolean?][],
         rooms: Array<{
             vertices: string[],
             center?: [number, number],
@@ -64,7 +64,12 @@ export default class MapData {
             const qLoc = q.getLocation();
             const distance = pLoc.distanceTo(qLoc).unwrapOr(STAIRS_WEIGHT);
 
-            this.graph.addEdge(pId, qId, distance);
+            if (edge[2] !== undefined && edge[2]) {
+                // Directed edge
+                this.graph.addDirectedEdge(pId, qId, distance);
+            } else {
+                this.graph.addEdge(pId, qId, distance);
+            }
         }
 
         // Create map of rooms
@@ -105,7 +110,7 @@ export default class MapData {
         }
 
         this.floors = mapData.floors;
-        this.edges = mapData.edges;
+        this.edges = mapData.edges.map((edge) => [edge[0], edge[1], edge[2] === undefined ? None : Some(edge[2])]);
         this.bounds = bounds;
     }
 
@@ -133,31 +138,31 @@ export default class MapData {
         src: GeocoderDefinition<BuildingLocationWithEntrances>,
         dest: GeocoderDefinition<BuildingLocationWithEntrances>
     ): number[] {
-        let fastestTree = null;
+        let prev = null;
         let shortestDistance = null;
         let destVertex = null;
     
         // Look through all exits from the source
         for (const exitLocation of src.location.getEntrances()) {
             const exitId = this.getClosestVertex(exitLocation);
-            const [distances, tree] = this.graph.dijkstra(exitId);
+            const [dist, maybePrev] = this.graph.dijkstra(exitId);
     
             // Look through all entrances to the destination
             for (const entranceLocation of dest.location.getEntrances()) {
                 const entranceId = this.getClosestVertex(entranceLocation);
 
                 // Find the distance between the source and destination
-                const distance = fromMap(distances, entranceId).unwrap();
+                const distance = fromMap(dist, entranceId).unwrap();
                 // If the distance is shortest, choose it
                 if (shortestDistance === null || distance < shortestDistance) {
                     shortestDistance = distance;
-                    fastestTree = tree;
+                    prev = maybePrev;
                     destVertex = entranceId;
                 }
             }
         }
 
-        if (fastestTree === null || destVertex === null) {
+        if (prev === null || destVertex === null) {
             // TODO: Proper error handling
             throw "No path between vertices";
         }
@@ -165,12 +170,11 @@ export default class MapData {
         const fastestPath: number[] = [];
         let nextPlace: number | null = destVertex;
     
-        while (nextPlace !== null && fastestTree.get(nextPlace) !== undefined) {
-            fastestPath.push(nextPlace);
-            nextPlace = fromMap(fastestTree, nextPlace).unwrap();
-        }
-        if (nextPlace !== null) {
-            fastestPath.push(nextPlace);
+        if (fromMap(prev, nextPlace).isSome() || nextPlace === destVertex) {
+            while (nextPlace !== null) {
+                fastestPath.push(nextPlace);
+                nextPlace = fromMap(prev, nextPlace).unwrap();
+            }
         }
     
         return fastestPath;
@@ -200,7 +204,7 @@ export default class MapData {
                 L.circle(vertex.getLocation().xy, {
                     "radius": 1,
                     "color": color
-                }).bindPopup(`${vertexString}<br/>${location.lng}, ${location.lat}`).addTo(devLayer);
+                }).bindPopup(`${vertexString} (${vertexId})<br/>${location.lng}, ${location.lat}`).addTo(devLayer);
             }
         }
         

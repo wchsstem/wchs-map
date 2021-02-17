@@ -62,15 +62,26 @@
       }
    },
    "edges": {
-      "description": "Array of edges represented by arrays. All edges are undirected, so order does not matter.",
+      "description": "Array of edges represented by arrays. All edges are undirected by default, so order does not usually matter.",
       "type": "array",
       "items": {
          "type": "array",
-         "minItems": 2,
-         "maxItems": 2,
-         "items": {
-            "type": "string"
-         }
+         "items": [
+            {
+               "type": "string",
+               "required": true
+            },
+            {
+               "type": "string",
+               "required": true
+            },
+            {
+               "description": "Is this edge directed?",
+               "type": "bool",
+               "required": false
+            }
+         ],
+         "additionalItems": false
       }
    },
    "rooms": {
