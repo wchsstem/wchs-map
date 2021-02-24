@@ -1,17 +1,18 @@
 import * as L from "leaflet";
 import { RoomSearch } from "./RoomSearch";
-import { genTextInput } from "../GenHtml/GenHtml";
+import { createPaneElement, genTextInput, htmlDropdown } from "../GenHtml/GenHtml";
 import MapData from "../ts/MapData";
 
 import "./sidebar.scss";
 import Room from "../ts/Room";
 import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
-import { metaSettings, settings, Watcher } from "../ts/settings";
-import { Course, Synergy } from "../Synergy/Synergy";
+import { dropdownData, metaSettings, settingInputType, settings, Watcher } from "../ts/settings";
+import { Synergy } from "../Synergy/Synergy";
 import { GeocoderDefinition, GeocoderSuggestion } from "../ts/Geocoder";
-import { BuildingLocation, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
+import { BuildingLocationWithEntrances } from "../ts/BuildingLocation";
 import { geocoder } from "../ts/utils";
 import { fromMap, None, Option, Some } from "@nvarner/monads";
+import { T2 } from "../ts/Tuple";
 
 let sidebar: Option<Sidebar> = None;
 
@@ -25,7 +26,7 @@ export function showRoomInfo(room: Room): void {
 
 const MAX_FILE_SIZE = 2*1024*1024;
 
-class Sidebar {
+export class Sidebar {
     private map: L.Map;
     private sidebar: L.Control.Sidebar;
     private floorsLayer: Option<LFloors>;
@@ -132,7 +133,7 @@ class Sidebar {
             reader.readAsText(file);
         });
             
-        const synergyPane = Sidebar.createPaneElement("Synergy", [beta, info, siteUpload, errorBox, courses]);
+        const synergyPane = createPaneElement("Synergy", [beta, info, siteUpload, errorBox, courses]);
 
         return {
             id: "synergy",
@@ -165,7 +166,7 @@ class Sidebar {
             });
         });
 
-        const searchPane = Sidebar.createPaneElement("Search", [searchBarContainer, resultContainer]);
+        const searchPane = createPaneElement("Search", [searchBarContainer, resultContainer]);
 
         return {
             id: "search",
@@ -191,7 +192,7 @@ class Sidebar {
             paneElements.push(descriptionEl);
         }
 
-        const infoPane = Sidebar.createPaneElement("Room Info", paneElements);
+        const infoPane = createPaneElement("Room Info", paneElements);
 
         return {
             id: "info",
@@ -303,7 +304,7 @@ class Sidebar {
             });
         });
 
-        const navPane = Sidebar.createPaneElement("Navigation", [toFromContainer, resultContainer]);
+        const navPane = createPaneElement("Navigation", [toFromContainer, resultContainer]);
 
         const panelOptions = {
             id: "nav",
@@ -390,7 +391,23 @@ class Sidebar {
 
                 let setting = null;
                 if (typeof data === "string") {
-                    setting = Sidebar.createStringSetting(name, data, nameMapping);
+                    const inputType = fromMap(settingInputType, name);
+                    const maybeSetting: Option<HTMLLIElement> = inputType.match({
+                        some: (type) => {
+                            if (type === "dropdown") {
+                                // Assume exists
+                                const optionDisplayAndIds = fromMap(dropdownData, name).unwrap();
+                                return Some(Sidebar.createDropdownSetting(name, data, optionDisplayAndIds, nameMapping));
+                            } else {
+                                return None;
+                            }
+                        },
+                        none: () => None
+                    });
+                    setting = maybeSetting.match({
+                        some: (s) => s,
+                        none: () => Sidebar.createStringSetting(name, data, nameMapping)
+                    });
                 } else if (typeof data === "boolean") {
                     setting = Sidebar.createBooleanSetting(name, data, nameMapping);
                 }
@@ -402,7 +419,7 @@ class Sidebar {
             settings.addWatcher(name, watcher);
         });
 
-        const settingsPane = Sidebar.createPaneElement("Settings", settingsContainer);
+        const settingsPane = createPaneElement("Settings", settingsContainer);
 
         return {
             id: "settings",
@@ -445,45 +462,38 @@ class Sidebar {
         return Sidebar.createSetting(mappedName, control);
     }
 
+    private static createDropdownSetting(name: string, value: string, optionDisplayAndIds: T2<string, string>[], nameMapping: Map<string, string>): HTMLLIElement {
+        const control = document.createElement("select");
+        for (const displayAndId of optionDisplayAndIds) {
+            const display = displayAndId.e0;
+            const id = displayAndId.e1;
+
+            const option = document.createElement("option");
+            option.setAttribute("value", id);
+            if (id == value) {
+                option.setAttribute("selected", "selected");
+            }
+
+            const displayText = document.createTextNode(display);
+
+            option.appendChild(displayText);
+            control.appendChild(option);
+        }
+
+        control.addEventListener("change", (e) => {
+            settings.updateData(name, control.value);
+        });
+        
+        const mappedName = fromMap(nameMapping, name).unwrapOr(name);
+        return Sidebar.createSetting(mappedName, control);
+    }
+
     // Utils
     private moveToDefinedLocation(definition: GeocoderDefinition<BuildingLocationWithEntrances>): void {
         const location = definition.location.getCenter();
         // TODO: Better option than always using zoom 3?
         this.map.setView(location.xy, 3);
         this.floorsLayer.ifSome(floorsLayer => floorsLayer.setFloor(location.floor));
-    }
-
-    private static createPaneElement(title: string, content: HTMLElement | HTMLElement[]): HTMLElement {
-        const pane = document.createElement("div");
-        pane.classList.add("leaflet-sidebar-pane");
-    
-        const header = document.createElement("h1");
-        header.classList.add("leaflet-sidebar-header");
-        pane.appendChild(header);
-    
-        const titleNode = document.createTextNode(title);
-        header.appendChild(titleNode);
-    
-        const closeSpan = document.createElement("span");
-        closeSpan.classList.add("leaflet-sidebar-close");
-        header.appendChild(closeSpan);
-    
-        const closeIcon = document.createElement("i");
-        closeIcon.classList.add("fas");
-        closeIcon.classList.add("fa-caret-left");
-        closeSpan.appendChild(closeIcon);
-    
-        // @ts-ignore: Checking for array type
-        if (content.length) {
-            for (const el of content) {
-                pane.appendChild(el);
-            }
-        } else {
-            // @ts-ignore: Single HTML element
-            pane.appendChild(content);
-        }
-        
-        return pane;
     }
 
     private static elWithText(elementName: string, content?: string): HTMLElement {

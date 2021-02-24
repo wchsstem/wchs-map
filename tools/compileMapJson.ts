@@ -15,7 +15,7 @@ import SvgReader from "./SvgReader";
         }));
 
         for (const floor of mapData["floors"]) {
-            const rooms = await new SvgReader(`src/${floor["image"]}`).getPromise();
+            const rooms = await new SvgReader(`src/${floor["image"]}`, floor["offsets"]).getPromise();
 
             for (const roomsKey in rooms) {
                 if (mapData.rooms[roomsKey] === undefined) {

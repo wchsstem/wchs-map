@@ -19,9 +19,18 @@
                "image": {
                   "description": "A URL to an image of the map of the floor.",
                   "type": "string"
+               },
+               "offsets": {
+                  "description": "Some numbers that have to be guessed. Hope to eliminate some day.",
+                  "type": "array",
+                  "maxItems": 2,
+                  "minItems": 2,
+                  "items": {
+                     "type": "number"
+                  }
                }
             },
-            "required": ["number", "image"]
+            "required": ["number", "image", "offsets"]
          }
       },
       "vertices": {

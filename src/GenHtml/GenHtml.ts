@@ -1,6 +1,7 @@
 import "./generated.scss";
 
 import Room from "../ts/Room";
+import { T2 } from "../ts/Tuple";
 
 export function genElText(element: string, text: string): HTMLElement {
     const tn = document.createTextNode(text);
@@ -58,4 +59,63 @@ export function genRoomPopup(room: Room, navigateToHandler: () => void): HTMLEle
     rootEl.appendChild(navToButton);
     
     return rootEl;
+}
+
+export function htmlDropdown(displayAndIds: T2<string, string>[]): HTMLSelectElement {
+    const select = document.createElement("select");
+    for (const displayAndId of displayAndIds) {
+        const display = displayAndId.e0;
+        const id = displayAndId.e1;
+
+        const option = document.createElement("option");
+        option.setAttribute("value", id);
+
+        const displayText = document.createTextNode(display);
+
+        option.appendChild(displayText);
+        select.appendChild(option);
+    }
+    return select;
+}
+
+export function createPaneElement(title: string, content: HTMLElement | HTMLElement[]): HTMLElement {
+    const pane = document.createElement("div");
+    pane.classList.add("leaflet-sidebar-pane");
+
+    const header = document.createElement("h1");
+    header.classList.add("leaflet-sidebar-header");
+    pane.appendChild(header);
+
+    const titleNode = document.createTextNode(title);
+    header.appendChild(titleNode);
+
+    const closeSpan = document.createElement("span");
+    closeSpan.classList.add("leaflet-sidebar-close");
+    header.appendChild(closeSpan);
+
+    const closeIcon = document.createElement("i");
+    closeIcon.classList.add("fas");
+    closeIcon.classList.add("fa-caret-left");
+    closeSpan.appendChild(closeIcon);
+
+    if (Array.isArray(content)) {
+        for (const el of content) {
+            pane.appendChild(el);
+        }
+    } else {
+        pane.appendChild(content);
+    }
+    
+    return pane;
+}
+
+export function label(text: string, labels: string): HTMLLabelElement {
+    const label = document.createElement("label");
+    label.setAttribute("for", labels);
+
+    const textNode = document.createTextNode(text);
+
+    label.appendChild(textNode);
+
+    return label;
 }

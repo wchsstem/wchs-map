@@ -4,7 +4,6 @@ import { default as rbush } from "rbush";
 
 import "./label.scss";
 import MapData from "../ts/MapData";
-import { genRoomPopup } from "../GenHtml/GenHtml";
 import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 import { showRoomInfo } from "../Sidebar/SidebarController";
 

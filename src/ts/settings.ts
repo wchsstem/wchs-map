@@ -1,4 +1,5 @@
 import { fromMap, Option } from "@nvarner/monads";
+import { T2 } from "./Tuple";
 
 class Settings {
     private data: Map<string, unknown>;
@@ -110,6 +111,8 @@ class ImmutableSettings extends Settings {
 
 // Settings about the settings that should be hidden and immutable to the user without using browser developer tools.
 const metaSettingsData = new Map();
+
+// Which settings should not be shown to the user
 metaSettingsData.set("hidden-settings", [
     "pd1",
     "pd2",
@@ -122,8 +125,15 @@ metaSettingsData.set("hidden-settings", [
     "hr"
 ]);
 
+export const settingInputType: Map<string, string> = new Map();
+settingInputType.set("bathroom-gender", "dropdown");
+
+export const dropdownData: Map<string, T2<string, string>[]> = new Map();
+dropdownData.set("bathroom-gender", [T2.new("", "no-selection"), T2.new("Man", "m"), T2.new("Woman", "w")]);
+
 // Maps setting IDs to user friendly names
 const nameMapping = new Map();
+nameMapping.set("bathroom-gender", "Bathroom gender");
 nameMapping.set("synergy", "Enable Synergy Panel (alpha)");
 nameMapping.set("dev", "Developer Mode");
 nameMapping.set("hiding-location", "Hide Location Dot?");
@@ -134,6 +144,7 @@ export const metaSettings = new ImmutableSettings("meta", metaSettingsData);
 // The only places that should update settings are right below here, to set defaults, and in the Settings sidebar code,
 // to allow the user to change them.
 export const settings = new MutableSettings("settings");
+settings.setDefault("bathroom-gender", "no-selection");
 settings.setDefault("dev", false);
 settings.setDefault("synergy", false);
 settings.setDefault("hiding-location", false);

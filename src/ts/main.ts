@@ -23,8 +23,17 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/serviceWorker.js");
 }
 
-// Churchill is 600ft long and 400ft across
-const bounds = new L.LatLngBounds([0, 0], [400, 600]);
+// Churchill is 600ft long and 400ft across; portables add to that
+
+// bounds used to just be defined in terms of constants, but due to mistakes made when choosing those constants and
+// the subsequent addition of the portables, this was used instead. It should be easier to configure for existing maps,
+// but new maps should instead carefully choose a coordinate system such that the bounds fit the aspect ratio of the
+// base map image to avoid having to do this.
+const width = 161.31325; // width of 1st floor from Inkscape; arbitrary unit
+const height = 123.15513; // width of 2nd floor from Inkscape; same unit as width
+const scale = 3.78;
+const pushX = 5;
+const bounds = new L.LatLngBounds([0, pushX], [scale * height, (scale * width) + pushX]);
 
 // @ts-ignore: JSON works fine here
 const mapData = new MapData(mapDataJson, bounds);

@@ -24,8 +24,10 @@ type Rooms = { [roomNumber: string]: RoomData; }
 
 export default class SvgReader {
     private promise: Promise<Rooms>;
+    private offsets: [number, number];
 
-    constructor(file: string) {
+    constructor(file: string, offsets: [number, number]) {
+        this.offsets = offsets;
         this.promise = new Promise((resolve, reject) => {
             const handler = new DomHandler((err, dom) => {
                 if (err) {
@@ -39,8 +41,8 @@ export default class SvgReader {
                 for (const element of SvgReader.domIterator(dom)) {
                     if (SvgReader.isRoomElement(element)) {
                         rooms[SvgReader.getRoomNumber(element)] = {
-                            center: SvgReader.calcCenterOfSvg(element),
-                            outline: SvgReader.getRoomOutline(element)
+                            center: this.calcCenterOfSvg(element),
+                            outline: this.getRoomOutline(element)
                         };
                     }
 
@@ -98,7 +100,7 @@ export default class SvgReader {
         return result[1];
     }
     
-    private static calcCenterOfSvg(element: SvgElement): [number, number] {
+    private calcCenterOfSvg(element: SvgElement): [number, number] {
         const attribs = element.attribs;
     
         if (
@@ -112,21 +114,21 @@ export default class SvgReader {
             const height = parseFloat(attribs.height);
             const x = parseFloat(attribs.x);
             const y = parseFloat(attribs.y);
-            return SvgReader.transformCoords([width / 2 + x, height / 2 + y]);
+            return this.transformCoords([width / 2 + x, height / 2 + y]);
         } else {
             if (attribs === undefined || attribs.d === undefined) {
                 // TODO: Proper error handling
                 throw "Couldn't find the center of the SVG";
             }
-            return SvgReader.transformCoords(SvgReader.calcCenter(new SvgPathInterpreter(attribs.d).getPoints()));
+            return this.transformCoords(SvgReader.calcCenter(new SvgPathInterpreter(attribs.d).getPoints()));
         }
     }
 
-    private static transformCoords(coords: [number, number]): [number, number] {
+    private transformCoords(coords: [number, number]): [number, number] {
         return [
-            coords[0] - 5.8,
-            -coords[1] + 750.7
-        ];
+            coords[0] - this.offsets[0],
+            -coords[1] + this.offsets[1]
+        ]
     }
 
     private static calcCenter(points: [number, number][]): [number, number] {
@@ -139,7 +141,7 @@ export default class SvgReader {
         })
     }
 
-    private static getRoomOutline(element: SvgElement): [number, number][] {
+    private getRoomOutline(element: SvgElement): [number, number][] {
         const attribs = element.attribs;
     
         if (
@@ -156,7 +158,7 @@ export default class SvgReader {
 
             const points: [number, number][] = [[x, y], [x, y + height], [x + width, y + height], [x + width, y]]
             return points.map((point: [number, number]) => {
-                return SvgReader.transformCoords(point);
+                return this.transformCoords(point);
             });
         } else {
             if (attribs === undefined || attribs.d === undefined) {
@@ -165,7 +167,7 @@ export default class SvgReader {
             }
             return new SvgPathInterpreter(attribs.d).getPoints()
                 .map((point: [number, number]) => {
-                    return SvgReader.transformCoords(point);
+                    return this.transformCoords(point);
                 });
         }
     }
