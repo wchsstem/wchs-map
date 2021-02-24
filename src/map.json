@@ -5649,8 +5649,7 @@
             "vertices": [
                 "R127:0"
             ],
-            "names": ["auditorium", "theater"],
-            "center": [92.75, 89.75]
+            "names": ["auditorium", "theater"]
         },
         "128": {
             "vertices": [
@@ -5805,7 +5804,6 @@
                 "R163:1",
                 "R163:2"
             ],
-            "center": [317.5, 249.75],
             "names": ["gym", "main gym"]
         },
         "163Z": {
@@ -6257,14 +6255,13 @@
         },
         "232": {
             "vertices": ["R232:0"],
-            "center": [321.25, 143.625]
+            "center": [329, 143.625]
         },
         "233": {
             "vertices": ["R233:0"]
         },
         "234": {
-            "vertices": ["R234:0"],
-            "center": [343, 127.25]
+            "vertices": ["R234:0"]
         },
         "235": {
             "vertices": ["R235:0"],
@@ -6286,8 +6283,7 @@
             "vertices": ["R236:0"]
         },
         "237": {
-            "vertices": ["R237:0"],
-            "center": [187, 190.875]
+            "vertices": ["R237:0"]
         },
         "238": {
             "vertices": ["R238:0"],

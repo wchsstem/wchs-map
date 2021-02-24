@@ -131,14 +131,36 @@ export default class SvgReader {
         ]
     }
 
+    /**
+     * Calculates the centroid of a polygon. This would be the center of mass if the polygon was a solid of uniform
+     * density.
+     * @param points Points in order defining the edge of the polygon
+     */
     private static calcCenter(points: [number, number][]): [number, number] {
-        // Note: this just calculates the mean point. It should be replaced with a calculation for the centroid.
-        return points.reduce((prev: [number, number], curr: [number, number], index: number): [number, number] => {
-            return [
-                index * prev[0] / (index + 1) + curr[0] / (index + 1),
-                index * prev[1] / (index + 1) + curr[1] / (index + 1),
-            ];
-        })
+        let centerXSum = 0;
+        let centerYSum = 0;
+        for (let i = 0; i < points.length; i++) {
+            const thisPoint = points[i];
+            const nextPoint = points[(i + 1) % points.length];
+            const diff = (thisPoint[0] * nextPoint[1]) - (nextPoint[0] * thisPoint[1]);
+            
+            centerXSum += (thisPoint[0] + nextPoint[0]) * diff;
+            centerYSum += (thisPoint[1] + nextPoint[1]) * diff;
+        }
+
+        const coefficient = 1 / (6 * SvgReader.shoelaceArea(points));
+        
+        return [coefficient * centerXSum, coefficient * centerYSum];
+    }
+
+    private static shoelaceArea(points: [number, number][]): number {
+        let sum = 0;
+        for (let i = 0; i < points.length; i++) {
+            const thisPoint = points[i];
+            const nextPoint = points[(i + 1) % points.length];
+            sum += (thisPoint[0] * nextPoint[1]) - (nextPoint[0] * thisPoint[1]);
+        }
+        return 0.5 * sum;
     }
 
     private getRoomOutline(element: SvgElement): [number, number][] {
