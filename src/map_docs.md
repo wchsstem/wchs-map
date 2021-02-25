@@ -2,6 +2,13 @@
 This is a documentation file specific to Churchill's map files (map.json, 1st_floor_inkscape.svg, etc.), not for general
 mapping files (like map-schema.json).
 
+## Weight room
+Confusingly, the weight room is accessed only in the first floor, but has its own staircase within it leading to a
+second floor of the same room cut off from the rest of the second floor. My solution to this problem was to call the
+second floor section a separate room, 143Z. Because of the two entrances to the weight room, two parallel paths had to
+be created for the staircase to prevent routing through the weight room. These paths are slightly separated to make this
+clear, but could be moved so they occupy the same locations.
+
 ## Room numbers
 ### Rooms without numbers
 Some rooms may not have a room number. This section attempts to give those rooms a reasonable, unique identifier.

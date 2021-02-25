@@ -2236,6 +2236,40 @@
             ]
         },
         {
+            "id": "R143:2",
+            "floor": "1",
+            "location": [251.125, 268]
+        },
+        {
+            "id": "R143:3",
+            "floor": "1",
+            "location": [251.125, 266]
+        },
+        {
+            "id": "R143:4",
+            "floor": "1",
+            "location": [245.8125, 271],
+            "tags": ["stairs"]
+        },
+        {
+            "id": "R143:5",
+            "floor": "1",
+            "location": [245.8125, 269],
+            "tags": ["stairs"]
+        },
+        {
+            "id": "R143Z:0",
+            "floor": "2",
+            "location": [246.0625, 270.3125],
+            "tags": ["stairs"]
+        },
+        {
+            "id": "R143Z:1",
+            "floor": "2",
+            "location": [246.0625, 268.3125],
+            "tags": ["stairs"]
+        },
+        {
             "id": "R144:0",
             "floor": "1",
             "location": [
@@ -3354,12 +3388,12 @@
         {
             "id": "H14:13",
             "floor": "2",
-            "location": [227.5, 265.625]
+            "location": [227.5, 289.125]
         },
         {
             "id": "H14:14",
             "floor": "2",
-            "location": [233.25, 265.625],
+            "location": [233.25, 289.125],
             "tags": ["stairs"]
         },
         {
@@ -5303,9 +5337,9 @@
         ["H13:11", "I13:16:0"],
         ["I13:16:0", "I13:16:1"],
         ["I13:16:1", "I13:16:2"],
-        ["I11:14:0", "H14:0"],
-        ["H14:0", "H14:13"],
-        ["H14:13", "H14:2"],
+        ["I11:14:0", "H14:13"],
+        ["H14:13", "H14:0"],
+        ["H14:0", "H14:2"],
         ["H14:13", "H14:14"],
         ["H7:31", "H14:14", true],
         ["H14:2", "H14:3"],
@@ -5529,7 +5563,13 @@
         ["R163:5", "R163Y:0"],
         ["R163:5", "R163:6"],
         ["R163:6", "R163Z:0"],
-        ["R241:0", "H12:4"]
+        ["R241:0", "H12:4"],
+        ["R143:1", "R143:2"],
+        ["R143:2", "R143:4"],
+        ["R143:4", "R143Z:0"],
+        ["R143:0", "R143:3"],
+        ["R143:3", "R143:5"],
+        ["R143:5", "R143Z:1"]
     ],
     "rooms": {
         "x100": {
@@ -5726,6 +5766,15 @@
         "143": {
             "vertices": ["R143:0", "R143:1"],
             "names": ["fitness center", "weight room", "exercise room"]
+        },
+        "143Z": {
+            "vertices": ["R143Z:0", "R143Z:1"],
+            "names": [
+                "fitness center upstairs", "second floor fitness center", "second story fitness center",
+                "weight room upstairs", "second floor weight room", "second story weight room",
+                "exercise room upstairs", "second floor exercise room", "second story exercise room"
+            ],
+            "center": [242.5, 248.25]
         },
         "144": {
             "vertices": ["R144:0", "R144:16"],
