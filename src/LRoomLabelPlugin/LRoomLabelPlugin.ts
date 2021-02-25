@@ -1,6 +1,5 @@
 import * as L from "leaflet";
-// @ts-ignore rbush does export default
-import { default as rbush } from "rbush";
+import RBush, { BBox } from "rbush";
 
 import "./label.scss";
 import MapData from "../ts/MapData";
@@ -8,14 +7,14 @@ import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 import { showRoomInfo } from "../Sidebar/SidebarController";
 
 export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFloor {
-    private tree: any;
+    private tree: RBush<BBox>;
     private hiddenLayers: L.Marker[];
     private floorNumber: string;
     private roomOutlines: L.Polygon[];
 
     constructor(map: MapData, floorNumber: string, options?: L.LayerOptions) {
         super([], options);
-        this.tree = rbush();
+        this.tree = new RBush();
         this.hiddenLayers = [];
         this.floorNumber = floorNumber;
         this.roomOutlines = [];
@@ -77,42 +76,35 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
 
     reload() {
         this.centerLabels();
-        this.setupRbush();
         this.hideAllLayers();
+
+        this.tree.clear();
         this.showVisibleLayers();
     }
 
     private showVisibleLayers() {
-        for (const layer of this.hiddenLayers) {
-            if (LRoomLabel.layerIsMarker(layer)) {
-                // This is all very hacky and doesn't use documented functionality
-
-                // @ts-ignore: can't index "bb" but does exist on object
-                const rbushBb = layer["bb"];
-                if (this.tree.search(rbushBb).length === 1) {
-                    // @ts-ignore: can't index "_icon" but does exist on object
-                    layer["_icon"].classList.remove("invisible");
-                } else {
-                    this.tree.remove(rbushBb);
-                }
-            }
-        }
+        this.hiddenLayers
+            .filter(layer => LRoomLabel.layerIsMarker(layer))
+            .forEach(marker => {
+                this.showMarkerIfVisible(marker);
+            });
     }
 
     private hideAllLayers() {
         const shownLayers = super.getLayers();
         for (const layer of shownLayers) {
             if (LRoomLabel.layerIsMarker(layer)) {
-                // This is very hacky and doesn't use documented functionality
+                // This is very hacky and uses undocumented functionality
                 // @ts-ignore: can't index "_icon" but does exist on object
-                layer["_icon"].classList.add("invisible");
+                const icon: HTMLElement = layer["_icon"];
+                icon.classList.add("invisible");
             }
         }
     }
 
     private centerLabels() {
         for (const label of this.hiddenLayers) {
-            // This is very hacky and doesn't use documented functionality
+            // This is very hacky and uses undocumented functionality
             // @ts-ignore: can't index "_icon" but does exist on object
             const icon: HTMLElement = label["_icon"];
             icon.style.width = "";
@@ -127,30 +119,32 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         }
     }
 
-    private setupRbush() {
-        this.tree.clear();
-        const rbushBoxes = [];
-        for (const layer of this.hiddenLayers) {
-            // This is all very hacky and doesn't use documented functionality
-            // @ts-ignore: can't index "bb" or "_icon" but do exist on object
-            layer["bb"] = LRoomLabel.bbToRbush(layer["_icon"].getBoundingClientRect());
-            // @ts-ignore: can't index "bb" but does exist on object
-            rbushBoxes.push(layer["bb"]);
-        }
-        this.tree.load(rbushBoxes);
-    }
+    private showMarkerIfVisible(marker: L.Marker) {
+        // This is all very hacky and uses undocumented functionality
 
-    private static bbToRbush(bb: ClientRect): { minX: number, minY: number, maxX: number, maxY: number } {
-        return {
-            minX: bb.left,
-            minY: bb.top,
-            maxX: bb.right,
-            maxY: bb.bottom
-        };
+        // @ts-ignore: _icon does exist on marker
+        const icon: HTMLElement = marker["_icon"];
+        const clientRect = icon.getBoundingClientRect();
+        const box = LRoomLabel.toBBox(clientRect);
+
+        if (!this.tree.collides(box)) {
+            // Can be seen
+            icon.classList.remove("invisible");
+            this.tree.insert(box);
+        }
     }
 
     private static layerIsMarker(layer: L.Layer): boolean {
         // TODO: find a better way to tell (i.e. less hacky, documented, works even if layer is hidden)
         return "_icon" in layer;
+    }
+
+    private static toBBox(from: ClientRect): BBox {
+        return {
+            minX: from.left,
+            minY: from.top,
+            maxX: from.right,
+            maxY: from.bottom
+        };
     }
 }

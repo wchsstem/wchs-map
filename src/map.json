@@ -5807,18 +5807,18 @@
             "names": ["gym", "main gym"]
         },
         "163Z": {
-            "vertices": ["E0"],
+            "vertices": ["R163Z:0"],
             "names": ["concessions"]
         },
         "163Y": {
-            "vertices": ["E0"]
+            "vertices": ["R163Y:0"]
         },
         "163X": {
-            "vertices": ["E0"],
+            "vertices": ["R163X:0"],
             "names": ["coaches' office", "coaches office", "coach office", "gym office"]
         },
         "163W": {
-            "vertices": ["E0"]
+            "vertices": ["R163W:0"]
         },
         "164": {
             "vertices": ["R164:0"],

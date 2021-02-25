@@ -3,6 +3,8 @@
         "resolveJsonModule": true,
         "moduleResolution": "node",
         "downlevelIteration": true,
-        "strict": true
+        "strict": true,
+        "esModuleInterop": true,
+        "target": "es6"
     }
 }
