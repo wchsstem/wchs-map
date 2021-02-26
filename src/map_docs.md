@@ -19,6 +19,14 @@ or 'W' for men's and women's rooms, respectively. The id is a unique two-digit I
 Corresponding bathrooms across multiple floors should share this ID. Corresponding men's and women's rooms should also
 share an ID. As a result, each ID will probably have four individual bathrooms sharing it.
 
+#### Non-room points of interest
+These are permanent points of interest that are not rooms, like the art gallery across from 278 and 276. They should be
+given a room number in the form of 'POI{floor number}{id}', where the id is a unique two-digit ID identifying the POI
+on the floor.
+
+Current list of non-room POIs:
+ - POI200 (Art Gallery, across from 278 and 276)
+
 ### Unknown room numbers
 Some rooms do not have a known room number. This doesn't mean these rooms don't have room numbers, just that they aren't
 known to the developers and maintainers of this map. If the numbers for rooms following this scheme are learned, they

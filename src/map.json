@@ -6515,6 +6515,10 @@
         },
         "278": {
             "vertices": ["R278:0"]
+        },
+        "POI200": {
+            "vertices": ["H14:0", "H14:2"],
+            "names": ["art gallery"]
         }
     }
 }
