@@ -1,4 +1,6 @@
-const CACHE_NAME = "WCHS-map-v0.5";
+const VERSION = "v0.5.1";
+
+const CACHE_NAME = "WCHS-map-" + VERSION;
 const toCache = [
     "/",
     "/bundle.css",
@@ -11,7 +13,7 @@ const toCache = [
     "/assets/app-icon/favicon_v0.ico"
 ];
 
-self.addEventListener("install", (e) => {
+self.addEventListener("install", e => {
     // @ts-ignore: Valid for SW install event
     e.waitUntil(
         caches.open(CACHE_NAME)
@@ -21,9 +23,9 @@ self.addEventListener("install", (e) => {
     );
 });
 
-self.addEventListener("fetch", (e) => {
-    // @ts-ignore: Valid for SW install event
-    const request = e.request;
+self.addEventListener("fetch", e => {
+    // @ts-ignore: Valid for fetch event
+    const request: Request = e.request;
 
     // @ts-ignore: Valid for SW install event
     e.respondWith(
