@@ -2,7 +2,7 @@ import { BuildingLocationWithEntrances } from "./BuildingLocation";
 import { Geocoder } from "./Geocoder";
 
 const nonCap = ["and"];
-const allCap = ["tv", "pe"];
+const allCap = ["tv", "pe", "asl"];
 
 export function shouldCapWord(word: string): boolean {
     return !nonCap.includes(word);

@@ -3204,11 +3204,6 @@
             "location": [450.875, 180.75]
         },
         {
-            "id": "H12:20",
-            "floor": "2",
-            "location": [472.875, 180.75]
-        },
-        {
             "id": "H12:21",
             "floor": "2",
             "location": [485.375, 180.75]
@@ -6472,6 +6467,7 @@
             "vertices": ["R262:0"],
             "names": [
                 "world language office",
+                "foreign language office",
                 "spanish office",
                 "french office",
                 "chinese office",

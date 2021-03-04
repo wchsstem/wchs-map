@@ -17,7 +17,12 @@ Some rooms may not have a room number. This section attempts to give those rooms
 Student bathrooms should be given a room number in the form of 'B{gender}{floor number}{id}'. The gender should be 'M'
 or 'W' for men's and women's rooms, respectively. The id is a unique two-digit ID identifying the bathroom on the floor.
 Corresponding bathrooms across multiple floors should share this ID. Corresponding men's and women's rooms should also
-share an ID. As a result, each ID will probably have four individual bathrooms sharing it.
+share an ID. As a result, each ID will probably have four individual bathrooms sharing it. For bathrooms of unknown
+gender, arbitrarily assign A or B as the temporary gender in the room number.
+
+Future possibility: there seem to be Bathroom Supply Closets associated with each bathroom, each of which is associated
+with a room number BSC{X} written in marker on the door. Bathroom IDs should be linked to the ID of the BSCs, though not
+enough are known at this time to do that correctly for all bathrooms.
 
 #### Non-room points of interest
 These are permanent points of interest that are not rooms, like the art gallery across from 278 and 276. They should be
