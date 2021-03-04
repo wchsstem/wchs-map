@@ -3,7 +3,7 @@
    "title": "Map Object",
    "description": "A representation of data for a map",
    "type": "object",
-   "required": ["floors", "vertices", "edges"],
+   "required": ["floors", "vertices", "edges", "rooms"],
    "properties": {
       "floors": {
          "description": "An array of objects representing floors.",
@@ -35,7 +35,7 @@
       },
       "vertices": {
          "description": "A map of all vertices that are in the map's graph. The key is the ID for the vertex.",
-         "type": "array",
+         "type": "object",
          "items": {
             "type": "object",
             "required": ["id", "floor", "location"],
@@ -95,7 +95,7 @@
    },
    "rooms": {
       "description": "Array of rooms. Shows which vertices are entrances for which rooms, metadata about rooms, etc.",
-      "type": "array",
+      "type": "object",
       "items": {
          "type": "object",
          "properties": {

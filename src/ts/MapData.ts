@@ -16,7 +16,7 @@ export type FloorData = {
 const STAIRS_WEIGHT = 10;
 
 export default class MapData {
-    private vertexStringToId: Map<String, number>;
+    private vertexStringToId: Map<string, number>;
     private graph: Graph<number, Vertex>;
     private rooms: Map<string, Room>;
     private roomsFromNames: Map<string, Room[]>;
@@ -27,7 +27,6 @@ export default class MapData {
     constructor(mapData: {
         floors: FloorData[],
         vertices: Array<{
-            id: string,
             floor: string,
             location: [number, number],
             tags: string[]
@@ -42,18 +41,21 @@ export default class MapData {
     }, bounds: L.LatLngBounds) {
         this.vertexStringToId = new Map();
         let nextVertexId = 0;
-        for (const vertex of mapData.vertices) {
-            this.vertexStringToId.set(vertex.id, nextVertexId);
+        console.log("map", mapData);
+        for (const vertexName in mapData.vertices) {
+            console.log("vertex", vertexName, nextVertexId);
+            this.vertexStringToId.set(vertexName, nextVertexId);
             nextVertexId++;
         }
 
         this.graph = new Graph<number, Vertex>();
-        for (const vertex of mapData.vertices) {
-            const vertexId = fromMap(this.vertexStringToId, vertex.id).unwrap();
-            this.graph.addVertex(vertexId, new Vertex(vertex));
+        for (const vertexName in mapData.vertices) {
+            const vertexId = fromMap(this.vertexStringToId, vertexName).unwrap();
+            this.graph.addVertex(vertexId, new Vertex(mapData.vertices[vertexName]));
         }
 
         for (const edge of mapData.edges) {
+            console.log("edge", edge[0]);
             const pId = fromMap(this.vertexStringToId, edge[0]).unwrap();
             const qId = fromMap(this.vertexStringToId, edge[1]).unwrap();
 
