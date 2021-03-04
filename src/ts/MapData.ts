@@ -41,9 +41,7 @@ export default class MapData {
     }, bounds: L.LatLngBounds) {
         this.vertexStringToId = new Map();
         let nextVertexId = 0;
-        console.log("map", mapData);
         for (const vertexName in mapData.vertices) {
-            console.log("vertex", vertexName, nextVertexId);
             this.vertexStringToId.set(vertexName, nextVertexId);
             nextVertexId++;
         }
@@ -55,7 +53,6 @@ export default class MapData {
         }
 
         for (const edge of mapData.edges) {
-            console.log("edge", edge[0]);
             const pId = fromMap(this.vertexStringToId, edge[0]).unwrap();
             const qId = fromMap(this.vertexStringToId, edge[1]).unwrap();
 
