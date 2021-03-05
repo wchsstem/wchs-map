@@ -63,6 +63,17 @@
         margin-left: auto;
     }
 
+    .settings-container.wrapper {
+        padding: 0.1in 0;
+        margin: 0;
+
+        ul {
+            padding: 0;
+            margin-top: 0;
+            margin-bottom: 0.2in;
+        }
+    }
+
     .settings-container {
         list-style-type: none;
         display: flex;

@@ -6,7 +6,7 @@ import MapData from "../ts/MapData";
 import "./sidebar.scss";
 import Room from "../ts/Room";
 import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
-import { dropdownData, metaSettings, settingInputType, settings, Watcher } from "../ts/settings";
+import { dropdownData, metaSettings, settingCategories, settingInputType, settings, Watcher } from "../ts/settings";
 import { Synergy } from "../Synergy/Synergy";
 import { GeocoderDefinition, GeocoderSuggestion } from "../ts/Geocoder";
 import { BuildingLocationWithEntrances } from "../ts/BuildingLocation";
@@ -379,45 +379,98 @@ export class Sidebar {
         const hiddenSettings: String[] = metaSettings.getSetting("hidden-settings").unwrap() as String[];
         const nameMapping: Map<string, string> = metaSettings.getSetting("name-mapping").unwrap() as Map<string, string>;
 
-        settings.getAllSettingNames()
-        .filter(name => hiddenSettings.indexOf(name) < 0)
-        .forEach(name => {
-            const container = document.createElement("div");
-            settingsContainer.appendChild(container);
-            const watcher = new Watcher(data => {
-                while (container.firstChild !== null) {
-                    container.removeChild(container.firstChild);
-                }
+        settingCategories.forEach((categorySettings, category) => {
+            const categoryContainer = document.createElement("li");
 
-                let setting = null;
-                if (typeof data === "string") {
-                    const inputType = fromMap(settingInputType, name);
-                    const maybeSetting: Option<HTMLLIElement> = inputType.match({
-                        some: (type) => {
-                            if (type === "dropdown") {
-                                // Assume exists
-                                const optionDisplayAndIds = fromMap(dropdownData, name).unwrap();
-                                return Some(Sidebar.createDropdownSetting(name, data, optionDisplayAndIds, nameMapping));
-                            } else {
-                                return None;
-                            }
-                        },
-                        none: () => None
-                    });
-                    setting = maybeSetting.match({
-                        some: (s) => s,
-                        none: () => Sidebar.createStringSetting(name, data, nameMapping)
-                    });
-                } else if (typeof data === "boolean") {
-                    setting = Sidebar.createBooleanSetting(name, data, nameMapping);
-                }
-                if (setting !== null) {
-                    container.appendChild(setting);
-                }
+            const categoryHeader = document.createElement("h2");
+            const categoryHeaderText = document.createTextNode(category);
+            categoryHeader.appendChild(categoryHeaderText);
+            categoryContainer.appendChild(categoryHeader);
+
+            settingsContainer.appendChild(categoryContainer);
+
+            const categorySettingsContainer = document.createElement("ul");
+            settingsContainer.appendChild(categorySettingsContainer);
+
+            categorySettings.forEach(name => {
+                const container = document.createElement("li");
+                container.classList.add("setting-container");
+                categorySettingsContainer.appendChild(container);
+                const watcher = new Watcher(data => {
+                    while (container.firstChild !== null) {
+                        container.removeChild(container.firstChild);
+                    }
+
+                    let setting = null;
+                    if (typeof data === "string") {
+                        const inputType = fromMap(settingInputType, name);
+                        const maybeSetting: Option<HTMLLIElement> = inputType.match({
+                            some: (type) => {
+                                if (type === "dropdown") {
+                                    // Assume exists
+                                    const optionDisplayAndIds = fromMap(dropdownData, name).unwrap();
+                                    return Some(Sidebar.createDropdownSetting(name, data, optionDisplayAndIds, nameMapping));
+                                } else {
+                                    return None;
+                                }
+                            },
+                            none: () => None
+                        });
+                        setting = maybeSetting.match({
+                            some: (s) => s,
+                            none: () => Sidebar.createStringSetting(name, data, nameMapping)
+                        });
+                    } else if (typeof data === "boolean") {
+                        setting = Sidebar.createBooleanSetting(name, data, nameMapping);
+                    }
+                    if (setting !== null) {
+                        container.appendChild(setting);
+                    }
+                });
+                watchers.push([name, watcher]);
+                settings.addWatcher(name, watcher);
             });
-            watchers.push([name, watcher]);
-            settings.addWatcher(name, watcher);
         });
+
+        // settings.getAllSettingNames()
+        // .filter(name => hiddenSettings.indexOf(name) < 0)
+        // .forEach(name => {
+        //     const container = document.createElement("div");
+        //     settingsContainer.appendChild(container);
+        //     const watcher = new Watcher(data => {
+        //         while (container.firstChild !== null) {
+        //             container.removeChild(container.firstChild);
+        //         }
+
+        //         let setting = null;
+        //         if (typeof data === "string") {
+        //             const inputType = fromMap(settingInputType, name);
+        //             const maybeSetting: Option<HTMLLIElement> = inputType.match({
+        //                 some: (type) => {
+        //                     if (type === "dropdown") {
+        //                         // Assume exists
+        //                         const optionDisplayAndIds = fromMap(dropdownData, name).unwrap();
+        //                         return Some(Sidebar.createDropdownSetting(name, data, optionDisplayAndIds, nameMapping));
+        //                     } else {
+        //                         return None;
+        //                     }
+        //                 },
+        //                 none: () => None
+        //             });
+        //             setting = maybeSetting.match({
+        //                 some: (s) => s,
+        //                 none: () => Sidebar.createStringSetting(name, data, nameMapping)
+        //             });
+        //         } else if (typeof data === "boolean") {
+        //             setting = Sidebar.createBooleanSetting(name, data, nameMapping);
+        //         }
+        //         if (setting !== null) {
+        //             container.appendChild(setting);
+        //         }
+        //     });
+        //     watchers.push([name, watcher]);
+        //     settings.addWatcher(name, watcher);
+        // });
 
         const settingsPane = createPaneElement("Settings", settingsContainer);
 
@@ -430,9 +483,8 @@ export class Sidebar {
         };
     }
 
-    private static createSetting(name: string, control: HTMLElement): HTMLLIElement {
-        const container = document.createElement("li");
-        container.classList.add("setting-container");
+    private static createSetting(name: string, control: HTMLElement): HTMLDivElement {
+        const container = document.createElement("div");
 
         container.appendChild(Sidebar.elWithText("label", name));
         container.appendChild(control);

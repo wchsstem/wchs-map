@@ -131,6 +131,10 @@ settingInputType.set("bathroom-gender", "dropdown");
 export const dropdownData: Map<string, T2<string, string>[]> = new Map();
 dropdownData.set("bathroom-gender", [T2.new("", "no-selection"), T2.new("Man", "m"), T2.new("Woman", "w")]);
 
+export const settingCategories: Map<string, string[]> = new Map();
+settingCategories.set("Personal", ["bathroom-gender"]);
+settingCategories.set("Advanced", ["hiding-location", "synergy", "dev"]);
+
 // Maps setting IDs to user friendly names
 const nameMapping = new Map();
 nameMapping.set("bathroom-gender", "Restroom gender");
