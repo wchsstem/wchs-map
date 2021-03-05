@@ -36,33 +36,31 @@
       "vertices": {
          "description": "A map of all vertices that are in the map's graph. The key is the ID for the vertex.",
          "type": "object",
-         "items": {
-            "type": "object",
-            "required": ["id", "floor", "location"],
-            "properties": {
-               "id": {
-                  "description": "A unique identifier for the vertex.",
-                  "type": "string"
-               },
-               "floor": {
-                  "description": "The floor of the building that the vertex is on.",
-                  "type": "string"
-               },
-               "location": {
-                  "description": "An array in the form [x, y] with the vertex's location.",
-                  "type": "array",
-                  "maxItems": 2,
-                  "minItems": 2,
-                  "items": {
-                     "type": "number"
-                  }
-               },
-               "tags": {
-                  "description": "Tags that can be applied to nodes to note special things like stairs.",
-                  "type": "array",
-                  "items": {
-                     "type": "string",
-                     "enum": ["stairs", "elevator"]
+         "patternProperties": {
+            "^.+$": {
+               "type": "object",
+               "required": ["floor", "location"],
+               "properties": {
+                  "floor": {
+                     "description": "The floor of the building that the vertex is on.",
+                     "type": "string"
+                  },
+                  "location": {
+                     "description": "An array in the form [x, y] with the vertex's location.",
+                     "type": "array",
+                     "maxItems": 2,
+                     "minItems": 2,
+                     "items": {
+                        "type": "number"
+                     }
+                  },
+                  "tags": {
+                     "description": "Tags that can be applied to nodes to note special things like stairs.",
+                     "type": "array",
+                     "items": {
+                        "type": "string",
+                        "enum": ["stairs", "elevator"]
+                     }
                   }
                }
             }

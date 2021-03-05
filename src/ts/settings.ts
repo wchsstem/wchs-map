@@ -133,7 +133,7 @@ dropdownData.set("bathroom-gender", [T2.new("", "no-selection"), T2.new("Man", "
 
 // Maps setting IDs to user friendly names
 const nameMapping = new Map();
-nameMapping.set("bathroom-gender", "Bathroom gender");
+nameMapping.set("bathroom-gender", "Restroom gender");
 nameMapping.set("synergy", "Enable Synergy Panel (alpha)");
 nameMapping.set("dev", "Developer Mode");
 nameMapping.set("hiding-location", "Hide Location Dot?");

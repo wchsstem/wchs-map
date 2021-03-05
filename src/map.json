@@ -721,6 +721,22 @@
             "floor": "1",
             "location": [567.5, 186.75]
         },
+        "RBW100:0": {
+            "floor": "1",
+            "location": [378.5, 72.875]
+        },
+        "RBM100:0": {
+            "floor": "1",
+            "location": [353, 72.875]
+        },
+        "RBA102:0": {
+            "floor": "1",
+            "location": [534.75, 282]
+        },
+        "RBB102:0": {
+            "floor": "1",
+            "location": [548.375, 282]
+        },
         "R100:0": {
             "floor": "1",
             "location": [473, 145.75]
@@ -3156,7 +3172,11 @@
         ["R143:4", "R143Z:0"],
         ["R143:0", "R143:3"],
         ["R143:3", "R143:5"],
-        ["R143:5", "R143Z:1"]
+        ["R143:5", "R143Z:1"],
+        ["RBW100:0", "H1:12"],
+        ["RBM100:0", "H1:11"],
+        ["RBA102:0", "H7:13"],
+        ["RBB102:0", "H7:16"]
     ],
     "rooms": {
         "100": {
@@ -3933,6 +3953,22 @@
         },
         "278": {
             "vertices": ["R278:0"]
+        },
+        "BW100": {
+            "vertices": ["RBW100:0"],
+            "names": ["Women's Restroom (Bulldog Lobby)", "Women's Bathroom (Bulldog Lobby)"]
+        },
+        "BM100": {
+            "vertices": ["RBM100:0"],
+            "names": ["Men's Restroom (Bulldog Lobby)", "Men's Bathroom (Bulldog Lobby)"]
+        },
+        "BA102": {
+            "vertices": ["RBW100:0"],
+            "names": ["? Restroom (Cafeteria)", "? Bathroom (Cafeteria)"]
+        },
+        "BB102": {
+            "vertices": ["RBM100:0"],
+            "names": ["? Restroom (Cafeteria)", "? Bathroom (Cafeteria)"]
         },
         "POI200": {
             "vertices": ["H14:0", "H14:2"],

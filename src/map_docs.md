@@ -24,6 +24,9 @@ Future possibility: there seem to be Bathroom Supply Closets associated with eac
 with a room number BSC{X} written in marker on the door. Bathroom IDs should be linked to the ID of the BSCs, though not
 enough are known at this time to do that correctly for all bathrooms.
 
+Note: these are called "bathrooms" internally so the initial (R) doesn't conflict with the initial of room (R), but
+these should be called "restrooms" in the UI.
+
 #### Non-room points of interest
 These are permanent points of interest that are not rooms, like the art gallery across from 278 and 276. They should be
 given a room number in the form of 'POI{floor number}{id}', where the id is a unique two-digit ID identifying the POI
