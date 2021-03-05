@@ -3963,11 +3963,11 @@
             "names": ["Men's Restroom (Bulldog Lobby)", "Men's Bathroom (Bulldog Lobby)"]
         },
         "BA102": {
-            "vertices": ["RBW100:0"],
+            "vertices": ["RBA102:0"],
             "names": ["? Restroom (Cafeteria)", "? Bathroom (Cafeteria)"]
         },
         "BB102": {
-            "vertices": ["RBM100:0"],
+            "vertices": ["RBB102:0"],
             "names": ["? Restroom (Cafeteria)", "? Bathroom (Cafeteria)"]
         },
         "POI200": {
