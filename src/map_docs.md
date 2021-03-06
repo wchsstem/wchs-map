@@ -22,7 +22,8 @@ gender, arbitrarily assign A or B as the temporary gender in the room number.
 
 Future possibility: there seem to be Bathroom Supply Closets associated with each bathroom, each of which is associated
 with a room number BSC{X} written in marker on the door. Bathroom IDs should be linked to the ID of the BSCs, though not
-enough are known at this time to do that correctly for all bathrooms.
+enough are known at this time to do that correctly for all bathrooms. When BSC numbers are used as IDs, they won't match
+between floors, which is acceptable.
 
 Note: these are called "bathrooms" internally so the initial (R) doesn't conflict with the initial of room (R), but
 these should be called "restrooms" in the UI.

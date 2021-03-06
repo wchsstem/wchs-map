@@ -404,7 +404,7 @@ export class Sidebar {
                     let setting = null;
                     if (typeof data === "string") {
                         const inputType = fromMap(settingInputType, name);
-                        const maybeSetting: Option<HTMLLIElement> = inputType.match({
+                        const maybeSetting: Option<HTMLElement> = inputType.match({
                             some: (type) => {
                                 if (type === "dropdown") {
                                     // Assume exists
@@ -432,46 +432,6 @@ export class Sidebar {
             });
         });
 
-        // settings.getAllSettingNames()
-        // .filter(name => hiddenSettings.indexOf(name) < 0)
-        // .forEach(name => {
-        //     const container = document.createElement("div");
-        //     settingsContainer.appendChild(container);
-        //     const watcher = new Watcher(data => {
-        //         while (container.firstChild !== null) {
-        //             container.removeChild(container.firstChild);
-        //         }
-
-        //         let setting = null;
-        //         if (typeof data === "string") {
-        //             const inputType = fromMap(settingInputType, name);
-        //             const maybeSetting: Option<HTMLLIElement> = inputType.match({
-        //                 some: (type) => {
-        //                     if (type === "dropdown") {
-        //                         // Assume exists
-        //                         const optionDisplayAndIds = fromMap(dropdownData, name).unwrap();
-        //                         return Some(Sidebar.createDropdownSetting(name, data, optionDisplayAndIds, nameMapping));
-        //                     } else {
-        //                         return None;
-        //                     }
-        //                 },
-        //                 none: () => None
-        //             });
-        //             setting = maybeSetting.match({
-        //                 some: (s) => s,
-        //                 none: () => Sidebar.createStringSetting(name, data, nameMapping)
-        //             });
-        //         } else if (typeof data === "boolean") {
-        //             setting = Sidebar.createBooleanSetting(name, data, nameMapping);
-        //         }
-        //         if (setting !== null) {
-        //             container.appendChild(setting);
-        //         }
-        //     });
-        //     watchers.push([name, watcher]);
-        //     settings.addWatcher(name, watcher);
-        // });
-
         const settingsPane = createPaneElement("Settings", settingsContainer);
 
         return {
@@ -492,7 +452,7 @@ export class Sidebar {
         return container;
     }
 
-    private static createStringSetting(name: string, value: string, nameMapping: Map<string, string>): HTMLLIElement {
+    private static createStringSetting(name: string, value: string, nameMapping: Map<string, string>): HTMLDivElement {
         const control = genTextInput("", value);
         control.addEventListener("change", () => {
             settings.updateData(name, control.value);
@@ -502,7 +462,7 @@ export class Sidebar {
         return Sidebar.createSetting(mappedName, control);
     }
 
-    private static createBooleanSetting(name: string, value: boolean, nameMapping: Map<string, string>): HTMLLIElement {
+    private static createBooleanSetting(name: string, value: boolean, nameMapping: Map<string, string>): HTMLElement {
         const control = document.createElement("input");
         control.setAttribute("type", "checkbox");
         control.checked = value;
@@ -514,7 +474,7 @@ export class Sidebar {
         return Sidebar.createSetting(mappedName, control);
     }
 
-    private static createDropdownSetting(name: string, value: string, optionDisplayAndIds: T2<string, string>[], nameMapping: Map<string, string>): HTMLLIElement {
+    private static createDropdownSetting(name: string, value: string, optionDisplayAndIds: T2<string, string>[], nameMapping: Map<string, string>): HTMLElement {
         const control = document.createElement("select");
         for (const displayAndId of optionDisplayAndIds) {
             const display = displayAndId.e0;

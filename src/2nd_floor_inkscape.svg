@@ -97,9 +97,9 @@
      showgrid="false"
      units="mm"
      inkscape:document-units="in"
-     inkscape:zoom="2.95848"
-     inkscape:cx="307.75177"
-     inkscape:cy="233.91585"
+     inkscape:zoom="3.1094377"
+     inkscape:cx="372.17628"
+     inkscape:cy="393.50114"
      inkscape:window-x="1920"
      inkscape:window-y="104"
      inkscape:window-maximized="1"
@@ -180,7 +180,7 @@
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.602377;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        inkscape:label="" /><rect
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.602377;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect1141"
+       id="roomBA202"
        width="9.6380348"
        height="17.481476"
        x="537.61243"
@@ -209,7 +209,7 @@
        x="547.25049"
        height="17.481476"
        width="9.9392233"
-       id="rect1191"
+       id="roomBB202"
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.602377;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" /><path
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.602377;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 272.35848,521.04492 v 92.75903 h 91.47896 v -92.75903 z"
@@ -348,7 +348,7 @@
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.602377;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        inkscape:label="" /><rect
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.602377;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect1464"
+       id="roomBM200"
        width="16.741039"
        height="19.043964"
        x="345.22833"
@@ -425,7 +425,7 @@
        x="345.22833"
        y="742.02478" /><rect
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.602377;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect1218"
+       id="roomBW200"
        width="16.469816"
        height="19.044001"
        x="381.5293"
@@ -1581,11 +1581,11 @@
        x="743.58148"
        y="-515.75348" /><rect
        y="-515.75348"
-       x="739.62653"
+       x="739.97552"
        height="3.7888393"
-       width="2.2962666"
+       width="1.4089247"
        id="rect1176"
-       style="display:inline;opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.603326;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;enable-background:new"
+       style="display:inline;opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.47259;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;enable-background:new"
        transform="rotate(90)" /><rect
        style="display:inline;opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.603326;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;enable-background:new"
        id="rect1178"

@@ -2071,6 +2071,22 @@
             "floor": "2",
             "location": [567, 297.625]
         },
+        "RBW200:0": {
+            "floor": "2",
+            "location": [379.625, 72.8125]
+        },
+        "RBM200:0": {
+            "floor": "2",
+            "location": [352, 72.8125]
+        },
+        "RBB202:0": {
+            "floor": "2",
+            "location": [548, 282.125]
+        },
+        "RBA202:0": {
+            "floor": "2",
+            "location": [534.5, 282.125]
+        },
         "R200:0": {
             "floor": "2",
             "location": [490.75, 118.625]
@@ -3176,7 +3192,11 @@
         ["RBW100:0", "H1:12"],
         ["RBM100:0", "H1:11"],
         ["RBA102:0", "H7:13"],
-        ["RBB102:0", "H7:16"]
+        ["RBB102:0", "H7:16"],
+        ["RBW200:0", "H15:6"],
+        ["RBM200:0", "H15:5"],
+        ["H11:22", "RBB202:0"],
+        ["H11:21", "RBA202:0"]
     ],
     "rooms": {
         "100": {
@@ -3962,6 +3982,14 @@
             "vertices": ["RBM100:0"],
             "names": ["Men's Restroom (Bulldog Lobby)", "Men's Bathroom (Bulldog Lobby)"]
         },
+        "BW200": {
+            "vertices": ["RBW200:0"],
+            "names": ["Women's Restroom (Bulldog Lobby Upstairs)", "Women's Bathroom (Bulldog Lobby Upstairs)"]
+        },
+        "BM200": {
+            "vertices": ["RBM200:0"],
+            "names": ["Men's Restroom (Bulldog Lobby Upstairs)", "Men's Bathroom (Bulldog Lobby Upstairs)"]
+        },
         "BA102": {
             "vertices": ["RBA102:0"],
             "names": ["? Restroom (Cafeteria)", "? Bathroom (Cafeteria)"]
@@ -3969,6 +3997,14 @@
         "BB102": {
             "vertices": ["RBB102:0"],
             "names": ["? Restroom (Cafeteria)", "? Bathroom (Cafeteria)"]
+        },
+        "BA202": {
+            "vertices": ["RBA202:0"],
+            "names": ["? Restroom (25X)", "? Bathroom (25X)"]
+        },
+        "BB202": {
+            "vertices": ["RBB202:0"],
+            "names": ["? Restroom (25X)", "? Bathroom (25X)"]
         },
         "POI200": {
             "vertices": ["H14:0", "H14:2"],
