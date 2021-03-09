@@ -13,6 +13,7 @@ import { BuildingLocationWithEntrances } from "../ts/BuildingLocation";
 import { geocoder } from "../ts/utils";
 import { fromMap, None, Option, Some } from "@nvarner/monads";
 import { T2 } from "../ts/Tuple";
+import { NavigationPanel } from "../NavigationPanel/NavigationPanel";
 
 let sidebar: Option<Sidebar> = None;
 
@@ -64,10 +65,13 @@ export class Sidebar {
         this.fromDefinition = None;
         this.toDefinition = None;
 
-        const [navPanel, fromInput, toInput] = this.createNavPanel(roomSearch);
+        const navigationPanel = NavigationPanel.new(geocoder, mapData, () => this.sidebar.open("nav"));
+        navigationPanel.addTo(map, this.sidebar);
+
+        const [navPanel, fromInput, toInput] = this.createNavPanel(map);
         this.fromInput = fromInput;
         this.toInput = toInput;
-        this.sidebar.addPanel(navPanel);
+        // this.sidebar.addPanel(navPanel);
 
         this.sidebar.addPanel(this.createSettingsPanel());
 
@@ -240,7 +244,7 @@ export class Sidebar {
     }
 
     // Nav panel
-    private createNavPanel(roomSearch: RoomSearch): [L.Control.PanelOptions, HTMLInputElement, HTMLInputElement] {
+    private createNavPanel(map: L.Map): [L.Control.PanelOptions, HTMLInputElement, HTMLInputElement] {
         const toFromContainer = document.createElement("div");
         toFromContainer.classList.add("wrapper");
 
@@ -267,6 +271,10 @@ export class Sidebar {
         toInputLabel.classList.add("no-border");
         toInputLabel.classList.add("nav-label");
         toInputContainer.appendChild(toInputLabel);
+        // const pinButton = genButton("pin", () => {
+        //     console.log("test");
+        // });
+        // toInputContainer.appendChild(pinButton);
         const toInput = genTextInput();
         toInputContainer.appendChild(toInput);
         inputContainer.appendChild(toInputContainer);

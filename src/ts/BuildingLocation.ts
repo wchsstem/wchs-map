@@ -1,5 +1,6 @@
 import { Option, Some, None } from "@nvarner/monads";
 import { LatLng } from "leaflet";
+import { Geocoder, GeocoderDefinition } from "./Geocoder";
 
 export class BuildingLocation {
     public readonly xy: LatLng;
@@ -55,3 +56,6 @@ export class BuildingLocationWithEntrances {
         return this.entrances;
     }
 }
+
+export type BuildingGeocoder = Geocoder<BuildingLocationWithEntrances>;
+export type BuildingGeocoderDefinition = GeocoderDefinition<BuildingLocationWithEntrances>;

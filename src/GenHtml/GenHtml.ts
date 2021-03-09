@@ -10,7 +10,7 @@ export function genElText(element: string, text: string): HTMLElement {
     return el;
 }
 
-export function genButton(label: string, onClick?: () => void): HTMLElement {
+export function genButtonLabel(label: string, onClickHandler?: (this: HTMLAnchorElement, ev: MouseEvent) => any): HTMLElement {
     const labelEl = genElText("span", label);
 
     const rootEl = document.createElement("a");
@@ -19,11 +19,32 @@ export function genButton(label: string, onClick?: () => void): HTMLElement {
     rootEl.setAttribute("href", "#");
     rootEl.setAttribute("role", "button");
     rootEl.appendChild(labelEl);
-    if (onClick) {
-        rootEl.addEventListener("click", onClick);
+    if (onClickHandler !== undefined) {
+        rootEl.addEventListener("click", onClickHandler);
     }
 
     return rootEl;
+}
+
+export function genButtonIcon(iconClass: string, onClickHandler?: (this: HTMLAnchorElement, ev: MouseEvent) => any, title?: string): HTMLAnchorElement {
+    const button = document.createElement("a");
+    button.classList.add("button");
+    button.setAttribute("href", "#");
+
+    if (title) {
+        button.setAttribute("title", title);
+    }
+
+    if (onClickHandler !== undefined) {
+        button.addEventListener("click", onClickHandler);
+    }
+
+    const icon = document.createElement("i");
+    icon.classList.add("fas");
+    icon.classList.add(iconClass);
+    button.appendChild(icon);
+
+    return button;
 }
 
 export function genTextInput(placeholder?: string, content?: string, border: boolean = true): HTMLInputElement {
@@ -52,7 +73,7 @@ export function genRoomPopup(room: Room, navigateToHandler: () => void): HTMLEle
     const roomNameEl = document.createElement("h2");
     roomNameEl.appendChild(roomNameTn);
 
-    const navToButton = genButton("Navigate", navigateToHandler);
+    const navToButton = genButtonLabel("Navigate", navigateToHandler);
 
     const rootEl = document.createElement("div");
     rootEl.appendChild(roomNameEl);
