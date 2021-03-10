@@ -3,7 +3,7 @@ image: node:12
 pages:
   stage: deploy
   script:
-  - wget https://gitlab.com/nvarner/indoor-map-lib/-/jobs/artifacts/master/raw/target/release/compile_map_json?job=build
+  - wget https://gitlab.com/nvarner/indoor-map-lib/-/jobs/artifacts/master/raw/target/release/compile_map_json?job=build -o compile_map_json
   - chmod +x compile_map_json
   - export PATH="$PATH:./"
   - npm install --unsafe-perm=true --allow-root --loglevel verbose
