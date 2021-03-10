@@ -41,10 +41,10 @@ export class LLocation extends L.LayerGroup {
             this.onChangeHidingLocation(hidingLocation);
         }));
 
-        const onPositionUpdate = (latestPosition: Position) => {
+        const onPositionUpdate = (latestPosition: GeolocationPosition) => {
             this.onPositionUpdate(latestPosition);
         };
-        const onPositionError = (error: PositionError) => {
+        const onPositionError = (error: GeolocationPositionError) => {
             this.onPositionError(error);
         };
 
@@ -78,7 +78,7 @@ export class LLocation extends L.LayerGroup {
         });
     }
 
-    private onPositionUpdate(latestPosition: Position): void {
+    private onPositionUpdate(latestPosition: GeolocationPosition): void {
         const coords = latestPosition.coords;
 
         if (LLocation.latLongNearChurchill(coords.latitude, coords.longitude)) {
@@ -88,11 +88,11 @@ export class LLocation extends L.LayerGroup {
         }
     }
 
-    private onPositionError(error: PositionError): void {
+    private onPositionError(error: GeolocationPositionError): void {
         this.setPositionStateUnknown();
     }
 
-    private setPositionStateNearChurchill(coords: Coordinates): void {
+    private setPositionStateNearChurchill(coords: GeolocationCoordinates): void {
         this.positionState = PositionState.NearChurchill;
 
         const latestAccuracyRadius = LLocation.metersToFeet(coords.accuracy);

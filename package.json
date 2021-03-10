@@ -35,8 +35,8 @@
     "svg-path-parser": "^1.1.0",
     "svg-polygon-center": "^1.0.2",
     "ts-node": "^8.10.2",
-    "tslib": "^1.14.1",
-    "typescript": "^3.9.7"
+    "tslib": "^2.1.0",
+    "typescript": "^4.2.3"
   },
   "dependencies": {
     "@nvarner/monads": "^0.4.0",

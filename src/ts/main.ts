@@ -19,6 +19,11 @@ import { geocoder } from "./utils";
 import { BuildingLocationWithEntrances } from "./BuildingLocation";
 import { LLocation } from "../LLocationPlugin/LLocationPlugin";
 
+export declare namespace JSX {
+    interface Element { }
+    interface IntrinsicElements { div: any; }
+}
+
 function main() {
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("/serviceWorker.js");

@@ -6,6 +6,8 @@ import { clearResults, updateWithResults } from "../ts/utils";
 import MapData from "../ts/MapData";
 import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 
+import { h } from "../ts/JSX";
+
 export class NavigationPanel {
     private readonly pane: HTMLElement;
     private readonly fromInput: HTMLInputElement;
@@ -43,43 +45,38 @@ export class NavigationPanel {
     }
 
     public static new(geocoder: BuildingGeocoder, mapData: MapData, focus: () => any): NavigationPanel {
-        const toFromContainer = document.createElement("div");
-        toFromContainer.classList.add("wrapper");
-
-        const inputContainer = document.createElement("div");
-        inputContainer.classList.add("wrapper");
-        inputContainer.classList.add("input-wrapper");
-        toFromContainer.appendChild(inputContainer);
-
-        const fromInputContainer = document.createElement("div");
-        fromInputContainer.classList.add("wrapper");
         const fromInputLabel = genElText("label", "From");
         fromInputLabel.classList.add("leaflet-style");
         fromInputLabel.classList.add("no-border");
         fromInputLabel.classList.add("nav-label");
-        fromInputContainer.appendChild(fromInputLabel);
         const fromInput = genTextInput();
-        fromInputContainer.appendChild(fromInput);
-        inputContainer.appendChild(fromInputContainer);
 
-        const toInputContainer = document.createElement("div");
-        toInputContainer.classList.add("wrapper");
         const toInputLabel = genElText("label", "To");
         toInputLabel.classList.add("leaflet-style");
         toInputLabel.classList.add("no-border");
         toInputLabel.classList.add("nav-label");
-        toInputContainer.appendChild(toInputLabel);
-        const pinButton = genButtonLabel("pin", () => {
-            console.log("test");
-        });
-        toInputContainer.appendChild(pinButton);
+        // const pinButton = genButtonLabel("pin", () => {
+        //     console.log("test");
+        // });
         const toInput = genTextInput();
-        toInputContainer.appendChild(toInput);
-        inputContainer.appendChild(toInputContainer);
 
         const swapToFrom = genButtonIcon("fa-exchange-alt", () => {}, "Swap to/from");
         swapToFrom.classList.add("swap-button");
-        toFromContainer.appendChild(swapToFrom);
+
+        const toFromContainer = <div class="wrapper">
+            <div class="wrapper input-wrapper">
+                <div class="wrapper">
+                    { fromInputLabel }
+                    { fromInput }
+                </div>
+                <div class="wrapper">
+                    { toInputLabel }
+                    {/* { pinButton } */}
+                    { toInput }
+                </div>
+            </div>
+            { swapToFrom }
+        </div>;
 
         const resultContainer = document.createElement("div");
         resultContainer.classList.add("wrapper");
