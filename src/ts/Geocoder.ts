@@ -1,5 +1,6 @@
 import { Option, Some, None, fromMap } from "@nvarner/monads";
 import MiniSearch from "minisearch";
+import { T2 } from "./Tuple";
 
 export class GeocoderSuggestion {
     public readonly name: string;
@@ -9,7 +10,11 @@ export class GeocoderSuggestion {
     }
 }
 
-export class GeocoderDefinition<T> {
+export interface GeocoderLocation {
+    distanceTo(other: GeocoderLocation): Option<number>;
+}
+
+export class GeocoderDefinition<T extends GeocoderLocation> {
     /** Name of the location. Displayed to the user and the main factor in search. Must be unique. */
     public readonly name: string;
     /** Alternate names for the location, not including its main name. Not displayed to the user, but used in search. */
@@ -37,7 +42,7 @@ export class GeocoderDefinition<T> {
  * update the geocoder. If the definition set is already linked to a geocoder, `Geocoder.addDefinitionSet` will return
  * false and not update any definitions or references.
  */
-export class GeocoderDefinitionSet<T> {
+export class GeocoderDefinitionSet<T extends GeocoderLocation> {
     private definitions: GeocoderDefinition<T>[];
     private names: Set<string>;
     private geocoder: Option<Geocoder<T>>;
@@ -48,7 +53,7 @@ export class GeocoderDefinitionSet<T> {
         this.geocoder = None;
     }
 
-    public static fromDefinitions<U>(definitions: GeocoderDefinition<U>[]): GeocoderDefinitionSet<U> {
+    public static fromDefinitions<U extends GeocoderLocation>(definitions: GeocoderDefinition<U>[]): GeocoderDefinitionSet<U> {
         const namesSoFar: Set<string> = new Set();
         for (const definition of definitions) {
             if (namesSoFar.has(definition.name)) {
@@ -104,15 +109,16 @@ export class GeocoderDefinitionSet<T> {
     }
 }
 
-export class Geocoder<T> {
-    private search: MiniSearch;
-    private definitionsByName: Map<string, GeocoderDefinition<T>>;
+export class Geocoder<T extends GeocoderLocation> {
+    private readonly search: MiniSearch;
+    private readonly definitionsByName: Map<string, GeocoderDefinition<T>>;
     /**
      * Definitions indexed by alternate names. They are not guaranteed to be unique, so some definitions may be
      * overwritten. This should only be used as a failsafe if `definitionsByName` does not contain a requested name.
      */
-    private definitionsByAlternateName: Map<string, GeocoderDefinition<T>>;
-    private allNames: Set<string>;
+    private readonly definitionsByAltName: Map<string, GeocoderDefinition<T>>;
+    private readonly definitionsByLocation: Map<T, GeocoderDefinition<T>>;
+    private readonly allNames: Set<string>;
 
     constructor() {
         this.search = new MiniSearch({
@@ -127,7 +133,8 @@ export class Geocoder<T> {
             }
         });
         this.definitionsByName = new Map();
-        this.definitionsByAlternateName = new Map();
+        this.definitionsByAltName = new Map();
+        this.definitionsByLocation = new Map();
         this.allNames = new Set();
     }
 
@@ -137,14 +144,7 @@ export class Geocoder<T> {
             return false;
         }
 
-        const newDefinitions = definitionSet.getDefinitions().filter(definition => !this.allNames.has(definition.name));
-        newDefinitions.forEach(definition => {
-            this.definitionsByName.set(definition.name, definition);
-            definition.alternateNames.forEach(alternateName =>
-                this.definitionsByAlternateName.set(alternateName, definition));
-        });
-        this.search.addAll(newDefinitions);
-        definitionSet.getNames().forEach(name => this.allNames.add(name));
+        definitionSet.getDefinitions().forEach(definition => this.addDefinition(definition));
 
         return true;
     }
@@ -154,11 +154,13 @@ export class Geocoder<T> {
             // Not new
             return false;
         }
-
-        this.definitionsByName.set(definition.name, definition);
-        this.search.add(definition);
-        this.allNames.add(definition.name);
         
+        this.definitionsByName.set(definition.name, definition);
+        definition.alternateNames.forEach(altName => this.definitionsByAltName.set(altName, definition));
+        this.definitionsByLocation.set(definition.location, definition);
+        this.allNames.add(definition.name);
+        this.search.add(definition);
+
         return true;
     }
 
@@ -169,6 +171,30 @@ export class Geocoder<T> {
 
     public getDefinitionFromName(name: string): Option<GeocoderDefinition<T>> {
         return fromMap(this.definitionsByName, name)
-            .or(fromMap(this.definitionsByAlternateName, name));
+            .or(fromMap(this.definitionsByAltName, name));
+    }
+
+    public getClosestDefinition(location: T): GeocoderDefinition<T> {
+        const locationAndDefinition = [...this.definitionsByLocation]
+            .map(([definitionLocation, definition]) => {
+                return T2.new(location.distanceTo(definitionLocation), definition);
+            })
+            .reduce((bestLocationDefinition, newLocationDefinition) =>
+                newLocationDefinition.e0.match({
+                    some: newDistance =>
+                        bestLocationDefinition.e0.match({
+                            some: bestDistance => {
+                                if (newDistance < bestDistance) {
+                                    return newLocationDefinition;
+                                } else {
+                                    return bestLocationDefinition;
+                                }
+                            },
+                            none: newLocationDefinition
+                        }),
+                    none: bestLocationDefinition
+                })
+            );
+        return locationAndDefinition.e1;
     }
 }

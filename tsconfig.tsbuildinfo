@@ -196,14 +196,19 @@
         "signature": "91690659122d79d4ab0f7ef9c6512b8a80187491903befbaa17486bdecf3c231",
         "affectsGlobalScope": false
       },
+      "./src/ts/Tuple.ts": {
+        "version": "be98a3360ff903657accb22d795ed981e9290456dec315cec94f2097615549f7",
+        "signature": "7da09871fdc4200ca097816d57f93411ae53708164137bc26308ecdffcbc2778",
+        "affectsGlobalScope": false
+      },
       "./src/ts/Geocoder.ts": {
-        "version": "56f4a4eaffdef58e49ce1dfdf0f6d6b6b9a09e26c1530474648fbf0af147d538",
-        "signature": "4f5e9417ed2ce1106c37aca45006e786c5609fce5380c5d8f88835c6cb904535",
+        "version": "773c97bf0e6a3aeeddc365630315c5a3593a49edbd8136a04a788566528a5557",
+        "signature": "85079fec92e93cbf10c6c387f2c644a64157ae816e8265fcc0541b413ba646d8",
         "affectsGlobalScope": false
       },
       "./src/ts/BuildingLocation.ts": {
-        "version": "2277be6290ef0adabf6bbb71f21ca9046b96f9e873865cc2e45883b7acf2d30d",
-        "signature": "b3cb431591715fd652566fa743b1a83ea535e2c3cdcb63f48dc0dccede218725",
+        "version": "28da95ea310e0da246aefce6459f42952ad1ea1b7341dd7a148a6b7f9dc7efb8",
+        "signature": "25e0f3791a9aba6ea58d960a59bdc568f09cf302f61ef88fd89022ff6dcb755b",
         "affectsGlobalScope": false
       },
       "./src/Vertex.ts": {
@@ -219,11 +224,6 @@
       "./src/ts/Room.ts": {
         "version": "fe703743dab8f33e6dd9a016bebae3836ee7ebd954a05b49846f615a37515460",
         "signature": "5f77cea308b3fc91af28d587a3a643ef40f258ca0b5d8790aa05547e5b452970",
-        "affectsGlobalScope": false
-      },
-      "./src/ts/Tuple.ts": {
-        "version": "be98a3360ff903657accb22d795ed981e9290456dec315cec94f2097615549f7",
-        "signature": "7da09871fdc4200ca097816d57f93411ae53708164137bc26308ecdffcbc2778",
         "affectsGlobalScope": false
       },
       "./src/GenHtml/GenHtml.ts": {
@@ -242,8 +242,8 @@
         "affectsGlobalScope": false
       },
       "./src/LFloorsPlugin/LFloorsPlugin.ts": {
-        "version": "b267d22e22db1451bc9b8ab1f282e0c4a4c3013e679f3e1bbe4042b1b22f3820",
-        "signature": "39d75d78526a44e87ce9ea8776113eb68d4f5ceee692a9ad941358f9f02472b1",
+        "version": "6c2150ef1239f8b6b9edd1d19140472b2a27ea03c3946d6315267493632a7bd3",
+        "signature": "0055f6167dfe69291198c903797ca76a530bf24832969f75af593bf8d5e2cadb",
         "affectsGlobalScope": false
       },
       "./src/LLocationPlugin/LLocationControl.ts": {
@@ -281,14 +281,19 @@
         "signature": "3b128a904eeafaddca53a034c021f4e4080b6160e886115e194abe1211a3f070",
         "affectsGlobalScope": false
       },
-      "./src/NavigationPanel/NavigationPanel.tsx": {
-        "version": "6b2988f68669ea50f7f9699f68ec1b60b19dff8a33d039cab9433f8ec4adc2bf",
-        "signature": "06ab3e9137757c46997a18eb53a980cad261d8c88d0a2de03d813ce7c9fc9c9b",
+      "./src/NavigationPanel/FlooredMarker.ts": {
+        "version": "89a1f72134553cfb168dde842651db0e912ec705aac1a231e980c67f668c96af",
+        "signature": "83eccb0820ae46603268f330f8ae5ebab72611fd5d832a464f370c627a55499a",
+        "affectsGlobalScope": false
+      },
+      "./src/NavigationPanel/NavigationPane.tsx": {
+        "version": "1acd4103312791b60feb465fd10f074638d9a4dd63a885b54b7893341471a1b7",
+        "signature": "eb233e889d7c4f61672317b132ef1840470502e2766791c37bec6ecc1320f4dd",
         "affectsGlobalScope": false
       },
       "./src/Sidebar/SidebarController.ts": {
-        "version": "5ce0cf5c03c9bed7661bf6aa31eec71016a08e9d2c32b9e3ab8cbfd6dca9a1c5",
-        "signature": "072a945b2eec173471cfbfa66ba765e9efbd4bb8764b8af9379d08b92947ea60",
+        "version": "88332243dd27b098ee1858130819ba5501a579de92dc2eaf9f44e0066f021833",
+        "signature": "16795c907d40814933880630c6a2b6274389ed425e7732f9257754e432935c4b",
         "affectsGlobalScope": false
       },
       "./src/LRoomLabelPlugin/LRoomLabelPlugin.ts": {
@@ -307,13 +312,13 @@
         "affectsGlobalScope": false
       },
       "./src/ts/main.ts": {
-        "version": "3b50ced0f4b18fb3038f0a4db39636d29ba9f40a844a39d01d29fc25a36a8912",
+        "version": "fb56910f46a1da0f6ec34e47d08be61bacb003b3ab9bdafe1a75fed033bf519e",
         "signature": "2fc4a6e7a9940412f704475ec06d30257411e89a568411394b95fb9383a6ca5d",
         "affectsGlobalScope": false
       },
       "./src/ts/serviceWorker.ts": {
-        "version": "9c80057f94728daa73cec8cbc470ef3f1b366e56055e889ec283d7d2b319ec4d",
-        "signature": "f1c22e9cf4fae17f700f975352ff167fd5625da0831a33177c26bbbf3dc7d8d7",
+        "version": "c1be9ff86f4c4e0a086038656e0360dd793e4c6dcc4107b3f4071690ae05037f",
+        "signature": "a15bf6d5ff76f556c59af21d3f7f11b37ca2b9197eeed28b3eaf61210192f0f5",
         "affectsGlobalScope": true
       },
       "./node_modules/@types/domhandler/index.d.ts": {
@@ -827,12 +832,19 @@
         "./src/Sidebar/SidebarController.ts",
         "./src/ts/MapData.ts"
       ],
-      "./src/NavigationPanel/NavigationPanel.tsx": [
+      "./src/NavigationPanel/FlooredMarker.ts": [
+        "./node_modules/@types/leaflet/index.d.ts",
+        "./node_modules/tslib/tslib.d.ts",
+        "./src/LFloorsPlugin/LFloorsPlugin.ts",
+        "./src/ts/BuildingLocation.ts"
+      ],
+      "./src/NavigationPanel/NavigationPane.tsx": [
         "./node_modules/@nvarner/monads/dist/lib/index.d.ts",
         "./node_modules/@types/leaflet/index.d.ts",
         "./node_modules/tslib/tslib.d.ts",
         "./src/GenHtml/GenHtml.ts",
         "./src/LFloorsPlugin/LFloorsPlugin.ts",
+        "./src/NavigationPanel/FlooredMarker.ts",
         "./src/ts/BuildingLocation.ts",
         "./src/ts/JSX.ts",
         "./src/ts/MapData.ts",
@@ -850,7 +862,7 @@
         "./node_modules/tslib/tslib.d.ts",
         "./src/GenHtml/GenHtml.ts",
         "./src/LFloorsPlugin/LFloorsPlugin.ts",
-        "./src/NavigationPanel/NavigationPanel.tsx",
+        "./src/NavigationPanel/NavigationPane.tsx",
         "./src/Sidebar/RoomSearch.ts",
         "./src/Synergy/Synergy.ts",
         "./src/ts/BuildingLocation.ts",
@@ -881,7 +893,8 @@
       "./src/ts/Geocoder.ts": [
         "./node_modules/@nvarner/monads/dist/lib/index.d.ts",
         "./node_modules/minisearch/dist/types/index.d.ts",
-        "./node_modules/tslib/tslib.d.ts"
+        "./node_modules/tslib/tslib.d.ts",
+        "./src/ts/Tuple.ts"
       ],
       "./src/ts/Graph.ts": [
         "./node_modules/@nvarner/monads/dist/lib/index.d.ts",
@@ -1152,7 +1165,12 @@
         "./src/LFloorsPlugin/LFloorsPlugin.ts",
         "./src/ts/MapData.ts"
       ],
-      "./src/NavigationPanel/NavigationPanel.tsx": [
+      "./src/NavigationPanel/FlooredMarker.ts": [
+        "./node_modules/@types/leaflet/index.d.ts",
+        "./src/LFloorsPlugin/LFloorsPlugin.ts",
+        "./src/ts/BuildingLocation.ts"
+      ],
+      "./src/NavigationPanel/NavigationPane.tsx": [
         "./node_modules/@nvarner/monads/dist/lib/index.d.ts",
         "./node_modules/@types/leaflet/index.d.ts",
         "./src/ts/BuildingLocation.ts",
@@ -1163,10 +1181,6 @@
         "./src/ts/Room.ts"
       ],
       "./src/Sidebar/SidebarController.ts": [
-        "./node_modules/@nvarner/monads/dist/lib/index.d.ts",
-        "./node_modules/@types/leaflet/index.d.ts",
-        "./src/ts/BuildingLocation.ts",
-        "./src/ts/Geocoder.ts",
         "./src/ts/MapData.ts",
         "./src/ts/Room.ts"
       ],
@@ -1309,7 +1323,8 @@
       "./src/LLocationPlugin/LLocationControl.ts",
       "./src/LLocationPlugin/LLocationPlugin.ts",
       "./src/LRoomLabelPlugin/LRoomLabelPlugin.ts",
-      "./src/NavigationPanel/NavigationPanel.tsx",
+      "./src/NavigationPanel/FlooredMarker.ts",
+      "./src/NavigationPanel/NavigationPane.tsx",
       "./src/Sidebar/RoomSearch.ts",
       "./src/Sidebar/SidebarController.ts",
       "./src/Synergy/Synergy.ts",
@@ -1730,6 +1745,14 @@
       ],
       [
         "./src/LRoomLabelPlugin/LRoomLabelPlugin.ts",
+        1
+      ],
+      [
+        "./src/NavigationPanel/FlooredMarker.ts",
+        1
+      ],
+      [
+        "./src/NavigationPanel/NavigationPane.tsx",
         1
       ],
       [

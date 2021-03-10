@@ -77,6 +77,10 @@ export class LFloors extends L.LayerGroup {
         return this;
     }
 
+    public getCurrentFloor(): string {
+        return this.currentFloorNumber;
+    }
+
     public addLayer(layer: LSomeLayerWithFloor): this {
         const floorNumber = layer.getFloorNumber();
         return this.addLayerToFloor(layer, floorNumber);

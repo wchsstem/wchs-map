@@ -1,8 +1,8 @@
 import { Option, Some, None } from "@nvarner/monads";
 import { LatLng } from "leaflet";
-import { Geocoder, GeocoderDefinition } from "./Geocoder";
+import { Geocoder, GeocoderDefinition, GeocoderLocation } from "./Geocoder";
 
-export class BuildingLocation {
+export class BuildingLocation implements GeocoderLocation {
     public readonly xy: LatLng;
     public readonly floor: string;
 
@@ -17,10 +17,14 @@ export class BuildingLocation {
      * @param other Location to calculate the distance to
      * @returns `Some(distance)` if they are on the same floor, `None` if they are not
      */
-    public distanceTo(other: BuildingLocation): Option<number> {
+    public distanceTo(other: GeocoderLocation): Option<number> {
+        if (!(other instanceof BuildingLocation)) {
+            return None;
+        }
         if (this.floor !== other.floor) {
             return None;
         }
+
         const dx = this.xy.lat - other.xy.lat;
         const dy = this.xy.lng - other.xy.lng;
         return Some(Math.sqrt((dx * dx) + (dy * dy)));
@@ -30,7 +34,7 @@ export class BuildingLocation {
 /**
  * Represents a building location that has (an) entrance(s) that may be distinct from its center point.
  */
-export class BuildingLocationWithEntrances {
+export class BuildingLocationWithEntrances implements GeocoderLocation {
     private center: BuildingLocation;
     private entrances: BuildingLocation[];
 
@@ -54,6 +58,13 @@ export class BuildingLocationWithEntrances {
             return [this.center];
         }
         return this.entrances;
+    }
+
+    public distanceTo(other: GeocoderLocation): Option<number> {
+        if (!(other instanceof BuildingLocationWithEntrances)) {
+            return None;
+        }
+        return this.getCenter().distanceTo(other.getCenter());
     }
 }
 

@@ -58,6 +58,7 @@ function main() {
     const map = L.map("map", {
         crs: L.CRS.Simple,
         center: bounds.getCenter(),
+        transform3DLimit: 2^20, // Prevents room overlay from drifting off the map in Firefox
         maxZoom: 3,
         minZoom: -1,
         maxBounds: bounds.pad(0.5),

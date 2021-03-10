@@ -1,11 +1,12 @@
-import * as L from "leaflet";
+import { control } from "leaflet"
+
 import { RoomSearch } from "./RoomSearch";
-import { createPaneElement, genTextInput, htmlDropdown } from "../GenHtml/GenHtml";
+import { createPaneElement, genTextInput } from "../GenHtml/GenHtml";
 import MapData from "../ts/MapData";
 
 import "./sidebar.scss";
 import Room from "../ts/Room";
-import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
+import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 import { dropdownData, metaSettings, settingCategories, settingInputType, settings, Watcher } from "../ts/settings";
 import { Synergy } from "../Synergy/Synergy";
 import { GeocoderDefinition, GeocoderSuggestion } from "../ts/Geocoder";
@@ -13,7 +14,7 @@ import { BuildingLocationWithEntrances } from "../ts/BuildingLocation";
 import { geocoder } from "../ts/utils";
 import { fromMap, None, Option, Some } from "@nvarner/monads";
 import { T2 } from "../ts/Tuple";
-import { NavigationPanel } from "../NavigationPanel/NavigationPanel";
+import { NavigationPane } from "../NavigationPanel/NavigationPane";
 
 let sidebar: Option<Sidebar> = None;
 
@@ -28,21 +29,15 @@ export function showRoomInfo(room: Room): void {
 const MAX_FILE_SIZE = 2*1024*1024;
 
 export class Sidebar {
-    private map: L.Map;
-    private sidebar: L.Control.Sidebar;
+    private readonly map: L.Map;
+    private readonly sidebar: L.Control.Sidebar;
+    private readonly navigationPane: NavigationPane;
+
     private floorsLayer: Option<LFloors>;
-    private pathLayers: Set<LSomeLayerWithFloor>;
-
-    private mapData: MapData;
-
-    private fromDefinition: Option<GeocoderDefinition<BuildingLocationWithEntrances>>;
-    private toDefinition: Option<GeocoderDefinition<BuildingLocationWithEntrances>>;
-    private fromInput: HTMLInputElement;
-    private toInput: HTMLInputElement;
 
     constructor(map: L.Map, mapData: MapData) {
         this.map = map;
-        this.sidebar = L.control.sidebar({
+        this.sidebar = control.sidebar({
             container: "sidebar",
             closeButton: true
         });
@@ -55,23 +50,11 @@ export class Sidebar {
             }
         });
 
-        this.pathLayers = new Set();
-
-        this.mapData = mapData;
-
         const roomSearch = new RoomSearch(mapData);
         this.sidebar.addPanel(this.createSearchPanel(roomSearch));
 
-        this.fromDefinition = None;
-        this.toDefinition = None;
-
-        const navigationPanel = NavigationPanel.new(geocoder, mapData, () => this.sidebar.open("nav"));
-        navigationPanel.addTo(map, this.sidebar);
-
-        const [navPanel, fromInput, toInput] = this.createNavPanel(map);
-        this.fromInput = fromInput;
-        this.toInput = toInput;
-        // this.sidebar.addPanel(navPanel);
+        this.navigationPane = NavigationPane.new(geocoder, mapData, () => this.sidebar.open("nav"));
+        this.navigationPane.addTo(map, this.sidebar);
 
         this.sidebar.addPanel(this.createSettingsPanel());
 
@@ -229,7 +212,7 @@ export class Sidebar {
         header.appendChild(viewRoomButton);
 
         const navButton = Sidebar.button("fa-location-arrow", () => {
-            thiz.navigateTo(Some(definition));
+            thiz.navigationPane.navigateTo(Some(definition), true);
         }, "Navigate");
         header.appendChild(navButton);
     }
@@ -241,133 +224,6 @@ export class Sidebar {
             this.sidebar.open("info");
             this.moveToDefinedLocation(location);
         });
-    }
-
-    // Nav panel
-    private createNavPanel(map: L.Map): [L.Control.PanelOptions, HTMLInputElement, HTMLInputElement] {
-        const toFromContainer = document.createElement("div");
-        toFromContainer.classList.add("wrapper");
-
-        const inputContainer = document.createElement("div");
-        inputContainer.classList.add("wrapper");
-        inputContainer.classList.add("input-wrapper");
-        toFromContainer.appendChild(inputContainer);
-
-        const fromInputContainer = document.createElement("div");
-        fromInputContainer.classList.add("wrapper");
-        const fromInputLabel = Sidebar.elWithText("label", "From");
-        fromInputLabel.classList.add("leaflet-style");
-        fromInputLabel.classList.add("no-border");
-        fromInputLabel.classList.add("nav-label");
-        fromInputContainer.appendChild(fromInputLabel);
-        const fromInput = genTextInput();
-        fromInputContainer.appendChild(fromInput);
-        inputContainer.appendChild(fromInputContainer);
-
-        const toInputContainer = document.createElement("div");
-        toInputContainer.classList.add("wrapper");
-        const toInputLabel = Sidebar.elWithText("label", "To");
-        toInputLabel.classList.add("leaflet-style");
-        toInputLabel.classList.add("no-border");
-        toInputLabel.classList.add("nav-label");
-        toInputContainer.appendChild(toInputLabel);
-        // const pinButton = genButton("pin", () => {
-        //     console.log("test");
-        // });
-        // toInputContainer.appendChild(pinButton);
-        const toInput = genTextInput();
-        toInputContainer.appendChild(toInput);
-        inputContainer.appendChild(toInputContainer);
-
-        const thiz = this;
-        const swapToFrom = Sidebar.button("fa-exchange-alt", () => {
-            thiz.swapNav();
-        }, "Swap to/from");
-        swapToFrom.classList.add("swap-button");
-        toFromContainer.appendChild(swapToFrom);
-
-        const resultContainer = document.createElement("div");
-        resultContainer.classList.add("wrapper");
-        resultContainer.classList.add("results-wrapper");
-        resultContainer.classList.add("leaflet-style");
-        resultContainer.classList.add("hidden");
-
-        fromInput.addEventListener("input", () => {
-            const query = fromInput.value;
-            const results = geocoder.getSuggestionsFrom(query);
-            Sidebar.updateWithResults(query, results, resultContainer, (result) => {
-                const definition = geocoder.getDefinitionFromName(result.name).unwrap();
-                thiz.navigateFrom(Some(definition));
-                Sidebar.clearResults(resultContainer);
-            });
-        });
-
-        toInput.addEventListener("input", () => {
-            const query = toInput.value;
-            const results = geocoder.getSuggestionsFrom(query);
-            Sidebar.updateWithResults(query, results, resultContainer, (result) => {
-                const definition = geocoder.getDefinitionFromName(result.name).unwrap();
-                thiz.navigateTo(Some(definition));
-                Sidebar.clearResults(resultContainer);
-            });
-        });
-
-        const navPane = createPaneElement("Navigation", [toFromContainer, resultContainer]);
-
-        const panelOptions = {
-            id: "nav",
-            tab: "<i class=\"fas fa-location-arrow\"></i>",
-            title: "Navigation",
-            pane: navPane
-        }
-
-        return [panelOptions, fromInput, toInput];
-    }
-
-    public navigateTo(definition: Option<GeocoderDefinition<BuildingLocationWithEntrances>>) {
-        this.toDefinition = definition;
-        this.toInput.value = definition.match({
-            some: room => room.name,
-            none: ""
-        });
-        this.sidebar.open("nav");
-        this.calcNavIfNeeded();
-    }
-
-    public navigateFrom(definition: Option<GeocoderDefinition<BuildingLocationWithEntrances>>) {
-        this.fromDefinition = definition;
-        this.fromInput.value = definition.match({
-            some: room => room.name,
-            none: ""
-        });
-        this.sidebar.open("nav");
-        this.calcNavIfNeeded();
-    }
-
-    public swapNav() {
-        const from = this.fromDefinition;
-        this.navigateFrom(this.toDefinition);
-        this.navigateTo(from);
-    }
-
-    private calcNavIfNeeded() {
-        if (this.fromDefinition.isSome() && this.toDefinition.isSome()) {
-            this.calcNav(this.fromDefinition.unwrap(), this.toDefinition.unwrap());
-        }
-    }
-
-    private calcNav(
-        fromDefinition: GeocoderDefinition<BuildingLocationWithEntrances>,
-        toDefinition: GeocoderDefinition<BuildingLocationWithEntrances>
-    ): void {
-        this.clearNav();
-        const path = this.mapData.findBestPath(fromDefinition, toDefinition);
-        this.pathLayers = this.mapData.createLayerGroupsFromPath(path);
-        this.floorsLayer.ifSome(floorsLayer => this.pathLayers.forEach(layer => floorsLayer.addLayer(layer)));
-    }
-
-    private clearNav(): void {
-        this.floorsLayer.ifSome(floorsLayer => this.pathLayers.forEach(layer => floorsLayer.removeLayer(layer)));
     }
 
     // Settings panel
