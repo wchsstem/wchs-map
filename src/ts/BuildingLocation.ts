@@ -1,7 +1,7 @@
 import { Option, Some, None, fromMap } from "@nvarner/monads";
 import { LatLng } from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
-import knn from "rbush-knn/rbush-knn";
+import { kdTree } from "kd-tree-javascript";
 import { Geocoder, GeocoderDefinition } from "./Geocoder";
 import { T2 } from "./Tuple";
 
@@ -86,7 +86,7 @@ class BuildingGeocoderRBush extends RBush<T2<T2<number, number>, BuildingGeocode
 }
 
 export class BuildingGeocoder extends Geocoder<BuildingLocationWithEntrances> {
-    private readonly roomCenterIndices: Map<string, BuildingGeocoderRBush>;
+    private readonly roomCenterIndices: Map<string, BuildingKDTree>;
 
     public constructor() {
         super();
@@ -98,21 +98,51 @@ export class BuildingGeocoder extends Geocoder<BuildingLocationWithEntrances> {
         if (!super.addDefinition(definition)) { return false; }
 
         const floor = definition.location.getCenter().floor;
-        const location = definition.location.getCenter().xy;
 
-        const rbush = fromMap(this.roomCenterIndices, floor).unwrapOr(new BuildingGeocoderRBush());
-        rbush.insert(T2.new(T2.new(location.lng, location.lat), definition));
-        this.roomCenterIndices.set(floor, rbush);
+        const tree = fromMap(this.roomCenterIndices, floor).unwrapOr(new kdTree([], distanceBetween, ["x", "y"]));
+        tree.insert(definitionToKDTreeEntry(definition));
+        this.roomCenterIndices.set(floor, tree);
 
         return true;
     }
 
     public getClosestDefinition(location: BuildingLocationWithEntrances): BuildingGeocoderDefinition {
         const center = location.getCenter();
-        const rbush = fromMap(this.roomCenterIndices, center.floor).unwrapOr(new BuildingGeocoderRBush());
-        const [closest] = knn(rbush, center.xy.lng, center.xy.lat, 1);
-        return closest.e1;
+        const tree = fromMap(this.roomCenterIndices, center.floor).unwrap();
+        const [closest] = tree.nearest(locationToKDTreeEntry(location), 1);
+        return closest[0].definition.unwrap();
     }
 }
 
 export type BuildingGeocoderDefinition = GeocoderDefinition<BuildingLocationWithEntrances>;
+
+interface KDTreeEntry {
+    x: number,
+    y: number,
+    definition: Option<BuildingGeocoderDefinition>
+}
+type BuildingKDTree = kdTree<KDTreeEntry>;
+
+function definitionToKDTreeEntry(definition: BuildingGeocoderDefinition): KDTreeEntry {
+    const location = definition.location.getCenter().xy;
+    return {
+        x: location.lng,
+        y: location.lat,
+        definition: Some(definition)
+    };
+}
+
+function locationToKDTreeEntry(location: BuildingLocationWithEntrances): KDTreeEntry {
+    const xy = location.getCenter().xy;
+    return {
+        x: xy.lng,
+        y: xy.lat,
+        definition: None
+    }
+}
+
+function distanceBetween(a: KDTreeEntry, b: KDTreeEntry): number {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    return Math.sqrt((dx * dx) + (dy * dy));
+}
