@@ -95,13 +95,13 @@ export class NavigationPane {
 
         const navigationPane = new NavigationPane(navPane, fromInput, toInput, mapData, geocoder, None, new Set(), None, focus, None, None, None, None);
 
-        swapToFrom.addEventListener("click", _event => navigationPane.swapNav(true));
+        swapToFrom.addEventListener("click", _event => navigationPane.swapNav(true, true));
         fromInput.addEventListener("input", _event => {
             const query = fromInput.value;
             const results = geocoder.getSuggestionsFrom(query);
             updateWithResults(query, results, resultContainer, (result) => {
                 const definition = geocoder.getDefinitionFromName(result.name).unwrap();
-                navigationPane.navigateFrom(Some(definition), true);
+                navigationPane.navigateFrom(Some(definition), true, true);
                 clearResults(resultContainer);
             });
         });
@@ -110,7 +110,7 @@ export class NavigationPane {
             const results = geocoder.getSuggestionsFrom(query);
             updateWithResults(query, results, resultContainer, (result) => {
                 const definition = geocoder.getDefinitionFromName(result.name).unwrap();
-                navigationPane.navigateTo(Some(definition), true);
+                navigationPane.navigateTo(Some(definition), true, true);
                 clearResults(resultContainer);
             });
         });
@@ -166,13 +166,13 @@ export class NavigationPane {
         }
     }
     
-    private swapNav(movePins: boolean): void {
+    private swapNav(movePins: boolean, focus: boolean): void {
         const from = this.fromDefinition;
-        this.navigateFrom(this.toDefinition, movePins);
-        this.navigateTo(from, movePins);
+        this.navigateFrom(this.toDefinition, movePins, focus);
+        this.navigateTo(from, movePins, focus);
     }
 
-    public navigateTo(definition: Option<BuildingGeocoderDefinition>, movePin: boolean): void {
+    public navigateTo(definition: Option<BuildingGeocoderDefinition>, movePin: boolean, focus: boolean): void {
         this.toDefinition = definition;
 
         this.toInput.value = definition.match({
@@ -195,11 +195,14 @@ export class NavigationPane {
             });
         }
 
-        this.focus();
+        if (focus) {
+            this.focus();
+        }
+
         this.calcNavIfNeeded();
     }
 
-    public navigateFrom(definition: Option<BuildingGeocoderDefinition>, movePin: boolean): void {
+    public navigateFrom(definition: Option<BuildingGeocoderDefinition>, movePin: boolean, focus: boolean): void {
         this.fromDefinition = definition;
 
         this.fromInput.value = definition.match({
@@ -222,7 +225,10 @@ export class NavigationPane {
             });
         }
 
-        this.focus();
+        if (focus) {
+            this.focus();
+        }
+
         this.calcNavIfNeeded();
     }
 
@@ -252,7 +258,7 @@ export class NavigationPane {
             location,
             geocoder,
             "fa-map-marker-alt",
-            definition => navigationPane.navigateFrom(definition, false),
+            definition => navigationPane.navigateFrom(definition, false, false),
             () => navigationPane.fromDefinition
         );
     }
@@ -266,7 +272,7 @@ export class NavigationPane {
             location,
             geocoder,
             "fa-flag-checkered",
-            definition => navigationPane.navigateTo(definition, false),
+            definition => navigationPane.navigateTo(definition, false, false),
             () => navigationPane.toDefinition
         );
     }

@@ -212,7 +212,7 @@ export class Sidebar {
         header.appendChild(viewRoomButton);
 
         const navButton = Sidebar.button("fa-location-arrow", () => {
-            thiz.navigationPane.navigateTo(Some(definition), true);
+            thiz.navigationPane.navigateTo(Some(definition), true, true);
         }, "Navigate");
         header.appendChild(navButton);
     }
