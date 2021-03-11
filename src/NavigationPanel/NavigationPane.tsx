@@ -1,5 +1,5 @@
 import { Control, divIcon, Map, PanelOptions } from "leaflet";
-import { genButtonLabel, genButtonIcon, genTextInput, createPaneElement as genPaneElement } from "../GenHtml/GenHtml";
+import { genTextInput, createPaneElement as genPaneElement } from "../GenHtml/GenHtml";
 import { BuildingGeocoder, BuildingGeocoderDefinition, BuildingLocation, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
 import { None, Option, Some } from "@nvarner/monads";
 import { clearResults, updateWithResults } from "../ts/utils";
@@ -326,8 +326,5 @@ export class NavigationPane {
         getNavigation().ifSome(fromDefinition => {
             pin.setLatLng(fromDefinition.location.getCenter().xy);
         });
-        // navigationPane.fromDefinition.ifSome(fromDefinition => {
-        //     pin.setLatLng(fromDefinition.location.getCenter().xy);
-        // });
     }
 }

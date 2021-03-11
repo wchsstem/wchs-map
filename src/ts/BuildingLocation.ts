@@ -1,8 +1,11 @@
-import { Option, Some, None } from "@nvarner/monads";
+import { Option, Some, None, fromMap } from "@nvarner/monads";
 import { LatLng } from "leaflet";
-import { Geocoder, GeocoderDefinition, GeocoderLocation } from "./Geocoder";
+import RBush, { BBox } from "rbush/rbush";
+import knn from "rbush-knn/rbush-knn";
+import { Geocoder, GeocoderDefinition } from "./Geocoder";
+import { T2 } from "./Tuple";
 
-export class BuildingLocation implements GeocoderLocation {
+export class BuildingLocation {
     public readonly xy: LatLng;
     public readonly floor: string;
 
@@ -11,30 +14,21 @@ export class BuildingLocation implements GeocoderLocation {
         this.floor = floor;
     }
 
-    /**
-     * Calculates the Euclidean distance to the given location. If this location and the given one are not
-     * on the same floor, `None` is returned instead of a distance.
-     * @param other Location to calculate the distance to
-     * @returns `Some(distance)` if they are on the same floor, `None` if they are not
-     */
-    public distanceTo(other: GeocoderLocation): Option<number> {
-        if (!(other instanceof BuildingLocation)) {
+    public distanceTo(other: BuildingLocation): Option<number> {
+        if (this.floor === other.floor) {
+            const dlat = other.xy.lat - this.xy.lat;
+            const dlng = other.xy.lng - this.xy.lng;
+            return Some(Math.sqrt((dlat * dlat) + (dlng * dlng)));
+        } else {
             return None;
         }
-        if (this.floor !== other.floor) {
-            return None;
-        }
-
-        const dx = this.xy.lat - other.xy.lat;
-        const dy = this.xy.lng - other.xy.lng;
-        return Some(Math.sqrt((dx * dx) + (dy * dy)));
     }
 }
 
 /**
  * Represents a building location that has (an) entrance(s) that may be distinct from its center point.
  */
-export class BuildingLocationWithEntrances implements GeocoderLocation {
+export class BuildingLocationWithEntrances {
     private center: BuildingLocation;
     private entrances: BuildingLocation[];
 
@@ -60,13 +54,65 @@ export class BuildingLocationWithEntrances implements GeocoderLocation {
         return this.entrances;
     }
 
-    public distanceTo(other: GeocoderLocation): Option<number> {
-        if (!(other instanceof BuildingLocationWithEntrances)) {
-            return None;
-        }
+    public distanceTo(other: BuildingLocationWithEntrances): Option<number> {
         return this.getCenter().distanceTo(other.getCenter());
     }
 }
 
-export type BuildingGeocoder = Geocoder<BuildingLocationWithEntrances>;
+class BuildingGeocoderRBush extends RBush<T2<T2<number, number>, BuildingGeocoderDefinition>> {
+    toBBox(pointDefinition: T2<T2<number, number>, BuildingGeocoderDefinition>): BBox {
+        const point = pointDefinition.e0;
+        return {
+            minX: point.e0,
+            minY: point.e1,
+            maxX: point.e0,
+            maxY: point.e1
+        };
+    }
+
+    compareMinX(
+        a: T2<T2<number, number>, BuildingGeocoderDefinition>,
+        b: T2<T2<number, number>, BuildingGeocoderDefinition>
+    ): number {
+        return a.e0.e0 - b.e0.e0;
+    }
+
+    compareMinY(
+        a: T2<T2<number, number>, BuildingGeocoderDefinition>,
+        b: T2<T2<number, number>, BuildingGeocoderDefinition>
+    ): number {
+        return a.e0.e1 - b.e0.e1;
+    }
+}
+
+export class BuildingGeocoder extends Geocoder<BuildingLocationWithEntrances> {
+    private readonly roomCenterIndices: Map<string, BuildingGeocoderRBush>;
+
+    public constructor() {
+        super();
+
+        this.roomCenterIndices = new Map();
+    }
+
+    public addDefinition(definition: BuildingGeocoderDefinition): boolean {
+        if (!super.addDefinition(definition)) { return false; }
+
+        const floor = definition.location.getCenter().floor;
+        const location = definition.location.getCenter().xy;
+
+        const rbush = fromMap(this.roomCenterIndices, floor).unwrapOr(new BuildingGeocoderRBush());
+        rbush.insert(T2.new(T2.new(location.lng, location.lat), definition));
+        this.roomCenterIndices.set(floor, rbush);
+
+        return true;
+    }
+
+    public getClosestDefinition(location: BuildingLocationWithEntrances): BuildingGeocoderDefinition {
+        const center = location.getCenter();
+        const rbush = fromMap(this.roomCenterIndices, center.floor).unwrapOr(new BuildingGeocoderRBush());
+        const [closest] = knn(rbush, center.xy.lng, center.xy.lat, 1);
+        return closest.e1;
+    }
+}
+
 export type BuildingGeocoderDefinition = GeocoderDefinition<BuildingLocationWithEntrances>;

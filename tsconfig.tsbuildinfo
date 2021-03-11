@@ -191,6 +191,11 @@
         "signature": "9dab596db2270bc63f95c7eb44a21a794d6abb21de80610efdd15a339262bd9c",
         "affectsGlobalScope": false
       },
+      "./node_modules/@types/rbush/index.d.ts": {
+        "version": "79c8b631efbe97d0d8cd3dd065220a151f7e46b58f94396549c2d4c060f47e98",
+        "signature": "79c8b631efbe97d0d8cd3dd065220a151f7e46b58f94396549c2d4c060f47e98",
+        "affectsGlobalScope": false
+      },
       "./node_modules/minisearch/dist/types/index.d.ts": {
         "version": "91690659122d79d4ab0f7ef9c6512b8a80187491903befbaa17486bdecf3c231",
         "signature": "91690659122d79d4ab0f7ef9c6512b8a80187491903befbaa17486bdecf3c231",
@@ -202,13 +207,13 @@
         "affectsGlobalScope": false
       },
       "./src/ts/Geocoder.ts": {
-        "version": "773c97bf0e6a3aeeddc365630315c5a3593a49edbd8136a04a788566528a5557",
-        "signature": "85079fec92e93cbf10c6c387f2c644a64157ae816e8265fcc0541b413ba646d8",
+        "version": "382ea8b9994fecd68294117ff15e6526b2a46f6c9427303728e9748b2bd17b06",
+        "signature": "b3b9b72d047ecac26ed474b88feec4dcf05035ee800fe8a59f999e689c336b11",
         "affectsGlobalScope": false
       },
       "./src/ts/BuildingLocation.ts": {
-        "version": "28da95ea310e0da246aefce6459f42952ad1ea1b7341dd7a148a6b7f9dc7efb8",
-        "signature": "25e0f3791a9aba6ea58d960a59bdc568f09cf302f61ef88fd89022ff6dcb755b",
+        "version": "d492e2c80f067120d3855b63fb849dd98168a246a64a96979380334217a93323",
+        "signature": "d75de8ba6aab394f2cc5ebc9c2e0bebb6ed7b980227114363c90f3538f7f38ee",
         "affectsGlobalScope": false
       },
       "./src/Vertex.ts": {
@@ -217,8 +222,8 @@
         "affectsGlobalScope": false
       },
       "./src/ts/utils.ts": {
-        "version": "8fb93c1ccfa6894a34fa1e4bb8a0ebd1c69a2dbfec4e736abeb2b2afd61f8f26",
-        "signature": "08839579139ee1966279b1d45b31fa5e4a09a0652792e387a0758bb018adf677",
+        "version": "e0aab907a2be544501fbbb48537cc886e1fd6f6515ab083f7c57cd6a63f13d35",
+        "signature": "2dceebb43710b3df6ea7804a623fbcf53d85c2ba979e0872aefea29621cc26a8",
         "affectsGlobalScope": false
       },
       "./src/ts/Room.ts": {
@@ -261,11 +266,6 @@
         "signature": "b9cbd16b5524cd897bba8dcd7683b95da33a257be97fdcec2ddd4b14d48dd2dc",
         "affectsGlobalScope": false
       },
-      "./node_modules/@types/rbush/index.d.ts": {
-        "version": "79c8b631efbe97d0d8cd3dd065220a151f7e46b58f94396549c2d4c060f47e98",
-        "signature": "79c8b631efbe97d0d8cd3dd065220a151f7e46b58f94396549c2d4c060f47e98",
-        "affectsGlobalScope": false
-      },
       "./src/Sidebar/RoomSearch.ts": {
         "version": "c57a3a5f22ca238d7734290df77f68b4b1bd7986a7edfb6c67ce962a5f11ab83",
         "signature": "b9a40df28261df7b87e6192479c65a20970fa222c5105242371d99972eaa4d5d",
@@ -287,7 +287,7 @@
         "affectsGlobalScope": false
       },
       "./src/NavigationPanel/NavigationPane.tsx": {
-        "version": "1acd4103312791b60feb465fd10f074638d9a4dd63a885b54b7893341471a1b7",
+        "version": "d421379dbda1eebd80239a649b8c5c36384e19725254df95e9e1cc200f9b6bb5",
         "signature": "eb233e889d7c4f61672317b132ef1840470502e2766791c37bec6ecc1320f4dd",
         "affectsGlobalScope": false
       },
@@ -299,6 +299,11 @@
       "./src/LRoomLabelPlugin/LRoomLabelPlugin.ts": {
         "version": "04c2f461791ad7d6915a62747f4c96b7afb97229e1374da820356d4d7190c433",
         "signature": "a051afd606a351308e5355835f5ac720f05291e835e6dcab3128a8f2d742951e",
+        "affectsGlobalScope": false
+      },
+      "./src/customTyping/rbush-knn/index.d.ts": {
+        "version": "bb8645db76e5455d9aa19950e4b30ee7b2b9deee650dd8f17a3982522ef712c4",
+        "signature": "bb8645db76e5455d9aa19950e4b30ee7b2b9deee650dd8f17a3982522ef712c4",
         "affectsGlobalScope": false
       },
       "./src/map_compiled.json": {
@@ -317,8 +322,8 @@
         "affectsGlobalScope": false
       },
       "./src/ts/serviceWorker.ts": {
-        "version": "c1be9ff86f4c4e0a086038656e0360dd793e4c6dcc4107b3f4071690ae05037f",
-        "signature": "a15bf6d5ff76f556c59af21d3f7f11b37ca2b9197eeed28b3eaf61210192f0f5",
+        "version": "21aac9644936efd2c0e371dd8a4c45b922f39c25aeffdb565b2bf73587cb90f7",
+        "signature": "12e2f55ffc8c1dd4453ba378387a7225e0123a2be55b59bb4f7a2b224dcd6a6a",
         "affectsGlobalScope": true
       },
       "./node_modules/@types/domhandler/index.d.ts": {
@@ -599,8 +604,13 @@
       "noImplicitReturns": true,
       "strictPropertyInitialization": true,
       "alwaysStrict": true,
+      "strictNullChecks": true,
       "incremental": true,
       "importHelpers": true,
+      "typeRoots": [
+        "./node_modules/@types",
+        "./src/customTyping"
+      ],
       "noEmit": true,
       "noFallthroughCasesInSwitch": true,
       "configFilePath": "./tsconfig.json"
@@ -884,11 +894,17 @@
         "./node_modules/tslib/tslib.d.ts",
         "./src/ts/BuildingLocation.ts"
       ],
+      "./src/customTyping/rbush-knn/index.d.ts": [
+        "./node_modules/@types/rbush/index.d.ts"
+      ],
       "./src/ts/BuildingLocation.ts": [
         "./node_modules/@nvarner/monads/dist/lib/index.d.ts",
         "./node_modules/@types/leaflet/index.d.ts",
+        "./node_modules/@types/rbush/index.d.ts",
         "./node_modules/tslib/tslib.d.ts",
-        "./src/ts/Geocoder.ts"
+        "./src/customTyping/rbush-knn/index.d.ts",
+        "./src/ts/Geocoder.ts",
+        "./src/ts/Tuple.ts"
       ],
       "./src/ts/Geocoder.ts": [
         "./node_modules/@nvarner/monads/dist/lib/index.d.ts",
@@ -1191,6 +1207,9 @@
       "./src/Vertex.ts": [
         "./src/ts/BuildingLocation.ts"
       ],
+      "./src/customTyping/rbush-knn/index.d.ts": [
+        "./node_modules/@types/rbush/index.d.ts"
+      ],
       "./src/ts/BuildingLocation.ts": [
         "./node_modules/@nvarner/monads/dist/lib/index.d.ts",
         "./node_modules/@types/leaflet/index.d.ts",
@@ -1329,6 +1348,7 @@
       "./src/Sidebar/SidebarController.ts",
       "./src/Synergy/Synergy.ts",
       "./src/Vertex.ts",
+      "./src/customTyping/rbush-knn/index.d.ts",
       "./src/map_compiled.json",
       "./src/ts/BuildingLocation.ts",
       "./src/ts/Geocoder.ts",
@@ -1377,6 +1397,10 @@
       ],
       [
         "./node_modules/@types/htmlparser2/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/@types/kdbush/index.d.ts",
         1
       ],
       [
@@ -1584,11 +1608,107 @@
         1
       ],
       [
+        "./node_modules/ajv/lib/ajv.d.ts",
+        1
+      ],
+      [
+        "./node_modules/anymatch/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/arg/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/binary-extensions/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/builtin-modules/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/chalk/types/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/chokidar/types/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/commander/typings/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/deepmerge/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/emoji-regex/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/estree-walker/types/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/fast-deep-equal/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/fast-json-stable-stringify/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/get-caller-file/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/is-binary-path/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/is-reference/dist/types/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/jest-worker/build/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/jest-worker/build/types.d.ts",
+        1
+      ],
+      [
+        "./node_modules/jest-worker/build/workers/messageParent.d.ts",
+        1
+      ],
+      [
         "./node_modules/leaflet-sidebar-v2/index.d.ts",
         1
       ],
       [
+        "./node_modules/magic-string/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/make-error/index.d.ts",
+        1
+      ],
+      [
         "./node_modules/minisearch/dist/types/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/p-limit/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/p-try/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/performance-now/src/index.d.ts",
         1
       ],
       [
@@ -1600,7 +1720,59 @@
         1
       ],
       [
+        "./node_modules/readdirp/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/rollup-plugin-terser/rollup-plugin-terser.d.ts",
+        1
+      ],
+      [
+        "./node_modules/rollup-pluginutils/dist/pluginutils.d.ts",
+        1
+      ],
+      [
+        "./node_modules/rollup-pluginutils/node_modules/estree-walker/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/rollup/dist/rollup.d.ts",
+        1
+      ],
+      [
+        "./node_modules/safe-buffer/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/sourcemap-codec/dist/types/sourcemap-codec.d.ts",
+        1
+      ],
+      [
+        "./node_modules/svg-polygon-center/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/terser/node_modules/source-map/source-map.d.ts",
+        1
+      ],
+      [
+        "./node_modules/terser/tools/terser.d.ts",
+        1
+      ],
+      [
+        "./node_modules/tinyqueue/index.d.ts",
+        1
+      ],
+      [
+        "./node_modules/ts-node/dist/index.d.ts",
+        1
+      ],
+      [
         "./node_modules/tslib/tslib.d.ts",
+        1
+      ],
+      [
+        "./node_modules/tweetnacl/nacl.d.ts",
         1
       ],
       [
@@ -1728,6 +1900,18 @@
         1
       ],
       [
+        "./node_modules/typescript/lib/typescript.d.ts",
+        1
+      ],
+      [
+        "./node_modules/uri-js/dist/es5/uri.all.d.ts",
+        1
+      ],
+      [
+        "./node_modules/yn/index.d.ts",
+        1
+      ],
+      [
         "./src/GenHtml/GenHtml.ts",
         1
       ],
@@ -1773,6 +1957,14 @@
       ],
       [
         "./src/Vertex.ts",
+        1
+      ],
+      [
+        "./src/customTyping/rbush-knn.d.ts",
+        1
+      ],
+      [
+        "./src/customTyping/rbush-knn/index.d.ts",
         1
       ],
       [

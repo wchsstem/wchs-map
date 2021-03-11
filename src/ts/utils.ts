@@ -1,4 +1,4 @@
-import { BuildingLocationWithEntrances } from "./BuildingLocation";
+import { BuildingGeocoder, BuildingLocationWithEntrances } from "./BuildingLocation";
 import { Geocoder, GeocoderSuggestion } from "./Geocoder";
 
 const nonCap = ["and"];
@@ -81,5 +81,5 @@ export function clearResults(resultContainer: HTMLElement): void {
     resultContainer.classList.add("hidden");
 }
 
-const geocoder: Geocoder<BuildingLocationWithEntrances> = new Geocoder();
+const geocoder: BuildingGeocoder = new BuildingGeocoder();
 export { geocoder };

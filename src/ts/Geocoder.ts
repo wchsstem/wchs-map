@@ -10,11 +10,7 @@ export class GeocoderSuggestion {
     }
 }
 
-export interface GeocoderLocation {
-    distanceTo(other: GeocoderLocation): Option<number>;
-}
-
-export class GeocoderDefinition<T extends GeocoderLocation> {
+export class GeocoderDefinition<T> {
     /** Name of the location. Displayed to the user and the main factor in search. Must be unique. */
     public readonly name: string;
     /** Alternate names for the location, not including its main name. Not displayed to the user, but used in search. */
@@ -42,7 +38,7 @@ export class GeocoderDefinition<T extends GeocoderLocation> {
  * update the geocoder. If the definition set is already linked to a geocoder, `Geocoder.addDefinitionSet` will return
  * false and not update any definitions or references.
  */
-export class GeocoderDefinitionSet<T extends GeocoderLocation> {
+export class GeocoderDefinitionSet<T> {
     private definitions: GeocoderDefinition<T>[];
     private names: Set<string>;
     private geocoder: Option<Geocoder<T>>;
@@ -53,7 +49,7 @@ export class GeocoderDefinitionSet<T extends GeocoderLocation> {
         this.geocoder = None;
     }
 
-    public static fromDefinitions<U extends GeocoderLocation>(definitions: GeocoderDefinition<U>[]): GeocoderDefinitionSet<U> {
+    public static fromDefinitions<U>(definitions: GeocoderDefinition<U>[]): GeocoderDefinitionSet<U> {
         const namesSoFar: Set<string> = new Set();
         for (const definition of definitions) {
             if (namesSoFar.has(definition.name)) {
@@ -109,7 +105,7 @@ export class GeocoderDefinitionSet<T extends GeocoderLocation> {
     }
 }
 
-export class Geocoder<T extends GeocoderLocation> {
+export class Geocoder<T> {
     private readonly search: MiniSearch;
     private readonly definitionsByName: Map<string, GeocoderDefinition<T>>;
     /**
@@ -172,29 +168,5 @@ export class Geocoder<T extends GeocoderLocation> {
     public getDefinitionFromName(name: string): Option<GeocoderDefinition<T>> {
         return fromMap(this.definitionsByName, name)
             .or(fromMap(this.definitionsByAltName, name));
-    }
-
-    public getClosestDefinition(location: T): GeocoderDefinition<T> {
-        const locationAndDefinition = [...this.definitionsByLocation]
-            .map(([definitionLocation, definition]) => {
-                return T2.new(location.distanceTo(definitionLocation), definition);
-            })
-            .reduce((bestLocationDefinition, newLocationDefinition) =>
-                newLocationDefinition.e0.match({
-                    some: newDistance =>
-                        bestLocationDefinition.e0.match({
-                            some: bestDistance => {
-                                if (newDistance < bestDistance) {
-                                    return newLocationDefinition;
-                                } else {
-                                    return bestLocationDefinition;
-                                }
-                            },
-                            none: newLocationDefinition
-                        }),
-                    none: bestLocationDefinition
-                })
-            );
-        return locationAndDefinition.e1;
     }
 }

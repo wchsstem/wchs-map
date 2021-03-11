@@ -1,5 +1,5 @@
 import * as L from "leaflet";
-import RBush, { BBox } from "rbush";
+import RBush, { BBox } from "rbush/rbush";
 
 import "./label.scss";
 import MapData from "../ts/MapData";
