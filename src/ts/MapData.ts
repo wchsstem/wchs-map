@@ -167,13 +167,14 @@ export default class MapData {
         }
     
         const fastestPath: number[] = [];
-        let nextPlace: number | null = destVertex;
+        let nextPlace: Option<number> = Some(destVertex);
     
-        if (fromMap(prev, nextPlace).isSome() || nextPlace === destVertex) {
-            while (nextPlace !== null) {
-                fastestPath.push(nextPlace);
-                nextPlace = fromMap(prev, nextPlace).unwrap();
-            }
+        while (nextPlace.isSome()) {
+            fastestPath.push(nextPlace.unwrap());
+            nextPlace = fromMap(prev, nextPlace.unwrap()).match({
+                some: place => place === null ? None : Some(place),
+                none: None
+            });
         }
     
         return fastestPath;

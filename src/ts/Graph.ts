@@ -1,4 +1,5 @@
 import { fromMap, None, Option, Some } from "@nvarner/monads";
+import { FibonacciHeap, INode } from "@tyriar/fibonacci-heap";
 
 export default class Graph<K, V> {
     private adjList: Map<K, Array<[K, number]>>;
@@ -49,29 +50,35 @@ export default class Graph<K, V> {
     }
 
     dijkstra(source: K): [Map<K, number>, Map<K, K | null>] {
-        let q: K[] = [];
         let dist: Map<K, number> = new Map();
         let prev: Map<K, K | null> = new Map();
 
-        for (const v of this.adjList.keys()) {
-            dist.set(v, Infinity);
-            prev.set(v, null);
-            q.push(v);
-        }
         dist.set(source, 0);
 
-        while (q.length !== 0) {
-            // Get the ID of the vertex with the smallest distance
-            const u = q.reduce((u, K) => fromMap(dist, K).unwrap() < fromMap(dist, u).unwrap() ? K : u);
+        const q: FibonacciHeap<number, K> = new FibonacciHeap();
+        const vertexToNode: Map<K, INode<number, K>> = new Map();
 
-            // Remove u from q
-            q.splice(q.indexOf(u), 1);
+        for (const v of this.adjList.keys()) {
+            if (v !== source) {
+                dist.set(v, Infinity);
+                // TODO: Maybe use None?
+                prev.set(v, null);
+            }
+            const node = q.insert(fromMap(dist, v).unwrap(), v);
+            vertexToNode.set(v, node);
+        }
+
+        while (!q.isEmpty()) {
+            const u = q.extractMinimum()!.value!;
 
             for (const v of this.getNeighbors(u)) {
+                const vWeight = fromMap(dist, v).unwrap();
                 const alt = fromMap(dist, u).unwrap() + this.getWeight(u, v);
-                if (alt < fromMap(dist, v).unwrap()) {
+                if (alt < vWeight) {
                     dist.set(v, alt);
                     prev.set(v, u);
+                    const node = fromMap(vertexToNode, v).unwrap();
+                    q.decreaseKey(node, alt);
                 }
             }
         }
