@@ -3216,7 +3216,7 @@
     "rooms": {
         "100": {
             "vertices": ["R100:0"],
-            "names": ["health room", "nurse's office", "nurses office"]
+            "names": ["Health Room", "Nurse's Office"]
         },
         "100B": {
             "vertices": ["R100B:0"]
@@ -3232,14 +3232,14 @@
         },
         "105": {
             "vertices": ["R105:0"],
-            "names": ["college and career center", "college & career center", "college office", "career office", "college center", "career center"]
+            "names": ["College and Career Center", "College Career Center", "College Office", "Career Office", "College Center", "Career Center"]
         },
         "106": {
             "vertices": ["R106:0"]
         },
         "107": {
             "vertices": ["R107:0"],
-            "names": ["counseling", "guidance", "guidance office", "counselors", "counseling office"],
+            "names": ["Counseling", "Guidance", "Guidance Office", "Counselors", "Counseling Office"],
             "center": [489.9375, 36.9375]
         },
         "107A": {
@@ -3334,7 +3334,7 @@
         },
         "127": {
             "vertices": ["R127:0"],
-            "names": ["auditorium", "theater"]
+            "names": ["Auditorium", "Theater"]
         },
         "127A": {
             "vertices": ["R127A:0"]
@@ -3420,7 +3420,7 @@
         },
         "137": {
             "vertices": ["R137:0"],
-            "names": ["side gym", "aux gym", "auxiliary gym"]
+            "names": ["Side Gym", "Aux Gym", "Auxiliary Gym"]
         },
         "137A": {
             "vertices": ["R137A:0", "R137A:1"]
@@ -3436,7 +3436,7 @@
         },
         "138": {
             "vertices": ["R138:0"],
-            "names": ["math office", "mathematics office"]
+            "names": ["Math Office", "Mathematics Office"]
         },
         "138A": {
             "vertices": ["R138A:0", "R138A:1"]
@@ -3455,7 +3455,7 @@
         },
         "139": {
             "vertices": ["R139:0"],
-            "names": ["girls' locker room", "girls locker room"],
+            "names": ["Girls' Locker Room", "Girls Locker Room"],
             "center": [193.875, 226.75]
         },
         "139A": {
@@ -3472,11 +3472,11 @@
         },
         "141": {
             "vertices": ["R141:0"],
-            "names": ["girls' pe office", "girls' gym office", "women's pe office", "women's gym office"]
+            "names": ["Girls' PE Office", "Girls' Gym Office", "Women's PE Office", "Women's Gym Office"]
         },
         "142": {
             "vertices": ["R142:0"],
-            "names": ["science office"]
+            "names": ["Science Office"]
         },
         "142A": {
             "vertices": ["R142A:1", "R142A:0"]
@@ -3492,16 +3492,20 @@
         },
         "143": {
             "vertices": ["R143:0", "R143:1"],
-            "names": ["fitness center", "weight room", "exercise room"]
+            "names": ["Fitness Center", "Weight Room", "Exercise Room"]
         },
         "143Z": {
             "vertices": ["R143Z:0", "R143Z:1"],
-            "names": ["fitness center upstairs", "second floor fitness center", "second story fitness center", "weight room upstairs", "second floor weight room", "second story weight room", "exercise room upstairs", "second floor exercise room", "second story exercise room"],
+            "names": [
+                "Fitness Center Upstairs", "Second Floor Fitness Center", "Second Story Fitness Center",
+                "Weight Room Upstairs", "Second Floor Weight Room", "Second Story Weight Room",
+                "Exercise Room Upstairs", "Second Floor Exercise Room", "Second Story Exercise Room"
+            ],
             "center": [242.5, 248.25]
         },
         "144": {
             "vertices": ["R144:16", "R144:0"],
-            "names": ["office", "main office"],
+            "names": ["Main Office", "Office"],
             "center": [515.875, 158.125]
         },
         "144A": {
@@ -3584,14 +3588,14 @@
         },
         "156": {
             "vertices": ["R156:0", "R156:1"],
-            "names": ["cafeteria", "lunch room"]
+            "names": ["Cafeteria", "Lunch Room"]
         },
         "156A": {
             "vertices": ["R156A:0"]
         },
         "157": {
             "vertices": ["R157:0"],
-            "names": ["school store"]
+            "names": ["School Store"]
         },
         "158": {
             "vertices": ["R158:0"]
@@ -3607,25 +3611,25 @@
         },
         "163": {
             "vertices": ["R163:2", "R163:0", "R163:1"],
-            "names": ["gym", "main gym"]
+            "names": ["Gym", "Main Gym"]
         },
         "163W": {
             "vertices": ["R163W:0"]
         },
         "163X": {
             "vertices": ["R163X:0"],
-            "names": ["coaches' office", "coaches office", "coach office", "gym office"]
+            "names": ["Coaches' Office", "Coach Office", "Gym Office"]
         },
         "163Y": {
             "vertices": ["R163Y:0"]
         },
         "163Z": {
             "vertices": ["R163Z:0"],
-            "names": ["concessions"]
+            "names": ["Concessions"]
         },
         "164": {
             "vertices": ["R164:0"],
-            "names": ["building services"]
+            "names": ["Building Services"]
         },
         "164A": {
             "vertices": ["R164A:0"]
@@ -3656,14 +3660,14 @@
         },
         "167": {
             "vertices": ["R167:0"],
-            "names": ["boys' pe office", "boys' gym office", "men's pe office", "men's gym office"]
+            "names": ["Boys' PE office", "Boys' Gym Office", "Men's PE Office", "Men's Gym Office"]
         },
         "168": {
             "vertices": ["R168:0"]
         },
         "169": {
             "vertices": ["R169:0"],
-            "names": ["boys' locker room", "boys locker room"],
+            "names": ["Boys' Locker Room"],
             "center": [193.875, 276.5]
         },
         "170": {
@@ -3674,11 +3678,11 @@
         },
         "174": {
             "vertices": ["R174:0"],
-            "names": ["dance studio"]
+            "names": ["Dance Studio"]
         },
         "176": {
             "vertices": ["R176:0"],
-            "names": ["wrestling room"]
+            "names": ["Wrestling Room"]
         },
         "200": {
             "vertices": ["R200:0"]
@@ -3700,7 +3704,7 @@
         },
         "203C": {
             "vertices": ["R203C:0"],
-            "names": ["special education services"]
+            "names": ["Special Education Services"]
         },
         "203D": {
             "vertices": ["R203D:0"]
@@ -3801,7 +3805,7 @@
         },
         "235": {
             "vertices": ["R235:0"],
-            "names": ["english office"]
+            "names": ["English Office"]
         },
         "235A": {
             "vertices": ["R235A:0", "R235A:1"]
@@ -3824,7 +3828,7 @@
         },
         "238": {
             "vertices": ["R238:0"],
-            "names": ["social studies office"]
+            "names": ["Social Studies Office"]
         },
         "238A": {
             "vertices": ["R238A:0"]
@@ -3840,7 +3844,7 @@
         },
         "239": {
             "vertices": ["R239:0"],
-            "names": ["art office"]
+            "names": ["Art Office"]
         },
         "240": {
             "vertices": ["R240A:1", "R240:1", "R240:0"]
@@ -3856,7 +3860,7 @@
         },
         "241A": {
             "vertices": ["R241A:0"],
-            "names": ["yearbook"]
+            "names": ["Yearbook"]
         },
         "241B": {
             "vertices": ["R241B:0"]
@@ -3875,7 +3879,7 @@
         },
         "243A": {
             "vertices": ["R243:0"],
-            "names": ["newspaper"]
+            "names": ["Newspaper"]
         },
         "244": {
             "vertices": ["R244:0", "R201A:0"]
@@ -3888,7 +3892,7 @@
         },
         "245": {
             "vertices": ["R245:0"],
-            "names": ["library", "media center"]
+            "names": ["Library", "Media Center"]
         },
         "245A": {
             "vertices": ["R245A:0"]
@@ -3947,11 +3951,17 @@
         },
         "261B": {
             "vertices": ["R261B:0"],
-            "names": ["tv studio", "television studio", "broadcast"]
+            "names": ["TV Studio", "Television Studio", "Broadcast"]
         },
         "262": {
             "vertices": ["R262:0"],
-            "names": ["world language office", "foreign language office", "spanish office", "french office", "chinese office", "sign language office", "american sign language office", "asl office"]
+            "names": [
+                "World Language Office", "Foreign Language Office",
+                "Spanish Office",
+                "French Office",
+                "Chinese Office",
+                "Sign Language Office", "American Sign Language Office", "ASL Office"
+            ]
         },
         "262A": {
             "vertices": ["R262A:0"]
@@ -4023,7 +4033,7 @@
         },
         "POI200": {
             "vertices": ["H14:0", "H14:2"],
-            "names": ["art gallery"]
+            "names": ["Art Gallery"]
         },
         "CY1": {
             "vertices": ["RCY1:0"],
@@ -4039,7 +4049,7 @@
         },
         "x100": {
             "vertices": ["Rx100:0", "Rx100:1"],
-            "names": ["attendance office"]
+            "names": ["Attendance Office"]
         },
         "x200": {
             "vertices": ["Rx200:0"],

@@ -1,6 +1,4 @@
-import { None, Option, Some } from "@nvarner/monads";
 import { BuildingLocation } from "./BuildingLocation";
-import { titleCap } from "./utils";
 
 export default class Room {
     private vertexEntrances: number[];
@@ -34,7 +32,7 @@ export default class Room {
     getName(): string {
         const names = this.getNames();
         if (names.length > 0) {
-            return `${titleCap(names[0])} (${this.getRoomNumber()})`;
+            return `${names[0]} (${this.getRoomNumber()})`;
         }
         return this.getRoomNumber();
     }
@@ -42,7 +40,7 @@ export default class Room {
     getShortName(): string {
         const names = this.getNames();
         if (names.length > 0) {
-            return titleCap(names[0]);
+            return names[0];
         }
         return this.getRoomNumber();
     }
