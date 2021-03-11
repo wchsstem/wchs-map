@@ -28,6 +28,9 @@ between floors, which is acceptable.
 Note: these are called "bathrooms" internally so the initial (R) doesn't conflict with the initial of room (R), but
 these should be called "restrooms" in the UI.
 
+#### Courtyards
+The courtyards should be given a number in the form of 'CY{id}', where the id is their courtyard number.
+
 #### Non-room points of interest
 These are permanent points of interest that are not rooms, like the art gallery across from 278 and 276. They should be
 given a room number in the form of 'POI{floor number}{id}', where the id is a unique two-digit ID identifying the POI

@@ -737,6 +737,18 @@
             "floor": "1",
             "location": [548.375, 282]
         },
+        "RCY1:0": {
+            "floor": "1",
+            "location": [461.5, 145.75]
+        },
+        "RCY2:0": {
+            "floor": "1",
+            "location": [222.5, 92]
+        },
+        "RCY3:0": {
+            "floor": "1",
+            "location": [474.5, 271.875]
+        },
         "R100:0": {
             "floor": "1",
             "location": [473, 145.75]
@@ -3196,7 +3208,10 @@
         ["RBW200:0", "H15:6"],
         ["RBM200:0", "H15:5"],
         ["H11:22", "RBB202:0"],
-        ["H11:21", "RBA202:0"]
+        ["H11:21", "RBA202:0"],
+        ["H3:6", "RCY1:0"],
+        ["H9:12", "RCY2:0"],
+        ["H7:23", "RCY3:0"]
     ],
     "rooms": {
         "100": {
@@ -4009,6 +4024,18 @@
         "POI200": {
             "vertices": ["H14:0", "H14:2"],
             "names": ["art gallery"]
+        },
+        "CY1": {
+            "vertices": ["RCY1:0"],
+            "names": ["Courtyard 1"]
+        },
+        "CY2": {
+            "vertices": ["RCY2:0"],
+            "names": ["Courtyard 2"]
+        },
+        "CY3": {
+            "vertices": ["RCY3:0"],
+            "names": ["Courtyard 3"]
         },
         "x100": {
             "vertices": ["Rx100:0", "Rx100:1"],
