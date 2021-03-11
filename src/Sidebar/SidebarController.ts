@@ -502,7 +502,7 @@ export class Sidebar {
         input.addEventListener("input", () => {
             roomSelected = false;
             roomSearch.search(input.value).updateElementWithResults(resultContainer, (result) => {
-                input.value = result.getRoom().getRoomNumber();
+                input.value = result.getRoom().roomNumber;
                 resultContainer.classList.add("hidden");
                 if (onSelectRoom) {
                     onSelectRoom(result.getRoom());

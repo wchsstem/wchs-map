@@ -5,6 +5,7 @@ import "./label.scss";
 import MapData from "../ts/MapData";
 import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 import { showRoomInfo } from "../Sidebar/SidebarController";
+import Room from "../ts/Room";
 
 export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFloor {
     private tree: RBush<BBox>;
@@ -19,9 +20,14 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         this.floorNumber = floorNumber;
         this.roomOutlines = [];
 
-        for (const room of map.getAllRooms()) {
-            if (room.getCenter().floor === floorNumber) {
-                const roomNumberMarker =  L.marker(room.getCenter().xy, {
+        // First room will be smallest, last will be largest
+        // Later rooms' labels will end up on top of earlier rooms'
+        // So, this prioritizes larger (heuristically more important) rooms
+        const rooms = map.getAllRooms().sort((a: Room, b: Room) => b.area - a.area);
+
+        for (const room of rooms) {
+            if (room.center.floor === floorNumber) {
+                const roomNumberMarker =  L.marker(room.center.xy, {
                     "icon": L.divIcon({
                         "html": room.getShortName(),
                         className: "room-label"
@@ -32,8 +38,8 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                     showRoomInfo(room);
                 });
 
-                if (room.getOutline()) {
-                    const outline = L.polygon(room.getOutline().map((point) => [point[1], point[0]]), {
+                if (room.outline.length !== 0) {
+                    const outline = L.polygon(room.outline.map((point) => [point[1], point[0]]), {
                         stroke: false,
                         color: "#7DB534"
                     });
@@ -43,7 +49,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                         showRoomInfo(room);
                     });
                 } else {
-                    console.log("Bad room", room);
+                    console.log(`Room has no outline: ${room}`);
                 }
 
                 this.addLayer(roomNumberMarker);
@@ -84,10 +90,8 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
 
     private showVisibleLayers() {
         this.hiddenLayers
-            .filter(layer => LRoomLabel.layerIsMarker(layer))
-            .forEach(marker => {
-                this.showMarkerIfVisible(marker);
-            });
+            .filter(LRoomLabel.layerIsMarker)
+            .forEach(marker => this.showMarkerIfVisible(marker));
     }
 
     private hideAllLayers() {

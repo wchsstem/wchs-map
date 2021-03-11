@@ -1,55 +1,43 @@
 import { BuildingLocation } from "./BuildingLocation";
 
 export default class Room {
-    private vertexEntrances: number[];
-    private roomNumber: string;
-    private names: string[];
+    public readonly vertexEntrances: number[];
+    public readonly roomNumber: string;
+    public readonly names: string[];
     // The center may not be the geometric center. It can be any point that represents the room.
-    private center: BuildingLocation;
-    private outline: [number, number][];
+    public readonly center: BuildingLocation;
+    public readonly outline: [number, number][];
+    public readonly area: number;
 
-    constructor(vertexEntrances: number[], roomNumber: string, names: string[]=[],
-        outline: [number, number][], center: BuildingLocation) {
+    constructor(
+        vertexEntrances: number[],
+        roomNumber: string,
+        names: string[],
+        outline: [number, number][],
+        center: BuildingLocation,
+        area: number
+    ) {
         this.vertexEntrances = vertexEntrances;
         this.roomNumber = roomNumber;
         this.names = names;
         this.center = center;
         this.outline = outline;
-    }
-
-    getEntrances(): number[] {
-        return this.vertexEntrances;
-    }
-
-    getRoomNumber(): string {
-        return this.roomNumber;
-    }
-
-    getNames(): string[] {
-        return this.names;
+        this.area = area;
     }
 
     getName(): string {
-        const names = this.getNames();
+        const names = this.names;
         if (names.length > 0) {
-            return `${names[0]} (${this.getRoomNumber()})`;
+            return `${names[0]} (${this.roomNumber})`;
         }
-        return this.getRoomNumber();
+        return this.roomNumber;
     }
 
     getShortName(): string {
-        const names = this.getNames();
+        const names = this.names;
         if (names.length > 0) {
             return names[0];
         }
-        return this.getRoomNumber();
-    }
-
-    getCenter(): BuildingLocation {
-        return this.center;
-    }
-
-    getOutline(): [number, number][] {
-        return this.outline;
+        return this.roomNumber;
     }
 }

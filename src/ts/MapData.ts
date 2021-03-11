@@ -36,7 +36,8 @@ export default class MapData {
             vertices: string[],
             center?: [number, number],
             outline: [number, number][],
-            names: string[]
+            names: string[],
+            area?: number
         }>
     }, bounds: L.LatLngBounds) {
         this.vertexStringToId = new Map();
@@ -93,14 +94,15 @@ export default class MapData {
                 }
             }
 
+            const area = room.area ?? 0;
 
-            this.rooms.set(roomNumber, new Room(verticesId, roomNumber, room.names, room.outline, center));
+            this.rooms.set(roomNumber, new Room(verticesId, roomNumber, room.names, room.outline, center, area));
         }
 
         // Create map of room names
         this.roomsFromNames = new Map();
         for (const [roomNumber, room] of this.rooms) {
-            for (const name of room.getNames()) {
+            for (const name of room.names) {
                 if (!this.roomsFromNames.has(name)) {
                     this.roomsFromNames.set(name, []);
                 }

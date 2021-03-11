@@ -85,7 +85,7 @@ export class SearchResult {
     }
 
     public getRoomNumber(): string {
-        return this.room.getRoomNumber();
+        return this.room.roomNumber;
     }
 
     public getRoom(): Room {

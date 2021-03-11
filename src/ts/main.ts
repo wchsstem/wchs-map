@@ -47,9 +47,9 @@ function main() {
     // Initialize geocoder
     const definitions = mapData.getAllRooms().map(room => {
         const graph = mapData.getGraph();
-        const entranceLocations = room.getEntrances().map(entranceVertex => graph.getVertex(entranceVertex).getLocation());
-        const location = new BuildingLocationWithEntrances(room.getCenter(), entranceLocations);
-        return new GeocoderDefinition(room.getName(), room.getNames(), "", [], location);
+        const entranceLocations = room.vertexEntrances.map(entranceVertex => graph.getVertex(entranceVertex).getLocation());
+        const location = new BuildingLocationWithEntrances(room.center, entranceLocations);
+        return new GeocoderDefinition(room.getName(), room.names, "", [], location);
     });
     const definitionSet = GeocoderDefinitionSet.fromDefinitions(definitions);
     geocoder.addDefinitionSet(definitionSet);
