@@ -49,7 +49,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                         showRoomInfo(room);
                     });
                 } else {
-                    console.log(`Room has no outline: ${room}`);
+                    console.log(`Room has no outline: ${room.getName()}`);
                 }
 
                 this.addLayer(roomNumberMarker);

@@ -28,6 +28,10 @@ between floors, which is acceptable.
 Note: these are called "bathrooms" internally so the initial (R) doesn't conflict with the initial of room (R), but
 these should be called "restrooms" in the UI.
 
+#### Bathroom Supply Closets (BSCs)
+These should be given a room number in the form of 'BSC{id}'. The id should correspond to its given ID if known, or the
+floor number with the ID of the bathrooms with which it is associated if not.
+
 #### Courtyards
 The courtyards should be given a number in the form of 'CY{id}', where the id is their courtyard number.
 
@@ -51,6 +55,13 @@ alphabet. So, for example, the closet off of 152 is numbered 152Z. This is inspi
 well exemplified in the Office (144) and Counseling (107).
 
 Incomplete list of rooms within rooms with unknown numbers:
+ - 147Z
+ - 153Y
+ - 153Z
+ - 155Z
+ - 157Z
+ - 159Z
+ - 161Z
  - 163Z (Concessions)
 
 #### Standalone rooms

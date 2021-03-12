@@ -153,7 +153,7 @@
         },
         "H1:2": {
             "floor": "1",
-            "location": [377.5, 248.5]
+            "location": [377.5, 246.75]
         },
         "H1:3": {
             "floor": "1",
@@ -199,6 +199,10 @@
             "floor": "1",
             "location": [373, 335.75],
             "tags": ["stairs"]
+        },
+        "H1:14": {
+            "floor": "1",
+            "location": [377.5, 219.75]
         },
         "H2:0": {
             "floor": "1",
@@ -524,6 +528,10 @@
             "floor": "1",
             "location": [542, 395.25]
         },
+        "H7:39": {
+            "floor": "1",
+            "location": [541.75, 294.5]
+        },
         "H8:0": {
             "floor": "1",
             "location": [142.75, 197.75]
@@ -572,7 +580,7 @@
         },
         "H8:11": {
             "floor": "1",
-            "location": [428.75, 187.5]
+            "location": [429.25, 187.5]
         },
         "H8:12": {
             "floor": "1",
@@ -628,6 +636,10 @@
             "floor": "1",
             "location": [474.5, 176.25],
             "tags": ["stairs"]
+        },
+        "H8:25": {
+            "floor": "1",
+            "location": [429.25, 207]
         },
         "H9:0": {
             "floor": "1",
@@ -729,13 +741,29 @@
             "floor": "1",
             "location": [353, 72.875]
         },
-        "RBA102:0": {
+        "RBM102:0": {
             "floor": "1",
             "location": [534.75, 282]
         },
-        "RBB102:0": {
+        "RBW102:0": {
             "floor": "1",
             "location": [548.375, 282]
+        },
+        "RBSC2EC3:0": {
+            "floor": "1",
+            "location": [541.75, 289.75]
+        },
+        "RBW103:0": {
+            "floor": "1",
+            "location": [437.75, 207]
+        },
+        "RBM103:0": {
+            "floor": "1",
+            "location": [420.75, 207]
+        },
+        "RBSC3:0": {
+            "floor": "1",
+            "location": [429.25, 209.625]
         },
         "RCY1:0": {
             "floor": "1",
@@ -1338,6 +1366,18 @@
             "floor": "1",
             "location": [564, 213.75]
         },
+        "R146:1": {
+            "floor": "1",
+            "location": [569.25, 213.75]
+        },
+        "R146:2": {
+            "floor": "1",
+            "location": [569.25, 211]
+        },
+        "R146S:0": {
+            "floor": "1",
+            "location": [567.25, 211]
+        },
         "R147:0": {
             "floor": "1",
             "location": [485.5, 197]
@@ -1345,6 +1385,22 @@
         "R147:1": {
             "floor": "1",
             "location": [517, 197]
+        },
+        "R147Z:0": {
+            "floor": "1",
+            "location": [480.125, 223.625]
+        },
+        "R147Z:1": {
+            "floor": "1",
+            "location": [466.125, 223.625]
+        },
+        "R147Z:2": {
+            "floor": "1",
+            "location": [480.125, 223.625]
+        },
+        "R147Z:3": {
+            "floor": "1",
+            "location": [466.125, 223.625]
         },
         "R148:0": {
             "floor": "1",
@@ -1390,6 +1446,22 @@
             "floor": "1",
             "location": [488, 289.75]
         },
+        "R153Y:0": {
+            "floor": "1",
+            "location": [537, 253.25]
+        },
+        "R153Y:1": {
+            "floor": "1",
+            "location": [537, 253.25]
+        },
+        "R153Z:0": {
+            "floor": "1",
+            "location": [527.5, 264.625]
+        },
+        "R153Z:1": {
+            "floor": "1",
+            "location": [527.5, 264.625]
+        },
         "R154C:0": {
             "floor": "1",
             "location": [495, 300]
@@ -1414,6 +1486,10 @@
             "floor": "1",
             "location": [461.75, 277.75]
         },
+        "R155Z:0": {
+            "floor": "1",
+            "location": [441.375, 276]
+        },
         "R156:0": {
             "floor": "1",
             "location": [433.75, 306.75]
@@ -1430,6 +1506,10 @@
             "floor": "1",
             "location": [419.5, 269]
         },
+        "R157Z:0": {
+            "floor": "1",
+            "location": [430.625, 250.375]
+        },
         "R158:0": {
             "floor": "1",
             "location": [405, 301.5]
@@ -1438,9 +1518,25 @@
             "floor": "1",
             "location": [400.75, 246.75]
         },
+        "R159Z:0": {
+            "floor": "1",
+            "location": [420.875, 250.375]
+        },
+        "R159Z:1": {
+            "floor": "1",
+            "location": [416, 246.75]
+        },
         "R161:0": {
             "floor": "1",
             "location": [400.75, 228.25]
+        },
+        "R161A:0": {
+            "floor": "1",
+            "location": [400.75, 219.75]
+        },
+        "R161Z:0": {
+            "floor": "1",
+            "location": [416, 228.25]
         },
         "R162:0": {
             "floor": "1",
@@ -2091,11 +2187,11 @@
             "floor": "2",
             "location": [352, 72.8125]
         },
-        "RBB202:0": {
+        "RBW202:0": {
             "floor": "2",
             "location": [548, 282.125]
         },
-        "RBA202:0": {
+        "RBM202:0": {
             "floor": "2",
             "location": [534.5, 282.125]
         },
@@ -2581,7 +2677,6 @@
         ["H1:4", "R161:0"],
         ["I1:8:5", "I1:8:2"],
         ["I1:8:5", "I1:8:0"],
-        ["I1:8:5", "H1:4"],
         ["I1:8:0", "I1:8:1"],
         ["I1:8:1", "H1:5"],
         ["H1:5", "R138D:0"],
@@ -2755,7 +2850,6 @@
         ["H7:25", "R153:0"],
         ["H7:25", "R152:0"],
         ["H7:25", "H7:13"],
-        ["H7:13", "H7:16"],
         ["H7:16", "R150:0"],
         ["R150:0", "R150A:0"],
         ["H7:16", "I2:7:0"],
@@ -3203,15 +3297,41 @@
         ["R143:5", "R143Z:1"],
         ["RBW100:0", "H1:12"],
         ["RBM100:0", "H1:11"],
-        ["RBA102:0", "H7:13"],
-        ["RBB102:0", "H7:16"],
+        ["RBM102:0", "H7:13"],
+        ["RBW102:0", "H7:16"],
         ["RBW200:0", "H15:6"],
         ["RBM200:0", "H15:5"],
-        ["H11:22", "RBB202:0"],
-        ["H11:21", "RBA202:0"],
+        ["H11:22", "RBW202:0"],
+        ["H11:21", "RBM202:0"],
         ["H3:6", "RCY1:0"],
         ["H9:12", "RCY2:0"],
-        ["H7:23", "RCY3:0"]
+        ["H7:23", "RCY3:0"],
+        ["H8:25", "H8:11"],
+        ["H8:25", "RBM103:0"],
+        ["H8:25", "RBW103:0"],
+        ["H8:25", "RBSC3:0"],
+        ["H1:14", "H1:4"],
+        ["H1:14", "I1:8:5"],
+        ["H1:14", "R161A:0"],
+        ["R161:0", "R161Z:0"],
+        ["R159:0", "R159Z:1"],
+        ["R157:0", "R159Z:0"],
+        ["R157:0", "R157Z:0"],
+        ["R155Z:0", "R155:0"],
+        ["H7:39", "H7:13"],
+        ["H7:39", "RBSC2EC3:0"],
+        ["H7:39", "H7:16"],
+        ["R153Z:0", "R153:0"],
+        ["R153Z:0", "R153Y:0"],
+        ["R153Z:1", "R153:1"],
+        ["R153Z:1", "R153Y:1"],
+        ["R147Z:0", "R147:0"],
+        ["R147Z:1", "R145:1"],
+        ["R147Z:2", "R147:1"],
+        ["R147Z:3", "R145:0"],
+        ["R146:0", "R146:1"],
+        ["R146:1", "R146:2"],
+        ["R146:2", "R146S:0"]
     ],
     "rooms": {
         "100": {
@@ -3547,8 +3667,14 @@
         "146": {
             "vertices": ["R146:0"]
         },
+        "146S": {
+            "vertices": ["R146S:0"]
+        },
         "147": {
             "vertices": ["R147:1", "R147:0"]
+        },
+        "147Z": {
+            "vertices": ["R147Z:0", "R147Z:1"]
         },
         "148": {
             "vertices": ["R148:1", "R148:0"]
@@ -3574,6 +3700,12 @@
         "153": {
             "vertices": ["R153:0", "R153:1"]
         },
+        "153Y": {
+            "vertices": ["R153Y:0", "R153Y:1"]
+        },
+        "153Z": {
+            "vertices": ["R153Z:0", "R153Z:1"]
+        },
         "154C": {
             "vertices": ["R154C:0"]
         },
@@ -3586,6 +3718,12 @@
         "155": {
             "vertices": ["R155:0"]
         },
+        "155A": {
+            "vertices": ["R155A:0"]
+        },
+        "155Z": {
+            "vertices": ["R155Z:0"]
+        },
         "156": {
             "vertices": ["R156:0", "R156:1"],
             "names": ["Cafeteria", "Lunch Room"]
@@ -3597,14 +3735,26 @@
             "vertices": ["R157:0"],
             "names": ["School Store"]
         },
+        "157Z": {
+            "vertices": ["R157Z:0"]
+        },
         "158": {
             "vertices": ["R158:0"]
         },
         "159": {
             "vertices": ["R159:0"]
         },
+        "159Z": {
+            "vertices": ["R159Z:0", "R159Z:1"]
+        },
         "161": {
             "vertices": ["R161:0"]
+        },
+        "161A": {
+            "vertices": ["R161A:0"]
+        },
+        "161Z": {
+            "vertices": ["R161Z:0"]
         },
         "162": {
             "vertices": ["R162:0"]
@@ -4001,35 +4151,63 @@
         },
         "BW100": {
             "vertices": ["RBW100:0"],
-            "names": ["Women's Restroom (Bulldog Lobby)", "Women's Bathroom (Bulldog Lobby)"]
+            "names": ["Women's Restroom (Bulldog Lobby)", "Women's Bathroom (Bulldog Lobby)"],
+            "tags": ["women-bathroom"]
         },
         "BM100": {
             "vertices": ["RBM100:0"],
-            "names": ["Men's Restroom (Bulldog Lobby)", "Men's Bathroom (Bulldog Lobby)"]
+            "names": ["Men's Restroom (Bulldog Lobby)", "Men's Bathroom (Bulldog Lobby)"],
+            "tags": ["men-bathroom"]
         },
         "BW200": {
             "vertices": ["RBW200:0"],
-            "names": ["Women's Restroom (Bulldog Lobby Upstairs)", "Women's Bathroom (Bulldog Lobby Upstairs)"]
+            "names": ["Women's Restroom (Bulldog Lobby Upstairs)", "Women's Bathroom (Bulldog Lobby Upstairs)"],
+            "tags": ["women-bathroom"]
         },
         "BM200": {
             "vertices": ["RBM200:0"],
-            "names": ["Men's Restroom (Bulldog Lobby Upstairs)", "Men's Bathroom (Bulldog Lobby Upstairs)"]
+            "names": ["Men's Restroom (Bulldog Lobby Upstairs)", "Men's Bathroom (Bulldog Lobby Upstairs)"],
+            "tags": ["men-bathroom"]
         },
-        "BA102": {
-            "vertices": ["RBA102:0"],
-            "names": ["? Restroom (Cafeteria)", "? Bathroom (Cafeteria)"]
+        "BW102": {
+            "vertices": ["RBW102:0"],
+            "names": ["Women's Restroom (Cafeteria)", "Women's Bathroom (Cafeteria)"],
+            "tags": ["women-bathroom"]
         },
-        "BB102": {
-            "vertices": ["RBB102:0"],
-            "names": ["? Restroom (Cafeteria)", "? Bathroom (Cafeteria)"]
+        "BM102": {
+            "vertices": ["RBM102:0"],
+            "names": ["Men's Restroom (Cafeteria)", "Men's Bathroom (Cafeteria)"],
+            "tags": ["men-bathroom"]
         },
-        "BA202": {
-            "vertices": ["RBA202:0"],
-            "names": ["? Restroom (25X)", "? Bathroom (25X)"]
+        "BSC2EC3": {
+            "vertices": ["RBSC2EC3:0"],
+            "names": ["BSC2 EC3", "Bathroom Supply Closet 2 Electrical Closet 3"],
+            "tags": ["bsc", "ec"]
         },
-        "BB202": {
-            "vertices": ["RBB202:0"],
-            "names": ["? Restroom (25X)", "? Bathroom (25X)"]
+        "BW202": {
+            "vertices": ["RBW202:0"],
+            "names": ["Women's Restroom (25X)", "Women's Bathroom (25X)"],
+            "tags": ["women-bathroom"]
+        },
+        "BM202": {
+            "vertices": ["RBM202:0"],
+            "names": ["Men's Restroom (25X)", "Men's Bathroom (25X)"],
+            "tags": ["men-bathroom"]
+        },
+        "BW103": {
+            "vertices": ["RBW103:0"],
+            "names": ["Women's Restroom (Gym)", "Women's Bathroom (Gym)"],
+            "tags": ["closed", "women-bathroom"]
+        },
+        "BM103": {
+            "vertices": ["RBM103:0"],
+            "names": ["Men's Restroom (Gym)", "Men's Bathroom (Gym)"],
+            "tags": ["closed", "men-bathroom"]
+        },
+        "BSC3": {
+            "vertices": ["RBSC3:0"],
+            "names": ["BSC3", "Bathroom Supply Closet 3"],
+            "tags": ["bsc"]
         },
         "POI200": {
             "vertices": ["H14:0", "H14:2"],

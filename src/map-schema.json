@@ -96,6 +96,7 @@
       "type": "object",
       "items": {
          "type": "object",
+         "required": ["vertices", "names"],
          "properties": {
             "vertices": {
                "description": "An array of vertex IDs that are entrances to the room",
@@ -120,6 +121,14 @@
                "maxItems": 2,
                "items": {
                   "type": "number"
+               }
+            },
+            "tags": {
+               "description": "Tags that can be applied to note special rooms like BSCs.",
+               "type": "array",
+               "items": {
+                  "type": "string",
+                  "enum": ["closed", "women-bathroom", "men-bathroom", "bsc", "ec"]
                }
             }
          }
