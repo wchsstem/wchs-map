@@ -7,6 +7,8 @@ import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 import { showRoomInfo } from "../Sidebar/SidebarController";
 import Room from "../ts/Room";
 
+import { h } from "../ts/JSX";
+
 export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFloor {
     private tree: RBush<BBox>;
     private hiddenLayers: L.Marker[];
@@ -27,14 +29,12 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
 
         for (const room of rooms) {
             if (room.center.floor === floorNumber) {
-                const roomNumberMarker =  L.marker(room.center.xy, {
-                    "icon": L.divIcon({
-                        "html": room.getShortName(),
-                        className: "room-label"
-                    }),
-                    "interactive": true
+                const roomIcon = this.getRoomIcon(room);
+                const roomMarker =  L.marker(room.center.xy, {
+                    icon: roomIcon,
+                    interactive: true
                 });
-                roomNumberMarker.on("click", () => {
+                roomMarker.on("click", () => {
                     showRoomInfo(room);
                 });
 
@@ -52,7 +52,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                     console.log(`Room has no outline: ${room.getName()}`);
                 }
 
-                this.addLayer(roomNumberMarker);
+                this.addLayer(roomMarker);
             }
         }
     }
@@ -135,6 +135,42 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
             // Can be seen
             icon.classList.remove("invisible");
             this.tree.insert(box);
+        }
+    }
+
+    private getRoomIcon(room: Room): L.Icon<any> {
+        const iconClassName = room.tags.includes("closed") ? "closed room-icon" : "room-icon";
+
+        if (room.tags.includes("women-bathroom")) {
+            return L.divIcon({
+                html: <i class="fas fa-female"></i> as HTMLElement,
+                className: iconClassName
+            });
+        } else if (room.tags.includes("men-bathroom")) {
+            return L.divIcon({
+                html: <i class="fas fa-male"></i> as HTMLElement,
+                className: iconClassName
+            });
+        } else if (room.tags.includes("unknown-bathroom")) {
+            return L.divIcon({
+                html: <i class="fas fa-toilet"></i> as HTMLElement,
+                className: iconClassName
+            });
+        } else if (room.tags.includes("ec")) {
+            return L.divIcon({
+                html: <i class="fas fa-bolt"></i> as HTMLElement,
+                className: iconClassName
+            });
+        } else if (room.tags.includes("bsc")) {
+            return L.divIcon({
+                html: <i class="fas fa-toilet-paper"></i> as HTMLElement,
+                className: iconClassName
+            });
+        } else {
+            return L.divIcon({
+                html: room.getShortName(),
+                className: "room-label"
+            });
         }
     }
 

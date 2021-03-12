@@ -9,7 +9,30 @@
     line-height: 1;
 }
 
-.room-label.invisible {
+.room-icon {
+    $size: 24px;
+    width: $size !important;
+    height: $size !important;
+    border-radius: $size;
+    background-color: #ffffff;
+    display: flex !important;
+    margin-left: -($size / 2) !important;
+    margin-top: -($size / 2) !important;
+
+    border: 2px solid rgba(0, 0, 0, 0.2);
+
+    * {
+        margin: auto;
+    }
+}
+
+.room-icon.closed {
+    color: #c93d3d;
+    background-color: #a7a7a7;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+}
+
+.room-label.invisible, .room-icon.invisible {
     opacity: 0;
 }
 

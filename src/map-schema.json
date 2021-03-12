@@ -128,7 +128,7 @@
                "type": "array",
                "items": {
                   "type": "string",
-                  "enum": ["closed", "women-bathroom", "men-bathroom", "bsc", "ec"]
+                  "enum": ["closed", "women-bathroom", "men-bathroom", "unknown-bathroom", "bsc", "ec"]
                }
             }
          }

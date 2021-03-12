@@ -8,6 +8,7 @@ export default class Room {
     public readonly center: BuildingLocation;
     public readonly outline: [number, number][];
     public readonly area: number;
+    public readonly tags: string[];
 
     constructor(
         vertexEntrances: number[],
@@ -15,7 +16,8 @@ export default class Room {
         names: string[],
         outline: [number, number][],
         center: BuildingLocation,
-        area: number
+        area: number,
+        tags: string[]
     ) {
         this.vertexEntrances = vertexEntrances;
         this.roomNumber = roomNumber;
@@ -23,6 +25,7 @@ export default class Room {
         this.center = center;
         this.outline = outline;
         this.area = area;
+        this.tags = tags;
     }
 
     getName(): string {
