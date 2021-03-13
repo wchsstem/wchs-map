@@ -36,7 +36,7 @@ export default class MapData {
             vertices: string[],
             center?: [number, number],
             outline: [number, number][],
-            names: string[],
+            names?: string[],
             area?: number,
             tags?: string[]
         }>
@@ -99,7 +99,7 @@ export default class MapData {
 
             const tags = room.tags ?? [];
 
-            this.rooms.set(roomNumber, new Room(verticesId, roomNumber, room.names, room.outline, center, area, tags));
+            this.rooms.set(roomNumber, new Room(verticesId, roomNumber, room.names ?? [], room.outline, center, area, tags));
         }
 
         // Create map of room names

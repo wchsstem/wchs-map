@@ -43,6 +43,18 @@ on the floor.
 Current list of non-room POIs:
  - POI200 (Art Gallery, across from 278 and 276)
 
+##### Water fountains/bottle filling stations
+These should be given a room number in the form 'WF{floor number}{id}', where the id is a unique two-digit ID
+identifying the water fountain on the floor.
+
+##### Hand sanitizing stations
+These should be given a room number in the form 'HS{floor number}{id}', where the id is a unique two-digit ID
+identifying the station on the floor.
+
+##### Bleeding control kits
+These should be given a room number in the form 'BC{floor number}{id}', where the id is a unique two-digit ID
+identifying the station on the floor.
+
 ### Unknown room numbers
 Some rooms do not have a known room number. This doesn't mean these rooms don't have room numbers, just that they aren't
 known to the developers and maintainers of this map. If the numbers for rooms following this scheme are learned, they
@@ -59,6 +71,7 @@ Incomplete list of rooms within rooms with unknown numbers:
  - 153Y
  - 153Z
  - 155Z
+ - 156Z (may be 157)
  - 157Z
  - 159Z
  - 161Z

@@ -204,6 +204,10 @@
             "floor": "1",
             "location": [377.5, 219.75]
         },
+        "H1:15": {
+            "floor": "1",
+            "location": [377.5, 306]
+        },
         "H2:0": {
             "floor": "1",
             "location": [558, 286.5]
@@ -446,7 +450,7 @@
         },
         "H7:19": {
             "floor": "1",
-            "location": [434.75, 300]
+            "location": [430.875, 300]
         },
         "H7:20": {
             "floor": "1",
@@ -531,6 +535,22 @@
         "H7:39": {
             "floor": "1",
             "location": [541.75, 294.5]
+        },
+        "H7:40": {
+            "floor": "1",
+            "location": [433.75, 300]
+        },
+        "H7:41": {
+            "floor": "1",
+            "location": [437.875, 300]
+        },
+        "H7:42": {
+            "floor": "1",
+            "location": [457, 300]
+        },
+        "H7:43": {
+            "floor": "1",
+            "location": [570.625, 294.5]
         },
         "H8:0": {
             "floor": "1",
@@ -776,6 +796,30 @@
         "RCY3:0": {
             "floor": "1",
             "location": [474.5, 271.875]
+        },
+        "RWF100:0": {
+            "floor": "1",
+            "location": [433.875, 275.5]
+        },
+        "RBC100:0": {
+            "floor": "1",
+            "location": [457, 306]
+        },
+        "RHS100:0": {
+            "floor": "1",
+            "location": [430.875, 306]
+        },
+        "RHS101:0": {
+            "floor": "1",
+            "location": [437.875, 306]
+        },
+        "RHS102:0": {
+            "floor": "1",
+            "location": [379.75, 306]
+        },
+        "RHS103:0": {
+            "floor": "1",
+            "location": [570.625, 291.875]
         },
         "R100:0": {
             "floor": "1",
@@ -1501,6 +1545,10 @@
         "R156A:0": {
             "floor": "1",
             "location": [490, 365.5]
+        },
+        "R156Z:0": {
+            "floor": "1",
+            "location": [417.625, 301.5]
         },
         "R157:0": {
             "floor": "1",
@@ -2666,7 +2714,6 @@
         ["H0:3", "I0:8:0"],
         ["I0:8:0", "I0:6:0"],
         ["H1:1", "H1:0"],
-        ["H1:0", "I1:7:0"],
         ["I1:7:0", "H1:2"],
         ["I1:7:0", "I1:7:2"],
         ["I1:7:2", "H1:2"],
@@ -2833,8 +2880,6 @@
         ["I1:7:1", "I1:7:3"],
         ["I1:7:3", "R145:0"],
         ["I1:7:1", "H7:19"],
-        ["H7:19", "R156:0"],
-        ["H7:19", "H7:20"],
         ["H7:20", "H7:23"],
         ["H7:23", "R155:0"],
         ["R155:0", "R155A:0"],
@@ -3258,7 +3303,6 @@
         ["R152Z:0", "R152:0"],
         ["R154C:0", "R154C:1"],
         ["R154C:1", "R154Y:0"],
-        ["I2:7:0", "E1"],
         ["E1", "H7:35"],
         ["H7:35", "H7:36"],
         ["H7:36", "H7:37"],
@@ -3331,7 +3375,23 @@
         ["R147Z:3", "R145:0"],
         ["R146:0", "R146:1"],
         ["R146:1", "R146:2"],
-        ["R146:2", "R146S:0"]
+        ["R146:2", "R146S:0"],
+        ["RWF100:0", "I1:7:1"],
+        ["I1:7:1", "R156Z:0"],
+        ["H7:19", "RHS100:0"],
+        ["H7:19", "H7:40"],
+        ["H7:40", "R156:0"],
+        ["H7:40", "H7:41"],
+        ["H7:41", "RHS101:0"],
+        ["H7:41", "H7:42"],
+        ["H7:42", "RBC100:0"],
+        ["H7:42", "H7:20"],
+        ["H1:15", "H1:0"],
+        ["H1:15", "I1:7:0"],
+        ["H1:15", "RHS102:0"],
+        ["I2:7:0", "H7:43"],
+        ["H7:43", "RHS103:0"],
+        ["H7:43", "E1"]
     ],
     "rooms": {
         "100": {
@@ -3731,6 +3791,9 @@
         "156A": {
             "vertices": ["R156A:0"]
         },
+        "156Z": {
+            "vertices": ["R156Z:0"]
+        },
         "157": {
             "vertices": ["R157:0"],
             "names": ["School Store"]
@@ -3739,16 +3802,19 @@
             "vertices": ["R157Z:0"]
         },
         "158": {
-            "vertices": ["R158:0"]
+            "vertices": ["R158:0"],
+            "names": ["Kitchen"]
         },
         "159": {
-            "vertices": ["R159:0"]
+            "vertices": ["R159:0"],
+            "names": ["Athletic Specialist"]
         },
         "159Z": {
             "vertices": ["R159Z:0", "R159Z:1"]
         },
         "161": {
-            "vertices": ["R161:0"]
+            "vertices": ["R161:0"],
+            "names": ["Business Office"]
         },
         "161A": {
             "vertices": ["R161A:0"]
@@ -4224,6 +4290,41 @@
         "CY3": {
             "vertices": ["RCY3:0"],
             "names": ["Courtyard 3"]
+        },
+        "BC100": {
+            "vertices": ["RBC100:0"],
+            "names": ["Bleeding Control (Cafeteria)", "Bleeding Control Kit (Cafeteria)"],
+            "tags": ["bleed-control"]
+        },
+        "WF100": {
+            "vertices": ["RWF100:0"],
+            "names": [
+                "Bottle Fill Station (Cafeteria)",
+                "Water Bottle Filling Station (Cafeteria)",
+                "Water Fountain (Cafeteria)",
+                "Drinking Fountain (Cafeteria)"
+            ],
+            "tags": ["wf"]
+        },
+        "HS100": {
+            "vertices": ["RHS100:0"],
+            "names": ["Hand Sanitization (Cafeteria)", "Hand Sanitization Station (Cafeteria)"],
+            "tags": ["hs"]
+        },
+        "HS101": {
+            "vertices": ["RHS101:0"],
+            "names": ["Hand Sanitization (Cafeteria)", "Hand Sanitization Station (Cafeteria)"],
+            "tags": ["hs"]
+        },
+        "HS102": {
+            "vertices": ["RHS102:0"],
+            "names": ["Hand Sanitization (Kitchen)", "Hand Sanitization Station (Kitchen)"],
+            "tags": ["hs"]
+        },
+        "HS103": {
+            "vertices": ["RHS103:0"],
+            "names": ["Hand Sanitization (Drop Off)", "Hand Sanitization Station (Drop Off)"],
+            "tags": ["hs"]
         },
         "x100": {
             "vertices": ["Rx100:0", "Rx100:1"],

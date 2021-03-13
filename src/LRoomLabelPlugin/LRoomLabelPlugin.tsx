@@ -25,7 +25,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         // First room will be smallest, last will be largest
         // Later rooms' labels will end up on top of earlier rooms'
         // So, this prioritizes larger (heuristically more important) rooms
-        const rooms = map.getAllRooms().sort((a: Room, b: Room) => b.area - a.area);
+        const rooms = map.getAllRooms().sort((a: Room, b: Room) => b.estimateImportance() - a.estimateImportance());
 
         for (const room of rooms) {
             if (room.center.floor === floorNumber) {
@@ -164,6 +164,27 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         } else if (room.tags.includes("bsc")) {
             return L.divIcon({
                 html: <i class="fas fa-toilet-paper"></i> as HTMLElement,
+                className: iconClassName
+            });
+        } else if (room.tags.includes("wf")) {
+            return L.divIcon({
+                html: <i class="fas fa-tint"></i> as HTMLElement,
+                className: iconClassName
+            });
+        } else if (room.tags.includes("hs")) {
+            console.log("sani", room.outline);
+            return L.divIcon({
+                html: <i class="fas fa-pump-soap"></i> as HTMLElement,
+                className: iconClassName
+            });
+        } else if (room.tags.includes("bleed-control")) {
+            return L.divIcon({
+                html: <i class="fas fa-band-aid"></i> as HTMLElement,
+                className: iconClassName
+            });
+        } else if (room.tags.includes("aed")) {
+            return L.divIcon({
+                html: <i class="fas fa-heartbeat"></i> as HTMLElement,
                 className: iconClassName
             });
         } else {

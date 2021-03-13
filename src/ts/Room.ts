@@ -43,4 +43,8 @@ export default class Room {
         }
         return this.roomNumber;
     }
+
+    public estimateImportance(): number {
+        return this.area + (100 * this.tags.filter(tag => tag !== "closed").length);
+    }
 }
