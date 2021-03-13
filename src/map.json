@@ -262,6 +262,10 @@
             "floor": "1",
             "location": [559.125, 159]
         },
+        "H2:13": {
+            "floor": "1",
+            "location": [562.875, 162.375]
+        },
         "H3:0": {
             "floor": "1",
             "location": [494.25, 66.75]
@@ -369,6 +373,10 @@
         "H6:3": {
             "floor": "1",
             "location": [98, 142.5]
+        },
+        "H6:4": {
+            "floor": "1",
+            "location": [147.75, 142.5]
         },
         "H7:0": {
             "floor": "1",
@@ -745,6 +753,10 @@
             "location": [351.5, 43.75],
             "tags": ["stairs"]
         },
+        "H10:0": {
+            "floor": "1",
+            "location": [147.75, 32.75]
+        },
         "Rx100:0": {
             "floor": "1",
             "location": [576.875, 178.75]
@@ -752,6 +764,14 @@
         "Rx100:1": {
             "floor": "1",
             "location": [567.5, 186.75]
+        },
+        "RAHU101:0": {
+            "floor": "1",
+            "location": [147.75, 139.625]
+        },
+        "RAHU102:0": {
+            "floor": "1",
+            "location": [147.75, 35.875]
         },
         "RBW100:0": {
             "floor": "1",
@@ -820,6 +840,14 @@
         "RHS103:0": {
             "floor": "1",
             "location": [570.625, 291.875]
+        },
+        "RHS104:0": {
+            "floor": "1",
+            "location": [561.625, 163.75]
+        },
+        "RIDF104:0": {
+            "floor": "1",
+            "location": [18.5, 62.25]
         },
         "R100:0": {
             "floor": "1",
@@ -2819,7 +2847,8 @@
         ["H6:2", "H6:3"],
         ["H6:3", "R135:0"],
         ["H6:3", "I0:6:0"],
-        ["I0:6:0", "I4:6:1"],
+        ["I0:6:0", "H6:4"],
+        ["H6:4", "I4:6:1"],
         ["I4:6:1", "I4:6:0"],
         ["I4:6:1", "H4:3"],
         ["I0:7:0", "H7:27"],
@@ -3034,7 +3063,6 @@
         ["R107:10", "R107F:0"],
         ["R107:10", "R107:11"],
         ["R107:11", "R107G:0"],
-        ["I5:10:0", "I4:10:0"],
         ["I11:14:0", "H11:3"],
         ["H11:3", "H11:0"],
         ["H11:0", "H11:1"],
@@ -3319,7 +3347,8 @@
         ["E0", "H2:11"],
         ["H2:11", "Rx100:0"],
         ["H2:11", "H2:10"],
-        ["H2:11", "H2:12"],
+        ["H2:11", "H2:13"],
+        ["H2:13", "H2:12"],
         ["H2:12", "R144:16"],
         ["Rx100:1", "I2:8:0"],
         ["H2:10", "I2:8:0"],
@@ -3391,7 +3420,13 @@
         ["H1:15", "RHS102:0"],
         ["I2:7:0", "H7:43"],
         ["H7:43", "RHS103:0"],
-        ["H7:43", "E1"]
+        ["H7:43", "E1"],
+        ["RHS104:0", "H2:13"],
+        ["I4:10:0", "H10:0"],
+        ["H10:0", "RAHU102:0"],
+        ["H10:0", "I5:10:0"],
+        ["H6:4", "RAHU101:0"],
+        ["RIDF104:0", "H5:2"]
     ],
     "rooms": {
         "100": {
@@ -3876,7 +3911,7 @@
         },
         "167": {
             "vertices": ["R167:0"],
-            "names": ["Boys' PE office", "Boys' Gym Office", "Men's PE Office", "Men's Gym Office"]
+            "names": ["Boys' PE Office", "Boys' Gym Office", "Men's PE Office", "Men's Gym Office"]
         },
         "168": {
             "vertices": ["R168:0"]
@@ -4215,6 +4250,16 @@
         "278": {
             "vertices": ["R278:0"]
         },
+        "AHU1": {
+            "vertices": ["RAHU101:0"],
+            "names": ["AHU1", "Air Handling Unit 1", "HVAC"],
+            "tags": ["ahu"]
+        },
+        "AHU2": {
+            "vertices": ["RAHU102:0"],
+            "names": ["AHU2", "Air Handling Unit 2", "HVAC"],
+            "tags": ["ahu"]
+        },
         "BW100": {
             "vertices": ["RBW100:0"],
             "names": ["Women's Restroom (Bulldog Lobby)", "Women's Bathroom (Bulldog Lobby)"],
@@ -4325,6 +4370,16 @@
             "vertices": ["RHS103:0"],
             "names": ["Hand Sanitization (Drop Off)", "Hand Sanitization Station (Drop Off)"],
             "tags": ["hs"]
+        },
+        "HS104": {
+            "vertices": ["RHS104:0"],
+            "names": ["Hand Sanitization (Main Entrance)", "Hand Sanitization Station (Main Entrance)"],
+            "tags": ["hs"]
+        },
+        "IDF4": {
+            "vertices": ["RIDF104:0"],
+            "names": ["IDF4", "Intermediate Distribution Frame 4"],
+            "tags": ["idf"]
         },
         "x100": {
             "vertices": ["Rx100:0", "Rx100:1"],

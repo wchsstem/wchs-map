@@ -172,7 +172,6 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                 className: iconClassName
             });
         } else if (room.tags.includes("hs")) {
-            console.log("sani", room.outline);
             return L.divIcon({
                 html: <i class="fas fa-pump-soap"></i> as HTMLElement,
                 className: iconClassName
@@ -185,6 +184,16 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         } else if (room.tags.includes("aed")) {
             return L.divIcon({
                 html: <i class="fas fa-heartbeat"></i> as HTMLElement,
+                className: iconClassName
+            });
+        } else if (room.tags.includes("ahu")) {
+            return L.divIcon({
+                html: <i class="fas fa-wind"></i> as HTMLElement,
+                className: iconClassName
+            });
+        } else if (room.tags.includes("idf")) {
+            return L.divIcon({
+                html: <i class="fas fa-network-wired"></i> as HTMLElement,
                 className: iconClassName
             });
         } else {

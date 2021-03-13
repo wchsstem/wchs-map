@@ -138,7 +138,10 @@
                      "wf",
                      "hs",
                      "bleed-control",
-                     "aed"
+                     "aed",
+                     "ahu",
+                     "idf",
+                     "mdf"
                   ]
                }
             }
