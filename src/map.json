@@ -208,6 +208,14 @@
             "floor": "1",
             "location": [377.5, 306]
         },
+        "H1:16": {
+            "floor": "1",
+            "location": [373.25, 239.75]
+        },
+        "H1:17": {
+            "floor": "1",
+            "location": [377.5, 233.625]
+        },
         "H2:0": {
             "floor": "1",
             "location": [558, 286.5]
@@ -296,11 +304,15 @@
         },
         "H3:7": {
             "floor": "1",
-            "location": [494.25, 152.75]
+            "location": [494.25, 155.875]
         },
         "H3:8": {
             "floor": "1",
-            "location": [494.25, 163]
+            "location": [494.25, 160]
+        },
+        "H3:9": {
+            "floor": "1",
+            "location": [494.25, 80.875]
         },
         "H4:0": {
             "floor": "1",
@@ -341,6 +353,10 @@
         "H4:9": {
             "floor": "1",
             "location": [174, 62]
+        },
+        "H4:10": {
+            "floor": "1",
+            "location": [174, 113.875]
         },
         "H5:0": {
             "floor": "1",
@@ -560,6 +576,22 @@
             "floor": "1",
             "location": [570.625, 294.5]
         },
+        "H7:44": {
+            "floor": "1",
+            "location": [144.75, 300]
+        },
+        "H7:45": {
+            "floor": "1",
+            "location": [255.875, 300]
+        },
+        "H7:46": {
+            "floor": "1",
+            "location": [251.25, 300]
+        },
+        "H7:47": {
+            "floor": "1",
+            "location": [175.5, 331.25]
+        },
         "H8:0": {
             "floor": "1",
             "location": [142.75, 197.75]
@@ -669,6 +701,14 @@
             "floor": "1",
             "location": [429.25, 207]
         },
+        "H8:26": {
+            "floor": "1",
+            "location": [147.25, 197.75]
+        },
+        "H8:27": {
+            "floor": "1",
+            "location": [193, 197.75]
+        },
         "H9:0": {
             "floor": "1",
             "location": [485.5, 57]
@@ -753,6 +793,22 @@
             "location": [351.5, 43.75],
             "tags": ["stairs"]
         },
+        "H9:20": {
+            "floor": "1",
+            "location": [361.25, 55]
+        },
+        "H9:21": {
+            "floor": "1",
+            "location": [193.75, 55]
+        },
+        "H9:22": {
+            "floor": "1",
+            "location": [193.75, 37.125]
+        },
+        "H9:23": {
+            "floor": "1",
+            "location": [465, 55]
+        },
         "H10:0": {
             "floor": "1",
             "location": [147.75, 32.75]
@@ -773,11 +829,15 @@
             "floor": "1",
             "location": [147.75, 35.875]
         },
-        "RBW100:0": {
+        "RAHU104:0": {
+            "floor": "1",
+            "location": [491.125, 80.875]
+        },
+        "RBW104:0": {
             "floor": "1",
             "location": [378.5, 72.875]
         },
-        "RBM100:0": {
+        "RBM104:0": {
             "floor": "1",
             "location": [353, 72.875]
         },
@@ -817,13 +877,61 @@
             "floor": "1",
             "location": [474.5, 271.875]
         },
+        "REC1:0": {
+            "floor": "1",
+            "location": [465, 60]
+        },
+        "REC5:0": {
+            "floor": "1",
+            "location": [178.75, 331.25]
+        },
+        "REC6:0": {
+            "floor": "1",
+            "location": [132.375, 191.75]
+        },
         "RWF100:0": {
             "floor": "1",
             "location": [433.875, 275.5]
         },
+        "RWF101:0": {
+            "floor": "1",
+            "location": [383.125, 66.5]
+        },
+        "RWF102:0": {
+            "floor": "1",
+            "location": [147.25, 202.75]
+        },
+        "RWF103:0": {
+            "floor": "1",
+            "location": [144.75, 296.75]
+        },
+        "RAED100:0": {
+            "floor": "1",
+            "location": [481.25, 160]
+        },
+        "RAED101:0": {
+            "floor": "1",
+            "location": [255.875, 295.75]
+        },
         "RBC100:0": {
             "floor": "1",
             "location": [457, 306]
+        },
+        "RBC101:0": {
+            "floor": "1",
+            "location": [481.25, 155.875]
+        },
+        "RBC102:0": {
+            "floor": "1",
+            "location": [251.25, 295.75]
+        },
+        "RBC103:0": {
+            "floor": "1",
+            "location": [142.75, 195.75]
+        },
+        "RBC104:0": {
+            "floor": "1",
+            "location": [183.5, 113.875]
         },
         "RHS100:0": {
             "floor": "1",
@@ -844,6 +952,38 @@
         "RHS104:0": {
             "floor": "1",
             "location": [561.625, 163.75]
+        },
+        "RHS105:0": {
+            "floor": "1",
+            "location": [380.5, 57.75]
+        },
+        "RHS106:0": {
+            "floor": "1",
+            "location": [361.25, 57.75]
+        },
+        "RHS107:0": {
+            "floor": "1",
+            "location": [175.125, 37.125]
+        },
+        "RHS108:0": {
+            "floor": "1",
+            "location": [155, 144.875]
+        },
+        "RHS109:0": {
+            "floor": "1",
+            "location": [115, 262.5]
+        },
+        "RHS110:0": {
+            "floor": "1",
+            "location": [264.75, 238]
+        },
+        "RHS110:1": {
+            "floor": "1",
+            "location": [264.75, 240]
+        },
+        "RHS111:0": {
+            "floor": "1",
+            "location": [373.25, 233.625]
         },
         "RIDF104:0": {
             "floor": "1",
@@ -1425,6 +1565,14 @@
         "R144K:0": {
             "floor": "1",
             "location": [504.5, 144.25]
+        },
+        "R144Y:0": {
+            "floor": "1",
+            "location": [498.125, 70.5]
+        },
+        "R144Z:0": {
+            "floor": "1",
+            "location": [499.375, 107.75]
         },
         "R145:0": {
             "floor": "1",
@@ -2747,8 +2895,6 @@
         ["I1:7:2", "H1:2"],
         ["H1:2", "R159:0"],
         ["H1:2", "H1:3"],
-        ["H1:3", "R163:0"],
-        ["H1:3", "H1:4"],
         ["H1:4", "R161:0"],
         ["I1:8:5", "I1:8:2"],
         ["I1:8:5", "I1:8:0"],
@@ -2799,7 +2945,6 @@
         ["R100:1", "R100Z:0"],
         ["H3:3", "H3:2"],
         ["H3:2", "R102:0"],
-        ["H3:2", "H3:1"],
         ["H3:1", "H3:0"],
         ["H3:0", "I3:9:0"],
         ["I3:9:0", "R105:0"],
@@ -2815,8 +2960,6 @@
         ["H4:5", "R127G:0"],
         ["H4:3", "H4:4"],
         ["H4:4", "R127F:0"],
-        ["H4:3", "H4:2"],
-        ["H4:2", "H4:3"],
         ["H4:2", "H4:4"],
         ["H4:2", "R126:0"],
         ["H4:2", "H4:1"],
@@ -2852,14 +2995,11 @@
         ["I4:6:1", "I4:6:0"],
         ["I4:6:1", "H4:3"],
         ["I0:7:0", "H7:27"],
-        ["H7:27", "H7:18"],
         ["H7:18", "H7:17"],
         ["H7:18", "H7:28"],
         ["H7:17", "H7:29"],
         ["H7:28", "R176:0"],
         ["H7:29", "R176:0"],
-        ["H7:28", "H7:30"],
-        ["H7:29", "H7:30"],
         ["H7:30", "R174:0"],
         ["H7:17", "H7:8"],
         ["H7:8", "R172:0"],
@@ -2889,7 +3029,6 @@
         ["H7:9", "H7:34"],
         ["H7:34", "R165:0"],
         ["H7:34", "H7:5"],
-        ["H7:5", "H7:2"],
         ["H7:2", "R166:0"],
         ["R166:0", "R166A:0"],
         ["R166:0", "R166B:0"],
@@ -2929,7 +3068,10 @@
         ["H7:16", "I2:7:0"],
         ["I0:8:0", "H8:0"],
         ["H8:0", "R137A:0"],
-        ["H8:0", "H8:1"],
+        ["H8:0", "H8:26"],
+        ["H8:7", "H8:26"],
+        ["H8:27", "H8:1"],
+        ["H8:26", "RWF102:0"],
         ["H8:1", "R128C:0"],
         ["H8:1", "H8:4"],
         ["H8:4", "H8:5"],
@@ -3007,7 +3149,6 @@
         ["R144:14", "R144:15"],
         ["R144:15", "R144F:0"],
         ["I4:9:0", "H4:6"],
-        ["I4:9:0", "H9:14"],
         ["H9:14", "H9:13", true],
         ["H9:13", "H9:12"],
         ["H9:12", "H9:11"],
@@ -3037,7 +3178,6 @@
         ["H9:3", "R111:0"],
         ["H9:3", "H9:2"],
         ["H9:2", "R110:0"],
-        ["H9:2", "H9:1"],
         ["H9:1", "R106:0"],
         ["H9:1", "H9:0"],
         ["H9:0", "R107:0"],
@@ -3302,7 +3442,6 @@
         ["H1:13", "H15:7", true],
         ["H15:7", "I11:15:1"],
         ["H9:7", "H9:16"],
-        ["H9:16", "I1:9:0"],
         ["I1:9:0", "H9:17"],
         ["H9:17", "H9:6"],
         ["H9:16", "H9:19"],
@@ -3368,8 +3507,8 @@
         ["R143:0", "R143:3"],
         ["R143:3", "R143:5"],
         ["R143:5", "R143Z:1"],
-        ["RBW100:0", "H1:12"],
-        ["RBM100:0", "H1:11"],
+        ["RBW104:0", "H1:12"],
+        ["RBM104:0", "H1:11"],
         ["RBM102:0", "H7:13"],
         ["RBW102:0", "H7:16"],
         ["RBW200:0", "H15:6"],
@@ -3426,7 +3565,54 @@
         ["H10:0", "RAHU102:0"],
         ["H10:0", "I5:10:0"],
         ["H6:4", "RAHU101:0"],
-        ["RIDF104:0", "H5:2"]
+        ["RIDF104:0", "H5:2"],
+        ["R144Z:0", "R144J:0"],
+        ["H3:8", "RAED100:0"],
+        ["H3:7", "RBC101:0"],
+        ["H3:1", "R144Y:0"],
+        ["H3:9", "H3:1"],
+        ["H3:9", "RAHU104:0"],
+        ["H3:9", "H3:2"],
+        ["H7:27", "H7:44"],
+        ["H7:44", "RWF103:0"],
+        ["H7:44", "H7:18"],
+        ["H1:12", "RWF101:0"],
+        ["RHS105:0", "H9:17"],
+        ["H9:20", "I1:9:0"],
+        ["H9:20", "RHS106:0"],
+        ["H9:20", "H9:16"],
+        ["H9:21", "H9:14"],
+        ["H9:21", "I4:9:0"],
+        ["H9:21", "H9:22"],
+        ["H9:22", "RHS107:0"],
+        ["I4:6:1", "RHS108:0"],
+        ["R137:1", "RHS109:0"],
+        ["R143:0", "RHS110:0"],
+        ["R143:1", "RHS110:1"],
+        ["H1:4", "H1:17"],
+        ["H1:17", "RHS111:0"],
+        ["H1:17", "H1:3"],
+        ["H1:3", "H1:16"],
+        ["H1:16", "RHS111:0"],
+        ["H1:16", "R163:0"],
+        ["H7:2", "H7:46"],
+        ["H7:46", "RBC102:0"],
+        ["H7:46", "H7:45"],
+        ["H7:45", "RAED101:0"],
+        ["H7:45", "H7:5"],
+        ["H8:0", "RBC103:0"],
+        ["H4:2", "H4:10"],
+        ["H4:10", "RBC104:0"],
+        ["H4:10", "H4:3"],
+        ["H9:23", "H9:1"],
+        ["H9:23", "REC1:0"],
+        ["H9:23", "H9:2"],
+        ["REC6:0", "I0:8:0"],
+        ["H7:47", "H7:28"],
+        ["H7:47", "H7:29"],
+        ["H7:47", "R176:0"],
+        ["H7:47", "REC5:0"],
+        ["H7:47", "H7:30"]
     ],
     "rooms": {
         "100": {
@@ -3443,14 +3629,16 @@
             "vertices": ["R100Z:0"]
         },
         "102": {
-            "vertices": ["R102:0"]
+            "vertices": ["R102:0"],
+            "names": ["Security", "Security Office"]
         },
         "105": {
             "vertices": ["R105:0"],
             "names": ["College and Career Center", "College Career Center", "College Office", "Career Office", "College Center", "Career Center"]
         },
         "106": {
-            "vertices": ["R106:0"]
+            "vertices": ["R106:0"],
+            "names": ["Business Admin"]
         },
         "107": {
             "vertices": ["R107:0"],
@@ -3491,7 +3679,8 @@
             "vertices": ["R110:0"]
         },
         "111": {
-            "vertices": ["R111:0"]
+            "vertices": ["R111:0"],
+            "names": ["Registrar"]
         },
         "112": {
             "vertices": ["R112:0"]
@@ -3742,7 +3931,8 @@
             "vertices": ["R144F:0"]
         },
         "144G": {
-            "vertices": ["R144G:0", "R144G:1"]
+            "vertices": ["R144G:0", "R144G:1"],
+            "names": ["Conference Room"]
         },
         "144H": {
             "vertices": ["R144H:0"]
@@ -3755,6 +3945,13 @@
         },
         "144K": {
             "vertices": ["R144K:0"]
+        },
+        "144Y": {
+            "vertices": ["R144:15", "R144Y:0"],
+            "names": ["Mail Room"]
+        },
+        "144Z": {
+            "vertices": ["R144Z:0"]
         },
         "145": {
             "vertices": ["R145:1", "R145:0"]
@@ -4260,13 +4457,18 @@
             "names": ["AHU2", "Air Handling Unit 2", "HVAC"],
             "tags": ["ahu"]
         },
-        "BW100": {
-            "vertices": ["RBW100:0"],
+        "AHU4": {
+            "vertices": ["RAHU104:0"],
+            "names": ["AHU4", "Air Handling Unit 4", "HVAC"],
+            "tags": ["ahu"]
+        },
+        "BW104": {
+            "vertices": ["RBW104:0"],
             "names": ["Women's Restroom (Bulldog Lobby)", "Women's Bathroom (Bulldog Lobby)"],
             "tags": ["women-bathroom"]
         },
-        "BM100": {
-            "vertices": ["RBM100:0"],
+        "BM104": {
+            "vertices": ["RBM104:0"],
             "names": ["Men's Restroom (Bulldog Lobby)", "Men's Bathroom (Bulldog Lobby)"],
             "tags": ["men-bathroom"]
         },
@@ -4320,6 +4522,21 @@
             "names": ["BSC3", "Bathroom Supply Closet 3"],
             "tags": ["bsc"]
         },
+        "EC1": {
+            "vertices": ["REC1:0"],
+            "names": ["EC1", "Electrical Closet 1"],
+            "tags": ["ec"]
+        },
+        "EC5": {
+            "vertices": ["REC5:0"],
+            "names": ["EC5", "Electrical Closet 5"],
+            "tags": ["ec"]
+        },
+        "EC6": {
+            "vertices": ["REC6:0"],
+            "names": ["EC6", "Electrical Closet 6"],
+            "tags": ["ec"]
+        },
         "POI200": {
             "vertices": ["H14:0", "H14:2"],
             "names": ["Art Gallery"]
@@ -4336,9 +4553,45 @@
             "vertices": ["RCY3:0"],
             "names": ["Courtyard 3"]
         },
+        "AED100": {
+            "vertices": ["RAED100:0"],
+            "names": ["AED (Main Office)", "Automated External Defibrillator (Main Office)"],
+            "tags": ["aed"]
+        },
+        "AED101": {
+            "vertices": ["RAED101:0"],
+            "names": [
+                "AED (Gym)", "Automated External Defibrillator (Gym)",
+                "AED (Main Gym)", "Automated External Defibrillator (Main Gym)"
+            ],
+            "tags": ["aed"]
+        },
         "BC100": {
             "vertices": ["RBC100:0"],
             "names": ["Bleeding Control (Cafeteria)", "Bleeding Control Kit (Cafeteria)"],
+            "tags": ["bleed-control"]
+        },
+        "BC101": {
+            "vertices": ["RBC101:0"],
+            "names": ["Bleeding Control (Main Office)", "Bleeding Control Kit (Main Office)"],
+            "tags": ["bleed-control"]
+        },
+        "BC102": {
+            "vertices": ["RBC102:0"],
+            "names": [
+                "Bleeding Control (Gym)", "Bleeding Control Kit (Gym)",
+                "Bleeding Control (Main Gym)", "Bleeding Control Kit (Main Gym)"
+            ],
+            "tags": ["bleed-control"]
+        },
+        "BC103": {
+            "vertices": ["RBC102:0"],
+            "names": ["Bleeding Control (Music)", "Bleeding Control Kit (Music)"],
+            "tags": ["bleed-control"]
+        },
+        "BC104": {
+            "vertices": ["RBC102:0"],
+            "names": ["Bleeding Control (Auditorium)", "Bleeding Control Kit (Auditorium)"],
             "tags": ["bleed-control"]
         },
         "WF100": {
@@ -4348,6 +4601,36 @@
                 "Water Bottle Filling Station (Cafeteria)",
                 "Water Fountain (Cafeteria)",
                 "Drinking Fountain (Cafeteria)"
+            ],
+            "tags": ["wf"]
+        },
+        "WF101": {
+            "vertices": ["RWF101:0"],
+            "names": [
+                "Bottle Fill Station (Bulldog Lobby)",
+                "Water Bottle Filling Station (Bulldog Lobby)",
+                "Water Fountain (Bulldog Lobby)",
+                "Drinking Fountain (Bulldog Lobby)"
+            ],
+            "tags": ["wf"]
+        },
+        "WF102": {
+            "vertices": ["RWF102:0"],
+            "names": [
+                "Bottle Fill Station (Music)",
+                "Water Bottle Filling Station (Music)",
+                "Water Fountain (Music)",
+                "Drinking Fountain (Music)"
+            ],
+            "tags": ["wf"]
+        },
+        "WF103": {
+            "vertices": ["RWF103:0"],
+            "names": [
+                "Bottle Fill Station (Aux Gyms)",
+                "Water Bottle Filling Station (Aux Gyms)",
+                "Water Fountain (Aux Gyms)",
+                "Drinking Fountain (Aux Gyms)"
             ],
             "tags": ["wf"]
         },
@@ -4374,6 +4657,55 @@
         "HS104": {
             "vertices": ["RHS104:0"],
             "names": ["Hand Sanitization (Main Entrance)", "Hand Sanitization Station (Main Entrance)"],
+            "tags": ["hs"]
+        },
+        "HS105": {
+            "vertices": ["RHS105:0"],
+            "names": ["Hand Sanitization (Bulldog Lobby)", "Hand Sanitization Station (Bulldog Lobby)"],
+            "tags": ["hs"]
+        },
+        "HS106": {
+            "vertices": ["RHS106:0"],
+            "names": ["Hand Sanitization (Bulldog Lobby)", "Hand Sanitization Station (Bulldog Lobby)"],
+            "tags": ["hs"]
+        },
+        "HS107": {
+            "vertices": ["RHS107:0"],
+            "names": ["Hand Sanitization (Auditorium)", "Hand Sanitization Station (Auditorium)"],
+            "tags": ["hs"]
+        },
+        "HS108": {
+            "vertices": ["RHS108:0"],
+            "names": ["Hand Sanitization (Music)", "Hand Sanitization Station (Music)"],
+            "tags": ["hs"]
+        },
+        "HS109": {
+            "vertices": ["RHS109:0"],
+            "names": [
+                "Hand Sanitization (Side Gym)",
+                "Hand Sanitization Station (Side Gym)",
+                "Hand Sanitization (Aux Gym)",
+                "Hand Sanitization Station (Aux Gym)",
+                "Hand Sanitization (Auxillary Gym)",
+                "Hand Sanitization Station (Auxillary Gym)"
+            ],
+            "tags": ["hs"]
+        },
+        "HS110": {
+            "vertices": ["RHS110:0"],
+            "names": [
+                "Hand Sanitization (Fitness Center)", "Hand Sanitization Station (Fitness Center)",
+                "Hand Sanitization (Weight Room)", "Hand Sanitization Station (Weight Room)",
+                "Hand Sanitization (Exercise Room)", "Hand Sanitization Station (Exercise Room)"
+            ],
+            "tags": ["hs"]
+        },
+        "HS111": {
+            "vertices": ["RHS111:0"],
+            "names": [
+                "Hand Sanitization (Gym)", "Hand Sanitization Station (Gym)",
+                "Hand Sanitization (Main Gym)", "Hand Sanitization Station (Main Gym)"
+            ],
             "tags": ["hs"]
         },
         "IDF4": {
