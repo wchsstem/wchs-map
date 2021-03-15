@@ -4449,17 +4449,17 @@
         },
         "AHU1": {
             "vertices": ["RAHU101:0"],
-            "names": ["AHU1", "Air Handling Unit 1", "HVAC"],
+            "names": ["AHU-1", "Air Handling Unit 1", "HVAC"],
             "tags": ["ahu"]
         },
         "AHU2": {
             "vertices": ["RAHU102:0"],
-            "names": ["AHU2", "Air Handling Unit 2", "HVAC"],
+            "names": ["AHU-2", "Air Handling Unit 2", "HVAC"],
             "tags": ["ahu"]
         },
         "AHU4": {
             "vertices": ["RAHU104:0"],
-            "names": ["AHU4", "Air Handling Unit 4", "HVAC"],
+            "names": ["AHU-4", "Air Handling Unit 4", "HVAC"],
             "tags": ["ahu"]
         },
         "BW104": {
@@ -4494,7 +4494,7 @@
         },
         "BSC2EC3": {
             "vertices": ["RBSC2EC3:0"],
-            "names": ["BSC2 EC3", "Bathroom Supply Closet 2 Electrical Closet 3"],
+            "names": ["BSC-2 EC-3", "Bathroom Supply Closet 2 Electrical Closet 3"],
             "tags": ["bsc", "ec"]
         },
         "BW202": {
@@ -4519,22 +4519,22 @@
         },
         "BSC3": {
             "vertices": ["RBSC3:0"],
-            "names": ["BSC3", "Bathroom Supply Closet 3"],
+            "names": ["BSC-3", "Bathroom Supply Closet 3"],
             "tags": ["bsc"]
         },
         "EC1": {
             "vertices": ["REC1:0"],
-            "names": ["EC1", "Electrical Closet 1"],
+            "names": ["EC-1", "Electrical Closet 1"],
             "tags": ["ec"]
         },
         "EC5": {
             "vertices": ["REC5:0"],
-            "names": ["EC5", "Electrical Closet 5"],
+            "names": ["EC-5", "Electrical Closet 5"],
             "tags": ["ec"]
         },
         "EC6": {
             "vertices": ["REC6:0"],
-            "names": ["EC6", "Electrical Closet 6"],
+            "names": ["EC-6", "Electrical Closet 6"],
             "tags": ["ec"]
         },
         "POI200": {
