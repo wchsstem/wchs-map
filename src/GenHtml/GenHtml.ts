@@ -99,7 +99,7 @@ export function htmlDropdown(displayAndIds: T2<string, string>[]): HTMLSelectEle
     return select;
 }
 
-export function createPaneElement(title: string, content: HTMLElement | HTMLElement[]): HTMLElement {
+export function genPaneElement(title: string, content: HTMLElement | HTMLElement[]): HTMLElement {
     const pane = document.createElement("div");
     pane.classList.add("leaflet-sidebar-pane");
 

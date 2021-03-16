@@ -18,6 +18,7 @@ import { GeocoderDefinition, GeocoderDefinitionSet } from "./Geocoder";
 import { geocoder } from "./utils";
 import { BuildingLocationWithEntrances } from "./BuildingLocation";
 import { LLocation } from "../LLocationPlugin/LLocationPlugin";
+import { Logger } from "../LogPane/LogPane";
 
 export declare namespace JSX {
     interface Element { }
@@ -28,6 +29,8 @@ function main() {
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("/serviceWorker.js");
     }
+
+    const logger = Logger.new();
 
     // Churchill is 600ft long and 400ft across; portables add to that
 
@@ -75,12 +78,12 @@ function main() {
     floors.addTo(map);
 
     if ("geolocation" in navigator) {
-        const location = new LLocation({});
+        const location = new LLocation(logger, {});
         location.addTo(map);
     }
 
     // Create sidebar
-    createSidebar(map, mapData);
+    createSidebar(map, mapData, logger);
 
     floors.addLayer(new LRoomLabel(mapData, "1"));
     floors.addLayer(new LRoomLabel(mapData, "2"));

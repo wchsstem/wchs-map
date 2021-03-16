@@ -134,7 +134,7 @@ dropdownData.set("bathroom-gender", [T2.new("", "no-selection"), T2.new("Man", "
 export const settingCategories: Map<string, string[]> = new Map();
 settingCategories.set("Personal", ["bathroom-gender"]);
 settingCategories.set("Visibility", ["show-infrastructure", "show-emergency", "hiding-location"]);
-settingCategories.set("Advanced", ["synergy", "dev"]);
+settingCategories.set("Advanced", ["synergy", "dev", "logger"]);
 
 export const infrastructureTags: Set<string> = new Set();
 infrastructureTags.add("bsc");
@@ -155,6 +155,7 @@ nameMapping.set("dev", "Developer Mode");
 nameMapping.set("hiding-location", "Hide Location Dot");
 nameMapping.set("show-infrastructure", "Show Infrastructure Icons");
 nameMapping.set("show-emergency", "Show Emergency Icons");
+nameMapping.set("logger", "Show Logger");
 metaSettingsData.set("name-mapping", nameMapping);
 
 export const metaSettings = new ImmutableSettings("meta", metaSettingsData);
@@ -168,6 +169,7 @@ settings.setDefault("synergy", false);
 settings.setDefault("hiding-location", false);
 settings.setDefault("show-infrastructure", false);
 settings.setDefault("show-emergency", false);
+settings.setDefault("logger", false);
 settings.setDefault("pd1", "");
 settings.setDefault("pd2", "");
 settings.setDefault("pd3", "");

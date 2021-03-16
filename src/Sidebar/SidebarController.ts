@@ -1,7 +1,7 @@
 import { control } from "leaflet"
 
 import { RoomSearch } from "./RoomSearch";
-import { createPaneElement, genTextInput } from "../GenHtml/GenHtml";
+import { genPaneElement, genTextInput } from "../GenHtml/GenHtml";
 import MapData from "../ts/MapData";
 
 import "./sidebar.scss";
@@ -14,12 +14,13 @@ import { BuildingLocationWithEntrances } from "../ts/BuildingLocation";
 import { geocoder } from "../ts/utils";
 import { fromMap, None, Option, Some } from "@nvarner/monads";
 import { T2 } from "../ts/Tuple";
-import { NavigationPane } from "../NavigationPanel/NavigationPane";
+import { NavigationPane } from "../NavigationPane/NavigationPane";
+import { Logger, LogPane } from "../LogPane/LogPane";
 
 let sidebar: Option<Sidebar> = None;
 
-export function createSidebar(map: L.Map, mapData: MapData): void {
-    sidebar = Some(new Sidebar(map, mapData));
+export function createSidebar(map: L.Map, mapData: MapData, logger: Logger): void {
+    sidebar = Some(new Sidebar(map, mapData, logger));
 }
 
 export function showRoomInfo(room: Room): void {
@@ -35,7 +36,7 @@ export class Sidebar {
 
     private floorsLayer: Option<LFloors>;
 
-    constructor(map: L.Map, mapData: MapData) {
+    constructor(map: L.Map, mapData: MapData, logger: Logger) {
         this.map = map;
         this.sidebar = control.sidebar({
             container: "sidebar",
@@ -57,6 +58,17 @@ export class Sidebar {
         this.navigationPane.addTo(map, this.sidebar);
 
         this.sidebar.addPanel(this.createSettingsPanel());
+
+        const logPane = LogPane.new();
+        logger.associateWithLogPane(logPane);
+
+        settings.addWatcher("logger", new Watcher(enable => {
+            if (enable) {
+                this.sidebar.addPanel(logPane.getPanelOptions());
+            } else {
+                this.sidebar.removePanel(logPane.getId());
+            }
+        }));
 
         settings.addWatcher("synergy", new Watcher((enable) => {
             if (enable) {
@@ -120,7 +132,7 @@ export class Sidebar {
             reader.readAsText(file);
         });
             
-        const synergyPane = createPaneElement("Synergy", [beta, info, siteUpload, errorBox, courses]);
+        const synergyPane = genPaneElement("Synergy", [beta, info, siteUpload, errorBox, courses]);
 
         return {
             id: "synergy",
@@ -153,7 +165,7 @@ export class Sidebar {
             });
         });
 
-        const searchPane = createPaneElement("Search", [searchBarContainer, resultContainer]);
+        const searchPane = genPaneElement("Search", [searchBarContainer, resultContainer]);
 
         return {
             id: "search",
@@ -179,7 +191,7 @@ export class Sidebar {
             paneElements.push(descriptionEl);
         }
 
-        const infoPane = createPaneElement("Room Info", paneElements);
+        const infoPane = genPaneElement("Room Info", paneElements);
 
         return {
             id: "info",
@@ -296,7 +308,7 @@ export class Sidebar {
             });
         });
 
-        const settingsPane = createPaneElement("Settings", settingsContainer);
+        const settingsPane = genPaneElement("Settings", settingsContainer);
 
         return {
             id: "settings",

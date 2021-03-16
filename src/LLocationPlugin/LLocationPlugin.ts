@@ -3,10 +3,13 @@ import * as L from "leaflet";
 import { LLocationControl } from "./LLocationControl";
 import { settings, Watcher } from "../ts/settings";
 import { None, Option, Some } from "@nvarner/monads";
+import { Logger } from "../LogPane/LogPane";
 
 const SENSITIVITY = 10;
 
 export class LLocation extends L.LayerGroup {
+    private readonly logger: Logger;
+
     private control: LLocationControl;
 
     private positionState: PositionState;
@@ -22,12 +25,14 @@ export class LLocation extends L.LayerGroup {
      * Creates a new layer that shows the user's location on the map.
      * @param options Any extra Leaflet layer options
      */
-    constructor(options?: L.LayerOptions) {
+    constructor(logger: Logger, options?: L.LayerOptions) {
         if (options && !("attribution" in options)) {
             options["attribution"] = "© OpenStreetMap contributors";
         }
 
         super([], options);
+
+        this.logger = logger;
 
         this.control = new LLocationControl(() => { this.locate() }, { position: "topright" });
 
@@ -92,6 +97,7 @@ export class LLocation extends L.LayerGroup {
     }
 
     private onPositionError(error: GeolocationPositionError): void {
+        this.logger.log(`geolocation error: ${error.message}`);
         this.setPositionStateUnknown();
     }
 
@@ -102,7 +108,10 @@ export class LLocation extends L.LayerGroup {
         if (this.positionState === PositionState.NearChurchill) {
             const distToLast = LLocation.distanceBetween(latestPosition, this.latestPosition.unwrap());
             if (distToLast < SENSITIVITY) {
+                this.logger.log(`got update, not moving dot (distance of ${distToLast})`);
                 return; // Did not move enough; probably just in one place with GPS noise
+            } else {
+                this.logger.log(`got update, moving dot (distance of ${distToLast})`);
             }
         }
 
