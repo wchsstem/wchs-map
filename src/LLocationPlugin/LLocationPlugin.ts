@@ -133,11 +133,22 @@ export class LLocation extends L.LayerGroup {
     }
 
     private setPositionStateUnknown(): void {
-        this.positionState = PositionState.Unknown;
+        if (this.positionState === PositionState.NearChurchill) {
+            // Show greyed out circle instead
+            this.positionState = PositionState.UnsureNearChurchill;
 
-        this.positionMarker.ifSome(positionMarker => super.removeLayer(positionMarker));
+            const latestPosition = this.latestPosition.unwrap();
+            const latestAccuracyRadius = this.latestAccuracyRadius.unwrap();
 
-        this.control.onLocationNotAvailable();
+            this.positionMarker.ifSome(positionMarker => super.removeLayer(positionMarker));
+            this.positionMarker = Some(new PositionMarker(latestPosition, latestAccuracyRadius, true));
+        } else {
+            this.positionState = PositionState.Unknown;
+
+            this.positionMarker.ifSome(positionMarker => super.removeLayer(positionMarker));
+    
+            this.control.onLocationNotAvailable();
+        }
     }
 
     private onChangeHidingLocation(hidingLocation: boolean): void {
@@ -199,17 +210,24 @@ export class LLocation extends L.LayerGroup {
 enum PositionState {
     Unknown,
     NearChurchill,
+    UnsureNearChurchill,
     NotNearChurchill
 }
 
 class PositionMarker extends L.LayerGroup {
-    constructor(position: [number, number], accuracyRadius: number) {
+    constructor(position: [number, number], accuracyRadius: number, unsure: boolean=false) {
         const positionLeaflet = new L.LatLng(position[1], position[0]);
 
-        const positionPoint = L.circleMarker(positionLeaflet, { radius: 1 });
+        const color = unsure ? "#bcbcbc" : "#3388ff";
+
+        const positionPoint = L.circleMarker(positionLeaflet, {
+            radius: 1,
+            color: color
+        });
         const accuracyCircle = L.circle(positionLeaflet, {
             stroke: false,
             radius: accuracyRadius,
+            color: color
         });
 
         super([positionPoint, accuracyCircle]);
