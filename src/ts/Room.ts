@@ -1,4 +1,5 @@
 import { BuildingLocation } from "./BuildingLocation";
+import { emergencyTags, infrastructureTags } from "./settings";
 
 export default class Room {
     public readonly vertexEntrances: number[];
@@ -46,5 +47,13 @@ export default class Room {
 
     public estimateImportance(): number {
         return this.area + (100 * this.tags.filter(tag => tag !== "closed").length);
+    }
+
+    public isInfrastructure(): boolean {
+        return this.tags.filter(tag => infrastructureTags.has(tag)).length !== 0;
+    }
+
+    public isEmergency(): boolean {
+        return this.tags.filter(tag => emergencyTags.has(tag)).length !== 0;
     }
 }

@@ -83,13 +83,13 @@ class MutableSettings extends Settings {
 }
 
 export class Watcher {
-    private changeHandler: (newValue: any) => void;
+    private changeHandler: (newValue: unknown) => void;
 
-    constructor(changeHandler: (newValue: any) => void) {
+    constructor(changeHandler: (newValue: unknown) => void) {
         this.changeHandler = changeHandler;
     }
 
-    public onChange(newValue: any): void {
+    public onChange(newValue: unknown): void {
         this.changeHandler(newValue);
     }
 }
@@ -133,14 +133,28 @@ dropdownData.set("bathroom-gender", [T2.new("", "no-selection"), T2.new("Man", "
 
 export const settingCategories: Map<string, string[]> = new Map();
 settingCategories.set("Personal", ["bathroom-gender"]);
-settingCategories.set("Advanced", ["hiding-location", "synergy", "dev"]);
+settingCategories.set("Visibility", ["show-infrastructure", "show-emergency", "hiding-location"]);
+settingCategories.set("Advanced", ["synergy", "dev"]);
+
+export const infrastructureTags: Set<string> = new Set();
+infrastructureTags.add("bsc");
+infrastructureTags.add("ec");
+infrastructureTags.add("ahu");
+infrastructureTags.add("idf");
+infrastructureTags.add("mdf");
+
+export const emergencyTags: Set<string> = new Set();
+emergencyTags.add("aed");
+emergencyTags.add("bleed-control");
 
 // Maps setting IDs to user friendly names
 const nameMapping = new Map();
-nameMapping.set("bathroom-gender", "Restroom gender");
+nameMapping.set("bathroom-gender", "Restroom gender (not yet implemented)");
 nameMapping.set("synergy", "Enable Synergy Panel (alpha)");
 nameMapping.set("dev", "Developer Mode");
-nameMapping.set("hiding-location", "Hide Location Dot?");
+nameMapping.set("hiding-location", "Hide Location Dot");
+nameMapping.set("show-infrastructure", "Show Infrastructure Icons");
+nameMapping.set("show-emergency", "Show Emergency Icons");
 metaSettingsData.set("name-mapping", nameMapping);
 
 export const metaSettings = new ImmutableSettings("meta", metaSettingsData);
@@ -152,6 +166,8 @@ settings.setDefault("bathroom-gender", "no-selection");
 settings.setDefault("dev", false);
 settings.setDefault("synergy", false);
 settings.setDefault("hiding-location", false);
+settings.setDefault("show-infrastructure", false);
+settings.setDefault("show-emergency", false);
 settings.setDefault("pd1", "");
 settings.setDefault("pd2", "");
 settings.setDefault("pd3", "");

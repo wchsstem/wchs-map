@@ -96,7 +96,8 @@ function main() {
             .openOn(map);
     }
 
-    settings.addWatcher("dev", new Watcher((dev: boolean) => {
+    settings.addWatcher("dev", new Watcher((devUnknown) => {
+        const dev = devUnknown as boolean;
         if (dev) {
             floors.addLayer(devLayer1);
             floors.addLayer(devLayer2);

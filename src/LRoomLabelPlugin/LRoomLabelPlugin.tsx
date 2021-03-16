@@ -8,24 +8,28 @@ import { showRoomInfo } from "../Sidebar/SidebarController";
 import Room from "../ts/Room";
 
 import { h } from "../ts/JSX";
+import { settings, Watcher } from "../ts/settings";
 
 export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFloor {
     private tree: RBush<BBox>;
-    private hiddenLayers: L.Marker[];
+    private allLabels: L.Marker[];
     private floorNumber: string;
     private roomOutlines: L.Polygon[];
 
     constructor(map: MapData, floorNumber: string, options?: L.LayerOptions) {
         super([], options);
         this.tree = new RBush();
-        this.hiddenLayers = [];
+        this.allLabels = [];
         this.floorNumber = floorNumber;
         this.roomOutlines = [];
 
-        // First room will be smallest, last will be largest
+        // First room will be least important, last will be most important
         // Later rooms' labels will end up on top of earlier rooms'
-        // So, this prioritizes larger (heuristically more important) rooms
+        // So this prioritizes more important rooms
         const rooms = map.getAllRooms().sort((a: Room, b: Room) => b.estimateImportance() - a.estimateImportance());
+
+        const infrastructureMarkers: L.Marker[] = [];
+        const emergencyMarkers: L.Marker[] = [];
 
         for (const room of rooms) {
             if (room.center.floor === floorNumber) {
@@ -52,18 +56,50 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                     console.log(`Room has no outline: ${room.getName()}`);
                 }
 
-                this.addLayer(roomMarker);
+                if (room.isInfrastructure()) {
+                    infrastructureMarkers.push(roomMarker);
+                } else if (room.isEmergency()) {
+                    emergencyMarkers.push(roomMarker);
+                } else {
+                    this.addLayer(roomMarker);
+                }
             }
         }
+
+        settings.addWatcher("show-infrastructure", new Watcher(shouldShowUnknown => {
+            const shouldShow = shouldShowUnknown as boolean;
+            if (shouldShow) {
+                infrastructureMarkers.forEach(marker => this.addLayer(marker));
+            } else {
+                infrastructureMarkers.forEach(marker => this.removeLayer(marker));
+            }
+            this.reload();
+        }));
+
+        settings.addWatcher("show-emergency", new Watcher(shouldShowUnknown => {
+            const shouldShow = shouldShowUnknown as boolean;
+            if (shouldShow) {
+                emergencyMarkers.forEach(marker => this.addLayer(marker));
+            } else {
+                emergencyMarkers.forEach(marker => this.removeLayer(marker));
+            }
+            this.reload();
+        }));
     }
 
     public getFloorNumber(): string {
         return this.floorNumber;
     }
 
-    addLayer(layer: L.Marker):  this {
+    addLayer(layer: L.Marker): this {
         super.addLayer(layer);
-        this.hiddenLayers.push(layer);
+        this.allLabels.push(layer);
+        return this;
+    }
+
+    removeLayer(layer: L.Marker): this {
+        super.removeLayer(layer);
+        this.allLabels = this.allLabels.filter(currentLayer => currentLayer !== layer);
         return this;
     }
 
@@ -89,7 +125,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
     }
 
     private showVisibleLayers() {
-        this.hiddenLayers
+        this.allLabels
             .filter(LRoomLabel.layerIsMarker)
             .forEach(marker => this.showMarkerIfVisible(marker));
     }
@@ -107,20 +143,24 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
     }
 
     private centerLabels() {
-        for (const label of this.hiddenLayers) {
-            // This is very hacky and uses undocumented functionality
-            // @ts-ignore: can't index "_icon" but does exist on object
-            const icon: HTMLElement = label["_icon"];
-            icon.style.width = "";
-            icon.style.height = "";
+        this.allLabels
+        .filter(LRoomLabel.layerIsMarker)
+        .forEach(marker => this.centerLabel(marker));
+    }
 
-            const bb: ClientRect = icon.getBoundingClientRect();
-            const width = bb.width;
-            const height = bb.height;
-            
-            icon.style.marginTop = `${-(height / 2)}px`;
-            icon.style.marginLeft = `${-(width / 2)}px`;
-        }
+    private centerLabel(label: L.Marker) {
+        // This is very hacky and uses undocumented functionality
+        // @ts-ignore: can't index "_icon" but does exist on object
+        const icon: HTMLElement = label["_icon"];
+        icon.style.width = "";
+        icon.style.height = "";
+
+        const bb: ClientRect = icon.getBoundingClientRect();
+        const width = bb.width;
+        const height = bb.height;
+        
+        icon.style.marginTop = `${-(height / 2)}px`;
+        icon.style.marginLeft = `${-(width / 2)}px`;
     }
 
     private showMarkerIfVisible(marker: L.Marker) {
@@ -206,7 +246,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
 
     private static layerIsMarker(layer: L.Layer): boolean {
         // TODO: find a better way to tell (i.e. less hacky, documented, works even if layer is hidden)
-        return "_icon" in layer;
+        return "_icon" in layer && layer["_icon"] != null;
     }
 
     private static toBBox(from: ClientRect): BBox {

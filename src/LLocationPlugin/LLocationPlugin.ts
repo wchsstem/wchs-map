@@ -37,7 +37,8 @@ export class LLocation extends L.LayerGroup {
         this.map = None;
         
         this.hidingLocation = false;
-        settings.addWatcher("hiding-location", new Watcher((hidingLocation: boolean) => {
+        settings.addWatcher("hiding-location", new Watcher((hidingLocationUnknown) => {
+            const hidingLocation = hidingLocationUnknown as boolean;
             this.onChangeHidingLocation(hidingLocation);
         }));
 
