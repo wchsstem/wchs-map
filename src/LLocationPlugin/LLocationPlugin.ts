@@ -4,6 +4,8 @@ import { LLocationControl } from "./LLocationControl";
 import { settings, Watcher } from "../ts/settings";
 import { None, Option, Some } from "@nvarner/monads";
 
+const SENSITIVITY = 10;
+
 export class LLocation extends L.LayerGroup {
     private control: LLocationControl;
 
@@ -94,10 +96,17 @@ export class LLocation extends L.LayerGroup {
     }
 
     private setPositionStateNearChurchill(coords: GeolocationCoordinates): void {
-        this.positionState = PositionState.NearChurchill;
-
         const latestAccuracyRadius = LLocation.metersToFeet(coords.accuracy);
         const latestPosition = LLocation.latLongToChurchillSpace(coords.latitude, coords.longitude);
+
+        if (this.positionState === PositionState.NearChurchill) {
+            const distToLast = LLocation.distanceBetween(latestPosition, this.latestPosition.unwrap());
+            if (distToLast < SENSITIVITY) {
+                return; // Did not move enough; probably just in one place with GPS noise
+            }
+        }
+
+        this.positionState = PositionState.NearChurchill;
 
         this.latestAccuracyRadius = Some(latestAccuracyRadius);
         this.latestPosition = Some(latestPosition);
@@ -178,6 +187,12 @@ export class LLocation extends L.LayerGroup {
 
     private static metersToFeet(meters: number): number {
         return meters * 3.28084;
+    }
+
+    private static distanceBetween(a: [number, number], b: [number, number]): number {
+        const dx = a[0] - b[0];
+        const dy = a[1] - b[1];
+        return (dx * dx) + (dy * dy);
     }
 }
 
