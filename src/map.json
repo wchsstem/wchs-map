@@ -2052,6 +2052,10 @@
             "floor": "2",
             "location": [446, 295.25]
         },
+        "H11:26": {
+            "floor": "2",
+            "location": [338, 307.125]
+        },
         "H12:0": {
             "floor": "2",
             "location": [212.875, 170.25]
@@ -2134,7 +2138,7 @@
         },
         "H12:20": {
             "floor": "2",
-            "location": [450.875, 180.75]
+            "location": [473.375, 180.75]
         },
         "H12:21": {
             "floor": "2",
@@ -2161,6 +2165,10 @@
             "floor": "2",
             "location": [352.625, 156.625],
             "tags": ["stairs"]
+        },
+        "H12:27": {
+            "floor": "2",
+            "location": [419.25, 180.75]
         },
         "H13:0": {
             "floor": "2",
@@ -2225,6 +2233,14 @@
             "location": [379.375, 43.75],
             "tags": ["stairs"]
         },
+        "H13:15": {
+            "floor": "2",
+            "location": [368.625, 55.5]
+        },
+        "H13:16": {
+            "floor": "2",
+            "location": [362.375, 55.5]
+        },
         "H14:0": {
             "floor": "2",
             "location": [227.5, 274.75]
@@ -2288,6 +2304,14 @@
             "location": [233.25, 289.125],
             "tags": ["stairs"]
         },
+        "H14:15": {
+            "floor": "2",
+            "location": [207, 64.375]
+        },
+        "H14:16": {
+            "floor": "2",
+            "location": [226, 202.625]
+        },
         "H15:0": {
             "floor": "2",
             "location": [361.5, 195.75]
@@ -2320,6 +2344,18 @@
             "floor": "2",
             "location": [375.75, 337.25],
             "tags": ["stairs"]
+        },
+        "H15:8": {
+            "floor": "2",
+            "location": [365.75, 163.75]
+        },
+        "H15:9": {
+            "floor": "2",
+            "location": [375.75, 312.625]
+        },
+        "H15:10": {
+            "floor": "2",
+            "location": [375.75, 320.375]
         },
         "H16:0": {
             "floor": "2",
@@ -2418,6 +2454,46 @@
         "RBM202:0": {
             "floor": "2",
             "location": [534.5, 282.125]
+        },
+        "RBC200:0": {
+            "floor": "2",
+            "location": [481.125, 50.75]
+        },
+        "RBC201:0": {
+            "floor": "2",
+            "location": [368.625, 45.125]
+        },
+        "RBC202:0": {
+            "floor": "2",
+            "location": [213.125, 64.375]
+        },
+        "RBC203:0": {
+            "floor": "2",
+            "location": [357.25, 163.75]
+        },
+        "RBC204:0": {
+            "floor": "2",
+            "location": [222.375, 202.625]
+        },
+        "RBC205:0": {
+            "floor": "2",
+            "location": [329.625, 307.125]
+        },
+        "RBC206:0": {
+            "floor": "2",
+            "location": [558.375, 299]
+        },
+        "RHS200:0": {
+            "floor": "2",
+            "location": [362.375, 45.125]
+        },
+        "RHS201:0": {
+            "floor": "2",
+            "location": [383.625, 320.375]
+        },
+        "RWF200:0": {
+            "floor": "2",
+            "location": [419.25, 177.125]
         },
         "R200:0": {
             "floor": "2",
@@ -3210,7 +3286,6 @@
         ["H11:2", "H11:4"],
         ["H11:4", "H11:5"],
         ["H11:5", "H11:6"],
-        ["H11:6", "H11:7"],
         ["H11:6", "I11:15:0"],
         ["I11:15:0", "I11:15:1"],
         ["I11:15:1", "H11:8"],
@@ -3249,7 +3324,6 @@
         ["I12:15:0", "I12:15:1"],
         ["I12:15:1", "H12:16"],
         ["H12:16", "H12:17"],
-        ["H12:17", "H12:18"],
         ["H12:18", "H12:19"],
         ["H12:19", "H12:20"],
         ["H12:20", "H12:21"],
@@ -3266,8 +3340,6 @@
         ["H13:3", "H13:4"],
         ["H13:4", "H13:5"],
         ["H13:5", "H13:6"],
-        ["H13:6", "I13:15:0"],
-        ["I13:15:0", "H13:7"],
         ["H13:7", "H13:8"],
         ["H13:8", "H13:9"],
         ["H13:9", "H13:10"],
@@ -3281,7 +3353,6 @@
         ["H14:13", "H14:14"],
         ["H7:31", "H14:14", true],
         ["H14:2", "H14:3"],
-        ["H14:3", "H14:4"],
         ["H14:4", "I12:14:0"],
         ["I12:14:1", "H14:5"],
         ["H14:6", "H14:11"],
@@ -3291,10 +3362,8 @@
         ["H14:7", "H14:8"],
         ["H14:8", "H14:9"],
         ["H14:9", "H14:10"],
-        ["H14:10", "I13:14:0"],
         ["I11:15:0", "H15:0"],
         ["H15:0", "I12:15:1"],
-        ["I12:15:0", "H15:1"],
         ["H15:1", "H15:2"],
         ["H15:2", "H15:3"],
         ["H15:3", "H15:4"],
@@ -3371,11 +3440,7 @@
         ["R268:0", "H11:2"],
         ["R266:0", "H11:4"],
         ["R264:0", "H11:5"],
-        ["I11:15:1", "R262D:0"],
-        ["I11:15:1", "R262:0"],
-        ["R262:0", "R262B:0"],
         ["R262:0", "R262:1"],
-        ["R262:0", "R262A:0"],
         ["R262:1", "R262C:0"],
         ["H11:10", "R260:0"],
         ["R258:0", "H11:14"],
@@ -3440,7 +3505,6 @@
         ["H14:12", "H8:3", true],
         ["H1:0", "H1:13"],
         ["H1:13", "H15:7", true],
-        ["H15:7", "I11:15:1"],
         ["H9:7", "H9:16"],
         ["I1:9:0", "H9:17"],
         ["H9:17", "H9:6"],
@@ -3612,7 +3676,38 @@
         ["H7:47", "H7:29"],
         ["H7:47", "R176:0"],
         ["H7:47", "REC5:0"],
-        ["H7:47", "H7:30"]
+        ["H7:47", "H7:30"],
+        ["R262:1", "R262A:0"],
+        ["R262:1", "R262B:0"],
+        ["H15:9", "I11:15:1"],
+        ["H15:9", "R262:0"],
+        ["H15:9", "H15:10"],
+        ["H15:10", "RHS201:0"],
+        ["H15:10", "R262D:0"],
+        ["H15:10", "H15:7"],
+        ["H11:26", "H11:6"],
+        ["H11:26", "RBC205:0"],
+        ["H11:26", "H11:7"],
+        ["I11:16:0", "RBC206:0"],
+        ["H12:27", "H12:17"],
+        ["H12:27", "H12:18"],
+        ["H12:27", "RWF200:0"],
+        ["H15:8", "H15:1"],
+        ["H15:8", "I12:15:0"],
+        ["H15:8", "RBC203:0"],
+        ["H14:16", "H14:3"],
+        ["H14:16", "RBC204:0"],
+        ["H14:16", "H14:4"],
+        ["I13:16:0", "RBC200:0"],
+        ["H13:15", "H13:7"],
+        ["H13:15", "I13:15:0"],
+        ["H13:15", "RBC201:0"],
+        ["H13:16", "I13:15:0"],
+        ["H13:16", "RHS200:0"],
+        ["H13:16", "H13:6"],
+        ["H14:15", "H14:10"],
+        ["H14:15", "RBC202:0"],
+        ["H14:15", "I13:14:0"]
     ],
     "rooms": {
         "100": {
@@ -4594,6 +4689,41 @@
             "names": ["Bleeding Control (Auditorium)", "Bleeding Control Kit (Auditorium)"],
             "tags": ["bleed-control"]
         },
+        "BC200": {
+            "vertices": ["RBC200:0"],
+            "names": ["Bleeding Control (20x)", "Bleeding Control Kit (20x)"],
+            "tags": ["bleed-control"]
+        },
+        "BC201": {
+            "vertices": ["RBC201:0"],
+            "names": ["Bleeding Control (Bulldog Lobby Upstairs)", "Bleeding Control Kit (Bulldog Lobby Upstairs)"],
+            "tags": ["bleed-control"]
+        },
+        "BC202": {
+            "vertices": ["RBC202:0"],
+            "names": ["Bleeding Control (22x)", "Bleeding Control Kit (22x)"],
+            "tags": ["bleed-control"]
+        },
+        "BC203": {
+            "vertices": ["RBC203:0"],
+            "names": ["Bleeding Control (Central Upstairs)", "Bleeding Control Kit (Central Upstairs)"],
+            "tags": ["bleed-control"]
+        },
+        "BC204": {
+            "vertices": ["RBC204:0"],
+            "names": ["Bleeding Control (Art)", "Bleeding Control Kit (Art)"],
+            "tags": ["bleed-control"]
+        },
+        "BC205": {
+            "vertices": ["RBC205:0"],
+            "names": ["Bleeding Control (26X)", "Bleeding Control Kit (26X)"],
+            "tags": ["bleed-control"]
+        },
+        "BC206": {
+            "vertices": ["RBC206:0"],
+            "names": ["Bleeding Control (25X)", "Bleeding Control Kit (25X)"],
+            "tags": ["bleed-control"]
+        },
         "WF100": {
             "vertices": ["RWF100:0"],
             "names": [
@@ -4631,6 +4761,20 @@
                 "Water Bottle Filling Station (Aux Gyms)",
                 "Water Fountain (Aux Gyms)",
                 "Drinking Fountain (Aux Gyms)"
+            ],
+            "tags": ["wf"]
+        },
+        "WF200": {
+            "vertices": ["RWF200:0"],
+            "names": [
+                "Bottle Fill Station (Library)",
+                "Water Bottle Filling Station (Library)",
+                "Water Fountain (Library)",
+                "Drinking Fountain (Library)",
+                "Bottle Fill Station (Media Center)",
+                "Water Bottle Filling Station (Media Center)",
+                "Water Fountain (Media Center)",
+                "Drinking Fountain (Media Center)"
             ],
             "tags": ["wf"]
         },
@@ -4706,6 +4850,16 @@
                 "Hand Sanitization (Gym)", "Hand Sanitization Station (Gym)",
                 "Hand Sanitization (Main Gym)", "Hand Sanitization Station (Main Gym)"
             ],
+            "tags": ["hs"]
+        },
+        "HS200": {
+            "vertices": ["RHS200:0"],
+            "names": ["Hand Sanitization (Bulldog Lobby Upstairs)", "Hand Sanitization Station (Bulldog Lobby Upstairs)"],
+            "tags": ["hs"]
+        },
+        "HS201": {
+            "vertices": ["RHS201:0"],
+            "names": ["Hand Sanitization (26X)", "Hand Sanitization Station (26X)"],
             "tags": ["hs"]
         },
         "IDF4": {
