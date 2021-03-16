@@ -1,4 +1,4 @@
-const VERSION = "v0.5.7";
+const VERSION = "v0.5.8";
 
 const CACHE_NAME = "WCHS-map-" + VERSION;
 const toCache = [
