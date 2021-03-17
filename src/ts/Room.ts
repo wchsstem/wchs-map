@@ -56,4 +56,8 @@ export default class Room {
     public isEmergency(): boolean {
         return this.tags.filter(tag => emergencyTags.has(tag)).length !== 0;
     }
+
+    public isClosed(): boolean {
+        return this.tags.includes("closed");
+    }
 }

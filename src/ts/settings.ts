@@ -133,7 +133,7 @@ dropdownData.set("bathroom-gender", [T2.new("", "no-selection"), T2.new("Man", "
 
 export const settingCategories: Map<string, string[]> = new Map();
 settingCategories.set("Personal", ["bathroom-gender"]);
-settingCategories.set("Visibility", ["show-infrastructure", "show-emergency", "hiding-location"]);
+settingCategories.set("Visibility", ["show-closed", "show-infrastructure", "show-emergency", "hiding-location"]);
 settingCategories.set("Advanced", ["synergy", "dev", "logger", "show-markers"]);
 
 export const infrastructureTags: Set<string> = new Set();
@@ -153,6 +153,7 @@ nameMapping.set("bathroom-gender", "Restroom gender (not yet implemented)");
 nameMapping.set("synergy", "Enable Synergy Panel (alpha)");
 nameMapping.set("dev", "Developer Mode");
 nameMapping.set("hiding-location", "Hide Location Dot");
+nameMapping.set("show-closed", "Show Closed Room Icons");
 nameMapping.set("show-infrastructure", "Show Infrastructure Icons");
 nameMapping.set("show-emergency", "Show Emergency Icons");
 nameMapping.set("logger", "Show Logger");
@@ -168,6 +169,7 @@ settings.setDefault("bathroom-gender", "no-selection");
 settings.setDefault("dev", false);
 settings.setDefault("synergy", false);
 settings.setDefault("hiding-location", false);
+settings.setDefault("show-closed", false);
 settings.setDefault("show-infrastructure", false);
 settings.setDefault("show-emergency", false);
 settings.setDefault("logger", false);

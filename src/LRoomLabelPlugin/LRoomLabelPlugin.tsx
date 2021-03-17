@@ -40,6 +40,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
 
         const infrastructureMarkers: L.Marker[] = [];
         const emergencyMarkers: L.Marker[] = [];
+        const closedMarkers: L.Marker[] = [];
 
         for (const room of rooms) {
             if (room.center.floor === floorNumber) {
@@ -70,6 +71,8 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                     infrastructureMarkers.push(roomMarker);
                 } else if (room.isEmergency()) {
                     emergencyMarkers.push(roomMarker);
+                } else if (room.isClosed()) {
+                    closedMarkers.push(roomMarker);
                 } else {
                     this.addLayer(roomMarker);
                 }
@@ -103,6 +106,16 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                 emergencyMarkers.forEach(marker => this.addLayer(marker));
             } else {
                 emergencyMarkers.forEach(marker => this.removeLayer(marker));
+            }
+            this.reload();
+        }));
+
+        settings.addWatcher("show-closed", new Watcher(shouldShowUnknown => {
+            const shouldShow = shouldShowUnknown as boolean;
+            if (shouldShow) {
+                closedMarkers.forEach(marker => this.addLayer(marker));
+            } else {
+                closedMarkers.forEach(marker => this.removeLayer(marker));
             }
             this.reload();
         }));
