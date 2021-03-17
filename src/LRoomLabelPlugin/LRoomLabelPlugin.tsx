@@ -9,12 +9,16 @@ import Room from "../ts/Room";
 
 import { h } from "../ts/JSX";
 import { settings, Watcher } from "../ts/settings";
+import Vertex from "../Vertex";
+import { Some, None, Option } from "@nvarner/monads";
 
 export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFloor {
     private tree: RBush<BBox>;
     private allLabels: L.Marker[];
     private floorNumber: string;
     private roomOutlines: L.Polygon[];
+    private hiding: boolean;
+    private removeWatcher: Option<Watcher>;
 
     constructor(map: MapData, floorNumber: string, options?: L.LayerOptions) {
         super([], options);
@@ -22,11 +26,17 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         this.allLabels = [];
         this.floorNumber = floorNumber;
         this.roomOutlines = [];
+        this.hiding = false;
+        this.removeWatcher = None;
 
         // First room will be least important, last will be most important
         // Later rooms' labels will end up on top of earlier rooms'
         // So this prioritizes more important rooms
         const rooms = map.getAllRooms().sort((a: Room, b: Room) => b.estimateImportance() - a.estimateImportance());
+
+        const vertices = map.getGraph()
+            .getIdsAndVertices()
+            .map(([_id, vertex]) => vertex);
 
         const infrastructureMarkers: L.Marker[] = [];
         const emergencyMarkers: L.Marker[] = [];
@@ -63,6 +73,17 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                 } else {
                     this.addLayer(roomMarker);
                 }
+            }
+        }
+
+        for (const vertex of vertices) {
+            if (vertex.getLocation().floor === floorNumber) {
+                LRoomLabel.getVertexIcon(vertex).ifSome(icon => {
+                    const vertexMarker =  L.marker(vertex.getLocation().xy, {
+                        icon: icon
+                    });
+                    this.addLayer(vertexMarker);
+                });
             }
         }
 
@@ -107,21 +128,42 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         super.onAdd(map);
         map.on("zoomend", this.reload, this);
         this.reload();
+
+        const watcher = new Watcher(shouldShowUnknown => {
+            const shouldShow = shouldShowUnknown as boolean;
+            this.hiding = !shouldShow;
+            if (shouldShow) {
+                super.onAdd(map);
+            } else {
+                super.onRemove(map);
+            }
+        });
+
+        settings.addWatcher("show-markers", watcher);
+        this.removeWatcher = Some(watcher);
+
         return this;
     }
 
     onRemove(map: L.Map): this {
         super.onRemove(map);
+
+        settings.removeWatcher("show-markers", this.removeWatcher.unwrap());
+        this.removeWatcher = None;
+
         map.removeEventListener("zoomend", this.reload, this);
+        
         return this;
     }
 
     reload() {
         this.centerLabels();
         this.hideAllLayers();
-
         this.tree.clear();
-        this.showVisibleLayers();
+
+        if (!this.hiding) {
+            this.showVisibleLayers();
+        }
     }
 
     private showVisibleLayers() {
@@ -241,6 +283,33 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                 html: room.getShortName(),
                 className: "room-label"
             });
+        }
+    }
+
+    // TODO: Wow these icons are bad. Get new ones.
+    private static getVertexIcon(vertex: Vertex): Option<L.Icon<any>> {
+        if (vertex.hasTag("up")) {
+            return Some(L.divIcon({
+                html: <i class="fas fa-sort-amount-up"></i> as HTMLElement,
+                className: "icon"
+            }));
+        } else if (vertex.hasTag("down")) {
+            return Some(L.divIcon({
+                html: <i class="fas fa-sort-amount-down"></i> as HTMLElement,
+                className: "icon"
+            }));
+        } else if (vertex.hasTag("stairs")) {
+            return Some(L.divIcon({
+                html: <i class="fas fa-align-justify"></i> as HTMLElement,
+                className: "icon"
+            }));
+        } else if (vertex.hasTag("elevator")) {
+            return Some(L.divIcon({
+                html: <i class="fas fa-door-closed"></i> as HTMLElement,
+                className: "icon"
+            }));
+        } else {
+            return None;
         }
     }
 

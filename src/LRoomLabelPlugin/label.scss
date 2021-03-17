@@ -14,6 +14,7 @@
     width: $size !important;
     height: $size !important;
     border-radius: $size;
+    transition: opacity 0.2s;
     background-color: #ffffff;
     display: flex !important;
     margin-left: -($size / 2) !important;
@@ -32,7 +33,7 @@
     border: 2px solid rgba(0, 0, 0, 0.3);
 }
 
-.room-label.invisible, .room-icon.invisible {
+.room-label.invisible, .room-icon.invisible, .icon.invisible {
     opacity: 0;
 }
 

@@ -59,7 +59,7 @@
                      "type": "array",
                      "items": {
                         "type": "string",
-                        "enum": ["stairs", "elevator"]
+                        "enum": ["stairs", "elevator", "up", "down"]
                      }
                   }
                }
