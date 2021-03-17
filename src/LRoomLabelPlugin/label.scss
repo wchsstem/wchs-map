@@ -9,7 +9,7 @@
     line-height: 1;
 }
 
-.room-icon {
+.icon, .room-icon {
     $size: 24px;
     width: $size !important;
     height: $size !important;
@@ -36,10 +36,8 @@
     opacity: 0;
 }
 
-.stair-icon {
-    font-size: 24px;
-    border-radius: 3px;
-    padding: 6px;
+.icon.nav {
+    color: #374b83;
 }
 
 .leaflet-div-icon {

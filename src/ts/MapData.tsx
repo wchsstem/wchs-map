@@ -8,6 +8,8 @@ import { LSomeLayerWithFloor, LLayerGroupWithFloor } from "../LFloorsPlugin/LFlo
 import { GeocoderDefinition } from "./Geocoder";
 import { BuildingLocation, BuildingLocationWithEntrances } from "./BuildingLocation";
 
+import { h } from "../ts/JSX";
+
 export type FloorData = {
     number: string,
     image: string
@@ -255,9 +257,10 @@ export default class MapData {
                 
                 // These icons aren't actually stairs, but they look close enough to get the idea across
                 // They also look much nicer than my poor attempt at creating a stair icon
+                const iconClass = qFloorNumber < pFloorNumber ? "fas fa-sort-amount-up-alt" : "fas fa-sort-amount-down-alt";
                 const stairIcon = L.divIcon({
-                    html: qFloorNumber < pFloorNumber ? "<i class=\"fas fa-sort-amount-up-alt stair-icon\"></i>" : "<i class=\"fas fa-sort-amount-down-alt stair-icon\"></i>",
-                    iconSize: [36, 36]
+                    html: <i class={iconClass}></i>,
+                    className: "icon nav"
                 });
                 L.marker(pLoc.xy, { icon: stairIcon }).addTo(layers.get(pFloor));
                 L.marker(qLoc.xy, { icon: stairIcon }).addTo(layers.get(qFloor));
