@@ -1,6 +1,5 @@
 import { Option, Some, None, fromMap } from "@nvarner/monads";
 import MiniSearch from "minisearch";
-import { T2 } from "./Tuple";
 
 export class GeocoderSuggestion {
     public readonly name: string;
@@ -10,117 +9,48 @@ export class GeocoderSuggestion {
     }
 }
 
-export class GeocoderDefinition<T> {
-    /** Name of the location. Displayed to the user and the main factor in search. Must be unique. */
-    public readonly name: string;
-    /** Alternate names for the location, not including its main name. Not displayed to the user, but used in search. */
-    public readonly alternateNames: string[];
-    /** Description for the location. Displayed to the user and used in search. */
-    public readonly description: string;
-    /** Tags for the location. May be displayed to the user and used in search. */
-    public readonly tags: string[];
-    /** Point where this location is located. */
-    public readonly location: T;
+export interface GeocoderDefinition<L> {
+    /**
+     * Displayed to the user and the main factor in search. Must be unique among definitions.
+     */
+    getName(): string;
 
-    constructor(name: string, alternateNames: string[], description: string, tags: string[], location: T) {
-        this.name = name;
-        this.alternateNames = alternateNames;
-        this.description = description;
-        this.tags = tags;
-        this.location = location;
-    }
-}
-
-/**
- * Set of `GeocoderDefinition`s used to manage a `Geocoder`. Create one of these and fill it with initial definitions,
- * then add it to the geocoder with `Geocoder.addDefinitionSet`. This will add new definitions to the geocoder and leave
- * a reference to the geocoder in the definition set. If more definitions are added, this reference will be used to
- * update the geocoder. If the definition set is already linked to a geocoder, `Geocoder.addDefinitionSet` will return
- * false and not update any definitions or references.
- */
-export class GeocoderDefinitionSet<T> {
-    private definitions: GeocoderDefinition<T>[];
-    private names: Set<string>;
-    private geocoder: Option<Geocoder<T>>;
-
-    private constructor(definitions: GeocoderDefinition<T>[], names: Set<string>) {
-        this.definitions = definitions;
-        this.names = names;
-        this.geocoder = None;
-    }
-
-    public static fromDefinitions<U>(definitions: GeocoderDefinition<U>[]): GeocoderDefinitionSet<U> {
-        const namesSoFar: Set<string> = new Set();
-        for (const definition of definitions) {
-            if (namesSoFar.has(definition.name)) {
-                // Duplicate names are not allowed
-                // TODO: Proper error handling
-                throw "Cannot have multiple definitions with the same name";
-            }
-            namesSoFar.add(definition.name);
-        }
-
-        return new GeocoderDefinitionSet(definitions, namesSoFar);
-    }
-
-    public addDefinition(definition: GeocoderDefinition<T>) {
-        this.geocoder.match({
-            some: geocoder => {
-                geocoder.addDefinition(definition);
-                this.internalNewAddDefinition(definition);
-            },
-            none: () => {
-                if (!this.names.has(definition.name)) {
-                    this.internalNewAddDefinition(definition);
-                }
-            }
-        });
-    }
-
-    private internalNewAddDefinition(definition: GeocoderDefinition<T>) {
-        this.definitions.push(definition);
-        this.names.add(definition.name);
-    }
-
-    public getDefinitions(): GeocoderDefinition<T>[] {
-        return this.definitions;
-    }
-
-    public getNames(): Set<string> {
-        return this.names;
-    }
+    /*
+     * Not displayed to the user, but used in search.
+     */
+    getAlternateNames(): string[];
 
     /**
-     * Saves a reference to a `Geocoder`. It will be used to update the geocoder if this definition set gets a new
-     * definition. If there is already a stored reference, it will not be updated and this will return `false`.
-     * @param geocoder The geocoder to save a reference to
-     * @returns `true` if the reference was saved, `false` if the reference was not saved because there already was one
+     * Displayed to the user and used in search.
      */
-    public setGeocoder(geocoder: Geocoder<T>): boolean {
-        if (this.geocoder.isSome()) {
-            return false;
-        }
-        this.geocoder = Some(geocoder);
-        return true;
-    }
+    getDescription(): string;
+
+    /**
+     * May be displayed to the user and used in search.
+     */
+    getTags(): string[];
+
+    getLocation(): L;
 }
 
-export class Geocoder<T> {
+export class Geocoder<L, D extends GeocoderDefinition<L>> {
     private readonly search: MiniSearch;
-    private readonly definitionsByName: Map<string, GeocoderDefinition<T>>;
+    private readonly definitionsByName: Map<string, D>;
     /**
      * Definitions indexed by alternate names. They are not guaranteed to be unique, so some definitions may be
-     * overwritten. This should only be used as a failsafe if `definitionsByName` does not contain a requested name.
+     * overwritten. This should be used as a backup only if `definitionsByName` does not contain a requested name.
      */
-    private readonly definitionsByAltName: Map<string, GeocoderDefinition<T>>;
-    private readonly definitionsByLocation: Map<T, GeocoderDefinition<T>>;
+    private readonly definitionsByAltName: Map<string, D>;
+    private readonly definitionsByLocation: Map<L, D>;
     private readonly allNames: Set<string>;
 
     constructor() {
         this.search = new MiniSearch({
-            idField: "name",
-            fields: ["name", "alternateNames", "description", "tags"],
-            storeFields: ["name"],
+            idField: "getName",
+            fields: ["getName", "getAlternateNames", "getDescription", "getTags"],
+            storeFields: ["getName"],
+            // Call the function instead of getting the value of a field
+            extractField: (definition, fieldName) => definition[fieldName](),
             searchOptions: {
                 prefix: true,
                 boost: {
@@ -134,38 +64,53 @@ export class Geocoder<T> {
         this.allNames = new Set();
     }
 
-    public addDefinitionSet(definitionSet: GeocoderDefinitionSet<T>): boolean {
-        if (!definitionSet.setGeocoder(this)) {
-            // Definition set is already linked to a geocoder
-            return false;
-        }
+    /**
+     * Adds a definition to the geocoder. Overrides any other definition with the same name, if already added to the
+     * geocoder. Returns the definition it replaced, if any.
+     */
+    public addDefinition(definition: D): Option<D> {
+        // Deal with the existing definition if it exists
+        const existing = fromMap(this.definitionsByName, definition.getName())
+            .map(existing => {
+                this.removeDefinition(existing);
+                return existing;
+            });
 
-        definitionSet.getDefinitions().forEach(definition => this.addDefinition(definition));
-
-        return true;
-    }
-
-    public addDefinition(definition: GeocoderDefinition<T>): boolean {
-        if (this.allNames.has(definition.name)) {
-            // Not new
-            return false;
-        }
-        
-        this.definitionsByName.set(definition.name, definition);
-        definition.alternateNames.forEach(altName => this.definitionsByAltName.set(altName, definition));
-        this.definitionsByLocation.set(definition.location, definition);
-        this.allNames.add(definition.name);
+        this.definitionsByName.set(definition.getName(), definition);
+        definition.getAlternateNames().forEach(altName => this.definitionsByAltName.set(altName, definition));
+        this.definitionsByLocation.set(definition.getLocation(), definition);
+        this.allNames.add(definition.getName());
         this.search.add(definition);
 
-        return true;
+        return existing;
+    }
+
+    public removeDefinition(definition: D): void {
+        this.definitionsByName.delete(definition.getName());
+
+        const newDefinitionsByAltName = [...this.definitionsByAltName]
+            .filter(([checkingName, checkingDefinition]) => {
+                return !definition.getAlternateNames().includes(checkingName) && definition !== checkingDefinition;
+            });
+        this.definitionsByAltName.clear();
+        for (const [name, definition] of newDefinitionsByAltName) {
+            this.definitionsByAltName.set(name, definition);
+        }
+
+        this.definitionsByLocation.delete(definition.getLocation());
+
+        this.allNames.delete(definition.getName());
+
+        this.search.remove(definition);
     }
 
     public getSuggestionsFrom(query: string): GeocoderSuggestion[] {
         return this.search.search(query)
-            .map(searchResult => new GeocoderSuggestion(searchResult.name));
+            // .getName here is a field, not a method, so named because of how minisearch works
+            .map(searchResult => new GeocoderSuggestion(searchResult.getName));
     }
 
-    public getDefinitionFromName(name: string): Option<GeocoderDefinition<T>> {
+    public getDefinitionFromName(name: string): Option<D> {
         return fromMap(this.definitionsByName, name)
             .or(fromMap(this.definitionsByAltName, name));
     }

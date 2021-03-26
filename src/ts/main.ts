@@ -14,9 +14,7 @@ import { createSidebar } from "../Sidebar/SidebarController";
 import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "leaflet-sidebar-v2";
-import { GeocoderDefinition, GeocoderDefinitionSet } from "./Geocoder";
-import { geocoder } from "./utils";
-import { BuildingLocationWithEntrances } from "./BuildingLocation";
+import { BuildingGeocoder, BuildingLocationWithEntrances } from "./BuildingLocation";
 import { LLocation } from "../LLocationPlugin/LLocationPlugin";
 import { Logger } from "../LogPane/LogPane";
 
@@ -31,6 +29,7 @@ function main() {
     }
 
     const logger = Logger.new();
+
 
     // Churchill is 600ft long and 400ft across; portables add to that
 
@@ -48,14 +47,10 @@ function main() {
     const mapData = new MapData(mapDataJson, bounds);
 
     // Initialize geocoder
-    const definitions = mapData.getAllRooms().map(room => {
-        const graph = mapData.getGraph();
-        const entranceLocations = room.vertexEntrances.map(entranceVertex => graph.getVertex(entranceVertex).getLocation());
-        const location = new BuildingLocationWithEntrances(room.center, entranceLocations);
-        return new GeocoderDefinition(room.getName(), room.names, "", [], location);
-    });
-    const definitionSet = GeocoderDefinitionSet.fromDefinitions(definitions);
-    geocoder.addDefinitionSet(definitionSet);
+    const geocoder: BuildingGeocoder = new BuildingGeocoder();
+    for (const room of mapData.getAllRooms()) {
+        geocoder.addDefinition(room);
+    }
 
     // Create map
     const map = L.map("map", {
@@ -83,10 +78,10 @@ function main() {
     }
 
     // Create sidebar
-    createSidebar(map, mapData, logger);
+    createSidebar(map, mapData, geocoder, logger);
 
-    floors.addLayer(new LRoomLabel(mapData, "1"));
-    floors.addLayer(new LRoomLabel(mapData, "2"));
+    floors.addLayer(new LRoomLabel(mapData, geocoder, "1"));
+    floors.addLayer(new LRoomLabel(mapData, geocoder, "2"));
 
     // Display dev layer and location of mouse click when dev is enabled
     const devLayer1 = mapData.createDevLayerGroup("1");

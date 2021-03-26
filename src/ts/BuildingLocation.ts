@@ -4,6 +4,7 @@ import RBush, { BBox } from "rbush/rbush";
 import { kdTree } from "kd-tree-javascript";
 import { Geocoder, GeocoderDefinition } from "./Geocoder";
 import { T2 } from "./Tuple";
+import Room from "./Room";
 
 export class BuildingLocation {
     public readonly xy: LatLng;
@@ -59,8 +60,8 @@ export class BuildingLocationWithEntrances {
     }
 }
 
-class BuildingGeocoderRBush extends RBush<T2<T2<number, number>, BuildingGeocoderDefinition>> {
-    toBBox(pointDefinition: T2<T2<number, number>, BuildingGeocoderDefinition>): BBox {
+class BuildingGeocoderRBush extends RBush<T2<T2<number, number>, Room>> {
+    toBBox(pointDefinition: T2<T2<number, number>, Room>): BBox {
         const point = pointDefinition.e0;
         return {
             minX: point.e0,
@@ -70,22 +71,17 @@ class BuildingGeocoderRBush extends RBush<T2<T2<number, number>, BuildingGeocode
         };
     }
 
-    compareMinX(
-        a: T2<T2<number, number>, BuildingGeocoderDefinition>,
-        b: T2<T2<number, number>, BuildingGeocoderDefinition>
-    ): number {
+    compareMinX(a: T2<T2<number, number>, Room>, b: T2<T2<number, number>, Room>): number {
         return a.e0.e0 - b.e0.e0;
     }
 
-    compareMinY(
-        a: T2<T2<number, number>, BuildingGeocoderDefinition>,
-        b: T2<T2<number, number>, BuildingGeocoderDefinition>
-    ): number {
+    compareMinY(a: T2<T2<number, number>, Room>, b: T2<T2<number, number>, Room>): number {
         return a.e0.e1 - b.e0.e1;
     }
 }
 
-export class BuildingGeocoder extends Geocoder<BuildingLocationWithEntrances> {
+export class BuildingGeocoder extends Geocoder<BuildingLocationWithEntrances, Room> {
+    /** Spatial indices of room center locations, indexed by floor */
     private readonly roomCenterIndices: Map<string, BuildingKDTree>;
 
     public constructor() {
@@ -94,19 +90,35 @@ export class BuildingGeocoder extends Geocoder<BuildingLocationWithEntrances> {
         this.roomCenterIndices = new Map();
     }
 
-    public addDefinition(definition: BuildingGeocoderDefinition): boolean {
-        if (!super.addDefinition(definition)) { return false; }
+    public addDefinition(definition: Room): Option<Room> {
+        const existing = super.addDefinition(definition);
 
-        const floor = definition.location.getCenter().floor;
+        const floor = definition.getLocation().getCenter().floor;
 
-        const tree = fromMap(this.roomCenterIndices, floor).unwrapOr(new kdTree([], distanceBetween, ["x", "y"]));
-        tree.insert(definitionToKDTreeEntry(definition));
-        this.roomCenterIndices.set(floor, tree);
+        this.updateTree(floor, tree => {
+            tree.insert(definitionToKDTreeEntry(definition));
+            return tree;
+        });
 
-        return true;
+        return existing;
     }
 
-    public getClosestDefinition(location: BuildingLocationWithEntrances): BuildingGeocoderDefinition {
+    public removeDefinition(definition: Room): void {
+        const floor = definition.getLocation().getCenter().floor;
+
+        this.updateTree(floor, tree => {
+            tree.remove(definitionToKDTreeEntry(definition));
+            return tree;
+        });
+    }
+
+    public updateTree(floor: string, f: (tree: BuildingKDTree) => BuildingKDTree): void {
+        const tree = fromMap(this.roomCenterIndices, floor)
+            .unwrapOr(new kdTree([], distanceBetween, ["x", "y"]));
+        this.roomCenterIndices.set(floor, f(tree));
+    }
+
+    public getClosestDefinition(location: BuildingLocationWithEntrances): Room {
         const center = location.getCenter();
         const tree = fromMap(this.roomCenterIndices, center.floor).unwrap();
         const [closest] = tree.nearest(locationToKDTreeEntry(location), 1);
@@ -114,17 +126,15 @@ export class BuildingGeocoder extends Geocoder<BuildingLocationWithEntrances> {
     }
 }
 
-export type BuildingGeocoderDefinition = GeocoderDefinition<BuildingLocationWithEntrances>;
-
 interface KDTreeEntry {
     x: number,
     y: number,
-    definition: Option<BuildingGeocoderDefinition>
+    definition: Option<Room>
 }
 type BuildingKDTree = kdTree<KDTreeEntry>;
 
-function definitionToKDTreeEntry(definition: BuildingGeocoderDefinition): KDTreeEntry {
-    const location = definition.location.getCenter().xy;
+function definitionToKDTreeEntry(definition: Room): KDTreeEntry {
+    const location = definition.getLocation().getCenter().xy;
     return {
         x: location.lng,
         y: location.lat,

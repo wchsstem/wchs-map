@@ -1,4 +1,3 @@
-import { BuildingGeocoder } from "./BuildingLocation";
 import { GeocoderSuggestion } from "./Geocoder";
 
 export function updateWithResults(
@@ -51,5 +50,24 @@ export function clearResults(resultContainer: HTMLElement): void {
     resultContainer.classList.add("hidden");
 }
 
-const geocoder: BuildingGeocoder = new BuildingGeocoder();
-export { geocoder };
+export function deepCopy<T>(a: T): T {
+    if (typeof a !== "object" || a === null) {
+        return a;
+    }
+
+    if (Array.isArray(a)) {
+        // @ts-ignore: TS can't tell that each element will be the same type, so this is okay
+        return a.map(entry => deepCopy(entry));
+    } else if (a !== null && a !== undefined && typeof a === "object") {
+        return Object.getOwnPropertyNames(a)
+            .reduce((copy, property) => {
+                const descriptor = Object.getOwnPropertyDescriptor(a, property)!;
+                Object.defineProperty(copy, property, descriptor);
+                // @ts-ignore: TS can't tell that indexing here is okay and the types will be the same
+                copy[property] = deepCopy(a[property]);
+                return copy;
+            }, Object.create(Object.getPrototypeOf(a)));
+    } else {
+        return a as T;
+    }
+}

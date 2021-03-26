@@ -1,6 +1,7 @@
-import { BuildingLocationWithEntrances } from "../ts/BuildingLocation";
-import { GeocoderDefinition, GeocoderDefinitionSet } from "../ts/Geocoder";
-import { geocoder } from "../ts/utils";
+import { Logger } from "../LogPane/LogPane";
+import { BuildingGeocoder, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
+import { GeocoderDefinition } from "../ts/Geocoder";
+import Room from "../ts/Room";
 
 const COURSE_NAME_REGEX = /course-title.*">([^:]*): ([^<]*)<\//g;
 const ROOM_NUMBER_REGEX = /teacher-room.*">Room: ([^<]+)<\//g
@@ -8,16 +9,16 @@ const ROOM_NUMBER_REGEX = /teacher-room.*">Room: ([^<]+)<\//g
 export class Course {
     private period: string;
     private name: string;
-    private roomNumber: string;
+    private room: Room;
 
-    constructor(period: string, name: string, roomNumber: string) {
+    constructor(period: string, name: string, room: Room) {
         this.period = period;
         this.name = name;
-        this.roomNumber = roomNumber;
+        this.room = room;
     }
 
     public toString(): string {
-        return `Period ${this.period}: ${this.name} in room ${this.roomNumber}`;
+        return `Period ${this.period}: ${this.name} in ${this.room.getName()}`;
     }
 
     public toHtmlLi(): HTMLLIElement {
@@ -27,20 +28,17 @@ export class Course {
         return li;
     }
 
-    public getDefinition(): GeocoderDefinition<BuildingLocationWithEntrances> {
-        const location = geocoder.getDefinitionFromName(this.roomNumber).unwrap().location;
-        return new GeocoderDefinition(`Period ${this.period}`, [this.name], "", ["course"], location);
+    public getRoom(): Room {
+        return this.room;
     }
 }
 
-// TODO: Make this work offline with caching
+// TODO: Make this work offline
 export class Synergy {
     private courses: Course[];
-    private definitionSet: GeocoderDefinitionSet<BuildingLocationWithEntrances>;
 
-    constructor(synergyPage: string) {
+    constructor(synergyPage: string, geocoder: BuildingGeocoder, logger: Logger) {
         const courses = [];
-        const definitions: GeocoderDefinition<BuildingLocationWithEntrances>[] = [];
 
         let courseNameMatch;
         while ((courseNameMatch = COURSE_NAME_REGEX.exec(synergyPage)) !== null) {
@@ -53,16 +51,25 @@ export class Synergy {
                 throw "Invalid page";
             }
             const roomNumber = roomNumberResult[1];
+            const room = geocoder.getDefinitionFromName(roomNumber).match({
+                some: room => room,
+                none: () => {
+                    logger.log(`Could not find room number for ${roomNumber}`);
+                    return null;
+                }
+            });
+            if (room === null) {
+                continue;
+            }
 
-            const course = new Course(period, name, roomNumber)
+            const course = new Course(period, name, room);
             courses.push(course);
-            definitions.push(course.getDefinition());
+
+            const courseRoom = room.extendedWithAlternateName(course.toString());
+            geocoder.addDefinition(courseRoom);
         }
 
         this.courses = courses;
-        // Names should be unique because every class has a unique period number
-        this.definitionSet = GeocoderDefinitionSet.fromDefinitions(definitions);
-        geocoder.addDefinitionSet(this.definitionSet);
     }
 
     public getCourses(): Course[] {

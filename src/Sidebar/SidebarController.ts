@@ -10,8 +10,7 @@ import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 import { dropdownData, metaSettings, settingCategories, settingInputType, settings, Watcher } from "../ts/settings";
 import { Synergy } from "../Synergy/Synergy";
 import { GeocoderDefinition, GeocoderSuggestion } from "../ts/Geocoder";
-import { BuildingLocationWithEntrances } from "../ts/BuildingLocation";
-import { geocoder } from "../ts/utils";
+import { BuildingGeocoder, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
 import { fromMap, None, Option, Some } from "@nvarner/monads";
 import { T2 } from "../ts/Tuple";
 import { NavigationPane } from "../NavigationPane/NavigationPane";
@@ -19,30 +18,37 @@ import { Logger, LogPane } from "../LogPane/LogPane";
 
 let sidebar: Option<Sidebar> = None;
 
-export function createSidebar(map: L.Map, mapData: MapData, logger: Logger): void {
-    sidebar = Some(new Sidebar(map, mapData, logger));
+export function createSidebar(map: L.Map, mapData: MapData, geocoder: BuildingGeocoder, logger: Logger): void {
+    sidebar = Some(new Sidebar(map, mapData, geocoder, logger));
 }
 
-export function showRoomInfo(room: Room): void {
-    sidebar.ifSome(sidebar => sidebar.openInfoForName(room.getName()));
+export function showRoomInfo(geocoder: BuildingGeocoder, room: Room): void {
+    sidebar.ifSome(sidebar => sidebar.openInfoForName(geocoder, room.getName()));
 }
 
 const MAX_FILE_SIZE = 2*1024*1024;
 
 export class Sidebar {
     private readonly map: L.Map;
+    private readonly geocoder: BuildingGeocoder;
+
     private readonly sidebar: L.Control.Sidebar;
     private readonly navigationPane: NavigationPane;
 
+    private readonly logger: Logger;
+
     private floorsLayer: Option<LFloors>;
 
-    constructor(map: L.Map, mapData: MapData, logger: Logger) {
+    constructor(map: L.Map, mapData: MapData, geocoder: BuildingGeocoder, logger: Logger) {
         this.map = map;
         this.sidebar = control.sidebar({
             container: "sidebar",
             closeButton: true
         });
         this.sidebar.addTo(this.map);
+
+        this.geocoder = geocoder;
+        this.logger = logger;
 
         this.floorsLayer = None;
         this.map.eachLayer((layer) => {
@@ -123,7 +129,7 @@ export class Sidebar {
                 }
 
                 const synergyPage = result.target.result.toString();
-                const synergy = new Synergy(synergyPage);
+                const synergy = new Synergy(synergyPage, this.geocoder, this.logger);
                 for (const course of synergy.getCourses()) {
                     courses.appendChild(course.toHtmlLi());
                 }
@@ -159,9 +165,9 @@ export class Sidebar {
         const thiz = this;
         searchBar.addEventListener("input", () => {
             const query = searchBar.value;
-            const results = geocoder.getSuggestionsFrom(query);
-            Sidebar.updateWithResults(query, results, resultContainer, (result) => {
-                thiz.openInfoForName(result.name);
+            const results = thiz.geocoder.getSuggestionsFrom(query);
+            Sidebar.updateWithResults(query, results, resultContainer, result => {
+                thiz.openInfoForName(thiz.geocoder, result.name);
             });
         });
 
@@ -176,17 +182,17 @@ export class Sidebar {
     }
 
     // Info panel
-    private createInfoPanel(definition: GeocoderDefinition<BuildingLocationWithEntrances>): L.Control.PanelOptions {
+    private createInfoPanel(definition: Room): L.Control.PanelOptions {
         const paneElements: HTMLElement[] = [];
 
         this.createInfoPanelHeader(paneElements, definition);
 
-        const roomFloor = Sidebar.elWithText("span", `Floor: ${definition.location.getCenter().floor}`);
+        const roomFloor = Sidebar.elWithText("span", `Floor: ${definition.getLocation().getCenter().floor}`);
         paneElements.push(roomFloor);
 
-        if (definition.description.length !== 0) {
+        if (definition.getDescription.length !== 0) {
             const descriptionEl = document.createElement("p");
-            const descriptionText = document.createTextNode(definition.description);
+            const descriptionText = document.createTextNode(definition.getDescription());
             descriptionEl.appendChild(descriptionText);
             paneElements.push(descriptionEl);
         }
@@ -201,17 +207,14 @@ export class Sidebar {
         };
     }
     
-    private createInfoPanelHeader(
-        paneElements: HTMLElement[],
-        definition: GeocoderDefinition<BuildingLocationWithEntrances>
-    ) {
+    private createInfoPanelHeader(paneElements: HTMLElement[], definition: Room) {
         const header = document.createElement("div");
         header.classList.add("wrapper");
         header.classList.add("header-wrapper");
         paneElements.push(header);
 
         const roomName = document.createElement("h2");
-        const roomNameText = document.createTextNode(definition.name);
+        const roomNameText = document.createTextNode(definition.getName());
         roomName.appendChild(roomNameText);
         header.appendChild(roomName);
 
@@ -229,7 +232,7 @@ export class Sidebar {
         header.appendChild(navButton);
     }
 
-    public openInfoForName(name: string) {
+    public openInfoForName(geocoder: BuildingGeocoder, name: string) {
         geocoder.getDefinitionFromName(name).ifSome(location => {
             this.sidebar.removePanel("info");
             this.sidebar.addPanel(this.createInfoPanel(location));
@@ -252,7 +255,6 @@ export class Sidebar {
         watchers.forEach(([id, watcher]) => settings.removeWatcher(id, watcher));
         watchers = [];
 
-        const hiddenSettings: String[] = metaSettings.getSetting("hidden-settings").unwrap() as String[];
         const nameMapping: Map<string, string> = metaSettings.getSetting("name-mapping").unwrap() as Map<string, string>;
 
         settingCategories.forEach((categorySettings, category) => {
@@ -378,7 +380,7 @@ export class Sidebar {
 
     // Utils
     private moveToDefinedLocation(definition: GeocoderDefinition<BuildingLocationWithEntrances>): void {
-        const location = definition.location.getCenter();
+        const location = definition.getLocation().getCenter();
         // TODO: Better option than always using zoom 3?
         this.map.setView(location.xy, 3);
         this.floorsLayer.ifSome(floorsLayer => floorsLayer.setFloor(location.floor));

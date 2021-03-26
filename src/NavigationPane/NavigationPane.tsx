@@ -1,6 +1,6 @@
 import { Control, divIcon, Map, PanelOptions } from "leaflet";
 import { genTextInput, genPaneElement } from "../GenHtml/GenHtml";
-import { BuildingGeocoder, BuildingGeocoderDefinition, BuildingLocation, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
+import { BuildingGeocoder, BuildingLocation, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
 import { None, Option, Some } from "@nvarner/monads";
 import { clearResults, updateWithResults } from "../ts/utils";
 import MapData from "../ts/MapData";
@@ -8,6 +8,7 @@ import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 
 import { h } from "../ts/JSX";
 import { FlooredMarker, flooredMarker } from "./FlooredMarker";
+import Room from "../ts/Room";
 
 export class NavigationPane {
     private readonly pane: HTMLElement;
@@ -22,8 +23,8 @@ export class NavigationPane {
 
     public readonly focus: () => any;
 
-    private fromDefinition: Option<BuildingGeocoderDefinition>;
-    private toDefinition: Option<BuildingGeocoderDefinition>;
+    private fromDefinition: Option<Room>;
+    private toDefinition: Option<Room>;
 
     private fromPin: Option<FlooredMarker>;
     private toPin: Option<FlooredMarker>;
@@ -38,8 +39,8 @@ export class NavigationPane {
         pathLayers: Set<LSomeLayerWithFloor>,
         map: Option<Map>,
         focus: () => any,
-        fromDefinition: Option<BuildingGeocoderDefinition>,
-        toDefinition: Option<BuildingGeocoderDefinition>,
+        fromDefinition: Option<Room>,
+        toDefinition: Option<Room>,
         fromPin: Option<FlooredMarker>,
         toPin: Option<FlooredMarker>
     ) {
@@ -172,16 +173,16 @@ export class NavigationPane {
         this.navigateTo(from, movePins, focus);
     }
 
-    public navigateTo(definition: Option<BuildingGeocoderDefinition>, movePin: boolean, focus: boolean): void {
+    public navigateTo(definition: Option<Room>, movePin: boolean, focus: boolean): void {
         this.toDefinition = definition;
 
         this.toInput.value = definition.match({
-            some: room => room.name,
+            some: room => room.getName(),
             none: ""
         });
         if (movePin) {
             definition.ifSome(definition => {
-                const location = definition.location.getCenter();
+                const location = definition.getLocation().getCenter();
 
                 this.floorsLayer.ifSome(floorsLayer => {
                     this.toPin.ifSome(pin => {
@@ -202,16 +203,16 @@ export class NavigationPane {
         this.calcNavIfNeeded();
     }
 
-    public navigateFrom(definition: Option<BuildingGeocoderDefinition>, movePin: boolean, focus: boolean): void {
+    public navigateFrom(definition: Option<Room>, movePin: boolean, focus: boolean): void {
         this.fromDefinition = definition;
 
         this.fromInput.value = definition.match({
-            some: room => room.name,
+            some: room => room.getName(),
             none: ""
         });
         if (movePin) {
             definition.ifSome(definition => {
-                const location = definition.location.getCenter();
+                const location = definition.getLocation().getCenter();
 
                 this.floorsLayer.ifSome(floorsLayer => {
                     this.fromPin.ifSome(pin => {
@@ -238,7 +239,7 @@ export class NavigationPane {
         }
     }
 
-    private calcNav(fromDefinition: BuildingGeocoderDefinition, toDefinition: BuildingGeocoderDefinition): void {
+    private calcNav(fromDefinition: Room, toDefinition: Room): void {
         this.clearNav();
         const path = this.mapData.findBestPath(fromDefinition, toDefinition);
         this.pathLayers = this.mapData.createLayerGroupsFromPath(path);
@@ -281,8 +282,8 @@ export class NavigationPane {
         location: BuildingLocation,
         geocoder: BuildingGeocoder,
         iconClass: string,
-        setNavigation: (definition: Option<BuildingGeocoderDefinition>) => void,
-        getNavigation: () => Option<BuildingGeocoderDefinition>
+        setNavigation: (definition: Option<Room>) => void,
+        getNavigation: () => Option<Room>
     ): FlooredMarker {
         const floor = location.floor;
 
@@ -318,19 +319,16 @@ export class NavigationPane {
     private static onNewPinLocation(
         location: BuildingLocation,
         geocoder: BuildingGeocoder,
-        setNavigation: (definition: Option<BuildingGeocoderDefinition>) => void
+        setNavigation: (definition: Option<Room>) => void
     ): void {
         const locationEntrances = new BuildingLocationWithEntrances(location, []);
         const closest = geocoder.getClosestDefinition(locationEntrances);
         setNavigation(Some(closest));
     }
 
-    private static centerPin(
-        pin: FlooredMarker,
-        getNavigation: () => Option<BuildingGeocoderDefinition>
-    ): void {
+    private static centerPin(pin: FlooredMarker, getNavigation: () => Option<Room>): void {
         getNavigation().ifSome(fromDefinition => {
-            pin.setLatLng(fromDefinition.location.getCenter().xy);
+            pin.setLatLng(fromDefinition.getLocation().getCenter().xy);
         });
     }
 }

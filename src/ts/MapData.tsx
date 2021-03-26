@@ -86,22 +86,16 @@ export default class MapData {
                 ? new BuildingLocation(new L.LatLng(room.center[1], room.center[0]), floorNumber)
                 : someVertex.getLocation();
 
-            // Turn the string array into a number array
-            const verticesString: string[] = room.vertices;
-            const verticesId: number[] = [];
-            for (const vertex of verticesString) {
-                if (this.vertexStringToId.get(vertex) === undefined) {
-                    console.log(`Unknown vertex: ${vertex}`);
-                } else {
-                    verticesId.push(fromMap(this.vertexStringToId, vertex).unwrap());
-                }
-            }
+            // Get entrances into the room
+            const entrances = room.vertices
+                .map(vertexStringId => fromMap(this.vertexStringToId, vertexStringId).unwrap())
+                .map(vertexId => this.graph.getVertex(vertexId).getLocation());
 
             const area = room.area ?? 0;
 
             const tags = room.tags ?? [];
 
-            this.rooms.set(roomNumber, new Room(verticesId, roomNumber, room.names ?? [], room.outline, center, area, tags));
+            this.rooms.set(roomNumber, new Room(entrances, roomNumber, room.names ?? [], room.outline, center, area, tags));
         }
 
         // Create map of room names
@@ -149,12 +143,12 @@ export default class MapData {
         let destVertex = null;
     
         // Look through all exits from the source
-        for (const exitLocation of src.location.getEntrances()) {
+        for (const exitLocation of src.getLocation().getEntrances()) {
             const exitId = this.getClosestVertex(exitLocation);
             const [dist, maybePrev] = this.graph.dijkstra(exitId);
     
             // Look through all entrances to the destination
-            for (const entranceLocation of dest.location.getEntrances()) {
+            for (const entranceLocation of dest.getLocation().getEntrances()) {
                 const entranceId = this.getClosestVertex(entranceLocation);
 
                 // Find the distance between the source and destination

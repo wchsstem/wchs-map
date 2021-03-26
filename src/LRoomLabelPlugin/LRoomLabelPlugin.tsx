@@ -11,6 +11,7 @@ import { h } from "../ts/JSX";
 import { settings, Watcher } from "../ts/settings";
 import Vertex from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
+import { BuildingGeocoder } from "../ts/BuildingLocation";
 
 export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFloor {
     private tree: RBush<BBox>;
@@ -20,7 +21,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
     private hiding: boolean;
     private removeWatcher: Option<Watcher>;
 
-    constructor(map: MapData, floorNumber: string, options?: L.LayerOptions) {
+    constructor(map: MapData, geocoder: BuildingGeocoder, floorNumber: string, options?: L.LayerOptions) {
         super([], options);
         this.tree = new RBush();
         this.allLabels = [];
@@ -50,7 +51,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                     interactive: true
                 });
                 roomMarker.on("click", () => {
-                    showRoomInfo(room);
+                    showRoomInfo(geocoder, room);
                 });
 
                 if (room.outline.length !== 0) {
@@ -61,7 +62,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                     this.roomOutlines.push(outline);
                     super.addLayer(outline);
                     outline.on("click", () => {
-                        showRoomInfo(room);
+                        showRoomInfo(geocoder, room);
                     });
                 } else {
                     console.log(`Room has no outline: ${room.getName()}`);
