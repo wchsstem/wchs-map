@@ -12,6 +12,7 @@ import { settings, Watcher } from "../ts/settings";
 import Vertex from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { BuildingGeocoder } from "../ts/BuildingLocation";
+import { T2 } from "../ts/Tuple";
 
 export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFloor {
     private tree: RBush<BBox>;
@@ -300,31 +301,23 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         }
     }
 
+    private static getIconClass(vertex: Vertex): Option<string> {
+        const pairs = [
+            T2.new("up", "fas fa-sort-amount-up-alt"),
+            T2.new("down", "fas fa-sort-amount-down-alt"),
+            T2.new("stairs", "fas fa-align-justify"),
+            T2.new("elevator", "fas fa-door-closed")
+        ];
+        return pairs.map(pair => vertex.hasTag(pair.e0) ? Some(pair.e1) : None)
+            .reduce((acc, className) => acc.or(className));
+    }
+
     // TODO: Wow these icons are bad. Get new ones.
     private static getVertexIcon(vertex: Vertex): Option<L.Icon<any>> {
-        if (vertex.hasTag("up")) {
-            return Some(L.divIcon({
-                html: <i class="fas fa-sort-amount-up-alt"></i> as HTMLElement,
-                className: "icon"
-            }));
-        } else if (vertex.hasTag("down")) {
-            return Some(L.divIcon({
-                html: <i class="fas fa-sort-amount-down-alt"></i> as HTMLElement,
-                className: "icon"
-            }));
-        } else if (vertex.hasTag("stairs")) {
-            return Some(L.divIcon({
-                html: <i class="fas fa-align-justify"></i> as HTMLElement,
-                className: "icon"
-            }));
-        } else if (vertex.hasTag("elevator")) {
-            return Some(L.divIcon({
-                html: <i class="fas fa-door-closed"></i> as HTMLElement,
-                className: "icon"
-            }));
-        } else {
-            return None;
-        }
+        return LRoomLabel.getIconClass(vertex).map(iconClass => L.divIcon({
+            html: <i class={iconClass}></i> as HTMLElement,
+            className: "icon"
+        }));
     }
 
     private static layerIsMarker(layer: L.Layer): boolean {
