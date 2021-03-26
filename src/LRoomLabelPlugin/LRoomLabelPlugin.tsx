@@ -304,12 +304,12 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
     private static getVertexIcon(vertex: Vertex): Option<L.Icon<any>> {
         if (vertex.hasTag("up")) {
             return Some(L.divIcon({
-                html: <i class="fas fa-sort-amount-up"></i> as HTMLElement,
+                html: <i class="fas fa-sort-amount-up-alt"></i> as HTMLElement,
                 className: "icon"
             }));
         } else if (vertex.hasTag("down")) {
             return Some(L.divIcon({
-                html: <i class="fas fa-sort-amount-down"></i> as HTMLElement,
+                html: <i class="fas fa-sort-amount-down-alt"></i> as HTMLElement,
                 className: "icon"
             }));
         } else if (vertex.hasTag("stairs")) {
