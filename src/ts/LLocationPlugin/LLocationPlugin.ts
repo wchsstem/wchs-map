@@ -1,7 +1,7 @@
 import * as L from "leaflet";
 
 import { LLocationControl } from "./LLocationControl";
-import { settings, Watcher } from "../ts/settings";
+import { settings, Watcher } from "../settings";
 import { None, Option, Some } from "@nvarner/monads";
 import { Logger } from "../LogPane/LogPane";
 

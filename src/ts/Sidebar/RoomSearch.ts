@@ -1,7 +1,7 @@
 import MiniSearch from "minisearch";
 
-import Room from "../ts/Room";
-import MapData from "../ts/MapData";
+import Room from "../Room";
+import MapData from "../MapData";
 
 export class RoomSearch {
     private mapData: MapData;

@@ -2,7 +2,7 @@ import * as L from "leaflet";
 import { Some, None, Option, fromMap } from "@nvarner/monads";
 
 import "./floors.scss";
-import MapData from "../ts/MapData";
+import MapData from "../MapData";
 
 export class LFloors extends L.LayerGroup {
     private allFloors: Map<string, L.LayerGroup>;

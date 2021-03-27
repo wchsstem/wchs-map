@@ -4,7 +4,7 @@ import { fromMap, None, Option, Some } from "@nvarner/monads";
 import Graph from "./Graph";
 import Room from "./Room";
 import Vertex from "../Vertex";
-import { LSomeLayerWithFloor, LLayerGroupWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
+import { LSomeLayerWithFloor, LLayerGroupWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
 import { GeocoderDefinition } from "./Geocoder";
 import { BuildingLocation, BuildingLocationWithEntrances } from "./BuildingLocation";
 

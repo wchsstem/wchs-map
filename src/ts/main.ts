@@ -7,16 +7,16 @@ import "../assets/fontawesome/all.min.css";
 
 import { settings, Watcher } from "./settings";
 import MapData from "./MapData";
-import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
+import { LFloors } from "./LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../style.scss";
-import { createSidebar } from "../Sidebar/SidebarController";
-import LRoomLabel from "../LRoomLabelPlugin/LRoomLabelPlugin";
+import { createSidebar } from "./Sidebar/SidebarController";
+import LRoomLabel from "./LRoomLabelPlugin/LRoomLabelPlugin";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "leaflet-sidebar-v2";
 import { BuildingGeocoder, BuildingLocationWithEntrances } from "./BuildingLocation";
-import { LLocation } from "../LLocationPlugin/LLocationPlugin";
-import { Logger } from "../LogPane/LogPane";
+import { LLocation } from "./LLocationPlugin/LLocationPlugin";
+import { Logger } from "./LogPane/LogPane";
 
 export declare namespace JSX {
     interface Element { }

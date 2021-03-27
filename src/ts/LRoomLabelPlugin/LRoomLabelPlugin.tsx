@@ -2,17 +2,17 @@ import * as L from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
 
 import "./label.scss";
-import MapData from "../ts/MapData";
+import MapData from "../MapData";
 import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 import { showRoomInfo } from "../Sidebar/SidebarController";
-import Room from "../ts/Room";
+import Room from "../Room";
 
-import { h } from "../ts/JSX";
-import { settings, Watcher } from "../ts/settings";
-import Vertex from "../Vertex";
+import { h } from "../JSX";
+import { settings, Watcher } from "../settings";
+import Vertex from "../../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
-import { BuildingGeocoder } from "../ts/BuildingLocation";
-import { T2 } from "../ts/Tuple";
+import { BuildingGeocoder } from "../BuildingLocation";
+import { T2 } from "../Tuple";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_CLASS_PAIRS = [

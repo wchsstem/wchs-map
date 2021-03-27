@@ -2,17 +2,17 @@ import { control } from "leaflet"
 
 import { RoomSearch } from "./RoomSearch";
 import { genPaneElement, genTextInput } from "../GenHtml/GenHtml";
-import MapData from "../ts/MapData";
+import MapData from "../MapData";
 
 import "./sidebar.scss";
-import Room from "../ts/Room";
+import Room from "../Room";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
-import { dropdownData, metaSettings, settingCategories, settingInputType, settings, Watcher } from "../ts/settings";
+import { dropdownData, metaSettings, settingCategories, settingInputType, settings, Watcher } from "../settings";
 import { Synergy } from "../Synergy/Synergy";
-import { GeocoderDefinition, GeocoderSuggestion } from "../ts/Geocoder";
-import { BuildingGeocoder, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
+import { GeocoderDefinition, GeocoderSuggestion } from "../Geocoder";
+import { BuildingGeocoder, BuildingLocationWithEntrances } from "../BuildingLocation";
 import { fromMap, None, Option, Some } from "@nvarner/monads";
-import { T2 } from "../ts/Tuple";
+import { T2 } from "../Tuple";
 import { NavigationPane } from "../NavigationPane/NavigationPane";
 import { Logger, LogPane } from "../LogPane/LogPane";
 

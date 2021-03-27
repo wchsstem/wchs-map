@@ -1,14 +1,14 @@
 import { Control, divIcon, Map, PanelOptions } from "leaflet";
 import { genTextInput, genPaneElement } from "../GenHtml/GenHtml";
-import { BuildingGeocoder, BuildingLocation, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
+import { BuildingGeocoder, BuildingLocation, BuildingLocationWithEntrances } from "../BuildingLocation";
 import { None, Option, Some } from "@nvarner/monads";
-import { clearResults, updateWithResults } from "../ts/utils";
-import MapData from "../ts/MapData";
+import { clearResults, updateWithResults } from "../utils";
+import MapData from "../MapData";
 import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 
-import { h } from "../ts/JSX";
+import { h } from "../JSX";
 import { FlooredMarker, flooredMarker } from "./FlooredMarker";
-import Room from "../ts/Room";
+import Room from "../Room";
 
 export class NavigationPane {
     private readonly pane: HTMLElement;

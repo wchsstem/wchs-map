@@ -1,7 +1,7 @@
 import "./generated.scss";
 
-import Room from "../ts/Room";
-import { T2 } from "../ts/Tuple";
+import Room from "../Room";
+import { T2 } from "../Tuple";
 
 export function genElText(element: string, text: string): HTMLElement {
     const tn = document.createTextNode(text);

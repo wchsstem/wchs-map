@@ -1,7 +1,7 @@
 import { Control, Map, PanelOptions } from "leaflet";
 import { genPaneElement } from "../GenHtml/GenHtml";
 import { None, Option, Some } from "@nvarner/monads";
-import { h } from "../ts/JSX";
+import { h } from "../JSX";
 
 export class Logger {
     private queue: string[];

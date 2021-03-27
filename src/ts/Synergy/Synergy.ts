@@ -1,7 +1,7 @@
 import { Logger } from "../LogPane/LogPane";
-import { BuildingGeocoder, BuildingLocationWithEntrances } from "../ts/BuildingLocation";
-import { GeocoderDefinition } from "../ts/Geocoder";
-import Room from "../ts/Room";
+import { BuildingGeocoder, BuildingLocationWithEntrances } from "../BuildingLocation";
+import { GeocoderDefinition } from "../Geocoder";
+import Room from "../Room";
 
 const COURSE_NAME_REGEX = /course-title.*">([^:]*): ([^<]*)<\//g;
 const ROOM_NUMBER_REGEX = /teacher-room.*">Room: ([^<]+)<\//g
