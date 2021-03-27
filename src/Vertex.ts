@@ -2,8 +2,8 @@ import { LatLng } from "leaflet";
 import { BuildingLocation } from "./ts/BuildingLocation";
 
 export default class Vertex {
-    private location: BuildingLocation;
-    private tags: string[];
+    private readonly location: BuildingLocation;
+    private readonly tags: string[];
 
     constructor(vertex: {
         floor: string,

@@ -14,6 +14,27 @@ import { Some, None, Option } from "@nvarner/monads";
 import { BuildingGeocoder } from "../ts/BuildingLocation";
 import { T2 } from "../ts/Tuple";
 
+// TODO: Wow these icons are bad. Get new ones.
+const VERTEX_ICON_CLASS_PAIRS = [
+    T2.new("up", "fas fa-sort-amount-up-alt"),
+    T2.new("down", "fas fa-sort-amount-down-alt"),
+    T2.new("stairs", "fas fa-align-justify"),
+    T2.new("elevator", "fas fa-door-closed")
+];
+const ROOM_ICON_CLASS_PAIRS = [
+    T2.new("women-bathroom", "fas fa-female"),
+    T2.new("men-bathroom", "fas fa-male"),
+    T2.new("unknown-bathroom", "fas fa-toilet"),
+    T2.new("ec", "fas fa-bolt"),
+    T2.new("bsc", "fas fa-toilet-paper"),
+    T2.new("wf", "fas fa-tint"),
+    T2.new("hs", "fas fa-pump-soap"),
+    T2.new("bleed-control", "fas fa-band-aid"),
+    T2.new("aed", "fas fa-heartbeat"),
+    T2.new("ahu", "fas fa-wind"),
+    T2.new("idf", "fas fa-network-wired")
+];
+
 export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFloor {
     private tree: RBush<BBox>;
     private allLabels: L.Marker[];
@@ -235,89 +256,33 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         }
     }
 
-    private getRoomIcon(room: Room): L.Icon<any> {
-        const iconClassName = room.tags.includes("closed") ? "closed room-icon" : "room-icon";
-
-        if (room.tags.includes("women-bathroom")) {
-            return L.divIcon({
-                html: <i class="fas fa-female"></i> as HTMLElement,
-                className: iconClassName
-            });
-        } else if (room.tags.includes("men-bathroom")) {
-            return L.divIcon({
-                html: <i class="fas fa-male"></i> as HTMLElement,
-                className: iconClassName
-            });
-        } else if (room.tags.includes("unknown-bathroom")) {
-            return L.divIcon({
-                html: <i class="fas fa-toilet"></i> as HTMLElement,
-                className: iconClassName
-            });
-        } else if (room.tags.includes("ec")) {
-            return L.divIcon({
-                html: <i class="fas fa-bolt"></i> as HTMLElement,
-                className: iconClassName
-            });
-        } else if (room.tags.includes("bsc")) {
-            return L.divIcon({
-                html: <i class="fas fa-toilet-paper"></i> as HTMLElement,
-                className: iconClassName
-            });
-        } else if (room.tags.includes("wf")) {
-            return L.divIcon({
-                html: <i class="fas fa-tint"></i> as HTMLElement,
-                className: iconClassName
-            });
-        } else if (room.tags.includes("hs")) {
-            return L.divIcon({
-                html: <i class="fas fa-pump-soap"></i> as HTMLElement,
-                className: iconClassName
-            });
-        } else if (room.tags.includes("bleed-control")) {
-            return L.divIcon({
-                html: <i class="fas fa-band-aid"></i> as HTMLElement,
-                className: iconClassName
-            });
-        } else if (room.tags.includes("aed")) {
-            return L.divIcon({
-                html: <i class="fas fa-heartbeat"></i> as HTMLElement,
-                className: iconClassName
-            });
-        } else if (room.tags.includes("ahu")) {
-            return L.divIcon({
-                html: <i class="fas fa-wind"></i> as HTMLElement,
-                className: iconClassName
-            });
-        } else if (room.tags.includes("idf")) {
-            return L.divIcon({
-                html: <i class="fas fa-network-wired"></i> as HTMLElement,
-                className: iconClassName
-            });
-        } else {
-            return L.divIcon({
-                html: room.getShortName(),
-                className: "room-label"
-            });
-        }
-    }
-
-    private static getIconClass(vertex: Vertex): Option<string> {
-        const pairs = [
-            T2.new("up", "fas fa-sort-amount-up-alt"),
-            T2.new("down", "fas fa-sort-amount-down-alt"),
-            T2.new("stairs", "fas fa-align-justify"),
-            T2.new("elevator", "fas fa-door-closed")
-        ];
-        return pairs.map(pair => vertex.hasTag(pair.e0) ? Some(pair.e1) : None)
+    private static getIconClass(pairs: T2<string, string>[], tags: string[]): Option<string> {
+        return pairs.map(pair => tags.includes(pair.e0) ? Some(pair.e1) : None)
             .reduce((acc, className) => acc.or(className));
     }
 
-    // TODO: Wow these icons are bad. Get new ones.
+    private getRoomIcon(room: Room): L.Icon<any> {
+        const iconDivClassName = room.tags.includes("closed") ? "closed room-icon" : "room-icon";
+        const iconClassName = LRoomLabel.getIconClass(ROOM_ICON_CLASS_PAIRS, room.getTags());
+
+        return iconClassName.match({
+            some: iconClassName => L.divIcon({
+                html: <i class={iconClassName}></i> as HTMLElement,
+                className: iconDivClassName
+            }),
+            none: L.divIcon({
+                html: room.getShortName(),
+                className: "room-label"
+            })
+        });
+    }
+
     private static getVertexIcon(vertex: Vertex): Option<L.Icon<any>> {
-        return LRoomLabel.getIconClass(vertex).map(iconClass => L.divIcon({
-            html: <i class={iconClass}></i> as HTMLElement,
-            className: "icon"
-        }));
+        return LRoomLabel.getIconClass(VERTEX_ICON_CLASS_PAIRS, vertex.getTags())
+            .map(iconClass => L.divIcon({
+                html: <i class={iconClass}></i> as HTMLElement,
+                className: "icon"
+            }));
     }
 
     private static layerIsMarker(layer: L.Layer): boolean {
