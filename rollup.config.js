@@ -3,7 +3,7 @@ import copy from "rollup-plugin-copy";
 import json from "rollup-plugin-json";
 import progress from "rollup-plugin-progress";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
-import scss from "rollup-plugin-scss";
+import styles from "rollup-plugin-styles";
 import { terser } from "rollup-plugin-terser";
 import typescript from "@rollup/plugin-typescript";
 
@@ -20,7 +20,7 @@ export default [
             nodeResolve(),
             commonjs(),
             typescript(),
-            scss(),
+            styles(),
             json({
                 exclude: "node_modules/**",
                 preferConst: true

@@ -81,7 +81,7 @@ export default class MapData {
             const room = mapData.rooms[roomNumber];
 
             const someVertex = this.graph.getVertex(fromMap(this.vertexStringToId, room.vertices[0]).unwrap());
-            const floorNumber = someVertex.getLocation().floor;
+            const floorNumber = someVertex.getLocation().getFloor();
             const center = room.center
                 ? new BuildingLocation(new L.LatLng(room.center[1], room.center[0]), floorNumber)
                 : someVertex.getLocation();
@@ -190,19 +190,19 @@ export default class MapData {
             const p = this.graph.getVertex(fromMap(this.vertexStringToId, edge[0]).unwrap());
             const q = this.graph.getVertex(fromMap(this.vertexStringToId, edge[1]).unwrap());
             
-            if (p.getLocation().floor === floor && q.getLocation().floor === floor) {
+            if (p.getLocation().getFloor() === floor && q.getLocation().getFloor() === floor) {
                 const pLoc = p.getLocation();
                 const qLoc = q.getLocation();
-                L.polyline([pLoc.xy, qLoc.xy]).addTo(devLayer);
+                L.polyline([pLoc.getXY(), qLoc.getXY()]).addTo(devLayer);
             }
         }
 
         for (const [vertexString, vertexId] of this.vertexStringToId.entries()) {
             const vertex = this.graph.getVertex(vertexId);
-            if (vertex.getLocation().floor === floor) {
+            if (vertex.getLocation().getFloor() === floor) {
                 const color = vertex.hasTag("stairs") || vertex.hasTag("elevator") ? "#0000ff" : "#00ff00";
-                const location = vertex.getLocation().xy;
-                L.circle(vertex.getLocation().xy, {
+                const location = vertex.getLocation().getXY();
+                L.circle(vertex.getLocation().getXY(), {
                     "radius": 1,
                     "color": color
                 }).bindPopup(`${vertexString} (${vertexId})<br/>${location.lng}, ${location.lat}`).addTo(devLayer);
@@ -225,15 +225,15 @@ export default class MapData {
             const q = this.graph.getVertex(vert);
             const pLoc = p.getLocation();
             const qLoc = q.getLocation();
-            const pFloor = pLoc.floor;
-            const qFloor = qLoc.floor;
+            const pFloor = pLoc.getFloor();
+            const qFloor = qLoc.getFloor();
 
             if (pFloor === qFloor) {
                 // Same floor, draw path from p to q
                 if (!layers.has(pFloor)) {
                     layers.set(pFloor, new LLayerGroupWithFloor([], { floorNumber: pFloor }));
                 }
-                L.polyline([pLoc.xy, qLoc.xy], { "color": "#ff0000" }).addTo(layers.get(pFloor));
+                L.polyline([pLoc.getXY(), qLoc.getXY()], { "color": "#ff0000" }).addTo(layers.get(pFloor));
             } else {
                 // Different floor, change floors
                 if (!layers.has(pFloor)) {
@@ -256,8 +256,8 @@ export default class MapData {
                     html: <i class={iconClass}></i>,
                     className: "icon nav"
                 });
-                L.marker(pLoc.xy, { icon: stairIcon }).addTo(layers.get(pFloor));
-                L.marker(qLoc.xy, { icon: stairIcon }).addTo(layers.get(qFloor));
+                L.marker(pLoc.getXY(), { icon: stairIcon }).addTo(layers.get(pFloor));
+                L.marker(qLoc.getXY(), { icon: stairIcon }).addTo(layers.get(qFloor));
             }
             last = vert;
         }

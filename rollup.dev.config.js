@@ -3,8 +3,8 @@ import copy from "rollup-plugin-copy";
 import json from "rollup-plugin-json";
 import progress from "rollup-plugin-progress";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
-import scss from "rollup-plugin-scss";
 import serve from "rollup-plugin-serve";
+import styles from "rollup-plugin-styles";
 import typescript from "@rollup/plugin-typescript";
 
 // TODO: Read the SVG files to copy from map.json
@@ -22,7 +22,7 @@ export default [
             typescript({
                 cacheDir: ".rollup.tscache"
             }),
-            scss(),
+            styles(),
             json({
                 exclude: "node_modules/**",
                 preferConst: true

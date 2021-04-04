@@ -11,7 +11,7 @@ import { h } from "../JSX";
 import { settings, Watcher } from "../settings";
 import Vertex from "../../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
-import { BuildingGeocoder } from "../BuildingLocation";
+import { BuildingGeocoder } from "../BuildingGeocoder";
 import { T2 } from "../Tuple";
 
 // TODO: Wow these icons are bad. Get new ones.
@@ -66,9 +66,9 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         const closedMarkers: L.Marker[] = [];
 
         for (const room of rooms) {
-            if (room.center.floor === floorNumber) {
+            if (room.center.getFloor() === floorNumber) {
                 const roomIcon = this.getRoomIcon(room);
-                const roomMarker =  L.marker(room.center.xy, {
+                const roomMarker =  L.marker(room.center.getXY(), {
                     icon: roomIcon,
                     interactive: true
                 });
@@ -103,9 +103,9 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         }
 
         for (const vertex of vertices) {
-            if (vertex.getLocation().floor === floorNumber) {
+            if (vertex.getLocation().getFloor() === floorNumber) {
                 LRoomLabel.getVertexIcon(vertex).ifSome(icon => {
-                    const vertexMarker =  L.marker(vertex.getLocation().xy, {
+                    const vertexMarker =  L.marker(vertex.getLocation().getXY(), {
                         icon: icon
                     });
                     this.addLayer(vertexMarker);

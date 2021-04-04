@@ -1,6 +1,5 @@
 import { BuildingLocation, BuildingLocationWithEntrances } from "./BuildingLocation";
 import { GeocoderDefinition } from "./Geocoder";
-import MapData from "./MapData";
 import { emergencyTags, infrastructureTags } from "./settings";
 import { deepCopy } from "./utils";
 

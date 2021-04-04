@@ -10,8 +10,8 @@ export class FlooredMarker extends Marker implements LSomeLayerWithFloor {
     private readonly floorNumber: string;
 
     constructor(position: BuildingLocation, options?: MarkerOptions | undefined) {
-        super(position.xy, options);
-        this.floorNumber = position.floor;
+        super(position.getXY(), options);
+        this.floorNumber = position.getFloor();
     }
 
     getFloorNumber(): string {

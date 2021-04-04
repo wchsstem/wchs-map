@@ -14,9 +14,9 @@ import { createSidebar } from "./Sidebar/SidebarController";
 import LRoomLabel from "./LRoomLabelPlugin/LRoomLabelPlugin";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "leaflet-sidebar-v2";
-import { BuildingGeocoder, BuildingLocationWithEntrances } from "./BuildingLocation";
 import { LLocation } from "./LLocationPlugin/LLocationPlugin";
 import { Logger } from "./LogPane/LogPane";
+import { BuildingGeocoder } from "./BuildingGeocoder";
 
 export declare namespace JSX {
     interface Element { }
@@ -47,7 +47,7 @@ function main() {
     const mapData = new MapData(mapDataJson, bounds);
 
     // Initialize geocoder
-    const geocoder: BuildingGeocoder = new BuildingGeocoder();
+    const geocoder = new BuildingGeocoder();
     for (const room of mapData.getAllRooms()) {
         geocoder.addDefinition(room);
     }

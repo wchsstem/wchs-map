@@ -10,11 +10,12 @@ import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 import { dropdownData, metaSettings, settingCategories, settingInputType, settings, Watcher } from "../settings";
 import { Synergy } from "../Synergy/Synergy";
 import { GeocoderDefinition, GeocoderSuggestion } from "../Geocoder";
-import { BuildingGeocoder, BuildingLocationWithEntrances } from "../BuildingLocation";
+import { BuildingLocationWithEntrances } from "../BuildingLocation";
 import { fromMap, None, Option, Some } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { NavigationPane } from "../NavigationPane/NavigationPane";
 import { Logger, LogPane } from "../LogPane/LogPane";
+import { BuildingGeocoder } from "../BuildingGeocoder";
 
 let sidebar: Option<Sidebar> = None;
 
@@ -187,7 +188,7 @@ export class Sidebar {
 
         this.createInfoPanelHeader(paneElements, definition);
 
-        const roomFloor = Sidebar.elWithText("span", `Floor: ${definition.getLocation().getCenter().floor}`);
+        const roomFloor = Sidebar.elWithText("span", `Floor: ${definition.getLocation().getFloor()}`);
         paneElements.push(roomFloor);
 
         if (definition.getDescription.length !== 0) {
@@ -380,10 +381,10 @@ export class Sidebar {
 
     // Utils
     private moveToDefinedLocation(definition: GeocoderDefinition<BuildingLocationWithEntrances>): void {
-        const location = definition.getLocation().getCenter();
+        const location = definition.getLocation();
         // TODO: Better option than always using zoom 3?
-        this.map.setView(location.xy, 3);
-        this.floorsLayer.ifSome(floorsLayer => floorsLayer.setFloor(location.floor));
+        this.map.setView(location.getXY(), 3);
+        this.floorsLayer.ifSome(floorsLayer => floorsLayer.setFloor(location.getFloor()));
     }
 
     private static elWithText(elementName: string, content?: string): HTMLElement {

@@ -1,6 +1,6 @@
 import { Control, divIcon, Map, PanelOptions } from "leaflet";
 import { genTextInput, genPaneElement } from "../GenHtml/GenHtml";
-import { BuildingGeocoder, BuildingLocation, BuildingLocationWithEntrances } from "../BuildingLocation";
+import { BuildingLocation, BuildingLocationWithEntrances } from "../BuildingLocation";
 import { None, Option, Some } from "@nvarner/monads";
 import { clearResults, updateWithResults } from "../utils";
 import MapData from "../MapData";
@@ -9,6 +9,7 @@ import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 import { h } from "../JSX";
 import { FlooredMarker, flooredMarker } from "./FlooredMarker";
 import Room from "../Room";
+import { BuildingGeocoder } from "../BuildingGeocoder";
 
 export class NavigationPane {
     private readonly pane: HTMLElement;
@@ -78,21 +79,27 @@ export class NavigationPane {
             <div class="wrapper input-wrapper">
                 <div class="wrapper">
                     <label class="leaflet-style no-border nav-label">From</label>
-                    { fromPinButton }
-                    { fromInput }
+                    {fromPinButton}
+                    {fromInput}
                 </div>
                 <div class="wrapper">
                     <label class="leaflet-style no-border nav-label">To</label>
-                    { toPinButton }
-                    { toInput }
+                    {toPinButton}
+                    {toInput}
                 </div>
             </div>
-            { swapToFrom }
+            {swapToFrom}
         </div>;
+
+        const categoryButtonContainer = <div class="wrapper">
+            <a href="#">
+                <i class="fa fas-toilet"></i>
+            </a>
+        </div>
 
         const resultContainer = <div class="wrapper results-wrapper leaflet-style hidden"></div>;
 
-        const navPane = genPaneElement("Navigation", [toFromContainer, resultContainer]);
+        const navPane = genPaneElement("Navigation", [toFromContainer, categoryButtonContainer, resultContainer]);
 
         const navigationPane = new NavigationPane(navPane, fromInput, toInput, mapData, geocoder, None, new Set(), None, focus, None, None, None, None);
 
@@ -166,7 +173,7 @@ export class NavigationPane {
             pane: this.pane
         }
     }
-    
+
     private swapNav(movePins: boolean, focus: boolean): void {
         const from = this.fromDefinition;
         this.navigateFrom(this.toDefinition, movePins, focus);
@@ -182,7 +189,7 @@ export class NavigationPane {
         });
         if (movePin) {
             definition.ifSome(definition => {
-                const location = definition.getLocation().getCenter();
+                const location = definition.getLocation();
 
                 this.floorsLayer.ifSome(floorsLayer => {
                     this.toPin.ifSome(pin => {
@@ -212,7 +219,7 @@ export class NavigationPane {
         });
         if (movePin) {
             definition.ifSome(definition => {
-                const location = definition.getLocation().getCenter();
+                const location = definition.getLocation();
 
                 this.floorsLayer.ifSome(floorsLayer => {
                     this.fromPin.ifSome(pin => {
@@ -285,12 +292,10 @@ export class NavigationPane {
         setNavigation: (definition: Option<Room>) => void,
         getNavigation: () => Option<Room>
     ): FlooredMarker {
-        const floor = location.floor;
-
         const icon = <i class="fas"></i> as HTMLElement;
         icon.classList.add(iconClass);
 
-        const pin = flooredMarker(new BuildingLocation(location.xy, floor), {
+        const pin = flooredMarker(location, {
             draggable: true,
             autoPan: true,
             icon: divIcon({
@@ -302,13 +307,13 @@ export class NavigationPane {
         pin.on("move", event => {
             // @ts-ignore: Included in move event
             const latLng = event.latlng;
-            const location = new BuildingLocation(latLng, floor);
+            const pinLocation = new BuildingLocation(latLng, location.getFloor());
 
-            NavigationPane.onNewPinLocation(location, geocoder, setNavigation);
+            NavigationPane.onNewPinLocation(pinLocation, geocoder, setNavigation);
         })
-        .on("dragend", _event => {
-            NavigationPane.centerPin(pin, getNavigation);
-        });
+            .on("dragend", _event => {
+                NavigationPane.centerPin(pin, getNavigation);
+            });
 
         NavigationPane.onNewPinLocation(location, geocoder, setNavigation);
         NavigationPane.centerPin(pin, getNavigation);
@@ -328,7 +333,7 @@ export class NavigationPane {
 
     private static centerPin(pin: FlooredMarker, getNavigation: () => Option<Room>): void {
         getNavigation().ifSome(fromDefinition => {
-            pin.setLatLng(fromDefinition.getLocation().getCenter().xy);
+            pin.setLatLng(fromDefinition.getLocation().getXY());
         });
     }
 }
