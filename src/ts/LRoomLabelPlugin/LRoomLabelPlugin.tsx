@@ -11,8 +11,8 @@ import { h } from "../JSX";
 import { settings, Watcher } from "../settings";
 import Vertex from "../../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
-import { BuildingGeocoder } from "../BuildingGeocoder";
 import { T2 } from "../Tuple";
+import { Geocoder } from "../Geocoder";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_CLASS_PAIRS = [
@@ -43,7 +43,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
     private hiding: boolean;
     private removeWatcher: Option<Watcher>;
 
-    constructor(map: MapData, geocoder: BuildingGeocoder, floorNumber: string, options?: L.LayerOptions) {
+    constructor(map: MapData, geocoder: Geocoder, floorNumber: string, options?: L.LayerOptions) {
         super([], options);
         this.tree = new RBush();
         this.allLabels = [];

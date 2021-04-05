@@ -9,21 +9,20 @@ import Room from "../Room";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 import { dropdownData, metaSettings, settingCategories, settingInputType, settings, Watcher } from "../settings";
 import { Synergy } from "../Synergy/Synergy";
-import { GeocoderDefinition, GeocoderSuggestion } from "../Geocoder";
+import { Geocoder, GeocoderDefinition, GeocoderSuggestion } from "../Geocoder";
 import { BuildingLocationWithEntrances } from "../BuildingLocation";
 import { fromMap, None, Option, Some } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { NavigationPane } from "../NavigationPane/NavigationPane";
 import { Logger, LogPane } from "../LogPane/LogPane";
-import { BuildingGeocoder } from "../BuildingGeocoder";
 
 let sidebar: Option<Sidebar> = None;
 
-export function createSidebar(map: L.Map, mapData: MapData, geocoder: BuildingGeocoder, logger: Logger): void {
+export function createSidebar(map: L.Map, mapData: MapData, geocoder: Geocoder, logger: Logger): void {
     sidebar = Some(new Sidebar(map, mapData, geocoder, logger));
 }
 
-export function showRoomInfo(geocoder: BuildingGeocoder, room: Room): void {
+export function showRoomInfo(geocoder: Geocoder, room: Room): void {
     sidebar.ifSome(sidebar => sidebar.openInfoForName(geocoder, room.getName()));
 }
 
@@ -31,7 +30,7 @@ const MAX_FILE_SIZE = 2*1024*1024;
 
 export class Sidebar {
     private readonly map: L.Map;
-    private readonly geocoder: BuildingGeocoder;
+    private readonly geocoder: Geocoder;
 
     private readonly sidebar: L.Control.Sidebar;
     private readonly navigationPane: NavigationPane;
@@ -40,7 +39,7 @@ export class Sidebar {
 
     private floorsLayer: Option<LFloors>;
 
-    constructor(map: L.Map, mapData: MapData, geocoder: BuildingGeocoder, logger: Logger) {
+    constructor(map: L.Map, mapData: MapData, geocoder: Geocoder, logger: Logger) {
         this.map = map;
         this.sidebar = control.sidebar({
             container: "sidebar",
@@ -183,7 +182,7 @@ export class Sidebar {
     }
 
     // Info panel
-    private createInfoPanel(definition: Room): L.Control.PanelOptions {
+    private createInfoPanel(definition: GeocoderDefinition): L.Control.PanelOptions {
         const paneElements: HTMLElement[] = [];
 
         this.createInfoPanelHeader(paneElements, definition);
@@ -208,7 +207,7 @@ export class Sidebar {
         };
     }
     
-    private createInfoPanelHeader(paneElements: HTMLElement[], definition: Room) {
+    private createInfoPanelHeader(paneElements: HTMLElement[], definition: GeocoderDefinition) {
         const header = document.createElement("div");
         header.classList.add("wrapper");
         header.classList.add("header-wrapper");
@@ -233,7 +232,7 @@ export class Sidebar {
         header.appendChild(navButton);
     }
 
-    public openInfoForName(geocoder: BuildingGeocoder, name: string) {
+    public openInfoForName(geocoder: Geocoder, name: string) {
         geocoder.getDefinitionFromName(name).ifSome(location => {
             this.sidebar.removePanel("info");
             this.sidebar.addPanel(this.createInfoPanel(location));
@@ -380,7 +379,7 @@ export class Sidebar {
     }
 
     // Utils
-    private moveToDefinedLocation(definition: GeocoderDefinition<BuildingLocationWithEntrances>): void {
+    private moveToDefinedLocation(definition: GeocoderDefinition): void {
         const location = definition.getLocation();
         // TODO: Better option than always using zoom 3?
         this.map.setView(location.getXY(), 3);

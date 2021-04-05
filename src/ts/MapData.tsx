@@ -134,10 +134,7 @@ export default class MapData {
         return fromMap(this.roomsFromNames, name).unwrap();
     }
 
-    findBestPath(
-        src: GeocoderDefinition<BuildingLocationWithEntrances>,
-        dest: GeocoderDefinition<BuildingLocationWithEntrances>
-    ): number[] {
+    findBestPath(src: GeocoderDefinition, dest: GeocoderDefinition): number[] {
         let prev = null;
         let shortestDistance = null;
         let destVertex = null;

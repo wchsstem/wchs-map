@@ -9,14 +9,14 @@ import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 import { h } from "../JSX";
 import { FlooredMarker, flooredMarker } from "./FlooredMarker";
 import Room from "../Room";
-import { BuildingGeocoder } from "../BuildingGeocoder";
+import { Geocoder, GeocoderDefinition } from "../Geocoder";
 
 export class NavigationPane {
     private readonly pane: HTMLElement;
     private readonly fromInput: HTMLInputElement;
     private readonly toInput: HTMLInputElement;
     private readonly mapData: MapData;
-    private readonly geocoder: BuildingGeocoder;
+    private readonly geocoder: Geocoder;
 
     private floorsLayer: Option<LFloors>;
     private pathLayers: Set<LSomeLayerWithFloor>;
@@ -24,8 +24,8 @@ export class NavigationPane {
 
     public readonly focus: () => any;
 
-    private fromDefinition: Option<Room>;
-    private toDefinition: Option<Room>;
+    private fromDefinition: Option<GeocoderDefinition>;
+    private toDefinition: Option<GeocoderDefinition>;
 
     private fromPin: Option<FlooredMarker>;
     private toPin: Option<FlooredMarker>;
@@ -35,13 +35,13 @@ export class NavigationPane {
         fromInput: HTMLInputElement,
         toInput: HTMLInputElement,
         mapData: MapData,
-        geocoder: BuildingGeocoder,
+        geocoder: Geocoder,
         floorsLayer: Option<LFloors>,
         pathLayers: Set<LSomeLayerWithFloor>,
         map: Option<Map>,
         focus: () => any,
-        fromDefinition: Option<Room>,
-        toDefinition: Option<Room>,
+        fromDefinition: Option<GeocoderDefinition>,
+        toDefinition: Option<GeocoderDefinition>,
         fromPin: Option<FlooredMarker>,
         toPin: Option<FlooredMarker>
     ) {
@@ -60,7 +60,7 @@ export class NavigationPane {
         this.toPin = toPin;
     }
 
-    public static new(geocoder: BuildingGeocoder, mapData: MapData, focus: () => any): NavigationPane {
+    public static new(geocoder: Geocoder, mapData: MapData, focus: () => any): NavigationPane {
         const fromPinButton = <a class="leaflet-style button" href="#" role="button" title="Choose starting point">
             <i class="fas fa-map-marker-alt"></i>
         </a> as HTMLAnchorElement;
@@ -180,7 +180,7 @@ export class NavigationPane {
         this.navigateTo(from, movePins, focus);
     }
 
-    public navigateTo(definition: Option<Room>, movePin: boolean, focus: boolean): void {
+    public navigateTo(definition: Option<GeocoderDefinition>, movePin: boolean, focus: boolean): void {
         this.toDefinition = definition;
 
         this.toInput.value = definition.match({
@@ -210,7 +210,7 @@ export class NavigationPane {
         this.calcNavIfNeeded();
     }
 
-    public navigateFrom(definition: Option<Room>, movePin: boolean, focus: boolean): void {
+    public navigateFrom(definition: Option<GeocoderDefinition>, movePin: boolean, focus: boolean): void {
         this.fromDefinition = definition;
 
         this.fromInput.value = definition.match({
@@ -246,7 +246,7 @@ export class NavigationPane {
         }
     }
 
-    private calcNav(fromDefinition: Room, toDefinition: Room): void {
+    private calcNav(fromDefinition: GeocoderDefinition, toDefinition: GeocoderDefinition): void {
         this.clearNav();
         const path = this.mapData.findBestPath(fromDefinition, toDefinition);
         this.pathLayers = this.mapData.createLayerGroupsFromPath(path);
@@ -259,7 +259,7 @@ export class NavigationPane {
 
     private static genFromPin(
         location: BuildingLocation,
-        geocoder: BuildingGeocoder,
+        geocoder: Geocoder,
         navigationPane: NavigationPane
     ): FlooredMarker {
         return NavigationPane.genDraggablePin(
@@ -273,7 +273,7 @@ export class NavigationPane {
 
     private static genToPin(
         location: BuildingLocation,
-        geocoder: BuildingGeocoder,
+        geocoder: Geocoder,
         navigationPane: NavigationPane
     ): FlooredMarker {
         return NavigationPane.genDraggablePin(
@@ -287,10 +287,10 @@ export class NavigationPane {
 
     private static genDraggablePin(
         location: BuildingLocation,
-        geocoder: BuildingGeocoder,
+        geocoder: Geocoder,
         iconClass: string,
-        setNavigation: (definition: Option<Room>) => void,
-        getNavigation: () => Option<Room>
+        setNavigation: (definition: Option<GeocoderDefinition>) => void,
+        getNavigation: () => Option<GeocoderDefinition>
     ): FlooredMarker {
         const icon = <i class="fas"></i> as HTMLElement;
         icon.classList.add(iconClass);
@@ -323,15 +323,15 @@ export class NavigationPane {
 
     private static onNewPinLocation(
         location: BuildingLocation,
-        geocoder: BuildingGeocoder,
-        setNavigation: (definition: Option<Room>) => void
+        geocoder: Geocoder,
+        setNavigation: (definition: Option<GeocoderDefinition>) => void
     ): void {
         const locationEntrances = new BuildingLocationWithEntrances(location, []);
         const closest = geocoder.getClosestDefinition(locationEntrances);
-        setNavigation(Some(closest));
+        setNavigation(closest);
     }
 
-    private static centerPin(pin: FlooredMarker, getNavigation: () => Option<Room>): void {
+    private static centerPin(pin: FlooredMarker, getNavigation: () => Option<GeocoderDefinition>): void {
         getNavigation().ifSome(fromDefinition => {
             pin.setLatLng(fromDefinition.getLocation().getXY());
         });

@@ -16,12 +16,7 @@ import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "leaflet-sidebar-v2";
 import { LLocation } from "./LLocationPlugin/LLocationPlugin";
 import { Logger } from "./LogPane/LogPane";
-import { BuildingGeocoder } from "./BuildingGeocoder";
-
-export declare namespace JSX {
-    interface Element { }
-    interface IntrinsicElements { div: any; }
-}
+import { Geocoder } from "./Geocoder";
 
 function main() {
     if ("serviceWorker" in navigator) {
@@ -29,7 +24,6 @@ function main() {
     }
 
     const logger = Logger.new();
-
 
     // Churchill is 600ft long and 400ft across; portables add to that
 
@@ -47,7 +41,7 @@ function main() {
     const mapData = new MapData(mapDataJson, bounds);
 
     // Initialize geocoder
-    const geocoder = new BuildingGeocoder();
+    const geocoder = new Geocoder();
     for (const room of mapData.getAllRooms()) {
         geocoder.addDefinition(room);
     }

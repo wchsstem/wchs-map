@@ -3,7 +3,7 @@ import { GeocoderDefinition } from "./Geocoder";
 import { emergencyTags, infrastructureTags } from "./settings";
 import { deepCopy } from "./utils";
 
-export default class Room implements GeocoderDefinition<BuildingLocationWithEntrances> {
+export default class Room implements GeocoderDefinition {
     public readonly entrances: BuildingLocation[];
     public readonly roomNumber: string;
     public readonly names: string[];
@@ -13,7 +13,7 @@ export default class Room implements GeocoderDefinition<BuildingLocationWithEntr
     public readonly area: number;
     public readonly tags: string[];
 
-    constructor(
+    public constructor(
         entrances: BuildingLocation[],
         roomNumber: string,
         names: string[],
@@ -31,6 +31,9 @@ export default class Room implements GeocoderDefinition<BuildingLocationWithEntr
         this.tags = tags;
     }
 
+    /**
+     * Displayed to the user and the main factor in search. Must be unique among rooms.
+     */
     public getName(): string {
         const names = this.names;
         if (names.length > 0) {
@@ -47,12 +50,15 @@ export default class Room implements GeocoderDefinition<BuildingLocationWithEntr
         return this.roomNumber;
     }
 
+    /*
+     * Not displayed to the user, but used in search.
+     */
     public getAlternateNames(): string[] {
         return this.names;
     }
 
     /**
-     * Returns a new Room with an extra alternate name added. Does not modify the object on which this is called.
+     * Returns a new definition with an extra alternate name added. Does not modify the object on which it is called.
      */
     public extendedWithAlternateName(name: string): Room {
         const extended = deepCopy(this);
@@ -60,10 +66,16 @@ export default class Room implements GeocoderDefinition<BuildingLocationWithEntr
         return extended;
     }
 
+    /**
+     * Displayed to the user and used in search.
+     */
     public getDescription(): string {
         return "";
     }
 
+    /**
+     * May be displayed to the user and used in search.
+     */
     public getTags(): string[] {
         return this.tags;
     }

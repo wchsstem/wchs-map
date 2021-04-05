@@ -1,4 +1,4 @@
-import { BuildingGeocoder } from "../BuildingGeocoder";
+import { Geocoder, GeocoderDefinition } from "../Geocoder";
 import { Logger } from "../LogPane/LogPane";
 import Room from "../Room";
 
@@ -8,9 +8,9 @@ const ROOM_NUMBER_REGEX = /teacher-room.*">Room: ([^<]+)<\//g
 export class Course {
     private period: string;
     private name: string;
-    private room: Room;
+    private room: GeocoderDefinition;
 
-    constructor(period: string, name: string, room: Room) {
+    constructor(period: string, name: string, room: GeocoderDefinition) {
         this.period = period;
         this.name = name;
         this.room = room;
@@ -27,7 +27,7 @@ export class Course {
         return li;
     }
 
-    public getRoom(): Room {
+    public getDefinition(): GeocoderDefinition {
         return this.room;
     }
 }
@@ -36,7 +36,7 @@ export class Course {
 export class Synergy {
     private courses: Course[];
 
-    constructor(synergyPage: string, geocoder: BuildingGeocoder, logger: Logger) {
+    constructor(synergyPage: string, geocoder: Geocoder, logger: Logger) {
         const courses = [];
 
         let courseNameMatch;
