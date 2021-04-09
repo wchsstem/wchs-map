@@ -1,8 +1,9 @@
-import { control } from "leaflet"
+import { control } from "leaflet";
 
 import { RoomSearch } from "./RoomSearch";
 import { genPaneElement, genTextInput } from "../GenHtml/GenHtml";
 import MapData from "../MapData";
+import { h } from "../JSX";
 
 import "./sidebar.scss";
 import Room from "../Room";
@@ -10,36 +11,42 @@ import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 import { dropdownData, metaSettings, settingCategories, settingInputType, settings, Watcher } from "../settings";
 import { Synergy } from "../Synergy/Synergy";
 import { Geocoder, GeocoderDefinition, GeocoderSuggestion } from "../Geocoder";
-import { BuildingLocationWithEntrances } from "../BuildingLocation";
 import { fromMap, None, Option, Some } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { NavigationPane } from "../NavigationPane/NavigationPane";
 import { Logger, LogPane } from "../LogPane/LogPane";
+import { Locator } from "../Locator";
+import { ClosestDefinitionButton } from "../NavigationPane/ClosestDefinitionButton";
+import { LocationOnlyDefinition } from "../LocationOnlyDefinition";
+import { BuildingLocationWithEntrances } from "../BuildingLocation";
+import { ClosestBottleFillingButton } from "../NavigationPane/ClosestBathroomButton";
+import { ClosestBathroomButton } from "../NavigationPane/ClosestBottleFillingButton";
 
 let sidebar: Option<Sidebar> = None;
 
-export function createSidebar(map: L.Map, mapData: MapData, geocoder: Geocoder, logger: Logger): void {
-    sidebar = Some(new Sidebar(map, mapData, geocoder, logger));
+export function createSidebar(map: L.Map, mapData: MapData, geocoder: Geocoder, locator: Locator, logger: Logger, floorsLayer: LFloors): void {
+    sidebar = Some(new Sidebar(map, mapData, geocoder, locator, logger, floorsLayer));
 }
 
 export function showRoomInfo(geocoder: Geocoder, room: Room): void {
     sidebar.ifSome(sidebar => sidebar.openInfoForName(geocoder, room.getName()));
 }
 
-const MAX_FILE_SIZE = 2*1024*1024;
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 export class Sidebar {
     private readonly map: L.Map;
     private readonly geocoder: Geocoder;
+    private readonly mapData: MapData;
+    private readonly locator: Locator;
 
     private readonly sidebar: L.Control.Sidebar;
     private readonly navigationPane: NavigationPane;
+    private readonly floorsLayer: LFloors;
 
     private readonly logger: Logger;
 
-    private floorsLayer: Option<LFloors>;
-
-    constructor(map: L.Map, mapData: MapData, geocoder: Geocoder, logger: Logger) {
+    constructor(map: L.Map, mapData: MapData, geocoder: Geocoder, locator: Locator, logger: Logger, floorsLayer: LFloors) {
         this.map = map;
         this.sidebar = control.sidebar({
             container: "sidebar",
@@ -48,19 +55,15 @@ export class Sidebar {
         this.sidebar.addTo(this.map);
 
         this.geocoder = geocoder;
+        this.mapData = mapData;
+        this.locator = locator;
         this.logger = logger;
-
-        this.floorsLayer = None;
-        this.map.eachLayer((layer) => {
-            if (layer instanceof LFloors) {
-                this.floorsLayer = Some(<LFloors> layer);
-            }
-        });
+        this.floorsLayer = floorsLayer;
 
         const roomSearch = new RoomSearch(mapData);
         this.sidebar.addPanel(this.createSearchPanel(roomSearch));
 
-        this.navigationPane = NavigationPane.new(geocoder, mapData, () => this.sidebar.open("nav"));
+        this.navigationPane = NavigationPane.new(geocoder, locator, mapData, floorsLayer, () => this.sidebar.open("nav"));
         this.navigationPane.addTo(map, this.sidebar);
 
         this.sidebar.addPanel(this.createSettingsPanel());
@@ -110,8 +113,8 @@ export class Sidebar {
                 return;
             }
 
-            
-            if(file.size > MAX_FILE_SIZE) {
+
+            if (file.size > MAX_FILE_SIZE) {
                 errorBox.innerText = "File size is greater than 2 MB.";
                 return;
             }
@@ -137,7 +140,7 @@ export class Sidebar {
 
             reader.readAsText(file);
         });
-            
+
         const synergyPane = genPaneElement("Synergy", [beta, info, siteUpload, errorBox, courses]);
 
         return {
@@ -171,7 +174,32 @@ export class Sidebar {
             });
         });
 
-        const searchPane = genPaneElement("Search", [searchBarContainer, resultContainer]);
+        const closestBathroomButton = new ClosestBathroomButton(
+            this.geocoder,
+            this.locator,
+            this.mapData,
+            this.floorsLayer,
+            (closest, starting) => this.openInfo(closest)
+        );
+        const closestBottleFillingButton = new ClosestBottleFillingButton(
+            this.geocoder,
+            this.locator,
+            this.mapData,
+            this.floorsLayer,
+            (closest, starting) => this.openInfo(closest)
+        );
+        const categoryButtonContainer = <div class="wrapper">
+            {closestBathroomButton.getHtml()}
+            {closestBottleFillingButton.getHtml()}
+        </div>;
+
+        const searchPane = genPaneElement("Search",
+            [
+                searchBarContainer,
+                <h2>Find Nearest</h2>,
+                categoryButtonContainer,
+                resultContainer
+            ]);
 
         return {
             id: "search",
@@ -206,7 +234,7 @@ export class Sidebar {
             pane: infoPane
         };
     }
-    
+
     private createInfoPanelHeader(paneElements: HTMLElement[], definition: GeocoderDefinition) {
         const header = document.createElement("div");
         header.classList.add("wrapper");
@@ -232,13 +260,15 @@ export class Sidebar {
         header.appendChild(navButton);
     }
 
+    public openInfo(definition: GeocoderDefinition) {
+        this.sidebar.removePanel("info");
+        this.sidebar.addPanel(this.createInfoPanel(definition));
+        this.sidebar.open("info");
+        this.moveToDefinedLocation(definition);
+    }
+
     public openInfoForName(geocoder: Geocoder, name: string) {
-        geocoder.getDefinitionFromName(name).ifSome(location => {
-            this.sidebar.removePanel("info");
-            this.sidebar.addPanel(this.createInfoPanel(location));
-            this.sidebar.open("info");
-            this.moveToDefinedLocation(location);
-        });
+        geocoder.getDefinitionFromName(name).ifSome(location => this.openInfo(location));
     }
 
     // Settings panel
@@ -373,7 +403,7 @@ export class Sidebar {
         control.addEventListener("change", (e) => {
             settings.updateData(name, control.value);
         });
-        
+
         const mappedName = fromMap(nameMapping, name).unwrapOr(name);
         return Sidebar.createSetting(mappedName, control);
     }
@@ -383,7 +413,7 @@ export class Sidebar {
         const location = definition.getLocation();
         // TODO: Better option than always using zoom 3?
         this.map.setView(location.getXY(), 3);
-        this.floorsLayer.ifSome(floorsLayer => floorsLayer.setFloor(location.getFloor()));
+        this.floorsLayer.setFloor(location.getFloor());
     }
 
     private static elWithText(elementName: string, content?: string): HTMLElement {
@@ -524,7 +554,7 @@ export class Sidebar {
                 roomSelected = true;
             });
         });
-        
+
         return [container, input];
     }
 }

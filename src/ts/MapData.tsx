@@ -134,16 +134,16 @@ export default class MapData {
         return fromMap(this.roomsFromNames, name).unwrap();
     }
 
-    findBestPath(src: GeocoderDefinition, dest: GeocoderDefinition): number[] {
+    findBestPath(src: GeocoderDefinition, dest: GeocoderDefinition): Option<number[]> {
         let prev = null;
         let shortestDistance = null;
         let destVertex = null;
-    
+
         // Look through all exits from the source
         for (const exitLocation of src.getLocation().getEntrances()) {
             const exitId = this.getClosestVertex(exitLocation);
             const [dist, maybePrev] = this.graph.dijkstra(exitId);
-    
+
             // Look through all entrances to the destination
             for (const entranceLocation of dest.getLocation().getEntrances()) {
                 const entranceId = this.getClosestVertex(entranceLocation);
@@ -159,14 +159,13 @@ export default class MapData {
             }
         }
 
-        if (prev === null || destVertex === null) {
-            // TODO: Proper error handling
-            throw "No path between vertices";
+        if (prev === null || destVertex === null || shortestDistance === Infinity) {
+            return None;
         }
-    
+
         const fastestPath: number[] = [];
         let nextPlace: Option<number> = Some(destVertex);
-    
+
         while (nextPlace.isSome()) {
             fastestPath.push(nextPlace.unwrap());
             nextPlace = fromMap(prev, nextPlace.unwrap()).match({
@@ -174,8 +173,31 @@ export default class MapData {
                 none: None
             });
         }
-    
-        return fastestPath;
+
+        return Some(fastestPath);
+    }
+
+    public findBestPathLength(src: GeocoderDefinition, dest: GeocoderDefinition): Option<number> {
+        const maybeBestPath = this.findBestPath(src, dest);
+        if (maybeBestPath.isNone()) {
+            return None;
+        }
+        const bestPath = maybeBestPath.unwrap();
+
+        let sum = 0;
+        for (let i = 0; i < bestPath.length - 1; i++) {
+            const a = bestPath[i];
+            const b = bestPath[i + 1];
+            const newWeight = this.graph.getWeight(a, b);
+            if (newWeight.isNone()) {
+                return None;
+            }
+            sum += newWeight.unwrap();
+            if (newWeight.unwrap() === 0) {
+                console.log("0", sum, a, b, newWeight.unwrap(), this.graph.getWeight(a, b));
+            }
+        }
+        return Some(sum);
     }
 
     createDevLayerGroup(floor: string): LSomeLayerWithFloor {
@@ -186,7 +208,7 @@ export default class MapData {
         for (const edge of this.edges) {
             const p = this.graph.getVertex(fromMap(this.vertexStringToId, edge[0]).unwrap());
             const q = this.graph.getVertex(fromMap(this.vertexStringToId, edge[1]).unwrap());
-            
+
             if (p.getLocation().getFloor() === floor && q.getLocation().getFloor() === floor) {
                 const pLoc = p.getLocation();
                 const qLoc = q.getLocation();
@@ -205,7 +227,7 @@ export default class MapData {
                 }).bindPopup(`${vertexString} (${vertexId})<br/>${location.lng}, ${location.lat}`).addTo(devLayer);
             }
         }
-        
+
         return devLayer;
     }
 
@@ -245,7 +267,7 @@ export default class MapData {
                 const pFloorNumber = parseInt(pFloor);
                 const qFloorNumber = parseInt(qFloor);
 
-                
+
                 // These icons aren't actually stairs, but they look close enough to get the idea across
                 // They also look much nicer than my poor attempt at creating a stair icon
                 const iconClass = qFloorNumber < pFloorNumber ? "fas fa-sort-amount-up-alt" : "fas fa-sort-amount-down-alt";
@@ -267,7 +289,7 @@ export default class MapData {
     }
 
     private getClosestVertex(location: BuildingLocation): number {
-        const idVertexToIdDistance = function(idVertex: [number, Vertex]): [number, Option<number>] {
+        const idVertexToIdDistance = function (idVertex: [number, Vertex]): [number, Option<number>] {
             const [id, vertex] = idVertex;
             return [id, vertex.getLocation().distanceTo(location)];
         }
@@ -278,7 +300,7 @@ export default class MapData {
             .map(([id, distanceOption]) => [id, distanceOption.unwrap()])
             .reduce(([minimumId, minimumDistance], [id, distance]) =>
                 distance < minimumDistance ? [id, distance] : [minimumId, minimumDistance]);
-        
+
         return closestId;
     }
 }

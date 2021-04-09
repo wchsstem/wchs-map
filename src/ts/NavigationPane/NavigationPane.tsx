@@ -8,8 +8,9 @@ import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 
 import { h } from "../JSX";
 import { FlooredMarker, flooredMarker } from "./FlooredMarker";
-import Room from "../Room";
 import { Geocoder, GeocoderDefinition } from "../Geocoder";
+import { ClosestDefinitionButton } from "./ClosestDefinitionButton";
+import { Locator } from "../Locator";
 
 export class NavigationPane {
     private readonly pane: HTMLElement;
@@ -18,7 +19,7 @@ export class NavigationPane {
     private readonly mapData: MapData;
     private readonly geocoder: Geocoder;
 
-    private floorsLayer: Option<LFloors>;
+    private readonly floorsLayer: LFloors;
     private pathLayers: Set<LSomeLayerWithFloor>;
     private map: Option<Map>;
 
@@ -36,7 +37,7 @@ export class NavigationPane {
         toInput: HTMLInputElement,
         mapData: MapData,
         geocoder: Geocoder,
-        floorsLayer: Option<LFloors>,
+        floorsLayer: LFloors,
         pathLayers: Set<LSomeLayerWithFloor>,
         map: Option<Map>,
         focus: () => any,
@@ -60,7 +61,7 @@ export class NavigationPane {
         this.toPin = toPin;
     }
 
-    public static new(geocoder: Geocoder, mapData: MapData, focus: () => any): NavigationPane {
+    public static new(geocoder: Geocoder, locator: Locator, mapData: MapData, floorsLayer: LFloors, focus: () => any): NavigationPane {
         const fromPinButton = <a class="leaflet-style button" href="#" role="button" title="Choose starting point">
             <i class="fas fa-map-marker-alt"></i>
         </a> as HTMLAnchorElement;
@@ -91,17 +92,11 @@ export class NavigationPane {
             {swapToFrom}
         </div>;
 
-        const categoryButtonContainer = <div class="wrapper">
-            <a href="#">
-                <i class="fa fas-toilet"></i>
-            </a>
-        </div>
-
         const resultContainer = <div class="wrapper results-wrapper leaflet-style hidden"></div>;
 
-        const navPane = genPaneElement("Navigation", [toFromContainer, categoryButtonContainer, resultContainer]);
+        const navPane = genPaneElement("Navigation", [toFromContainer, resultContainer]);
 
-        const navigationPane = new NavigationPane(navPane, fromInput, toInput, mapData, geocoder, None, new Set(), None, focus, None, None, None, None);
+        const navigationPane = new NavigationPane(navPane, fromInput, toInput, mapData, geocoder, floorsLayer, new Set(), None, focus, None, None, None, None);
 
         swapToFrom.addEventListener("click", _event => navigationPane.swapNav(true, true));
         fromInput.addEventListener("input", _event => {
@@ -124,30 +119,26 @@ export class NavigationPane {
         });
         fromPinButton.addEventListener("click", _event => {
             navigationPane.map.ifSome(map => {
-                navigationPane.floorsLayer.ifSome(floorsLayer => {
-                    navigationPane.fromPin.ifSome(pin => {
-                        floorsLayer.removeLayer(pin);
-                    });
-
-                    const pinLocation = new BuildingLocation(map.getCenter(), floorsLayer.getCurrentFloor());
-                    const pin = NavigationPane.genFromPin(pinLocation, geocoder, navigationPane);
-                    pin.addTo(floorsLayer);
-                    navigationPane.fromPin = Some(pin);
+                navigationPane.fromPin.ifSome(pin => {
+                    navigationPane.floorsLayer.removeLayer(pin);
                 });
+
+                const pinLocation = new BuildingLocation(map.getCenter(), floorsLayer.getCurrentFloor());
+                const pin = NavigationPane.genFromPin(pinLocation, geocoder, navigationPane);
+                pin.addTo(navigationPane.floorsLayer);
+                navigationPane.fromPin = Some(pin);
             });
         });
         toPinButton.addEventListener("click", _event => {
             navigationPane.map.ifSome(map => {
-                navigationPane.floorsLayer.ifSome(floorsLayer => {
-                    navigationPane.toPin.ifSome(pin => {
-                        floorsLayer.removeLayer(pin);
-                    });
-
-                    const pinLocation = new BuildingLocation(map.getCenter(), floorsLayer.getCurrentFloor());
-                    const pin = NavigationPane.genToPin(pinLocation, geocoder, navigationPane);
-                    pin.addTo(floorsLayer);
-                    navigationPane.toPin = Some(pin);
+                navigationPane.toPin.ifSome(pin => {
+                    navigationPane.floorsLayer.removeLayer(pin);
                 });
+
+                const pinLocation = new BuildingLocation(map.getCenter(), navigationPane.floorsLayer.getCurrentFloor());
+                const pin = NavigationPane.genToPin(pinLocation, geocoder, navigationPane);
+                pin.addTo(navigationPane.floorsLayer);
+                navigationPane.toPin = Some(pin);
             });
         });
 
@@ -156,11 +147,6 @@ export class NavigationPane {
 
     public addTo(map: Map, sidebar: Control.Sidebar): void {
         this.map = Some(map);
-        map.eachLayer(layer => {
-            if (layer instanceof LFloors) {
-                this.floorsLayer = Some(layer);
-            }
-        });
 
         sidebar.addPanel(this.getPanelOptions());
     }
@@ -191,15 +177,13 @@ export class NavigationPane {
             definition.ifSome(definition => {
                 const location = definition.getLocation();
 
-                this.floorsLayer.ifSome(floorsLayer => {
-                    this.toPin.ifSome(pin => {
-                        floorsLayer.removeLayer(pin);
-                    });
-
-                    const newPin = NavigationPane.genToPin(location, this.geocoder, this)
-                        .addTo(floorsLayer);
-                    this.toPin = Some(newPin);
+                this.toPin.ifSome(pin => {
+                    this.floorsLayer.removeLayer(pin);
                 });
+
+                const newPin = NavigationPane.genToPin(location, this.geocoder, this)
+                    .addTo(this.floorsLayer);
+                this.toPin = Some(newPin);
             });
         }
 
@@ -221,15 +205,13 @@ export class NavigationPane {
             definition.ifSome(definition => {
                 const location = definition.getLocation();
 
-                this.floorsLayer.ifSome(floorsLayer => {
-                    this.fromPin.ifSome(pin => {
-                        floorsLayer.removeLayer(pin);
-                    });
-
-                    const newPin = NavigationPane.genFromPin(location, this.geocoder, this)
-                        .addTo(floorsLayer);
-                    this.fromPin = Some(newPin);
+                this.fromPin.ifSome(pin => {
+                    this.floorsLayer.removeLayer(pin);
                 });
+
+                const newPin = NavigationPane.genFromPin(location, this.geocoder, this)
+                    .addTo(this.floorsLayer);
+                this.fromPin = Some(newPin);
             });
         }
 
@@ -249,12 +231,14 @@ export class NavigationPane {
     private calcNav(fromDefinition: GeocoderDefinition, toDefinition: GeocoderDefinition): void {
         this.clearNav();
         const path = this.mapData.findBestPath(fromDefinition, toDefinition);
-        this.pathLayers = this.mapData.createLayerGroupsFromPath(path);
-        this.floorsLayer.ifSome(floorsLayer => this.pathLayers.forEach(layer => floorsLayer.addLayer(layer)));
+        path.ifSome(path => {
+            this.pathLayers = this.mapData.createLayerGroupsFromPath(path);
+            this.pathLayers.forEach(layer => this.floorsLayer.addLayer(layer));
+        });
     }
 
     private clearNav(): void {
-        this.floorsLayer.ifSome(floorsLayer => this.pathLayers.forEach(layer => floorsLayer.removeLayer(layer)));
+        this.pathLayers.forEach(layer => this.floorsLayer.removeLayer(layer));
     }
 
     private static genFromPin(

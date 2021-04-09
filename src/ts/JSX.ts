@@ -3,7 +3,12 @@ export function h(tag: string, props: Props | null, ...children: HTMLElement[]):
 
     if (props !== null) {
         Object.entries(props).forEach(([name, value]) => {
-            element.setAttribute(name, value);
+            if (name.startsWith("on")) {
+                const callback = value as EventListenerOrEventListenerObject;
+                element.addEventListener(removeOnFromEvent(name), callback);
+            } else {
+                element.setAttribute(name, value as string);
+            }
         });
     }
 
@@ -19,6 +24,15 @@ export namespace h {
     };
 }
 
+/**
+ * Removes the "on" from the name of an event, eg. "onClick" => "click"
+ */
+function removeOnFromEvent(onEvent: string): string {
+    const firstChar = onEvent.substring(2, 3).toLowerCase();
+    const latterChars = onEvent.substring(3);
+    return firstChar + latterChars;
+}
+
 function appendChild(parent: HTMLElement, child: HTMLElement | string | (HTMLElement | string)[]): void {
     if (Array.isArray(child)) {
         child.forEach(inner => appendChild(parent, inner));
@@ -32,5 +46,5 @@ function appendChild(parent: HTMLElement, child: HTMLElement | string | (HTMLEle
 }
 
 type Props = {
-    [name: string]: string
+    [name: string]: unknown
 }

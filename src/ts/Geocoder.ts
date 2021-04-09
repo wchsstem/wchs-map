@@ -2,7 +2,7 @@ import { Option, fromMap, Some, None } from "@nvarner/monads";
 import { kdTree } from "kd-tree-javascript";
 import MiniSearch from "minisearch";
 import { BuildingLocationWithEntrances } from "./BuildingLocation";
-import Room from "./Room";
+import { T2 } from "./Tuple";
 
 export class GeocoderSuggestion {
     public readonly name: string;
@@ -32,6 +32,8 @@ export interface GeocoderDefinition {
      * May be displayed to the user and used in search.
      */
     getTags(): string[];
+
+    hasTag(tag: string): boolean;
 
     /**
      * Returns a new definition with an extra alternate name added. Does not modify the object on which it is called.
@@ -144,10 +146,42 @@ export class Geocoder {
         this.roomCenterIndices.set(floor, f(tree));
     }
 
+    /**
+     * Gets the definition closest to `location` on the same floor. Uses Euclidean distance.
+     */
     public getClosestDefinition(location: BuildingLocationWithEntrances): Option<GeocoderDefinition> {
         const tree = fromMap(this.roomCenterIndices, location.getFloor()).unwrap();
         const [closest] = tree.nearest(locationToKDTreeEntry(location), 1);
         return closest[0].definition;
+    }
+
+    /**
+     * Gets the definition closest to `origin` based on the provided `distance` function. That function should return
+     * the distance between two definitions if possible, or None if not. None is interpreted as meaning there is no way
+     * to go between the two definitions. Only looks at definitions satisfying the predicate.
+     */
+    public getClosestDefinitionToFilteredWithDistance(
+        origin: BuildingLocationWithEntrances,
+        predicate: (definition: GeocoderDefinition) => boolean,
+        distance: (from: BuildingLocationWithEntrances, to: BuildingLocationWithEntrances) => Option<number>
+    ): Option<GeocoderDefinition> {
+        return [...this.definitionsByLocation.entries()]
+            // Only definitions satisfyting predicate
+            .filter(([_location, definition]) => predicate(definition))
+            // Get distance and convert to T2
+            .map(([location, definition]) => T2.new(distance(origin, location), definition))
+            // Remove None distances, unwrap Some distances
+            .filter(distanceDefinition => distanceDefinition.e0.isSome())
+            .map(distanceDefinition => distanceDefinition.map(e0 => e0.unwrap(), e1 => e1))
+            // Find the minimum distance
+            .reduce<Option<T2<number, GeocoderDefinition>>>((min, curr) => {
+                if (min.isNone() || curr.e0 < min.unwrap().e0)
+                    return Some(curr);
+                else
+                   return min;
+            }, None)
+            // Get the definition
+            .map(distanceDefinition => distanceDefinition.e1);
     }
 }
 

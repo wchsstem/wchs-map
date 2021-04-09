@@ -80,6 +80,10 @@ class MutableSettings extends Settings {
             .filter(currentWatcher => currentWatcher !== watcher);
         this.watchers.set(dataId, watchers);
     }
+
+    public getData(dataId: string): Option<unknown> {
+        return super.getData(dataId);
+    }
 }
 
 export class Watcher {
@@ -149,7 +153,7 @@ emergencyTags.add("bleed-control");
 
 // Maps setting IDs to user friendly names
 const nameMapping = new Map();
-nameMapping.set("bathroom-gender", "Restroom gender (not yet implemented)");
+nameMapping.set("bathroom-gender", "Restroom Gender");
 nameMapping.set("synergy", "Enable Synergy Panel (alpha)");
 nameMapping.set("dev", "Developer Mode");
 nameMapping.set("hiding-location", "Hide Location Dot");

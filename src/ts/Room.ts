@@ -80,6 +80,10 @@ export default class Room implements GeocoderDefinition {
         return this.tags;
     }
 
+    public hasTag(tag: string): boolean {
+        return this.tags.includes(tag);
+    }
+
     public getEntranceLocations(): BuildingLocation[] {
         return this.entrances;
     }

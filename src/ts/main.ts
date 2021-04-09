@@ -17,6 +17,7 @@ import "leaflet-sidebar-v2";
 import { LLocation } from "./LLocationPlugin/LLocationPlugin";
 import { Logger } from "./LogPane/LogPane";
 import { Geocoder } from "./Geocoder";
+import { Locator } from "./Locator";
 
 function main() {
     if ("serviceWorker" in navigator) {
@@ -46,6 +47,9 @@ function main() {
         geocoder.addDefinition(room);
     }
 
+    // Initialize locator
+    const locator = new Locator(logger);
+
     // Create map
     const map = L.map("map", {
         crs: L.CRS.Simple,
@@ -59,23 +63,24 @@ function main() {
         zoomDelta: 0.4,
         wheelPxPerZoomLevel: 75
     });
-
     map.fitBounds(bounds.pad(0.05));
+
+    // Add location dot if we might be able to use it
+    if (locator.getCanEverGeolocate()) {
+        const location = new LLocation(locator);
+        location.addTo(map);
+    }
+
 
     const attribution = "<a href='https://www.nathanvarner.com' target='_blank'>© Nathan Varner</a>";
     const floors = new LFloors(mapData, "1", { "attribution": attribution });
     floors.addTo(map);
 
-    if ("geolocation" in navigator) {
-        const location = new LLocation(logger, {});
-        location.addTo(map);
-    }
-
-    // Create sidebar
-    createSidebar(map, mapData, geocoder, logger);
-
     floors.addLayer(new LRoomLabel(mapData, geocoder, "1"));
     floors.addLayer(new LRoomLabel(mapData, geocoder, "2"));
+
+    // Create sidebar
+    createSidebar(map, mapData, geocoder, locator, logger, floors);
 
     // Display dev layer and location of mouse click when dev is enabled
     const devLayer1 = mapData.createDevLayerGroup("1");

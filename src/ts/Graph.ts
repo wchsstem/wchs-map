@@ -42,11 +42,19 @@ export default class Graph<K, V> {
         return fromMap(this.adjList, v).unwrap().map(u => u[0]);
     }
 
-    getWeight(v: K, u: K): number {
-        return fromMap(this.adjList, v)
-            .unwrap()
+    getWeight(v: K, u: K): Option<number> {
+        const maybeNeighbors = fromMap(this.adjList, v);
+        if (maybeNeighbors.isNone()) {
+            return None;
+        }
+        const neighbors = maybeNeighbors.unwrap();
+        const maybeNeighbor = neighbors
             .filter(neighbor => neighbor[0] === u)
-            .map(neighbor => neighbor[1])[0];
+            .map(neighbor => neighbor[1]);
+        if (maybeNeighbor.length > 0)
+            return Some(maybeNeighbor[0]);
+        else
+            return None;
     }
 
     dijkstra(source: K): [Map<K, number>, Map<K, K | null>] {
@@ -73,7 +81,7 @@ export default class Graph<K, V> {
 
             for (const v of this.getNeighbors(u)) {
                 const vWeight = fromMap(dist, v).unwrap();
-                const alt = fromMap(dist, u).unwrap() + this.getWeight(u, v);
+                const alt = fromMap(dist, u).unwrap() + this.getWeight(u, v).unwrap();
                 if (alt < vWeight) {
                     dist.set(v, alt);
                     prev.set(v, u);
