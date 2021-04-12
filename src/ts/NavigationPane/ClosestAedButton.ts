@@ -3,10 +3,9 @@ import { Geocoder, GeocoderDefinition } from "../Geocoder";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 import { Locator } from "../Locator";
 import MapData from "../MapData";
-import { settings } from "../settings";
 import { ClosestDefinitionButton } from "./ClosestDefinitionButton";
 
-export class ClosestBathroomButton extends ClosestDefinitionButton {
+export class ClosestAedButton extends ClosestDefinitionButton {
     public constructor(
         geocoder: Geocoder,
         locator: Locator,
@@ -19,9 +18,9 @@ export class ClosestBathroomButton extends ClosestDefinitionButton {
             locator,
             mapData,
             floorsLayer,
-            definition => !definition.hasTag("closed") && definition.hasTag("wf"),
-            "fas fa-tint",
-            "Nearest Bottle Filling Station",
+            definition => !definition.hasTag("closed") && definition.hasTag("aed"),
+            "fas fa-heartbeat",
+            "Nearest AED",
             onGetClosest,
         );
     }

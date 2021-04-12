@@ -6,7 +6,7 @@ import MapData from "../MapData";
 import { settings } from "../settings";
 import { ClosestDefinitionButton } from "./ClosestDefinitionButton";
 
-export class ClosestBottleFillingButton extends ClosestDefinitionButton {
+export class ClosestBathroomButton extends ClosestDefinitionButton {
     public constructor(
         geocoder: Geocoder,
         locator: Locator,
