@@ -1,7 +1,5 @@
 import { PanelOptions } from "leaflet";
 
-import { h } from "../JSX";
-
 export abstract class Pane {
     abstract getPaneId(): string;
     abstract getPaneIconClass(): string;
@@ -11,7 +9,7 @@ export abstract class Pane {
     getPanelOptions(): PanelOptions {
         return {
             id: this.getPaneId(),
-            tab: <i class={`fas ${this.getPaneIconClass()}`} />,
+            tab: `<i class="fas ${this.getPaneIconClass()}"}></i>`,
             title: this.getPaneTitle(),
             pane: this.getPaneElement()
         };

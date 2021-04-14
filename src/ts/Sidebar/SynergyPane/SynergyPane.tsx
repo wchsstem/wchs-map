@@ -1,8 +1,8 @@
-import { genPaneElement } from "../GenHtml/GenHtml";
-import { Geocoder } from "../Geocoder";
-import { h } from "../JSX";
-import { Logger } from "../LogPane/LogPane";
-import { Pane } from "../Sidebar/Pane";
+import { genPaneElement } from "../../GenHtml/GenHtml";
+import { Geocoder } from "../../Geocoder";
+import { h } from "../../JSX";
+import { Logger } from "../../LogPane/LogPane";
+import { Pane } from "../Pane";
 import { Synergy } from "./Synergy";
 
 // 2 MB

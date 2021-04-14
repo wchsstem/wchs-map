@@ -9,25 +9,15 @@ import "./sidebar.scss";
 import Room from "../Room";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 import { dropdownData, metaSettings, settingCategories, settingInputType, settings, Watcher } from "../settings";
-import { Synergy } from "../SynergyPane/Synergy";
-import { Geocoder, GeocoderDefinition, GeocoderSuggestion } from "../Geocoder";
+import { Geocoder, GeocoderDefinition } from "../Geocoder";
 import { fromMap, None, Option, Some } from "@nvarner/monads";
 import { T2 } from "../Tuple";
-import { NavigationPane } from "../NavigationPane/NavigationPane";
+import { NavigationPane } from "./NavigationPane/NavigationPane";
 import { Logger, LogPane } from "../LogPane/LogPane";
 import { Locator } from "../Locator";
-import { LocationOnlyDefinition } from "../LocationOnlyDefinition";
-import { BuildingLocation, BuildingLocationWithEntrances } from "../BuildingLocation";
-import { ClosestBottleFillingStationButton } from "../NavigationPane/ClosestBottleFillingStationButton";
-import { ClosestBathroomButton } from "../NavigationPane/ClosestBathroomButton";
-import { ClosestHandSanitizerStationButton } from "../NavigationPane/ClosestHandSanitizerStationButton";
-import { ClosestBleedingControlKitButton } from "../NavigationPane/ClosestBleedingControlKitButton";
-import { ClosestAedButton } from "../NavigationPane/ClosestAedButton";
-import { ClosestAhuButton } from "../NavigationPane/ClosestAhuButton";
-import { ClosestEcButton } from "../NavigationPane/ClosestEcButton";
-import { ClosestBscButton } from "../NavigationPane/ClosestBscButton";
-import { SynergyPane } from "../SynergyPane/SynergyPane";
+import { SynergyPane } from "./SynergyPane/SynergyPane";
 import { Pane } from "./Pane";
+import { SearchPane } from "./SearchPane/SearchPane";
 
 export class Sidebar {
     private readonly map: L.Map;
@@ -55,10 +45,21 @@ export class Sidebar {
         this.logger = logger;
         this.floorsLayer = floorsLayer;
 
-        const roomSearch = new RoomSearch(mapData);
-        this.sidebar.addPanel(this.createSearchPanel(roomSearch));
-
         this.navigationPane = NavigationPane.new(geocoder, mapData, floorsLayer, () => this.sidebar.open("nav"));
+
+        const searchPane = new SearchPane(
+            geocoder,
+            locator,
+            mapData,
+            floorsLayer,
+            this,
+            this.navigationPane,
+            result => {
+                this.openInfoForName(geocoder, result.name);
+            }
+        );
+        
+        this.addPane(searchPane);
         this.navigationPane.addTo(map, this.sidebar);
 
         const synergyPane = new SynergyPane(geocoder, logger);
@@ -91,145 +92,6 @@ export class Sidebar {
 
     private removePane(pane: Pane) {
         this.sidebar.removePanel(pane.getPaneId());
-    }
-
-    // Search panel
-    private createSearchPanel(roomSearch: RoomSearch): L.Control.PanelOptions {
-        const searchBarContainer = document.createElement("div");
-        searchBarContainer.classList.add("wrapper");
-
-        const searchBar = genTextInput();
-        searchBarContainer.appendChild(searchBar);
-
-        const resultContainer = document.createElement("div");
-        resultContainer.classList.add("wrapper");
-        resultContainer.classList.add("results-wrapper");
-        resultContainer.classList.add("leaflet-style");
-        resultContainer.classList.add("hidden");
-
-        const thiz = this;
-        searchBar.addEventListener("input", () => {
-            const query = searchBar.value;
-            const results = thiz.geocoder.getSuggestionsFrom(query);
-            Sidebar.updateWithResults(query, results, resultContainer, result => {
-                thiz.openInfoForName(thiz.geocoder, result.name);
-            });
-        });
-
-        const closestBathroomButton = new ClosestBathroomButton(
-            this.geocoder,
-            this.locator,
-            this.mapData,
-            this.floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
-        ).getHtml();
-        const closestBottleFillingButton = new ClosestBottleFillingStationButton(
-            this.geocoder,
-            this.locator,
-            this.mapData,
-            this.floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
-        ).getHtml();
-        const closestHandSanitizerButton = new ClosestHandSanitizerStationButton(
-            this.geocoder,
-            this.locator,
-            this.mapData,
-            this.floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
-        ).getHtml();
-
-        // Emergency
-        const closestBleedingControlKitButton = new ClosestBleedingControlKitButton(
-            this.geocoder,
-            this.locator,
-            this.mapData,
-            this.floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
-        ).getHtml();
-        const closestAedButton = new ClosestAedButton(
-            this.geocoder,
-            this.locator,
-            this.mapData,
-            this.floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
-        ).getHtml();
-        settings.addWatcher("show-emergency", new Watcher(show => {
-            if (show) {
-                closestBleedingControlKitButton.classList.remove("hidden");
-                closestAedButton.classList.remove("hidden");
-            } else {
-                closestBleedingControlKitButton.classList.add("hidden");
-                closestAedButton.classList.add("hidden");
-            }
-        }));
-
-        // Infrastructure
-        const closestAhuButton = new ClosestAhuButton(
-            this.geocoder,
-            this.locator,
-            this.mapData,
-            this.floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
-        ).getHtml();
-        const closestEcButton = new ClosestEcButton(
-            this.geocoder,
-            this.locator,
-            this.mapData,
-            this.floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
-        ).getHtml();
-        const closestBscButton = new ClosestBscButton(
-            this.geocoder,
-            this.locator,
-            this.mapData,
-            this.floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
-        ).getHtml();
-        settings.addWatcher("show-infrastructure", new Watcher(show => {
-            if (show) {
-                closestAhuButton.classList.remove("hidden");
-                closestEcButton.classList.remove("hidden");
-                closestBscButton.classList.remove("hidden");
-            } else {
-                closestAhuButton.classList.add("hidden");
-                closestEcButton.classList.add("hidden");
-                closestBscButton.classList.add("hidden");
-            }
-        }));
-
-        const categoryButtonContainer = <div class="wrapper">
-            {closestBathroomButton}
-            {closestBottleFillingButton}
-            {closestHandSanitizerButton}
-            {closestBleedingControlKitButton}
-            {closestAedButton}
-            {closestAhuButton}
-            {closestEcButton}
-            {closestBscButton}
-        </div>;
-
-        const searchPane = genPaneElement("Search",
-            [
-                searchBarContainer,
-                <h2>Find Nearest</h2>,
-                categoryButtonContainer,
-                resultContainer
-            ]
-        );
-
-        return {
-            id: "search",
-            tab: "<i class=\"fas fa-search-location\"></i>",
-            title: "Search",
-            pane: searchPane
-        };
-    }
-
-    private handleClosestButtonClick(closest: GeocoderDefinition, starting: BuildingLocation): void {
-        const startingDefinition = new LocationOnlyDefinition(new BuildingLocationWithEntrances(starting, []));
-        this.navigationPane.navigateFrom(Some(startingDefinition), true, false);
-        this.navigationPane.navigateTo(Some(closest), true, true);
-        this.openInfo(closest);
     }
 
     // Info panel
@@ -476,48 +338,7 @@ export class Sidebar {
         resultContainer.classList.add("hidden");
     }
 
-    private static updateWithResults(
-        query: string,
-        results: GeocoderSuggestion[],
-        resultContainer: HTMLElement,
-        onClickResult: (result: GeocoderSuggestion) => void
-    ) {
-        if (query === "") {
-            resultContainer.classList.add("hidden");
-            return;
-        }
 
-        resultContainer.classList.remove("hidden");
-
-        while (resultContainer.firstChild !== null) {
-            resultContainer.removeChild(resultContainer.firstChild);
-        }
-
-        const list = document.createElement("ul");
-        if (results.length > 0) {
-            for (const result of results) {
-                const resultElement = document.createElement("li");
-                resultElement.classList.add("search-result");
-                resultElement.appendChild(document.createTextNode(result.name));
-                resultElement.addEventListener("click", () => {
-                    onClickResult(result);
-                });
-                list.appendChild(resultElement);
-            }
-
-            resultContainer.appendChild(list);
-        } else {
-            const container = document.createElement("li");
-            container.classList.add("search-result");
-
-            const noResults = document.createTextNode("No results");
-            container.appendChild(noResults);
-
-            list.appendChild(container);
-
-            resultContainer.appendChild(list);
-        }
-    }
 
     // TODO
     /**

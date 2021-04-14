@@ -1,10 +1,10 @@
-import { BuildingLocation, BuildingLocationWithEntrances } from "../BuildingLocation";
-import { Geocoder, GeocoderDefinition } from "../Geocoder";
-import { h } from "../JSX";
-import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
-import { LocationOnlyDefinition } from "../LocationOnlyDefinition";
-import { Locator } from "../Locator";
-import MapData from "../MapData";
+import { BuildingLocation, BuildingLocationWithEntrances } from "../../BuildingLocation";
+import { Geocoder, GeocoderDefinition } from "../../Geocoder";
+import { h } from "../../JSX";
+import { LFloors } from "../../LFloorsPlugin/LFloorsPlugin";
+import { LocationOnlyDefinition } from "../../LocationOnlyDefinition";
+import { Locator } from "../../Locator";
+import MapData from "../../MapData";
 
 export class ClosestDefinitionButton {
     private readonly geocoder: Geocoder;
