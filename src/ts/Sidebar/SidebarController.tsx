@@ -9,14 +9,13 @@ import "./sidebar.scss";
 import Room from "../Room";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 import { dropdownData, metaSettings, settingCategories, settingInputType, settings, Watcher } from "../settings";
-import { Synergy } from "../Synergy/Synergy";
+import { Synergy } from "../SynergyPane/Synergy";
 import { Geocoder, GeocoderDefinition, GeocoderSuggestion } from "../Geocoder";
 import { fromMap, None, Option, Some } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { NavigationPane } from "../NavigationPane/NavigationPane";
 import { Logger, LogPane } from "../LogPane/LogPane";
 import { Locator } from "../Locator";
-import { ClosestDefinitionButton } from "../NavigationPane/ClosestDefinitionButton";
 import { LocationOnlyDefinition } from "../LocationOnlyDefinition";
 import { BuildingLocation, BuildingLocationWithEntrances } from "../BuildingLocation";
 import { ClosestBottleFillingStationButton } from "../NavigationPane/ClosestBottleFillingStationButton";
@@ -27,18 +26,8 @@ import { ClosestAedButton } from "../NavigationPane/ClosestAedButton";
 import { ClosestAhuButton } from "../NavigationPane/ClosestAhuButton";
 import { ClosestEcButton } from "../NavigationPane/ClosestEcButton";
 import { ClosestBscButton } from "../NavigationPane/ClosestBscButton";
-
-let sidebar: Option<Sidebar> = None;
-
-export function createSidebar(map: L.Map, mapData: MapData, geocoder: Geocoder, locator: Locator, logger: Logger, floorsLayer: LFloors): void {
-    sidebar = Some(new Sidebar(map, mapData, geocoder, locator, logger, floorsLayer));
-}
-
-export function showRoomInfo(geocoder: Geocoder, room: Room): void {
-    sidebar.ifSome(sidebar => sidebar.openInfoForName(geocoder, room.getName()));
-}
-
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
+import { SynergyPane } from "../SynergyPane/SynergyPane";
+import { Pane } from "./Pane";
 
 export class Sidebar {
     private readonly map: L.Map;
@@ -69,8 +58,10 @@ export class Sidebar {
         const roomSearch = new RoomSearch(mapData);
         this.sidebar.addPanel(this.createSearchPanel(roomSearch));
 
-        this.navigationPane = NavigationPane.new(geocoder, locator, mapData, floorsLayer, () => this.sidebar.open("nav"));
+        this.navigationPane = NavigationPane.new(geocoder, mapData, floorsLayer, () => this.sidebar.open("nav"));
         this.navigationPane.addTo(map, this.sidebar);
+
+        const synergyPane = new SynergyPane(geocoder, logger);
 
         this.sidebar.addPanel(this.createSettingsPanel());
 
@@ -87,74 +78,19 @@ export class Sidebar {
 
         settings.addWatcher("synergy", new Watcher((enable) => {
             if (enable) {
-                this.sidebar.addPanel(this.createSynergyPanel());
+                this.addPane(synergyPane);
             } else {
-                this.sidebar.removePanel("synergy");
+                this.removePane(synergyPane);
             }
         }));
     }
 
-    // Synergy panel
-    private createSynergyPanel(): L.Control.PanelOptions {
-        const beta = Sidebar.elWithText("p", "Currently in alpha. Doesn't fully work yet.");
-        const info = Sidebar.elWithText("p", "Download your Synergy page and upload the HTML file here.");
+    private addPane(pane: Pane) {
+        this.sidebar.addPanel(pane.getPanelOptions());
+    }
 
-        const siteUpload = document.createElement("input");
-        siteUpload.setAttribute("type", "file");
-        siteUpload.setAttribute("accept", "text/html");
-
-        const errorBox = document.createElement("p");
-        const courses = document.createElement("ol");
-
-        siteUpload.addEventListener("change", () => {
-            if (siteUpload.files === null || siteUpload.files.length === 0) {
-                return;
-            }
-
-            errorBox.innerText = "";
-
-            const file = siteUpload.files[0];
-            if (file.type !== "text/html") {
-                errorBox.innerText = "Wrong file type uploaded.";
-                return;
-            }
-
-
-            if (file.size > MAX_FILE_SIZE) {
-                errorBox.innerText = "File size is greater than 2 MB.";
-                return;
-            }
-
-            const reader = new FileReader();
-
-            reader.addEventListener("error", () => {
-                errorBox.innerText = "There was an error reading the file.";
-            });
-
-            reader.addEventListener("load", (result) => {
-                if (result.target === null || result.target.result === null) {
-                    errorBox.innerText = "There was an error loading the file.";
-                    return;
-                }
-
-                const synergyPage = result.target.result.toString();
-                const synergy = new Synergy(synergyPage, this.geocoder, this.logger);
-                for (const course of synergy.getCourses()) {
-                    courses.appendChild(course.toHtmlLi());
-                }
-            });
-
-            reader.readAsText(file);
-        });
-
-        const synergyPane = genPaneElement("Synergy", [beta, info, siteUpload, errorBox, courses]);
-
-        return {
-            id: "synergy",
-            tab: "<i class=\"fas fa-sign-in-alt\"></i>",
-            title: "Synergy",
-            pane: synergyPane
-        };
+    private removePane(pane: Pane) {
+        this.sidebar.removePanel(pane.getPaneId());
     }
 
     // Search panel

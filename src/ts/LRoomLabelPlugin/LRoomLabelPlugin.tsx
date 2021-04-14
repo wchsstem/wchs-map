@@ -4,7 +4,6 @@ import RBush, { BBox } from "rbush/rbush";
 import "./label.scss";
 import MapData from "../MapData";
 import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
-import { showRoomInfo } from "../Sidebar/SidebarController";
 import Room from "../Room";
 
 import { h } from "../JSX";
@@ -13,6 +12,7 @@ import Vertex from "../../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { Geocoder } from "../Geocoder";
+import { Sidebar } from "../Sidebar/SidebarController";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_CLASS_PAIRS = [
@@ -43,7 +43,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
     private hiding: boolean;
     private removeWatcher: Option<Watcher>;
 
-    constructor(map: MapData, geocoder: Geocoder, floorNumber: string, options?: L.LayerOptions) {
+    constructor(map: MapData, sidebar: Sidebar, floorNumber: string, options?: L.LayerOptions) {
         super([], options);
         this.tree = new RBush();
         this.allLabels = [];
@@ -73,7 +73,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                     interactive: true
                 });
                 roomMarker.on("click", () => {
-                    showRoomInfo(geocoder, room);
+                    sidebar.openInfo(room);
                 });
 
                 if (room.outline.length !== 0) {
@@ -84,7 +84,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                     this.roomOutlines.push(outline);
                     super.addLayer(outline);
                     outline.on("click", () => {
-                        showRoomInfo(geocoder, room);
+                        sidebar.openInfo(room);
                     });
                 } else {
                     console.log(`Room has no outline: ${room.getName()}`);

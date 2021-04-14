@@ -10,7 +10,6 @@ import MapData from "./MapData";
 import { LFloors } from "./LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../style.scss";
-import { createSidebar } from "./Sidebar/SidebarController";
 import LRoomLabel from "./LRoomLabelPlugin/LRoomLabelPlugin";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "leaflet-sidebar-v2";
@@ -18,6 +17,7 @@ import { LLocation } from "./LLocationPlugin/LLocationPlugin";
 import { Logger } from "./LogPane/LogPane";
 import { Geocoder } from "./Geocoder";
 import { Locator } from "./Locator";
+import { Sidebar } from "./Sidebar/SidebarController";
 
 function main() {
     if ("serviceWorker" in navigator) {
@@ -76,11 +76,11 @@ function main() {
     const floors = new LFloors(mapData, "1", { "attribution": attribution });
     floors.addTo(map);
 
-    floors.addLayer(new LRoomLabel(mapData, geocoder, "1"));
-    floors.addLayer(new LRoomLabel(mapData, geocoder, "2"));
-
     // Create sidebar
-    createSidebar(map, mapData, geocoder, locator, logger, floors);
+    const sidebar = new Sidebar(map, mapData, geocoder, locator, logger, floors);
+
+    floors.addLayer(new LRoomLabel(mapData, sidebar, "1"));
+    floors.addLayer(new LRoomLabel(mapData, sidebar, "2"));
 
     // Display dev layer and location of mouse click when dev is enabled
     const devLayer1 = mapData.createDevLayerGroup("1");

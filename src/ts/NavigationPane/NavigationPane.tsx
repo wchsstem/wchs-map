@@ -9,10 +9,9 @@ import { LFloors, LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 import { h } from "../JSX";
 import { FlooredMarker, flooredMarker } from "./FlooredMarker";
 import { Geocoder, GeocoderDefinition } from "../Geocoder";
-import { ClosestDefinitionButton } from "./ClosestDefinitionButton";
-import { Locator } from "../Locator";
+import { Pane } from "../Sidebar/Pane";
 
-export class NavigationPane {
+export class NavigationPane extends Pane {
     private readonly pane: HTMLElement;
     private readonly fromInput: HTMLInputElement;
     private readonly toInput: HTMLInputElement;
@@ -46,6 +45,7 @@ export class NavigationPane {
         fromPin: Option<FlooredMarker>,
         toPin: Option<FlooredMarker>
     ) {
+        super();
         this.pane = pane;
         this.fromInput = fromInput;
         this.toInput = toInput;
@@ -61,7 +61,7 @@ export class NavigationPane {
         this.toPin = toPin;
     }
 
-    public static new(geocoder: Geocoder, locator: Locator, mapData: MapData, floorsLayer: LFloors, focus: () => any): NavigationPane {
+    public static new(geocoder: Geocoder, mapData: MapData, floorsLayer: LFloors, focus: () => any): NavigationPane {
         const fromPinButton = <a class="leaflet-style button" href="#" role="button" title="Choose starting point">
             <i class="fas fa-map-marker-alt"></i>
         </a> as HTMLAnchorElement;
@@ -151,13 +151,20 @@ export class NavigationPane {
         sidebar.addPanel(this.getPanelOptions());
     }
 
-    public getPanelOptions(): PanelOptions {
-        return {
-            id: "nav",
-            tab: "<i class=\"fas fa-location-arrow\"></i>",
-            title: "Navigation",
-            pane: this.pane
-        }
+    public getPaneId(): string {
+        return "nav";
+    }
+
+    public getPaneIconClass(): string {
+        return "fa-location-arrow";
+    }
+
+    public getPaneTitle(): string {
+        return "Navigation";
+    }
+
+    public getPaneElement(): HTMLElement {
+        return this.pane;
     }
 
     private swapNav(movePins: boolean, focus: boolean): void {
