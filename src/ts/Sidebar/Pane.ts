@@ -6,12 +6,17 @@ export abstract class Pane {
     abstract getPaneTitle(): string;
     abstract getPaneElement(): HTMLElement;
 
-    getPanelOptions(): PanelOptions {
+    public getPosition(): "top" | "bottom" {
+        return "top";
+    }
+
+    public getPanelOptions(): PanelOptions {
         return {
             id: this.getPaneId(),
             tab: `<i class="fas ${this.getPaneIconClass()}"}></i>`,
             title: this.getPaneTitle(),
-            pane: this.getPaneElement()
+            pane: this.getPaneElement(),
+            position: this.getPosition(),
         };
     }
 }
