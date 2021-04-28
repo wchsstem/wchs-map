@@ -1,5 +1,5 @@
 import { LatLng } from "leaflet";
-import { BuildingLocation } from "./ts/BuildingLocation";
+import { BuildingLocation } from "./BuildingLocation";
 
 export default class Vertex {
     private readonly location: BuildingLocation;

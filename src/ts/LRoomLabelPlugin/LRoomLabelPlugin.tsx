@@ -8,7 +8,7 @@ import Room from "../Room";
 
 import { h } from "../JSX";
 import { settings, Watcher } from "../settings";
-import Vertex from "../../Vertex";
+import Vertex from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { Geocoder } from "../Geocoder";
