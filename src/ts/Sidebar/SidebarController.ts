@@ -3,7 +3,6 @@ import { control } from "leaflet";
 import { RoomSearch } from "./RoomSearch";
 import { genPaneElement, genTextInput } from "../GenHtml/GenHtml";
 import MapData from "../MapData";
-import { h } from "../JSX";
 
 import "./sidebar.scss";
 import Room from "../Room";
@@ -18,6 +17,7 @@ import { Locator } from "../Locator";
 import { SynergyPane } from "./SynergyPane/SynergyPane";
 import { Pane } from "./Pane";
 import { SearchPane } from "./SearchPane/SearchPane";
+import { InfoPane } from "./InfoPane";
 
 export class Sidebar {
     private readonly map: L.Map;
@@ -30,6 +30,8 @@ export class Sidebar {
     private readonly floorsLayer: LFloors;
 
     private readonly logger: Logger;
+
+    private infoPane: Option<InfoPane>;
 
     constructor(map: L.Map, mapData: MapData, geocoder: Geocoder, locator: Locator, logger: Logger, floorsLayer: LFloors) {
         this.map = map;
@@ -46,6 +48,7 @@ export class Sidebar {
         this.floorsLayer = floorsLayer;
 
         this.navigationPane = NavigationPane.new(geocoder, mapData, floorsLayer, () => this.sidebar.open("nav"));
+        this.infoPane = None;
 
         const searchPane = new SearchPane(
             geocoder,
@@ -86,70 +89,28 @@ export class Sidebar {
         }));
     }
 
-    private addPane(pane: Pane) {
+    protected addPane(pane: Pane) {
         this.sidebar.addPanel(pane.getPanelOptions());
     }
 
-    private removePane(pane: Pane) {
+    protected removePane(pane: Pane) {
         this.sidebar.removePanel(pane.getPaneId());
     }
 
-    // Info panel
-    private createInfoPanel(definition: GeocoderDefinition): L.Control.PanelOptions {
-        const paneElements: HTMLElement[] = [];
-
-        this.createInfoPanelHeader(paneElements, definition);
-
-        const roomFloor = Sidebar.elWithText("span", `Floor: ${definition.getLocation().getFloor()}`);
-        paneElements.push(roomFloor);
-
-        if (definition.getDescription.length !== 0) {
-            const descriptionEl = document.createElement("p");
-            const descriptionText = document.createTextNode(definition.getDescription());
-            descriptionEl.appendChild(descriptionText);
-            paneElements.push(descriptionEl);
-        }
-
-        const infoPane = genPaneElement("Room Info", paneElements);
-
-        return {
-            id: "info",
-            tab: "<i class=\"fas fa-info\"></i>",
-            title: "Room Info",
-            pane: infoPane
-        };
-    }
-
-    private createInfoPanelHeader(paneElements: HTMLElement[], definition: GeocoderDefinition) {
-        const header = document.createElement("div");
-        header.classList.add("wrapper");
-        header.classList.add("header-wrapper");
-        paneElements.push(header);
-
-        const roomName = document.createElement("h2");
-        const roomNameText = document.createTextNode(definition.getName());
-        roomName.appendChild(roomNameText);
-        header.appendChild(roomName);
-
-        const thiz = this;
-
-        const viewRoomButton = Sidebar.button("fa-map-pin", () => {
-            thiz.moveToDefinedLocation(definition);
-        }, "Show room");
-        viewRoomButton.classList.add("push-right");
-        header.appendChild(viewRoomButton);
-
-        const navButton = Sidebar.button("fa-location-arrow", () => {
-            thiz.navigationPane.navigateTo(Some(definition), true, true);
-        }, "Navigate");
-        header.appendChild(navButton);
+    protected openPane(pane: Pane) {
+        this.sidebar.open(pane.getPaneId());
     }
 
     public openInfo(definition: GeocoderDefinition) {
-        this.sidebar.removePanel("info");
-        this.sidebar.addPanel(this.createInfoPanel(definition));
-        this.sidebar.open("info");
-        this.moveToDefinedLocation(definition);
+        this.infoPane.ifSome(infoPane => this.removePane(infoPane));
+        const infoPane = new InfoPane(
+            definition,
+            this.navigationPane,
+            (definition: GeocoderDefinition) => this.moveToDefinedLocation(definition)
+        );
+        this.addPane(infoPane);
+        this.openPane(infoPane);
+        this.infoPane = Some(infoPane);
     }
 
     public openInfoForName(geocoder: Geocoder, name: string) {
@@ -294,7 +255,7 @@ export class Sidebar {
     }
 
     // Utils
-    private moveToDefinedLocation(definition: GeocoderDefinition): void {
+    public moveToDefinedLocation(definition: GeocoderDefinition): void {
         const location = definition.getLocation();
         // TODO: Better option than always using zoom 3?
         this.map.setView(location.getXY(), 3);
