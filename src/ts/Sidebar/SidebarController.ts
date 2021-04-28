@@ -1,16 +1,12 @@
 import { control } from "leaflet";
 
-import { RoomSearch } from "./RoomSearch";
-import { genPaneElement, genTextInput } from "../GenHtml/GenHtml";
 import MapData from "../MapData";
 
 import "./sidebar.scss";
-import Room from "../Room";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
-import { DROPDOWN_DATA, NAME_MAPPING, SETTING_SECTIONS, SETTING_INPUT_TYPE, settings, Watcher } from "../settings";
+import { settings, Watcher } from "../settings";
 import { Geocoder, GeocoderDefinition } from "../Geocoder";
-import { fromMap, None, Option, Some } from "@nvarner/monads";
-import { T2 } from "../Tuple";
+import { None, Option, Some } from "@nvarner/monads";
 import { NavigationPane } from "./NavigationPane/NavigationPane";
 import { Logger, LogPane } from "../LogPane/LogPane";
 import { Locator } from "../Locator";
@@ -22,33 +18,25 @@ import { SettingsPane } from "./SettingsPane/SettingsPane";
 
 export class Sidebar {
     private readonly map: L.Map;
-    private readonly geocoder: Geocoder;
-    private readonly mapData: MapData;
-    private readonly locator: Locator;
 
     private readonly sidebar: L.Control.Sidebar;
     private readonly navigationPane: NavigationPane;
     private readonly floorsLayer: LFloors;
 
-    private readonly logger: Logger;
-
     private infoPane: Option<InfoPane>;
 
-    constructor(map: L.Map, mapData: MapData, geocoder: Geocoder, locator: Locator, logger: Logger, floorsLayer: LFloors) {
+    public constructor(map: L.Map, mapData: MapData, geocoder: Geocoder, locator: Locator, logger: Logger, floorsLayer: LFloors) {
         this.map = map;
+
         this.sidebar = control.sidebar({
             container: "sidebar",
             closeButton: true
         });
         this.sidebar.addTo(this.map);
 
-        this.geocoder = geocoder;
-        this.mapData = mapData;
-        this.locator = locator;
-        this.logger = logger;
+        this.navigationPane = NavigationPane.new(geocoder, mapData, floorsLayer, () => this.sidebar.open("nav"));
         this.floorsLayer = floorsLayer;
 
-        this.navigationPane = NavigationPane.new(geocoder, mapData, floorsLayer, () => this.sidebar.open("nav"));
         this.infoPane = None;
 
         const searchPane = new SearchPane(
