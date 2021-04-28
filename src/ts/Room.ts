@@ -1,6 +1,6 @@
 import { BuildingLocation, BuildingLocationWithEntrances } from "./BuildingLocation";
 import { GeocoderDefinition } from "./Geocoder";
-import { emergencyTags, infrastructureTags } from "./settings";
+import { EMERGENCY_TAGS, INFRASTRUCTURE_TAGS } from "./settings";
 import { deepCopy } from "./utils";
 
 export default class Room implements GeocoderDefinition {
@@ -97,11 +97,11 @@ export default class Room implements GeocoderDefinition {
     }
 
     public isInfrastructure(): boolean {
-        return this.tags.filter(tag => infrastructureTags.has(tag)).length !== 0;
+        return this.tags.filter(tag => INFRASTRUCTURE_TAGS.has(tag)).length !== 0;
     }
 
     public isEmergency(): boolean {
-        return this.tags.filter(tag => emergencyTags.has(tag)).length !== 0;
+        return this.tags.filter(tag => EMERGENCY_TAGS.has(tag)).length !== 0;
     }
 
     public isClosed(): boolean {

@@ -7,7 +7,7 @@ import MapData from "../MapData";
 import "./sidebar.scss";
 import Room from "../Room";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
-import { dropdownData, metaSettings, settingCategories, settingInputType, settings, Watcher } from "../settings";
+import { DROPDOWN_DATA, NAME_MAPPING, SETTING_SECTIONS, SETTING_INPUT_TYPE, settings, Watcher } from "../settings";
 import { Geocoder, GeocoderDefinition } from "../Geocoder";
 import { fromMap, None, Option, Some } from "@nvarner/monads";
 import { T2 } from "../Tuple";
@@ -131,9 +131,7 @@ export class Sidebar {
         watchers.forEach(([id, watcher]) => settings.removeWatcher(id, watcher));
         watchers = [];
 
-        const nameMapping: Map<string, string> = metaSettings.getSetting("name-mapping").unwrap() as Map<string, string>;
-
-        settingCategories.forEach((categorySettings, category) => {
+        SETTING_SECTIONS.forEach(([category, categorySettings]) => {
             const categoryContainer = document.createElement("li");
 
             const categoryHeader = document.createElement("h2");
@@ -157,13 +155,13 @@ export class Sidebar {
 
                     let setting = null;
                     if (typeof data === "string") {
-                        const inputType = fromMap(settingInputType, name);
+                        const inputType = fromMap(SETTING_INPUT_TYPE, name);
                         const maybeSetting: Option<HTMLElement> = inputType.match({
                             some: (type) => {
                                 if (type === "dropdown") {
                                     // Assume exists
-                                    const optionDisplayAndIds = fromMap(dropdownData, name).unwrap();
-                                    return Some(Sidebar.createDropdownSetting(name, data, optionDisplayAndIds, nameMapping));
+                                    const optionDisplayAndIds = fromMap(DROPDOWN_DATA, name).unwrap();
+                                    return Some(Sidebar.createDropdownSetting(name, data, optionDisplayAndIds, NAME_MAPPING));
                                 } else {
                                     return None;
                                 }
@@ -172,10 +170,10 @@ export class Sidebar {
                         });
                         setting = maybeSetting.match({
                             some: (s) => s,
-                            none: () => Sidebar.createStringSetting(name, data, nameMapping)
+                            none: () => Sidebar.createStringSetting(name, data, NAME_MAPPING)
                         });
                     } else if (typeof data === "boolean") {
-                        setting = Sidebar.createBooleanSetting(name, data, nameMapping);
+                        setting = Sidebar.createBooleanSetting(name, data, NAME_MAPPING);
                     }
                     if (setting !== null) {
                         container.appendChild(setting);

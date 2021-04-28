@@ -4,6 +4,7 @@ import { T2 } from "./Tuple";
 class Settings {
     private data: Map<string, unknown>;
     private prefix: string;
+    private watchers: Map<string, Watcher[]>;
 
     /**
      * @param prefix An arbitrary but unique string that represents this specific settings object in which underscores
@@ -12,6 +13,8 @@ class Settings {
     public constructor(prefix: string) {
         this.data = new Map();
         this.prefix = prefix;
+        this.watchers = new Map();
+        this.loadSavedData();
     }
 
     protected loadSavedData() {
@@ -27,42 +30,11 @@ class Settings {
         }
     }
 
-    protected updateData(id: string, data: unknown): void {
+    public updateData(id: string, data: unknown): void {
         this.data.set(id, data);
         if (typeof(Storage) !== "undefined") {
             window.localStorage.setItem(`${this.prefix}_${id}`, JSON.stringify(data));
         }
-    }
-
-    protected getData(id: string): Option<unknown> {
-        return fromMap(this.data, id);
-    }
-    
-    setDefault(id: string, defaultValue: unknown): void {
-        if (!this.data.has(id)) {
-            this.updateData(id, defaultValue);
-        }
-    }
-
-    public getAllSettingNames(): string[] {
-        return [...this.data.keys()];
-    }
-}
-
-class MutableSettings extends Settings {
-    private watchers: Map<string, Watcher[]>;
-
-    /**
-     * @param prefix An arbitrary but unique string that represents this specific settings object
-     */
-    public constructor(prefix: string) {
-        super(prefix);
-        this.watchers = new Map();
-        super.loadSavedData();
-    }
-
-    public updateData(id: string, data: any): void {
-        super.updateData(id, data);
         fromMap(this.watchers, id).ifSome(watchers => watchers.forEach(watcher => watcher.onChange(data)));
     }
 
@@ -71,7 +43,7 @@ class MutableSettings extends Settings {
         watchersForId.push(watcher);
         this.watchers.set(dataId, watchersForId);
 
-        super.getData(dataId).ifSome((data) => watcher.onChange(data));
+        this.getData(dataId).ifSome((data) => watcher.onChange(data));
     }
 
     public removeWatcher(dataId: string, watcher: Watcher): void {
@@ -81,8 +53,18 @@ class MutableSettings extends Settings {
         this.watchers.set(dataId, watchers);
     }
 
-    public getData(dataId: string): Option<unknown> {
-        return super.getData(dataId);
+    public getData(id: string): Option<unknown> {
+        return fromMap(this.data, id);
+    }
+    
+    public setDefault(id: string, defaultValue: unknown): void {
+        if (!this.data.has(id)) {
+            this.updateData(id, defaultValue);
+        }
+    }
+
+    public getAllSettingNames(): string[] {
+        return [...this.data.keys()];
     }
 }
 
@@ -98,77 +80,49 @@ export class Watcher {
     }
 }
 
-class ImmutableSettings extends Settings {
-    public constructor(prefix: string, settings: Map<string, unknown>) {
-        super(prefix);
-        settings.forEach((data, id) => {
-            super.updateData(id, data);
-        });
-        // Don't load saved data
-        // TODO: Maybe saving should be mutable only?
-    }
+/**
+ * Indicates the control type that should be used for a certain setting.
+ * Key:
+ *  - dropdown: dropdown to choose between the finite set of options specified in `DROPDOWN_DATA`
+ */
+export const SETTING_INPUT_TYPE: Map<string, string> = new Map();
+SETTING_INPUT_TYPE.set("bathroom-gender", "dropdown");
 
-    getSetting(dataId: string): Option<unknown> {
-        return super.getData(dataId);
-    }
-}
+/**
+ * Indicates the finite set of dropdown options in the order they should be displayed.
+ */
+export const DROPDOWN_DATA: Map<string, T2<string, string>[]> = new Map();
+DROPDOWN_DATA.set("bathroom-gender", [T2.new("", "no-selection"), T2.new("Man", "m"), T2.new("Woman", "w")]);
 
-// Settings about the settings that should be hidden and immutable to the user without using browser developer tools.
-const metaSettingsData = new Map();
+/**
+ * Defines the order and contents of sections in the settings menu. The first entry of each element is the title of the
+ * section, and the second is a list of the options available in that section.
+ */
+export const SETTING_SECTIONS: [string, string[]][] = [
+    ["Personal", ["bathroom-gender"]],
+    ["Visibility", ["show-closed", "show-infrastructure", "show-emergency", "hiding-location"]],
+    ["Advanced", ["synergy", "dev", "logger", "show-markers"]]
+];
 
-// Which settings should not be shown to the user
-metaSettingsData.set("hidden-settings", [
-    "pd1",
-    "pd2",
-    "pd3",
-    "pd4",
-    "pd5",
-    "pd6",
-    "pd7",
-    "pd8",
-    "hr"
+export const INFRASTRUCTURE_TAGS: Set<string> = new Set(["bsc", "ec", "ahu", "idf", "mdf"]);
+
+export const EMERGENCY_TAGS: Set<string> = new Set(["aed", "bleed-control"]);
+
+export const NAME_MAPPING = new Map([
+    ["bathroom-gender", "Restroom Gender"],
+    ["synergy", "Enable Synergy Panel (alpha)"],
+    ["dev", "Developer Mode"],
+    ["hiding-location", "Hide Location Dot"],
+    ["show-closed", "Show Closed Room Icons"],
+    ["show-infrastructure", "Show Infrastructure Icons"],
+    ["show-emergency", "Show Emergency Icons"],
+    ["logger", "Show Logger"],
+    ["show-markers", "Show Markers"]
 ]);
-
-export const settingInputType: Map<string, string> = new Map();
-settingInputType.set("bathroom-gender", "dropdown");
-
-export const dropdownData: Map<string, T2<string, string>[]> = new Map();
-dropdownData.set("bathroom-gender", [T2.new("", "no-selection"), T2.new("Man", "m"), T2.new("Woman", "w")]);
-
-export const settingCategories: Map<string, string[]> = new Map();
-settingCategories.set("Personal", ["bathroom-gender"]);
-settingCategories.set("Visibility", ["show-closed", "show-infrastructure", "show-emergency", "hiding-location"]);
-settingCategories.set("Advanced", ["synergy", "dev", "logger", "show-markers"]);
-
-export const infrastructureTags: Set<string> = new Set();
-infrastructureTags.add("bsc");
-infrastructureTags.add("ec");
-infrastructureTags.add("ahu");
-infrastructureTags.add("idf");
-infrastructureTags.add("mdf");
-
-export const emergencyTags: Set<string> = new Set();
-emergencyTags.add("aed");
-emergencyTags.add("bleed-control");
-
-// Maps setting IDs to user friendly names
-const nameMapping = new Map();
-nameMapping.set("bathroom-gender", "Restroom Gender");
-nameMapping.set("synergy", "Enable Synergy Panel (alpha)");
-nameMapping.set("dev", "Developer Mode");
-nameMapping.set("hiding-location", "Hide Location Dot");
-nameMapping.set("show-closed", "Show Closed Room Icons");
-nameMapping.set("show-infrastructure", "Show Infrastructure Icons");
-nameMapping.set("show-emergency", "Show Emergency Icons");
-nameMapping.set("logger", "Show Logger");
-nameMapping.set("show-markers", "Show Markers");
-metaSettingsData.set("name-mapping", nameMapping);
-
-export const metaSettings = new ImmutableSettings("meta", metaSettingsData);
 
 // The only places that should update settings are right below here, to set defaults, and in the Settings sidebar code,
 // to allow the user to change them.
-export const settings = new MutableSettings("settings");
+export const settings = new Settings("settings");
 settings.setDefault("bathroom-gender", "no-selection");
 settings.setDefault("dev", false);
 settings.setDefault("synergy", false);
