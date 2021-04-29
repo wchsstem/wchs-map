@@ -20,7 +20,10 @@ export default [
             nodeResolve(),
             commonjs(),
             typescript(),
-            styles(),
+            styles({
+                use: ["sass"],
+                mode: ["extract", "bundle.css"]
+            }),
             json({
                 exclude: "node_modules/**",
                 preferConst: true

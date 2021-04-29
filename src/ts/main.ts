@@ -1,4 +1,4 @@
-import * as mapDataJson from "../map_compiled.json";
+import * as mapDataJson from "../data/map_compiled.json";
 
 import * as L from "leaflet";
 import "../../node_modules/leaflet/dist/leaflet.css";

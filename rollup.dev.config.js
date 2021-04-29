@@ -25,7 +25,7 @@ export default [
             }),
             styles({
                 use: ["sass"],
-                mode: ["extract", "bundle.css"],
+                mode: ["extract", "bundle.css"]
             }),
             json({
                 exclude: "node_modules/**",
