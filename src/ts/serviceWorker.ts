@@ -3,8 +3,8 @@ const VERSION = "v0.5.14";
 const CACHE_NAME = "WCHS-map-" + VERSION;
 const toCache = [
     "/",
-    "/bundle.css",
     "/bundle.js",
+    "/assets/bundle.css",
     "/assets/map/1st_floor.svg",
     "/assets/map/2nd_floor.svg",
     "/assets/fontawesome/webfonts/fa-solid-900.woff2",
@@ -27,7 +27,7 @@ self.addEventListener("fetch", e => {
     // @ts-ignore: Valid for fetch event
     const request: Request = e.request;
 
-    // @ts-ignore: Valid for SW install event
+    // @ts-ignore: Valid for SW fetch event
     e.respondWith(
         caches.match(request)
             .then((response) => {

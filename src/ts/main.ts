@@ -71,7 +71,6 @@ function main() {
         location.addTo(map);
     }
 
-
     const attribution = "<a href='https://www.nathanvarner.com' target='_blank'>© Nathan Varner</a>";
     const floors = new LFloors(mapData, "1", { "attribution": attribution });
     floors.addTo(map);

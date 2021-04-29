@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script async src="bundle.js"></script>
+    <link rel="preload" href="/assets/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin/>
+    <link rel="preload" href="/assets/map/1st_floor.svg" as="image" type="image/svg+xml"/>
+
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="theme-color" content="#ffffff"/>
@@ -10,12 +14,11 @@
 
     <title>WCHS Map</title>
 
-    <link rel="stylesheet" href="bundle.css"/>
+    <link rel="stylesheet" href="/assets/bundle.css"/>
     <link rel="manifest" href="manifest.json"/>
 </head>
 <body>
     <div id="sidebar" class="leaflet-sidebar collapsed" style="position: absolute;"></div>
     <div id="map"></div>
-    <script src="bundle.js"></script>
 </body>
 </html>

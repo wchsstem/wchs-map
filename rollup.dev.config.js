@@ -14,7 +14,8 @@ export default [
         output: {
             file: "./dist/bundle.js",
             format: "iife",
-            sourcemap: true
+            sourcemap: true,
+            assetFileNames: "assets/[name][extname]"
         },
         plugins: [
             nodeResolve(),
@@ -22,7 +23,10 @@ export default [
             typescript({
                 cacheDir: ".rollup.tscache"
             }),
-            styles(),
+            styles({
+                use: ["sass"],
+                mode: ["extract", "bundle.css"],
+            }),
             json({
                 exclude: "node_modules/**",
                 preferConst: true
