@@ -1,4 +1,4 @@
-import { Control, divIcon, Map, PanelOptions } from "leaflet";
+import { Control, divIcon, Map } from "leaflet";
 import { genTextInput, genPaneElement } from "../../GenHtml/GenHtml";
 import { BuildingLocation, BuildingLocationWithEntrances } from "../../BuildingLocation";
 import { None, Option, Some } from "@nvarner/monads";

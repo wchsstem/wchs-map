@@ -143,3 +143,13 @@ settings.setDefault("pd6", "");
 settings.setDefault("pd7", "");
 settings.setDefault("pd8", "");
 settings.setDefault("hr", "");
+
+settings.setDefault("version", "Unknown");
+const request = new XMLHttpRequest();
+request.onload = () => {
+    if (request.status === 200) {
+        settings.updateData("version", JSON.parse(request.response)["version"]);
+    }
+};
+request.open("GET", "version.json");
+request.send();

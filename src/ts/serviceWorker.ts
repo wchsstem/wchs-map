@@ -27,30 +27,32 @@ self.addEventListener("fetch", e => {
     // @ts-ignore: Valid for fetch event
     const request: Request = e.request;
 
-    // @ts-ignore: Valid for SW fetch event
-    e.respondWith(
-        caches.match(request)
-            .then((response) => {
-                console.log("response:", response);
-                if (response) {
-                    console.log("returning response");
-                    return response;
-                }
-                console.log("fetching resource");
-                return fetch(request).then((response) => {
-                    if (!response || response.status !== 200 || response.type !== "basic") {
+    // @ts-ignore: Valid for SW install event
+    e.respondWith(async function() {
+        if (request.url.endsWith("/version.json")) {
+            return new Response(new Blob([`{"version":"${VERSION}"}`], { type: "application/json" }));
+        } else {
+            const result = await caches.match(request)
+                .then((response) => {
+                    if (response) {
                         return response;
                     }
+                    return fetch(request).then((response) => {
+                        if (!response || response.status !== 200 || response.type !== "basic") {
+                            return response;
+                        }
 
-                    const responseToCache = response.clone();
-                    caches.open(CACHE_NAME)
-                        .then((cache) => {
-                            cache.put(request, responseToCache);
-                        });
-                    return response;
+                        const responseToCache = response.clone();
+                        caches.open(CACHE_NAME)
+                            .then((cache) => {
+                                cache.put(request, responseToCache);
+                            });
+                        return response;
+                    });
                 });
-            })
-    );
+            return result;
+        }
+    }());
 });
 
 self.addEventListener("activate", (e) => {

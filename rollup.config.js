@@ -50,7 +50,9 @@ export default [
             sourcemap: false
         },
         plugins: [
-            typescript(),
+            typescript({
+                target: "es2017"
+            }),
             terser(),
             progress()
         ]

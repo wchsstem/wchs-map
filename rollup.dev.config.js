@@ -59,7 +59,9 @@ export default [
             sourcemap: true
         },
         plugins: [
-            typescript(),
+            typescript({
+                target: "es2017"
+            }),
             progress()
         ]
     }
