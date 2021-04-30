@@ -14,7 +14,8 @@ export default [
             file: "./dist/bundle.js",
             format: "iife",
             compact: true,
-            sourcemap: false
+            sourcemap: false,
+            assetFileNames: "assets/[name][extname]"
         },
         plugins: [
             nodeResolve(),

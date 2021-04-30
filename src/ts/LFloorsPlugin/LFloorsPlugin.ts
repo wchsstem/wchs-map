@@ -1,10 +1,10 @@
-import * as L from "leaflet";
 import { Some, None, Option, fromMap } from "@nvarner/monads";
 
 import "./floors.scss";
 import MapData from "../MapData";
+import { Control, DomEvent, imageOverlay, layerGroup, LayerGroup, Util } from "leaflet";
 
-export class LFloors extends L.LayerGroup {
+export class LFloors extends LayerGroup {
     private allFloors: Map<string, L.LayerGroup>;
     private control: Option<LFloorsControl>;
     private defaultFloorNumber: string;
@@ -29,8 +29,8 @@ export class LFloors extends L.LayerGroup {
         // Reversing the array means that floors are ordered intuitively in the JSON (1, 2, 3...) and intuitively in the
         // control (higher floors on top)
         for (const floorData of map.getFloors().reverse()) {
-            const floorMap = L.imageOverlay(floorData.image, map.getBounds());
-            this.allFloors.set(floorData.number, L.layerGroup([floorMap]));
+            const floorMap = imageOverlay(floorData.image, map.getBounds());
+            this.allFloors.set(floorData.number, layerGroup([floorMap]));
         }
 
         this.defaultFloorNumber = defaultFloorNumber;
@@ -138,7 +138,7 @@ export class LFloors extends L.LayerGroup {
     }
 }
 
-class LFloorsControl extends L.Control {
+class LFloorsControl extends Control {
     private floors: IterableIterator<string>;
     private defaultFloor: string;
     private setFloorCallback: (floor: string) => void;
@@ -154,7 +154,7 @@ class LFloorsControl extends L.Control {
     }
 
     initialize(options: L.ControlOptions): void {
-        L.Util.setOptions(this, options);
+        Util.setOptions(this, options);
     }
 
     onAdd(map: L.Map): HTMLElement {
@@ -191,8 +191,8 @@ class LFloorsControl extends L.Control {
             this.floorControls.set(floor, a);
         }
 
-        L.DomEvent.disableClickPropagation(base);
-        L.DomEvent.disableScrollPropagation(base);
+        DomEvent.disableClickPropagation(base);
+        DomEvent.disableScrollPropagation(base);
 
         return base;
     }
@@ -213,7 +213,7 @@ export interface LLayerWithFloorOptions extends L.LayerOptions {
     floorNumber?: string;
 }
 
-export class LLayerGroupWithFloor extends L.LayerGroup implements LSomeLayerWithFloor {
+export class LLayerGroupWithFloor extends LayerGroup implements LSomeLayerWithFloor {
     private floorNumber: string;
 
     constructor(layers: L.Layer[], options: LLayerWithFloorOptions) {

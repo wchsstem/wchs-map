@@ -1,6 +1,5 @@
 import * as mapDataJson from "../data/map_compiled.json";
 
-import * as L from "leaflet";
 import "../../node_modules/leaflet/dist/leaflet.css";
 
 import "../assets/fontawesome/all.min.css";
@@ -18,6 +17,7 @@ import { Logger } from "./LogPane/LogPane";
 import { Geocoder } from "./Geocoder";
 import { Locator } from "./Locator";
 import { Sidebar } from "./Sidebar/SidebarController";
+import { CRS, LatLngBounds, map as lMap, popup } from "leaflet";
 
 function main() {
     if ("serviceWorker" in navigator) {
@@ -36,7 +36,7 @@ function main() {
     const height = 123.15513; // width of 2nd floor from Inkscape; same unit as width
     const scale = 3.78;
     const pushX = 5;
-    const bounds = new L.LatLngBounds([0, pushX], [scale * height, (scale * width) + pushX]);
+    const bounds = new LatLngBounds([0, pushX], [scale * height, (scale * width) + pushX]);
 
     // @ts-ignore: JSON works fine here
     const mapData = new MapData(mapDataJson, bounds);
@@ -51,8 +51,8 @@ function main() {
     const locator = new Locator(logger);
 
     // Create map
-    const map = L.map("map", {
-        crs: L.CRS.Simple,
+    const map = lMap("map", {
+        crs: CRS.Simple,
         center: bounds.getCenter(),
         transform3DLimit: 2^20, // Prevents room overlay from drifting off the map in Firefox
         maxZoom: 3,
@@ -85,7 +85,7 @@ function main() {
     const devLayer1 = mapData.createDevLayerGroup("1");
     const devLayer2 = mapData.createDevLayerGroup("2");
 
-    const locationPopup = L.popup();
+    const locationPopup = popup();
     function showClickLoc(e: L.LeafletMouseEvent): void {
         locationPopup.setLatLng(e.latlng)
             .setContent(`${e.latlng.lng}, ${e.latlng.lat}`)

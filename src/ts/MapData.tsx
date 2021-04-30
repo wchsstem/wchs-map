@@ -1,4 +1,3 @@
-import * as L from "leaflet";
 import { fromMap, None, Option, Some } from "@nvarner/monads";
 
 import Graph from "./Graph";
@@ -9,6 +8,7 @@ import { GeocoderDefinition } from "./Geocoder";
 import { BuildingLocation, BuildingLocationWithEntrances } from "./BuildingLocation";
 
 import { h } from "../ts/JSX";
+import { circle, divIcon, LatLng, marker, polyline } from "leaflet";
 
 export type FloorData = {
     number: string,
@@ -83,7 +83,7 @@ export default class MapData {
             const someVertex = this.graph.getVertex(fromMap(this.vertexStringToId, room.vertices[0]).unwrap());
             const floorNumber = someVertex.getLocation().getFloor();
             const center = room.center
-                ? new BuildingLocation(new L.LatLng(room.center[1], room.center[0]), floorNumber)
+                ? new BuildingLocation(new LatLng(room.center[1], room.center[0]), floorNumber)
                 : someVertex.getLocation();
 
             // Get entrances into the room
@@ -212,7 +212,7 @@ export default class MapData {
             if (p.getLocation().getFloor() === floor && q.getLocation().getFloor() === floor) {
                 const pLoc = p.getLocation();
                 const qLoc = q.getLocation();
-                L.polyline([pLoc.getXY(), qLoc.getXY()]).addTo(devLayer);
+                polyline([pLoc.getXY(), qLoc.getXY()]).addTo(devLayer);
             }
         }
 
@@ -221,7 +221,7 @@ export default class MapData {
             if (vertex.getLocation().getFloor() === floor) {
                 const color = vertex.hasTag("stairs") || vertex.hasTag("elevator") ? "#0000ff" : "#00ff00";
                 const location = vertex.getLocation().getXY();
-                L.circle(vertex.getLocation().getXY(), {
+                circle(vertex.getLocation().getXY(), {
                     "radius": 1,
                     "color": color
                 }).bindPopup(`${vertexString} (${vertexId})<br/>${location.lng}, ${location.lat}`).addTo(devLayer);
@@ -252,7 +252,7 @@ export default class MapData {
                 if (!layers.has(pFloor)) {
                     layers.set(pFloor, new LLayerGroupWithFloor([], { floorNumber: pFloor }));
                 }
-                L.polyline([pLoc.getXY(), qLoc.getXY()], { "color": "#ff0000" }).addTo(layers.get(pFloor));
+                polyline([pLoc.getXY(), qLoc.getXY()], { "color": "#ff0000" }).addTo(layers.get(pFloor));
             } else {
                 // Different floor, change floors
                 if (!layers.has(pFloor)) {
@@ -271,12 +271,12 @@ export default class MapData {
                 // These icons aren't actually stairs, but they look close enough to get the idea across
                 // They also look much nicer than my poor attempt at creating a stair icon
                 const iconClass = qFloorNumber < pFloorNumber ? "fas fa-sort-amount-up-alt" : "fas fa-sort-amount-down-alt";
-                const stairIcon = L.divIcon({
+                const stairIcon = divIcon({
                     html: <i class={iconClass}></i>,
                     className: "icon nav"
                 });
-                L.marker(pLoc.getXY(), { icon: stairIcon }).addTo(layers.get(pFloor));
-                L.marker(qLoc.getXY(), { icon: stairIcon }).addTo(layers.get(qFloor));
+                marker(pLoc.getXY(), { icon: stairIcon }).addTo(layers.get(pFloor));
+                marker(qLoc.getXY(), { icon: stairIcon }).addTo(layers.get(qFloor));
             }
             last = vert;
         }

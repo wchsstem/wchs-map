@@ -1,6 +1,6 @@
-import * as L from "leaflet";
+import { Control, DomEvent, Map } from "leaflet";
 
-export class LLocationControl extends L.Control {
+export class LLocationControl extends Control {
     private locateCallback: () => void;
     private locateButton: HTMLElement;
 
@@ -28,15 +28,15 @@ export class LLocationControl extends L.Control {
         return button;
     }
 
-    onAdd(_map: L.Map): HTMLElement {
+    onAdd(_map: Map): HTMLElement {
         const base = document.createElement("div");
         base.classList.add("leaflet-bar");
         base.classList.add("leaflet-control");
         base.classList.add("leaflet-control-floors");
         base.appendChild(this.locateButton);
 
-        L.DomEvent.disableClickPropagation(base);
-        L.DomEvent.disableScrollPropagation(base);
+        DomEvent.disableClickPropagation(base);
+        DomEvent.disableScrollPropagation(base);
 
         return base;
     }

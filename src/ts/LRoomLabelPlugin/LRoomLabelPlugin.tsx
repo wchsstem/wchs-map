@@ -1,4 +1,3 @@
-import * as L from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
 
 import "./label.scss";
@@ -11,8 +10,8 @@ import { settings, Watcher } from "../settings";
 import Vertex from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
-import { Geocoder } from "../Geocoder";
 import { Sidebar } from "../Sidebar/SidebarController";
+import { divIcon, LayerGroup, marker, polygon } from "leaflet";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_CLASS_PAIRS = [
@@ -35,7 +34,7 @@ const ROOM_ICON_CLASS_PAIRS = [
     T2.new("idf", "fas fa-network-wired")
 ];
 
-export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFloor {
+export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloor {
     private tree: RBush<BBox>;
     private allLabels: L.Marker[];
     private floorNumber: string;
@@ -68,7 +67,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         for (const room of rooms) {
             if (room.center.getFloor() === floorNumber) {
                 const roomIcon = this.getRoomIcon(room);
-                const roomMarker =  L.marker(room.center.getXY(), {
+                const roomMarker =  marker(room.center.getXY(), {
                     icon: roomIcon,
                     interactive: true
                 });
@@ -77,7 +76,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
                 });
 
                 if (room.outline.length !== 0) {
-                    const outline = L.polygon(room.outline.map((point) => [point[1], point[0]]), {
+                    const outline = polygon(room.outline.map((point) => [point[1], point[0]]), {
                         stroke: false,
                         color: "#7DB534"
                     });
@@ -105,7 +104,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         for (const vertex of vertices) {
             if (vertex.getLocation().getFloor() === floorNumber) {
                 LRoomLabel.getVertexIcon(vertex).ifSome(icon => {
-                    const vertexMarker =  L.marker(vertex.getLocation().getXY(), {
+                    const vertexMarker =  marker(vertex.getLocation().getXY(), {
                         icon: icon
                     });
                     this.addLayer(vertexMarker);
@@ -221,24 +220,16 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
     }
 
     private centerLabels() {
-        this.allLabels
-        .filter(LRoomLabel.layerIsMarker)
-        .forEach(marker => this.centerLabel(marker));
-    }
-
-    private centerLabel(label: L.Marker) {
-        // This is very hacky and uses undocumented functionality
-        // @ts-ignore: can't index "_icon" but does exist on object
-        const icon: HTMLElement = label["_icon"];
-        icon.style.width = "";
-        icon.style.height = "";
-
-        const bb: ClientRect = icon.getBoundingClientRect();
-        const width = bb.width;
-        const height = bb.height;
-        
-        icon.style.marginTop = `${-(height / 2)}px`;
-        icon.style.marginLeft = `${-(width / 2)}px`;
+        const icons = this.allLabels
+            .filter(LRoomLabel.layerIsMarker)
+            .map(LRoomLabel.getIcon);
+        // Make style updates first...
+        icons.forEach(LRoomLabel.removeIconSize);
+        icons
+            // ...then query calculated styles so browser doesn't have to update after each update...
+            .map(LRoomLabel.pairWithDesiredMargin)
+            // ...then update styles again without querying to prevent need for updates
+            .forEach(LRoomLabel.applyIconMargins);
     }
 
     private showMarkerIfVisible(marker: L.Marker) {
@@ -246,6 +237,8 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
 
         // @ts-ignore: _icon does exist on marker
         const icon: HTMLElement = marker["_icon"];
+        const inner = icon.firstChild as HTMLElement;
+        // const clientRect = (icon.tagName === "i" ? icon : inner!).getBoundingClientRect();
         const clientRect = icon.getBoundingClientRect();
         const box = LRoomLabel.toBBox(clientRect);
 
@@ -254,6 +247,36 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
             icon.classList.remove("invisible");
             this.tree.insert(box);
         }
+    }
+
+    private static getIcon(label: L.Marker): HTMLElement {
+        // This is very hacky and uses undocumented functionality
+        // @ts-ignore: can't index "_icon" but does exist on object
+        return label["_icon"];
+    }
+
+    private static removeIconSize(icon: HTMLElement): void {
+        icon.style.removeProperty("width");
+        icon.style.removeProperty("height");
+    }
+
+    private static pairWithDesiredMargin(icon: HTMLElement): T2<HTMLElement, T2<number, number>> {
+        const width = getComputedStyle(icon).width;
+        const height = getComputedStyle(icon).height;
+
+        // Remove "px"
+        const widthNum = parseFloat(width.substring(0, width.length - 2));
+        const heightNum = parseFloat(height.substring(0, height.length - 2));
+
+        const marginLeft = -widthNum / 2;
+        const marginTop = -heightNum / 2;
+
+        return T2.new(icon, T2.new(marginLeft, marginTop));
+    }
+
+    private static applyIconMargins(iconMargins: T2<HTMLElement, T2<number, number>>): void {
+        iconMargins.e0.style.marginLeft = `${iconMargins.e1.e0}px`;
+        iconMargins.e0.style.marginTop = `${iconMargins.e1.e1}px`;
     }
 
     private static getIconClass(pairs: T2<string, string>[], tags: string[]): Option<string> {
@@ -266,12 +289,13 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
         const iconClassName = LRoomLabel.getIconClass(ROOM_ICON_CLASS_PAIRS, room.getTags());
 
         return iconClassName.match({
-            some: iconClassName => L.divIcon({
-                html: <i class={iconClassName}></i> as HTMLElement,
+            some: iconClassName => divIcon({
+                html: <i class={iconClassName} />,
                 className: iconDivClassName
             }),
-            none: L.divIcon({
+            none: divIcon({
                 html: room.getShortName(),
+                // html: <div class="room-label-inner">{room.getShortName()}</div>,
                 className: "room-label"
             })
         });
@@ -279,7 +303,7 @@ export default class LRoomLabel extends L.LayerGroup implements LSomeLayerWithFl
 
     private static getVertexIcon(vertex: Vertex): Option<L.Icon<any>> {
         return LRoomLabel.getIconClass(VERTEX_ICON_CLASS_PAIRS, vertex.getTags())
-            .map(iconClass => L.divIcon({
+            .map(iconClass => divIcon({
                 html: <i class={iconClass}></i> as HTMLElement,
                 className: "icon"
             }));

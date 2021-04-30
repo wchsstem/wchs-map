@@ -7,6 +7,7 @@
     "compileMapJson": "compile_map_json src/data/map.json src/data/map_compiled.json",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rollup -c",
+    "serve-build": "rollup -c && npx serve dist",
     "watch": "rollup -c rollup.dev.config.js -w",
     "check": "tsc --noEmit --strict --noFallthroughCasesInSwitch"
   },
@@ -28,6 +29,7 @@
     "rollup-plugin-styles": "^3.14.1",
     "rollup-plugin-terser": "^7.0.2",
     "sass": "^1.32.8",
+    "serve": "^11.3.2",
     "ts-node": "^8.10.2",
     "tslib": "^2.1.0",
     "typescript": "^4.2.3"

@@ -1,11 +1,10 @@
-import * as L from "leaflet";
-
 import { LLocationControl } from "./LLocationControl";
 import { settings, Watcher } from "../settings";
 import { None, Option, Some } from "@nvarner/monads";
 import { Locator, PositionState } from "../Locator";
+import { circle, circleMarker, LayerGroup } from "leaflet";
 
-export class LLocation extends L.LayerGroup {
+export class LLocation extends LayerGroup {
     private readonly locator: Locator;
     private readonly control: LLocationControl;
 
@@ -115,15 +114,15 @@ export class LLocation extends L.LayerGroup {
     }
 }
 
-class PositionMarker extends L.LayerGroup {
+class PositionMarker extends LayerGroup {
     constructor(position: L.LatLng, accuracyRadius: number, unsure: boolean=false) {
         const color = unsure ? "#bcbcbc" : "#3388ff";
 
-        const positionPoint = L.circleMarker(position, {
+        const positionPoint = circleMarker(position, {
             radius: 1,
             color: color
         });
-        const accuracyCircle = L.circle(position, {
+        const accuracyCircle = circle(position, {
             stroke: false,
             radius: accuracyRadius,
             color: color
