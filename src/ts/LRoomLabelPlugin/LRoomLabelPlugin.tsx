@@ -192,7 +192,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     }
 
     reload() {
-        this.centerLabels();
+        this.removeLabelSizes();
         this.hideAllLayers();
         this.tree.clear();
 
@@ -219,17 +219,11 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         }
     }
 
-    private centerLabels() {
+    private removeLabelSizes() {
         const icons = this.allLabels
             .filter(LRoomLabel.layerIsMarker)
             .map(LRoomLabel.getIcon);
-        // Make style updates first...
         icons.forEach(LRoomLabel.removeIconSize);
-        icons
-            // ...then query calculated styles so browser doesn't have to update after each update...
-            .map(LRoomLabel.pairWithDesiredMargin)
-            // ...then update styles again without querying to prevent need for updates
-            .forEach(LRoomLabel.applyIconMargins);
     }
 
     private showMarkerIfVisible(marker: L.Marker) {
@@ -239,7 +233,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         const icon: HTMLElement = marker["_icon"];
         const inner = icon.firstChild as HTMLElement;
         // const clientRect = (icon.tagName === "i" ? icon : inner!).getBoundingClientRect();
-        const clientRect = icon.getBoundingClientRect();
+        const clientRect = (icon.classList.contains("room-label") ? inner : icon).getBoundingClientRect();
         const box = LRoomLabel.toBBox(clientRect);
 
         if (!this.tree.collides(box)) {
@@ -260,25 +254,6 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         icon.style.removeProperty("height");
     }
 
-    private static pairWithDesiredMargin(icon: HTMLElement): T2<HTMLElement, T2<number, number>> {
-        const width = getComputedStyle(icon).width;
-        const height = getComputedStyle(icon).height;
-
-        // Remove "px"
-        const widthNum = parseFloat(width.substring(0, width.length - 2));
-        const heightNum = parseFloat(height.substring(0, height.length - 2));
-
-        const marginLeft = -widthNum / 2;
-        const marginTop = -heightNum / 2;
-
-        return T2.new(icon, T2.new(marginLeft, marginTop));
-    }
-
-    private static applyIconMargins(iconMargins: T2<HTMLElement, T2<number, number>>): void {
-        iconMargins.e0.style.marginLeft = `${iconMargins.e1.e0}px`;
-        iconMargins.e0.style.marginTop = `${iconMargins.e1.e1}px`;
-    }
-
     private static getIconClass(pairs: T2<string, string>[], tags: string[]): Option<string> {
         return pairs.map(pair => tags.includes(pair.e0) ? Some(pair.e1) : None)
             .reduce((acc, className) => acc.or(className));
@@ -294,7 +269,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
                 className: iconDivClassName
             }),
             none: divIcon({
-                html: <span>{room.getShortName()}</span>,
+                html: <div>{room.getShortName()}</div>,
                 className: "room-label"
             })
         });

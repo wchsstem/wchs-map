@@ -5,8 +5,13 @@
         -1px -1px 0 #ffffff,
         0 0 3px #ffffff;
     transition: opacity 0.2s;
-    text-align: center;
     line-height: 1;
+
+    div {
+        margin-left: -50%;
+        text-align: center;
+        width: inherit;
+    }
 }
 
 .icon, .room-icon {
