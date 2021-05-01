@@ -11,7 +11,7 @@ import Vertex from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { Sidebar } from "../Sidebar/SidebarController";
-import { divIcon, LayerGroup, marker, polygon } from "leaflet";
+import { divIcon, icon, LayerGroup, marker, polygon } from "leaflet";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_CLASS_PAIRS = [
@@ -202,9 +202,16 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     }
 
     private showVisibleLayers() {
-        this.allLabels
+        const iconBBoxs = this.allLabels
             .filter(LRoomLabel.layerIsMarker)
-            .forEach(marker => this.showMarkerIfVisible(marker));
+            .map(LRoomLabel.pairIconWithBBox);
+        for (const iconBBox of iconBBoxs) {
+            if (!this.tree.collides(iconBBox.e1)) {
+                // Can be seen
+                iconBBox.e0.classList.remove("invisible");
+                this.tree.insert(iconBBox.e1);
+            }
+        }
     }
 
     private hideAllLayers() {
@@ -226,21 +233,11 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         icons.forEach(LRoomLabel.removeIconSize);
     }
 
-    private showMarkerIfVisible(marker: L.Marker) {
-        // This is all very hacky and uses undocumented functionality
-
-        // @ts-ignore: _icon does exist on marker
-        const icon: HTMLElement = marker["_icon"];
-        const inner = icon.firstChild as HTMLElement;
-        // const clientRect = (icon.tagName === "i" ? icon : inner!).getBoundingClientRect();
-        const clientRect = (icon.classList.contains("room-label") ? inner : icon).getBoundingClientRect();
-        const box = LRoomLabel.toBBox(clientRect);
-
-        if (!this.tree.collides(box)) {
-            // Can be seen
-            icon.classList.remove("invisible");
-            this.tree.insert(box);
-        }
+    private static pairIconWithBBox(marker: L.Marker): T2<HTMLElement, BBox> {
+        const icon = LRoomLabel.getIcon(marker);
+        const clientRect = (icon.classList.contains("room-label") ? (icon.firstChild as HTMLElement) : icon).getBoundingClientRect();
+        const bbox = LRoomLabel.toBBox(clientRect);
+        return T2.new(icon, bbox);
     }
 
     private static getIcon(label: L.Marker): HTMLElement {
