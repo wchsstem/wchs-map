@@ -294,8 +294,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
                 className: iconDivClassName
             }),
             none: divIcon({
-                html: room.getShortName(),
-                // html: <div class="room-label-inner">{room.getShortName()}</div>,
+                html: <span>{room.getShortName()}</span>,
                 className: "room-label"
             })
         });
