@@ -193,7 +193,6 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
 
     reload() {
         this.removeLabelSizes();
-        this.hideAllLayers();
         this.tree.clear();
 
         if (!this.hiding) {
@@ -210,18 +209,9 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
                 // Can be seen
                 iconBBox.e0.classList.remove("invisible");
                 this.tree.insert(iconBBox.e1);
-            }
-        }
-    }
-
-    private hideAllLayers() {
-        const shownLayers = super.getLayers();
-        for (const layer of shownLayers) {
-            if (LRoomLabel.layerIsMarker(layer)) {
-                // This is very hacky and uses undocumented functionality
-                // @ts-ignore: can't index "_icon" but does exist on object
-                const icon: HTMLElement = layer["_icon"];
-                icon.classList.add("invisible");
+            } else {
+                // Cannot be seen
+                iconBBox.e0.classList.add("invisible");
             }
         }
     }
