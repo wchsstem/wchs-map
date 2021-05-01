@@ -42,8 +42,18 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     private hiding: boolean;
     private removeWatcher: Option<Watcher>;
 
+    private static textWidthCanvas: HTMLCanvasElement;
+    private static textWidthContext: CanvasRenderingContext2D;
+
     constructor(map: MapData, sidebar: Sidebar, floorNumber: string, options?: L.LayerOptions) {
         super([], options);
+
+        if (!LRoomLabel.textWidthCanvas) {
+            LRoomLabel.textWidthCanvas = <canvas></canvas>;
+            LRoomLabel.textWidthContext = LRoomLabel.textWidthCanvas.getContext("2d")!;
+            LRoomLabel.textWidthContext.font = "12px 400 \"Helvetica Neue\", Arial, Helvetica, sans-serif";
+        }
+
         this.tree = new RBush();
         this.allLabels = [];
         this.floorNumber = floorNumber;
@@ -192,7 +202,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     }
 
     reload() {
-        this.removeLabelSizes();
+        // this.removeLabelSizes();
         this.tree.clear();
 
         if (!this.hiding) {
@@ -216,13 +226,6 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         }
     }
 
-    private removeLabelSizes() {
-        const icons = this.allLabels
-            .filter(LRoomLabel.layerIsMarker)
-            .map(LRoomLabel.getIcon);
-        icons.forEach(LRoomLabel.removeIconSize);
-    }
-
     private static pairIconWithBBox(marker: L.Marker): T2<HTMLElement, BBox> {
         const icon = LRoomLabel.getIcon(marker);
         const clientRect = (icon.classList.contains("room-label") ? (icon.firstChild as HTMLElement) : icon).getBoundingClientRect();
@@ -234,11 +237,6 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         // This is very hacky and uses undocumented functionality
         // @ts-ignore: can't index "_icon" but does exist on object
         return label["_icon"];
-    }
-
-    private static removeIconSize(icon: HTMLElement): void {
-        icon.style.removeProperty("width");
-        icon.style.removeProperty("height");
     }
 
     private static getIconClass(pairs: T2<string, string>[], tags: string[]): Option<string> {
@@ -255,11 +253,33 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
                 html: <i class={iconClassName} />,
                 className: iconDivClassName
             }),
-            none: divIcon({
-                html: <div>{room.getShortName()}</div>,
-                className: "room-label"
-            })
+            none: () => {
+                const iconText = room.getShortName();
+                return divIcon({
+                    html: <div>{iconText}</div>,
+                    className: "room-label",
+                    iconSize: LRoomLabel.textSize(iconText)
+                });
+            }
         });
+    }
+
+    private static textSize(text: string): [number, number] {
+        const words = text.split(" ");
+        return words
+            .map(LRoomLabel.wordSize)
+            .reduce(
+                ([maxWidth, totalHeight], [currWidth, currHeight]) =>
+                    [Math.max(maxWidth, currWidth), totalHeight + currHeight]);
+    }
+
+    private static wordSize(word: string): [number, number] {
+        // 'm' for extra padding because this seems to underestimate
+        const metrics = LRoomLabel.textWidthContext.measureText(word + "m");
+        return [
+            metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight,
+            1.5 * (metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent)
+        ];
     }
 
     private static getVertexIcon(vertex: Vertex): Option<L.Icon<any>> {
