@@ -38,18 +38,6 @@ function main() {
     const pushX = 5;
     const bounds = new LatLngBounds([0, pushX], [scale * height, (scale * width) + pushX]);
 
-    // @ts-ignore: JSON works fine here
-    const mapData = new MapData(mapDataJson, bounds);
-
-    // Initialize geocoder
-    const geocoder = new Geocoder();
-    for (const room of mapData.getAllRooms()) {
-        geocoder.addDefinition(room);
-    }
-
-    // Initialize locator
-    const locator = new Locator(logger);
-
     // Create map
     const map = lMap("map", {
         crs: CRS.Simple,
@@ -64,6 +52,15 @@ function main() {
         wheelPxPerZoomLevel: 75
     });
     map.fitBounds(bounds.pad(0.05));
+
+    // @ts-ignore: JSON works fine here
+    const mapData = new MapData(mapDataJson, bounds);
+
+    // Create geocoder
+    const geocoder = new Geocoder();
+
+    // Initialize locator
+    const locator = new Locator(logger);
 
     // Add location dot if we might be able to use it
     if (locator.getCanEverGeolocate()) {
@@ -104,6 +101,11 @@ function main() {
             map.off("click", showClickLoc);
         }
     }));
+
+    // Initialize geocoder with definitions
+    for (const room of mapData.getAllRooms()) {
+        geocoder.addDefinition(room);
+    }
 }
 
 main();

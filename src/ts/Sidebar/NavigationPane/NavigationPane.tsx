@@ -99,18 +99,18 @@ export class NavigationPane extends Pane {
         const navigationPane = new NavigationPane(navPane, fromInput, toInput, mapData, geocoder, floorsLayer, new Set(), None, focus, None, None, None, None);
 
         swapToFrom.addEventListener("click", _event => navigationPane.swapNav(true, true));
-        fromInput.addEventListener("input", _event => {
+        fromInput.addEventListener("input", async _event => {
             const query = fromInput.value;
-            const results = geocoder.getSuggestionsFrom(query);
+            const results = await geocoder.getSuggestionsFrom(query);
             updateWithResults(query, results, resultContainer, (result) => {
                 const definition = geocoder.getDefinitionFromName(result.name).unwrap();
                 navigationPane.navigateFrom(Some(definition), true, true);
                 clearResults(resultContainer);
             });
         });
-        toInput.addEventListener("input", _event => {
+        toInput.addEventListener("input", async _event => {
             const query = toInput.value;
-            const results = geocoder.getSuggestionsFrom(query);
+            const results = await geocoder.getSuggestionsFrom(query);
             updateWithResults(query, results, resultContainer, (result) => {
                 const definition = geocoder.getDefinitionFromName(result.name).unwrap();
                 navigationPane.navigateTo(Some(definition), true, true);

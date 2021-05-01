@@ -45,9 +45,9 @@ export class SearchPane extends Pane {
         const searchBarContainer = <div class="wrapper">{searchBar}</div>
         this.resultContainer = <div class="wrapper results-wrapper leaflet-style hidden" />
 
-        searchBar.addEventListener("input", () => {
+        searchBar.addEventListener("input", async () => {
             const query = searchBar.value;
-            const results = geocoder.getSuggestionsFrom(query);
+            const results = await geocoder.getSuggestionsFrom(query);
             this.updateWithResults(query, results, onClickResult);
         });
 

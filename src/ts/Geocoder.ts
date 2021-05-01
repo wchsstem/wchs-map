@@ -44,7 +44,8 @@ export interface GeocoderDefinition {
 }
 
 export class Geocoder {
-    private readonly search: MiniSearch;
+    private readonly search: Promise<MiniSearch>;
+ 
     private readonly definitionsByName: Map<string, GeocoderDefinition>;
     /**
      * Definitions indexed by alternate names. They are not guaranteed to be unique, so some definitions may be
@@ -57,19 +58,21 @@ export class Geocoder {
     private readonly roomCenterIndices: Map<string, BuildingKDTree>;
 
     constructor() {
-        this.search = new MiniSearch({
-            idField: "getName",
-            fields: ["getName", "getAlternateNames", "getDescription", "getTags"],
-            storeFields: ["getName"],
-            // Call the function instead of getting the value of a field
-            extractField: (definition, fieldName) => definition[fieldName](),
-            searchOptions: {
-                prefix: true,
-                boost: {
-                    name: 2
+        this.search = (async () => {
+            return new MiniSearch({
+                idField: "getName",
+                fields: ["getName", "getAlternateNames", "getDescription", "getTags"],
+                storeFields: ["getName"],
+                // Call the function instead of getting the value of a field
+                extractField: (definition, fieldName) => definition[fieldName](),
+                searchOptions: {
+                    prefix: true,
+                    boost: {
+                        name: 2
+                    }
                 }
-            }
-        });
+            })
+        })();
         this.definitionsByName = new Map();
         this.definitionsByAltName = new Map();
         this.definitionsByLocation = new Map();
@@ -81,7 +84,7 @@ export class Geocoder {
      * Adds a definition to the geocoder. Overrides any other definition with the same name, if already added to the
      * geocoder. Returns the definition it replaced, if any.
      */
-    public addDefinition(definition: GeocoderDefinition): Option<GeocoderDefinition> {
+    public async addDefinition(definition: GeocoderDefinition): Promise<Option<GeocoderDefinition>> {
         // Deal with the existing definition if it exists
         const existing = fromMap(this.definitionsByName, definition.getName())
             .map(existing => {
@@ -93,7 +96,7 @@ export class Geocoder {
         definition.getAlternateNames().forEach(altName => this.definitionsByAltName.set(altName, definition));
         this.definitionsByLocation.set(definition.getLocation(), definition);
         this.allNames.add(definition.getName());
-        this.search.add(definition);
+        (await this.search).add(definition);
 
         const floor = definition.getLocation().getFloor();
 
@@ -105,7 +108,7 @@ export class Geocoder {
         return existing;
     }
 
-    public removeDefinition(definition: GeocoderDefinition): void {
+    public async removeDefinition(definition: GeocoderDefinition): Promise<void> {
         this.definitionsByName.delete(definition.getName());
 
         const newDefinitionsByAltName = [...this.definitionsByAltName]
@@ -121,7 +124,7 @@ export class Geocoder {
 
         this.allNames.delete(definition.getName());
 
-        this.search.remove(definition);
+        (await this.search).remove(definition);
 
         this.updateTree(definition.getLocation().getFloor(), tree => {
             tree.remove(definitionToKDTreeEntry(definition));
@@ -129,8 +132,8 @@ export class Geocoder {
         });
     }
 
-    public getSuggestionsFrom(query: string): GeocoderSuggestion[] {
-        return this.search.search(query)
+    public async getSuggestionsFrom(query: string): Promise<GeocoderSuggestion[]> {
+        return (await this.search).search(query)
             // .getName here is a field, not a method, so named because of how minisearch works
             .map(searchResult => new GeocoderSuggestion(searchResult.getName));
     }
