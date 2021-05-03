@@ -11,7 +11,7 @@ import Vertex from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { Sidebar } from "../Sidebar/SidebarController";
-import { divIcon, icon, LayerGroup, marker, polygon } from "leaflet";
+import { divIcon, icon, LayerGroup, marker, PointTuple, polygon } from "leaflet";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_CLASS_PAIRS = [
@@ -202,7 +202,6 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     }
 
     reload() {
-        // this.removeLabelSizes();
         this.tree.clear();
 
         if (!this.hiding) {
@@ -227,9 +226,21 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     }
 
     private static pairIconWithBBox(marker: L.Marker): T2<HTMLElement, BBox> {
+        const size = marker.options.icon!.options.iconSize! as PointTuple;
+        const horizontalRad = size[0] / 2;
+        const verticalRad = size[1] / 2;
+
         const icon = LRoomLabel.getIcon(marker);
-        const clientRect = (icon.classList.contains("room-label") ? (icon.firstChild as HTMLElement) : icon).getBoundingClientRect();
-        const bbox = LRoomLabel.toBBox(clientRect);
+        const transformArgs = icon.style.transform.substring("translate3d(".length).split(',');
+        const transformHorizontal = parseFloat(transformArgs[0]);
+        const transformVertical = parseFloat(transformArgs[1]);
+
+        const bbox: BBox = {
+            minX: transformHorizontal - horizontalRad,
+            maxX: transformHorizontal + horizontalRad,
+            minY: transformVertical - verticalRad,
+            maxY: transformVertical + verticalRad
+        };
         return T2.new(icon, bbox);
     }
 
@@ -251,7 +262,8 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         return iconClassName.match({
             some: iconClassName => divIcon({
                 html: <i class={iconClassName} />,
-                className: iconDivClassName
+                className: iconDivClassName,
+                iconSize: [28, 28]
             }),
             none: () => {
                 const iconText = room.getShortName();
@@ -286,21 +298,13 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         return LRoomLabel.getIconClass(VERTEX_ICON_CLASS_PAIRS, vertex.getTags())
             .map(iconClass => divIcon({
                 html: <i class={iconClass}></i> as HTMLElement,
-                className: "icon"
+                className: "icon",
+                iconSize: [28, 28]
             }));
     }
 
     private static layerIsMarker(layer: L.Layer): boolean {
         // TODO: find a better way to tell (i.e. less hacky, documented, works even if layer is hidden)
         return "_icon" in layer && layer["_icon"] != null;
-    }
-
-    private static toBBox(from: ClientRect): BBox {
-        return {
-            minX: from.left,
-            minY: from.top,
-            maxX: from.right,
-            maxY: from.bottom
-        };
     }
 }
