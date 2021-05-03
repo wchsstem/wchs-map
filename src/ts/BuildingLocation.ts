@@ -27,6 +27,16 @@ export class BuildingLocation {
             return None;
         }
     }
+
+    public distance2To(other: BuildingLocation): Option<number> {
+        if (this.floor === other.floor) {
+            const dlat = other.xy.lat - this.xy.lat;
+            const dlng = other.xy.lng - this.xy.lng;
+            return Some((dlat * dlat) + (dlng * dlng));
+        } else {
+            return None;
+        }
+    }
 }
 
 /**

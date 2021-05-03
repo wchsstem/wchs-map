@@ -5,7 +5,7 @@ import Room from "./Room";
 import Vertex from "./Vertex";
 import { LSomeLayerWithFloor, LLayerGroupWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
 import { GeocoderDefinition } from "./Geocoder";
-import { BuildingLocation, BuildingLocationWithEntrances } from "./BuildingLocation";
+import { BuildingLocation } from "./BuildingLocation";
 
 import { h } from "../ts/JSX";
 import { circle, divIcon, LatLng, marker, polyline } from "leaflet";
@@ -52,13 +52,13 @@ export default class MapData {
 
         this.graph = new Graph<number, Vertex>();
         for (const vertexName in mapData.vertices) {
-            const vertexId = fromMap(this.vertexStringToId, vertexName).unwrap();
+            const vertexId = this.vertexStringToId.get(vertexName)!;
             this.graph.addVertex(vertexId, new Vertex(mapData.vertices[vertexName]));
         }
 
         for (const edge of mapData.edges) {
-            const pId = fromMap(this.vertexStringToId, edge[0]).unwrap();
-            const qId = fromMap(this.vertexStringToId, edge[1]).unwrap();
+            const pId = this.vertexStringToId.get(edge[0])!;
+            const qId = this.vertexStringToId.get(edge[1])!;
 
             const p = this.graph.getVertex(pId);
             const q = this.graph.getVertex(qId);
@@ -80,7 +80,7 @@ export default class MapData {
         for (const roomNumber in mapData.rooms) {
             const room = mapData.rooms[roomNumber];
 
-            const someVertex = this.graph.getVertex(fromMap(this.vertexStringToId, room.vertices[0]).unwrap());
+            const someVertex = this.graph.getVertex(this.vertexStringToId.get(room.vertices[0])!);
             const floorNumber = someVertex.getLocation().getFloor();
             const center = room.center
                 ? new BuildingLocation(new LatLng(room.center[1], room.center[0]), floorNumber)
@@ -88,7 +88,7 @@ export default class MapData {
 
             // Get entrances into the room
             const entrances = room.vertices
-                .map(vertexStringId => fromMap(this.vertexStringToId, vertexStringId).unwrap())
+                .map(vertexStringId => this.vertexStringToId.get(vertexStringId)!)
                 .map(vertexId => this.graph.getVertex(vertexId).getLocation());
 
             const area = room.area ?? 0;
@@ -105,7 +105,7 @@ export default class MapData {
                 if (!this.roomsFromNames.has(name)) {
                     this.roomsFromNames.set(name, []);
                 }
-                fromMap(this.roomsFromNames, name).unwrap().push(room);
+                this.roomsFromNames.get(name)!.push(room);
             }
         }
 
@@ -123,7 +123,7 @@ export default class MapData {
     }
 
     getRoom(roomId: string): Room {
-        return fromMap(this.rooms, roomId).unwrap();
+        return this.rooms.get(roomId)!;
     }
 
     getAllRooms(): Room[] {
@@ -131,7 +131,7 @@ export default class MapData {
     }
 
     getRoomsFromName(name: string): Room[] {
-        return fromMap(this.roomsFromNames, name).unwrap();
+        return this.roomsFromNames.get(name)!;
     }
 
     findBestPath(src: GeocoderDefinition, dest: GeocoderDefinition): Option<number[]> {
@@ -149,7 +149,7 @@ export default class MapData {
                 const entranceId = this.getClosestVertex(entranceLocation);
 
                 // Find the distance between the source and destination
-                const distance = fromMap(dist, entranceId).unwrap();
+                const distance = dist.get(entranceId)!;
                 // If the distance is shortest, choose it
                 if (shortestDistance === null || distance < shortestDistance) {
                     shortestDistance = distance;
@@ -206,8 +206,8 @@ export default class MapData {
             floorNumber: floor
         });
         for (const edge of this.edges) {
-            const p = this.graph.getVertex(fromMap(this.vertexStringToId, edge[0]).unwrap());
-            const q = this.graph.getVertex(fromMap(this.vertexStringToId, edge[1]).unwrap());
+            const p = this.graph.getVertex(this.vertexStringToId.get(edge[0])!);
+            const q = this.graph.getVertex(this.vertexStringToId.get(edge[1])!);
 
             if (p.getLocation().getFloor() === floor && q.getLocation().getFloor() === floor) {
                 const pLoc = p.getLocation();
@@ -289,13 +289,13 @@ export default class MapData {
     }
 
     private getClosestVertex(location: BuildingLocation): number {
-        const idVertexToIdDistance = function (idVertex: [number, Vertex]): [number, Option<number>] {
+        const idVertexToIdDistance2 = function (idVertex: [number, Vertex]): [number, Option<number>] {
             const [id, vertex] = idVertex;
-            return [id, vertex.getLocation().distanceTo(location)];
+            return [id, vertex.getLocation().distance2To(location)];
         }
 
         const [closestId, _distance] = this.graph.getIdsAndVertices()
-            .map(idVertexToIdDistance)
+            .map(idVertexToIdDistance2)
             .filter(([_id, distance]) => distance.isSome())
             .map(([id, distanceOption]) => [id, distanceOption.unwrap()])
             .reduce(([minimumId, minimumDistance], [id, distance]) =>

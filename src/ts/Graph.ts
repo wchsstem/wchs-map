@@ -16,8 +16,8 @@ export default class Graph<K, V> {
     }
 
     addEdge(p: K, q: K, weight: number) {
-        fromMap(this.adjList, p).unwrap().push([q, weight]);
-        fromMap(this.adjList, q).unwrap().push([p, weight]);
+        this.adjList.get(p)!.push([q, weight]);
+        this.adjList.get(q)!.push([p, weight]);
     }
 
     /**
@@ -27,11 +27,11 @@ export default class Graph<K, V> {
      * @param weight Weight of the edge
      */
     addDirectedEdge(p: K, q: K, weight: number) {
-        fromMap(this.adjList, p).unwrap().push([q, weight]);
+        this.adjList.get(p)!.push([q, weight]);
     }
 
     getVertex(p: K): V {
-        return fromMap(this.vertices, p).unwrap();
+        return this.vertices.get(p)!;
     }
 
     getIdsAndVertices(): [K, V][] {
@@ -39,7 +39,7 @@ export default class Graph<K, V> {
     }
 
     getNeighbors(v: K): K[] {
-        return fromMap(this.adjList, v).unwrap().map(u => u[0]);
+        return this.adjList.get(v)!.map(u => u[0]);
     }
 
     getWeight(v: K, u: K): Option<number> {
@@ -72,7 +72,7 @@ export default class Graph<K, V> {
                 // TODO: Maybe use None?
                 prev.set(v, null);
             }
-            const node = q.insert(fromMap(dist, v).unwrap(), v);
+            const node = q.insert(dist.get(v)!, v);
             vertexToNode.set(v, node);
         }
 
@@ -80,12 +80,12 @@ export default class Graph<K, V> {
             const u = q.extractMinimum()!.value!;
 
             for (const v of this.getNeighbors(u)) {
-                const vWeight = fromMap(dist, v).unwrap();
-                const alt = fromMap(dist, u).unwrap() + this.getWeight(u, v).unwrap();
+                const vWeight = dist.get(v)!;
+                const alt = dist.get(u)! + this.getWeight(u, v).unwrap();
                 if (alt < vWeight) {
                     dist.set(v, alt);
                     prev.set(v, u);
-                    const node = fromMap(vertexToNode, v).unwrap();
+                    const node = vertexToNode.get(v)!;
                     q.decreaseKey(node, alt);
                 }
             }
