@@ -6,7 +6,7 @@ import "../assets/fontawesome/all.min.css";
 
 import { settings, Watcher } from "./settings";
 import MapData from "./MapData";
-import { LFloors } from "./LFloorsPlugin/LFloorsPlugin";
+import { LFloors, LSomeLayerWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../style.scss";
 import LRoomLabel from "./LRoomLabelPlugin/LRoomLabelPlugin";
@@ -18,6 +18,7 @@ import { Geocoder } from "./Geocoder";
 import { Locator } from "./Locator";
 import { Sidebar } from "./Sidebar/SidebarController";
 import { CRS, LatLngBounds, map as lMap, popup } from "leaflet";
+import { None, Some, Option } from "@nvarner/monads";
 
 function main() {
     if ("serviceWorker" in navigator) {
@@ -58,6 +59,12 @@ function main() {
 
     // Create geocoder
     const geocoder = new Geocoder();
+    (async () => {
+        // Initialize geocoder with definitions
+        for (const room of mapData.getAllRooms()) {
+            geocoder.addDefinition(room);
+        }
+    })();
 
     // Initialize locator
     const locator = new Locator(logger);
@@ -78,9 +85,8 @@ function main() {
     floors.addLayer(new LRoomLabel(mapData, sidebar, "1"));
     floors.addLayer(new LRoomLabel(mapData, sidebar, "2"));
 
-    // Display dev layer and location of mouse click when dev is enabled
-    const devLayer1 = mapData.createDevLayerGroup("1");
-    const devLayer2 = mapData.createDevLayerGroup("2");
+    // Display vertices, edges, mouse click location
+    let devLayers: Option<LSomeLayerWithFloor[]> = None;
 
     const locationPopup = popup();
     function showClickLoc(e: L.LeafletMouseEvent): void {
@@ -91,21 +97,24 @@ function main() {
 
     settings.addWatcher("dev", new Watcher((devUnknown) => {
         const dev = devUnknown as boolean;
+
         if (dev) {
-            floors.addLayer(devLayer1);
-            floors.addLayer(devLayer2);
+            if (devLayers.isNone()) {
+                const layers = mapData
+                    .getFloors()
+                    .map(floorData => floorData.number)
+                    .map(floor => mapData.createDevLayerGroup(floor));
+                devLayers = Some(layers);
+            }
+            devLayers.unwrap().forEach(devLayer => floors.addLayer(devLayer));
             map.on("click", showClickLoc);
         } else {
-            floors.removeLayer(devLayer1);
-            floors.removeLayer(devLayer2);
-            map.off("click", showClickLoc);
+            devLayers.ifSome(layers => {
+                layers.forEach(devLayer => floors.removeLayer(devLayer));
+                map.off("click", showClickLoc);
+            });
         }
     }));
-
-    // Initialize geocoder with definitions
-    for (const room of mapData.getAllRooms()) {
-        geocoder.addDefinition(room);
-    }
 }
 
 main();
