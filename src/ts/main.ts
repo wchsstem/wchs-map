@@ -48,7 +48,8 @@ function main() {
         minZoom: -1,
         maxBounds: bounds.pad(0.5),
         maxBoundsViscosity: 1,
-        zoomSnap: 0,
+        // zoomSnap: 0,
+        zoomSnap: 1,
         zoomDelta: 0.4,
         wheelPxPerZoomLevel: 75
     });
@@ -95,7 +96,7 @@ function main() {
             .openOn(map);
     }
 
-    settings.addWatcher("dev", new Watcher((devUnknown) => {
+    settings.addWatcher("dev", new Watcher(devUnknown => {
         const dev = devUnknown as boolean;
 
         if (dev) {

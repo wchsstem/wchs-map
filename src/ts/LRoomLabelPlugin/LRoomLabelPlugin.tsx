@@ -11,7 +11,8 @@ import Vertex from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { Sidebar } from "../Sidebar/SidebarController";
-import { divIcon, icon, LayerGroup, marker, PointTuple, polygon } from "leaflet";
+import { divIcon, LayerGroup, LayerOptions, Marker, marker, PointTuple, Polygon, polygon, Map as LMap, Icon, Layer } from "leaflet";
+import { LabelLayer } from "./LabelLayer";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_CLASS_PAIRS = [
@@ -36,22 +37,23 @@ const ROOM_ICON_CLASS_PAIRS = [
 
 export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloor {
     private tree: RBush<BBox>;
-    private allLabels: L.Marker[];
+    private allLabels: Marker[];
     private floorNumber: string;
-    private roomOutlines: L.Polygon[];
+    private roomOutlines: Polygon[];
     private hiding: boolean;
     private removeWatcher: Option<Watcher>;
+    private readonly labelLayer: LabelLayer;
 
     private static textWidthCanvas: HTMLCanvasElement;
     private static textWidthContext: CanvasRenderingContext2D;
 
-    constructor(map: MapData, sidebar: Sidebar, floorNumber: string, options?: L.LayerOptions) {
+    constructor(map: MapData, sidebar: Sidebar, floorNumber: string, options?: LayerOptions) {
         super([], options);
 
         if (!LRoomLabel.textWidthCanvas) {
             LRoomLabel.textWidthCanvas = <canvas></canvas>;
             LRoomLabel.textWidthContext = LRoomLabel.textWidthCanvas.getContext("2d")!;
-            LRoomLabel.textWidthContext.font = "12px 400 \"Helvetica Neue\", Arial, Helvetica, sans-serif";
+            LRoomLabel.textWidthContext.font = "12px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif";
         }
 
         this.tree = new RBush();
@@ -70,9 +72,11 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
             .getIdsAndVertices()
             .map(([_id, vertex]) => vertex);
 
-        const infrastructureMarkers: L.Marker[] = [];
-        const emergencyMarkers: L.Marker[] = [];
-        const closedMarkers: L.Marker[] = [];
+        const infrastructureMarkers: Marker[] = [];
+        const emergencyMarkers: Marker[] = [];
+        const closedMarkers: Marker[] = [];
+
+        const labels = [];
 
         for (const room of rooms) {
             if (room.center.getFloor() === floorNumber) {
@@ -91,7 +95,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
                         color: "#7DB534"
                     });
                     this.roomOutlines.push(outline);
-                    super.addLayer(outline);
+                    // super.addLayer(outline);
                     outline.on("click", () => {
                         sidebar.openInfo(room);
                     });
@@ -106,7 +110,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
                 } else if (room.isClosed()) {
                     closedMarkers.push(roomMarker);
                 } else {
-                    this.addLayer(roomMarker);
+                    labels.push(roomMarker);
                 }
             }
         }
@@ -114,62 +118,71 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         for (const vertex of vertices) {
             if (vertex.getLocation().getFloor() === floorNumber) {
                 LRoomLabel.getVertexIcon(vertex).ifSome(icon => {
-                    const vertexMarker =  marker(vertex.getLocation().getXY(), {
+                    const vertexMarker = marker(vertex.getLocation().getXY(), {
                         icon: icon
                     });
-                    this.addLayer(vertexMarker);
+                    labels.push(vertexMarker);
                 });
             }
         }
 
-        settings.addWatcher("show-infrastructure", new Watcher(shouldShowUnknown => {
-            const shouldShow = shouldShowUnknown as boolean;
-            if (shouldShow) {
-                infrastructureMarkers.forEach(marker => this.addLayer(marker));
-            } else {
-                infrastructureMarkers.forEach(marker => this.removeLayer(marker));
-            }
-            this.reload();
-        }));
+        this.labelLayer = new LabelLayer(labels, {
+            minZoom: -Infinity,
+            maxZoom: Infinity,
+            updateWhenZooming: false,
+            keepBuffer: 5,
+            updateWhenIdle: true
+        });
+        super.addLayer(this.labelLayer);
 
-        settings.addWatcher("show-emergency", new Watcher(shouldShowUnknown => {
-            const shouldShow = shouldShowUnknown as boolean;
-            if (shouldShow) {
-                emergencyMarkers.forEach(marker => this.addLayer(marker));
-            } else {
-                emergencyMarkers.forEach(marker => this.removeLayer(marker));
-            }
-            this.reload();
-        }));
+        // settings.addWatcher("show-infrastructure", new Watcher(shouldShowUnknown => {
+        //     const shouldShow = shouldShowUnknown as boolean;
+        //     if (shouldShow) {
+        //         infrastructureMarkers.forEach(marker => this.addLayer(marker));
+        //     } else {
+        //         infrastructureMarkers.forEach(marker => this.removeLayer(marker));
+        //     }
+        //     this.reload();
+        // }));
 
-        settings.addWatcher("show-closed", new Watcher(shouldShowUnknown => {
-            const shouldShow = shouldShowUnknown as boolean;
-            if (shouldShow) {
-                closedMarkers.forEach(marker => this.addLayer(marker));
-            } else {
-                closedMarkers.forEach(marker => this.removeLayer(marker));
-            }
-            this.reload();
-        }));
+        // settings.addWatcher("show-emergency", new Watcher(shouldShowUnknown => {
+        //     const shouldShow = shouldShowUnknown as boolean;
+        //     if (shouldShow) {
+        //         emergencyMarkers.forEach(marker => this.addLayer(marker));
+        //     } else {
+        //         emergencyMarkers.forEach(marker => this.removeLayer(marker));
+        //     }
+        //     this.reload();
+        // }));
+
+        // settings.addWatcher("show-closed", new Watcher(shouldShowUnknown => {
+        //     const shouldShow = shouldShowUnknown as boolean;
+        //     if (shouldShow) {
+        //         closedMarkers.forEach(marker => this.addLayer(marker));
+        //     } else {
+        //         closedMarkers.forEach(marker => this.removeLayer(marker));
+        //     }
+        //     this.reload();
+        // }));
     }
 
     public getFloorNumber(): string {
         return this.floorNumber;
     }
 
-    addLayer(layer: L.Marker): this {
+    addLayer(layer: Marker): this {
         super.addLayer(layer);
         this.allLabels.push(layer);
         return this;
     }
 
-    removeLayer(layer: L.Marker): this {
+    removeLayer(layer: Marker): this {
         super.removeLayer(layer);
         this.allLabels = this.allLabels.filter(currentLayer => currentLayer !== layer);
         return this;
     }
 
-    onAdd(map: L.Map): this {
+    onAdd(map: LMap): this {
         super.onAdd(map);
         map.on("zoomend", this.reload, this);
         this.reload();
@@ -190,7 +203,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         return this;
     }
 
-    onRemove(map: L.Map): this {
+    onRemove(map: LMap): this {
         super.onRemove(map);
 
         settings.removeWatcher("show-markers", this.removeWatcher.unwrap());
@@ -210,44 +223,17 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     }
 
     private showVisibleLayers() {
-        const iconBBoxs = this.allLabels
-            .filter(LRoomLabel.layerIsMarker)
-            .map(LRoomLabel.pairIconWithBBox);
-        for (const iconBBox of iconBBoxs) {
-            if (!this.tree.collides(iconBBox.e1)) {
-                // Can be seen
-                iconBBox.e0.classList.remove("invisible");
-                this.tree.insert(iconBBox.e1);
-            } else {
-                // Cannot be seen
-                iconBBox.e0.classList.add("invisible");
-            }
-        }
-    }
-
-    private static pairIconWithBBox(marker: L.Marker): T2<HTMLElement, BBox> {
-        const size = marker.options.icon!.options.iconSize! as PointTuple;
-        const horizontalRad = size[0] / 2;
-        const verticalRad = size[1] / 2;
-
-        const icon = LRoomLabel.getIcon(marker);
-        const transformArgs = icon.style.transform.substring("translate3d(".length).split(',');
-        const transformHorizontal = parseFloat(transformArgs[0]);
-        const transformVertical = parseFloat(transformArgs[1]);
-
-        const bbox: BBox = {
-            minX: transformHorizontal - horizontalRad,
-            maxX: transformHorizontal + horizontalRad,
-            minY: transformVertical - verticalRad,
-            maxY: transformVertical + verticalRad
-        };
-        return T2.new(icon, bbox);
-    }
-
-    private static getIcon(label: L.Marker): HTMLElement {
-        // This is very hacky and uses undocumented functionality
-        // @ts-ignore: can't index "_icon" but does exist on object
-        return label["_icon"];
+        // const iconBBoxs = this.allLabels
+        //     .filter(LRoomLabel.layerIsMarker)
+        //     .map(LRoomLabel.pairMarkerWithBBox);
+        // const toShow = [];
+        // for (const iconBBox of iconBBoxs) {
+        //     if (!this.tree.collides(iconBBox.e1)) {
+        //         // Can be seen
+        //         toShow.push(iconBBox.e0);
+        //         this.tree.insert(iconBBox.e1);
+        //     }
+        // }
     }
 
     private static getIconClass(pairs: T2<string, string>[], tags: string[]): Option<string> {
@@ -255,7 +241,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
             .reduce((acc, className) => acc.or(className));
     }
 
-    private getRoomIcon(room: Room): L.Icon<any> {
+    private getRoomIcon(room: Room): Icon<any> {
         const iconDivClassName = room.tags.includes("closed") ? "closed room-icon" : "room-icon";
         const iconClassName = LRoomLabel.getIconClass(ROOM_ICON_CLASS_PAIRS, room.getTags());
 
@@ -294,7 +280,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         ];
     }
 
-    private static getVertexIcon(vertex: Vertex): Option<L.Icon<any>> {
+    private static getVertexIcon(vertex: Vertex): Option<Icon<any>> {
         return LRoomLabel.getIconClass(VERTEX_ICON_CLASS_PAIRS, vertex.getTags())
             .map(iconClass => divIcon({
                 html: <i class={iconClass}></i> as HTMLElement,
@@ -303,7 +289,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
             }));
     }
 
-    private static layerIsMarker(layer: L.Layer): boolean {
+    private static layerIsMarker(layer: Layer): boolean {
         // TODO: find a better way to tell (i.e. less hacky, documented, works even if layer is hidden)
         return "_icon" in layer && layer["_icon"] != null;
     }

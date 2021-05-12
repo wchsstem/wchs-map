@@ -20,7 +20,7 @@
     "@rollup/plugin-typescript": "^8.2.0",
     "@types/domhandler": "^2.4.1",
     "@types/kd-tree-javascript": "^1.0.0",
-    "@types/leaflet": "^1.5.21",
+    "@types/leaflet": "^1.7.0",
     "rollup": "^2.38.4",
     "rollup-plugin-copy": "^2.0.1",
     "rollup-plugin-json": "^4.0.0",

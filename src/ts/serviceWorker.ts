@@ -31,9 +31,12 @@ self.addEventListener("fetch", e => {
     e.respondWith(
         caches.match(request)
             .then((response) => {
+                console.log("response:", response);
                 if (response) {
+                    console.log("returning response");
                     return response;
                 }
+                console.log("fetching resource");
                 return fetch(request).then((response) => {
                     if (!response || response.status !== 200 || response.type !== "basic") {
                         return response;
