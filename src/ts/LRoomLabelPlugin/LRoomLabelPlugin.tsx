@@ -35,16 +35,19 @@ const ROOM_ICON_PAIRS = [
 ];
 
 export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloor {
-    private allLabels: Marker[];
+    private readonly normalLabels: Label[];
+    private readonly infrastructureLabels: Label[];
+    private readonly emergencyLabels: Label[];
+    private readonly closedLabels: Label[];
+
     private floorNumber: string;
     private removeWatcher: Option<Watcher>;
-    private readonly labelLayer: LabelLayer;
+    private labelLayer: LabelLayer | undefined;
     private readonly outlineLayer: OutlineLayer;
 
     constructor(map: MapData, floorNumber: string, options?: LayerOptions) {
         super([], options);
 
-        this.allLabels = [];
         this.floorNumber = floorNumber;
         this.removeWatcher = None;
 
@@ -57,9 +60,9 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
             .getIdsAndVertices()
             .map(([_id, vertex]) => vertex);
 
-        const infrastructureMarkers: Label[] = [];
-        const emergencyMarkers: Label[] = [];
-        const closedMarkers: Label[] = [];
+        const infrastructureLabels: Label[] = [];
+        const emergencyLabels: Label[] = [];
+        const closedLabels: Label[] = [];
 
         const outlines = [];
         const labels = [];
@@ -85,13 +88,13 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
                     console.log(`Room has no outline: ${room.getName()}`);
                 }
 
-                const roomLabel = this.getRoomLabel(room);
+                const roomLabel = LRoomLabel.getRoomLabel(room);
                 if (room.isInfrastructure()) {
-                    infrastructureMarkers.push(roomLabel);
+                    infrastructureLabels.push(roomLabel);
                 } else if (room.isEmergency()) {
-                    emergencyMarkers.push(roomLabel);
+                    emergencyLabels.push(roomLabel);
                 } else if (room.isClosed()) {
-                    closedMarkers.push(roomLabel);
+                    closedLabels.push(roomLabel);
                 } else {
                     labels.push(roomLabel);
                 }
@@ -109,61 +112,47 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         });
         super.addLayer(this.outlineLayer);
 
+        this.normalLabels = labels;
+        this.infrastructureLabels = infrastructureLabels;
+        this.emergencyLabels = emergencyLabels;
+        this.closedLabels = closedLabels;
+
+        this.createLabelLayer();
+        
+        const recreateLabelLayer = new Watcher(_ => this.createLabelLayer());
+        settings.addWatcher("show-infrastructure", recreateLabelLayer, false);
+        settings.addWatcher("show-emergency", recreateLabelLayer, false);
+        settings.addWatcher("show-closed", recreateLabelLayer, false);
+    }
+
+    private createLabelLayer(): void {
+        let labels = this.normalLabels;
+        if (settings.getData("show-infrastructure").unwrap() as boolean) {
+            labels = labels.concat(this.infrastructureLabels);
+        }
+        if (settings.getData("show-emergency").unwrap() as boolean) {
+            labels = labels.concat(this.emergencyLabels);
+        }
+        if (settings.getData("show-closed").unwrap() as boolean) {
+            labels = labels.concat(this.closedLabels);
+        }
+
+        if (this.labelLayer !== undefined) {
+            super.removeLayer(this.labelLayer);
+        }
         this.labelLayer = new LabelLayer(labels, {
             minZoom: -Infinity,
             maxZoom: Infinity,
             pane: "overlayPane"
         });
         super.addLayer(this.labelLayer);
-
-        // settings.addWatcher("show-infrastructure", new Watcher(shouldShowUnknown => {
-        //     const shouldShow = shouldShowUnknown as boolean;
-        //     if (shouldShow) {
-        //         infrastructureMarkers.forEach(marker => this.addLayer(marker));
-        //     } else {
-        //         infrastructureMarkers.forEach(marker => this.removeLayer(marker));
-        //     }
-        //     this.reload();
-        // }));
-
-        // settings.addWatcher("show-emergency", new Watcher(shouldShowUnknown => {
-        //     const shouldShow = shouldShowUnknown as boolean;
-        //     if (shouldShow) {
-        //         emergencyMarkers.forEach(marker => this.addLayer(marker));
-        //     } else {
-        //         emergencyMarkers.forEach(marker => this.removeLayer(marker));
-        //     }
-        //     this.reload();
-        // }));
-
-        // settings.addWatcher("show-closed", new Watcher(shouldShowUnknown => {
-        //     const shouldShow = shouldShowUnknown as boolean;
-        //     if (shouldShow) {
-        //         closedMarkers.forEach(marker => this.addLayer(marker));
-        //     } else {
-        //         closedMarkers.forEach(marker => this.removeLayer(marker));
-        //     }
-        //     this.reload();
-        // }));
     }
 
     public getFloorNumber(): string {
         return this.floorNumber;
     }
 
-    addLayer(layer: Marker): this {
-        super.addLayer(layer);
-        this.allLabels.push(layer);
-        return this;
-    }
-
-    removeLayer(layer: Marker): this {
-        super.removeLayer(layer);
-        this.allLabels = this.allLabels.filter(currentLayer => currentLayer !== layer);
-        return this;
-    }
-
-    onAdd(map: LMap): this {
+    public onAdd(map: LMap): this {
         super.onAdd(map);
 
         const watcher = new Watcher(shouldShowUnknown => {
@@ -181,7 +170,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         return this;
     }
 
-    onRemove(map: LMap): this {
+    public onRemove(map: LMap): this {
         super.onRemove(map);
 
         settings.removeWatcher("show-markers", this.removeWatcher.unwrap());
@@ -195,7 +184,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
             .reduce((acc, className) => acc.or(className));
     }
 
-    private getRoomLabel(room: Room): Label {
+    private static getRoomLabel(room: Room): Label {
         const icon = LRoomLabel.getIcon(ROOM_ICON_PAIRS, room.getTags());
 
         return icon.match({

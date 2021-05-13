@@ -61,11 +61,6 @@ export class LabelLayer extends GridLayer {
         delete events["viewprereset"];
         return events;
     }
-
-    public onRemove(_map: LMap): this {
-        this.visibleLabels.clear();
-        return this;
-    }
 }
 
 class VisibleLabels {

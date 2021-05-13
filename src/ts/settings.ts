@@ -38,12 +38,14 @@ class Settings {
         fromMap(this.watchers, id).ifSome(watchers => watchers.forEach(watcher => watcher.onChange(data)));
     }
 
-    public addWatcher(dataId: string, watcher: Watcher): void {
+    public addWatcher(dataId: string, watcher: Watcher, callOnAdd: boolean = true): void {
         const watchersForId = fromMap(this.watchers, dataId).unwrapOr([]);
         watchersForId.push(watcher);
         this.watchers.set(dataId, watchersForId);
 
-        this.getData(dataId).ifSome((data) => watcher.onChange(data));
+        if (callOnAdd) {
+            this.getData(dataId).ifSome((data) => watcher.onChange(data));
+        }
     }
 
     public removeWatcher(dataId: string, watcher: Watcher): void {

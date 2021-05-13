@@ -50,7 +50,7 @@ function main() {
         maxBoundsViscosity: 1,
         zoomSnap: 1,
         zoomDelta: 0.4,
-        wheelPxPerZoomLevel: 75
+        wheelPxPerZoomLevel: 150
     });
     map.fitBounds(bounds.pad(0.05));
 
@@ -83,7 +83,7 @@ function main() {
     const sidebar = new Sidebar(map, mapData, geocoder, locator, logger, floors);
 
     floors.addLayer(new LRoomLabel(mapData, "1"));
-    // floors.addLayer(new LRoomLabel(mapData, "2"));
+    floors.addLayer(new LRoomLabel(mapData, "2"));
 
     // Display vertices, edges, mouse click location
     let devLayers: Option<LSomeLayerWithFloor[]> = None;
