@@ -100,7 +100,8 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         this.outlineLayer = new OutlineLayer(outlines, {
             minZoom: -Infinity,
             maxZoom: Infinity,
-            pane: "overlayPane"
+            pane: "overlayPane",
+            tileSize: 2048
         });
         super.addLayer(this.outlineLayer);
 
@@ -135,7 +136,8 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         this.labelLayer = new LabelLayer(labels, {
             minZoom: -Infinity,
             maxZoom: Infinity,
-            pane: "overlayPane"
+            pane: "overlayPane",
+            tileSize: 2048
         });
         super.addLayer(this.labelLayer);
     }
