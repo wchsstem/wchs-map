@@ -29,13 +29,13 @@ export class LFloors extends LayerGroup {
         // Reversing the array means that floors are ordered intuitively in the JSON (1, 2, 3...) and intuitively in the
         // control (higher floors on top)
         for (const floorData of map.getFloors().reverse()) {
-            const floorMap = imageOverlay(floorData.image, map.getBounds());
+            const floorMap = imageOverlay(floorData.image, map.getBounds(), { pane: "tilePane" });
             this.allFloors.set(floorData.number, layerGroup([floorMap]));
         }
 
         this.defaultFloorNumber = defaultFloorNumber;
 
-        this.currentFloor = fromMap(this.allFloors, this.defaultFloorNumber).unwrap();
+        this.currentFloor = this.allFloors.get(this.defaultFloorNumber)!;
         this.currentFloorNumber = this.defaultFloorNumber;
         super.addLayer(this.currentFloor);
 

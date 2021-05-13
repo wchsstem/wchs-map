@@ -12,7 +12,8 @@ import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { Sidebar } from "../Sidebar/SidebarController";
 import { divIcon, LayerGroup, LayerOptions, Marker, marker, PointTuple, Polygon, polygon, Map as LMap, Icon, Layer } from "leaflet";
-import { LabelLayer } from "./LabelLayer";
+import { Label, LabelLayer } from "./LabelLayer";
+import { TextLabel } from "./TextLabel";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_CLASS_PAIRS = [
@@ -72,22 +73,23 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
             .getIdsAndVertices()
             .map(([_id, vertex]) => vertex);
 
-        const infrastructureMarkers: Marker[] = [];
-        const emergencyMarkers: Marker[] = [];
-        const closedMarkers: Marker[] = [];
+        const infrastructureMarkers: Label[] = [];
+        const emergencyMarkers: Label[] = [];
+        const closedMarkers: Label[] = [];
 
         const labels = [];
 
         for (const room of rooms) {
             if (room.center.getFloor() === floorNumber) {
-                const roomIcon = this.getRoomIcon(room);
-                const roomMarker =  marker(room.center.getXY(), {
-                    icon: roomIcon,
-                    interactive: true
-                });
-                roomMarker.on("click", () => {
-                    sidebar.openInfo(room);
-                });
+                // const roomIcon = this.getRoomIcon(room);
+                // const roomMarker =  marker(room.center.getXY(), {
+                //     icon: roomIcon,
+                //     interactive: true
+                // });
+                // roomMarker.on("click", () => {
+                //     sidebar.openInfo(room);
+                // });
+                const roomLabel = this.getRoomLabel(room);
 
                 if (room.outline.length !== 0) {
                     const outline = polygon(room.outline.map((point) => [point[1], point[0]]), {
@@ -104,34 +106,35 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
                 }
 
                 if (room.isInfrastructure()) {
-                    infrastructureMarkers.push(roomMarker);
+                    infrastructureMarkers.push(roomLabel);
                 } else if (room.isEmergency()) {
-                    emergencyMarkers.push(roomMarker);
+                    emergencyMarkers.push(roomLabel);
                 } else if (room.isClosed()) {
-                    closedMarkers.push(roomMarker);
+                    closedMarkers.push(roomLabel);
                 } else {
-                    labels.push(roomMarker);
+                    labels.push(roomLabel);
                 }
             }
         }
 
-        for (const vertex of vertices) {
-            if (vertex.getLocation().getFloor() === floorNumber) {
-                LRoomLabel.getVertexIcon(vertex).ifSome(icon => {
-                    const vertexMarker = marker(vertex.getLocation().getXY(), {
-                        icon: icon
-                    });
-                    labels.push(vertexMarker);
-                });
-            }
-        }
+        // for (const vertex of vertices) {
+        //     if (vertex.getLocation().getFloor() === floorNumber) {
+        //         LRoomLabel.getVertexIcon(vertex).ifSome(icon => {
+        //             const vertexMarker = marker(vertex.getLocation().getXY(), {
+        //                 icon: icon
+        //             });
+        //             labels.push(vertexMarker);
+        //         });
+        //     }
+        // }
 
         this.labelLayer = new LabelLayer(labels, {
             minZoom: -Infinity,
             maxZoom: Infinity,
             updateWhenZooming: false,
             keepBuffer: 5,
-            updateWhenIdle: true
+            updateWhenIdle: true,
+            pane: "overlayPane"
         });
         super.addLayer(this.labelLayer);
 
@@ -239,6 +242,11 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     private static getIconClass(pairs: T2<string, string>[], tags: string[]): Option<string> {
         return pairs.map(pair => tags.includes(pair.e0) ? Some(pair.e1) : None)
             .reduce((acc, className) => acc.or(className));
+    }
+
+    private getRoomLabel(room: Room): Label {
+        const text = room.getShortName();
+        return new TextLabel(room.center.getXY(), text);
     }
 
     private getRoomIcon(room: Room): Icon<any> {

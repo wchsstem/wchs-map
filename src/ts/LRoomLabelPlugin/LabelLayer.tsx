@@ -10,18 +10,20 @@ type RBushEntry = {
     minY: number,
     maxX: number,
     maxY: number,
-    label: Marker
+    label: Label
 }
 
 export class LabelLayer extends GridLayer {
     private readonly labels: RBush<RBushEntry>;
-    private readonly labelsArray: Marker[];
+    private readonly labelsArray: Label[];
 
     private readonly visibleLabels: RBush<RBushEntry>;
-    private readonly visibleLabelsSet: Set<Marker>;
+    private readonly visibleLabelsSet: Set<Label>;
     private visibleLabelsZoomLevel: number;
 
-    public constructor(labels: Marker[], options?: GridLayerOptions) {
+    public static readonly FONT = "12px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif";
+
+    public constructor(labels: Label[], options?: GridLayerOptions) {
         super(options);
 
         this.labels = new RBush();
@@ -40,26 +42,26 @@ export class LabelLayer extends GridLayer {
         const tile = <canvas width={tileSize.x} height={tileSize.y} /> as HTMLCanvasElement;
         const ctx = tile.getContext("2d")!;
 
-        ctx.font = "12px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif";
+        ctx.font = LabelLayer.FONT;
 
         const tileTopLeftPoint = coords.scaleBy(tileSize);
 
         const tileCenterPoint = coords.add(point(0.5, 0.5)).scaleBy(tileSize);
         const tileCenter = this._map.unproject(tileCenterPoint, coords.z);
         // TODO: Replace 100 with a number calculated as the max label bbox width/height
-        const renderableLabelsBbox = this.bbox(tileSize.add(point(100, 100)), tileCenter);
+        const renderableLabelsBbox = this.bbox(tileSize.add(point(100, 100)), tileCenter, coords.z);
 
         const renderableLabels = this.labels.search(renderableLabelsBbox).map(entry => entry.label);
         for (const label of renderableLabels) {
-            if (this.visibleLabelsSet.has(label) || !this.visibleLabels.collides(this.bboxFrom(label))) {
+            if (this.visibleLabelsSet.has(label) || !this.visibleLabels.collides(this.bboxFrom(label, coords.z))) {
                 // Not overlapping another label or already rendered on another tile
-                this.visibleLabels.insert(this.rBushEntryFrom(label));
+                this.visibleLabels.insert(this.rBushEntryFrom(label, coords.z));
                 this.visibleLabelsSet.add(label);
 
-                const latLng = label.getLatLng();
+                const latLng = label.getCenter();
                 const point = this._map.project(latLng, coords.z);
-                const newPoint = point.subtract(tileTopLeftPoint);
-                ctx.fillText("hello", newPoint.x, newPoint.y);
+                const canvasPoint = point.subtract(tileTopLeftPoint);
+                label.render(ctx, canvasPoint);
             }
         }
 
@@ -77,7 +79,7 @@ export class LabelLayer extends GridLayer {
         const zoom = this._map.getZoom();
         if (this.visibleLabelsZoomLevel !== zoom) {
             this.labels.clear();
-            const rBushEntries = this.labelsArray.map(label => this.rBushEntryFrom(label));
+            const rBushEntries = this.labelsArray.map(label => this.rBushEntryFrom(label, zoom));
             this.labels.load(rBushEntries);
 
             this.visibleLabels.clear();
@@ -86,27 +88,26 @@ export class LabelLayer extends GridLayer {
         }
     }
 
-    private rBushEntryFrom(label: Marker): RBushEntry {
-        label.options
-        const bbox: RBushEntry = this.bboxFrom(label) as RBushEntry;
+    private rBushEntryFrom(label: Label, zoom: number): RBushEntry {
+        const bbox: RBushEntry = this.bboxFrom(label, zoom) as RBushEntry;
         bbox.label = label;
         return bbox;
     }
 
-    private bboxFrom(label: Marker): BBox {
-        return this.bbox(label.options.icon!.options.iconSize!, label.getLatLng());
+    private bboxFrom(label: Label, zoom: number): BBox {
+        return this.bbox(label.getSize(), label.getCenter(), zoom);
     }
 
-    private bbox(size: PointExpression, center: LatLng) {
+    private bbox(size: PointExpression, center: LatLng, zoom: number) {
         const pointSize = point(size);
         const centerToCorner = pointSize.multiplyBy(0.5);
 
-        const labelPoint = this._map.project(center);
+        const labelPoint = this._map.project(center, zoom);
         const topLeftPoint = labelPoint.subtract(centerToCorner);
         const bottomRightPoint = labelPoint.add(centerToCorner);
 
-        const topLeft = this._map.unproject(topLeftPoint);
-        const bottomRight = this._map.unproject(bottomRightPoint);
+        const topLeft = this._map.unproject(topLeftPoint, zoom);
+        const bottomRight = this._map.unproject(bottomRightPoint, zoom);
 
         return {
             minX: topLeft.lng,
@@ -120,5 +121,5 @@ export class LabelLayer extends GridLayer {
 export interface Label {
     getSize(): Point;
     getCenter(): LatLng;
-    render(ctx: CanvasRenderingContext2D): void;
+    render(ctx: CanvasRenderingContext2D, centeredAt: Point): void;
 }
