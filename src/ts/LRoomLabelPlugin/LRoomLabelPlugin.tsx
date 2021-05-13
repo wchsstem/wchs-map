@@ -11,9 +11,10 @@ import Vertex from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { Sidebar } from "../Sidebar/SidebarController";
-import { divIcon, LayerGroup, LayerOptions, Marker, marker, PointTuple, Polygon, polygon, Map as LMap, Icon, Layer } from "leaflet";
+import { divIcon, LayerGroup, LayerOptions, Marker, Polygon, polygon, Map as LMap, Icon, Layer } from "leaflet";
 import { Label, LabelLayer } from "./LabelLayer";
 import { TextLabel } from "./TextLabel";
+import { IconLabel } from "./IconLabel";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_CLASS_PAIRS = [
@@ -22,18 +23,18 @@ const VERTEX_ICON_CLASS_PAIRS = [
     T2.new("stairs", "fas fa-align-justify"),
     T2.new("elevator", "fas fa-door-closed")
 ];
-const ROOM_ICON_CLASS_PAIRS = [
-    T2.new("women-bathroom", "fas fa-female"),
-    T2.new("men-bathroom", "fas fa-male"),
-    T2.new("unknown-bathroom", "fas fa-toilet"),
-    T2.new("ec", "fas fa-bolt"),
-    T2.new("bsc", "fas fa-toilet-paper"),
-    T2.new("wf", "fas fa-tint"),
-    T2.new("hs", "fas fa-pump-soap"),
-    T2.new("bleed-control", "fas fa-band-aid"),
-    T2.new("aed", "fas fa-heartbeat"),
-    T2.new("ahu", "fas fa-wind"),
-    T2.new("idf", "fas fa-network-wired")
+const ROOM_ICON_PAIRS = [
+    T2.new("women-bathroom", "\uf182"), // fa-female
+    T2.new("men-bathroom", "\uf183"), // fa-male
+    T2.new("unknown-bathroom", "\uf7d8"), // fa-toilet
+    T2.new("ec", "\uf037"), // fa-bolt
+    T2.new("bsc", "\uf71e"), // fa-toilet-paper
+    T2.new("wf", "\uf043"), // fa-tint
+    T2.new("hs", "\ue06b"), // fa-pump-soap
+    T2.new("bleed-control", "\uf462"), // fa-band-aid
+    T2.new("aed", "\uf21e"), // fa-heartbeat
+    T2.new("ahu", "\uf72e"), // fa-wind
+    T2.new("idf", "\uf6ff") // fa-network-wired
 ];
 
 export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloor {
@@ -239,35 +240,45 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         // }
     }
 
-    private static getIconClass(pairs: T2<string, string>[], tags: string[]): Option<string> {
+    private static getIcon(pairs: T2<string, string>[], tags: string[]): Option<string> {
         return pairs.map(pair => tags.includes(pair.e0) ? Some(pair.e1) : None)
             .reduce((acc, className) => acc.or(className));
     }
 
     private getRoomLabel(room: Room): Label {
-        const text = room.getShortName();
-        return new TextLabel(room.center.getXY(), text);
+        const icon = LRoomLabel.getIcon(ROOM_ICON_PAIRS, room.getTags());
+
+        return icon.match({
+            some: icon => {
+                return new IconLabel(room.center.getXY(), icon) as Label;
+            },
+            none: () => {
+                const text = room.getShortName();
+                return new TextLabel(room.center.getXY(), text);
+            }
+        });
     }
 
     private getRoomIcon(room: Room): Icon<any> {
-        const iconDivClassName = room.tags.includes("closed") ? "closed room-icon" : "room-icon";
-        const iconClassName = LRoomLabel.getIconClass(ROOM_ICON_CLASS_PAIRS, room.getTags());
+        // const iconDivClassName = room.tags.includes("closed") ? "closed room-icon" : "room-icon";
+        // const iconClassName = LRoomLabel.getIconClass(ROOM_ICON_PAIRS, room.getTags());
 
-        return iconClassName.match({
-            some: iconClassName => divIcon({
-                html: <i class={iconClassName} />,
-                className: iconDivClassName,
-                iconSize: [28, 28]
-            }),
-            none: () => {
-                const iconText = room.getShortName();
-                return divIcon({
-                    html: <div>{iconText}</div>,
-                    className: "room-label",
-                    iconSize: LRoomLabel.textSize(iconText)
-                });
-            }
-        });
+        // return iconClassName.match({
+        //     some: iconClassName => divIcon({
+        //         html: <i class={iconClassName} />,
+        //         className: iconDivClassName,
+        //         iconSize: [28, 28]
+        //     }),
+        //     none: () => {
+        //         const iconText = room.getShortName();
+        //         return divIcon({
+        //             html: <div>{iconText}</div>,
+        //             className: "room-label",
+        //             iconSize: LRoomLabel.textSize(iconText)
+        //         });
+        //     }
+        // });
+        throw "no";
     }
 
     private static textSize(text: string): [number, number] {
@@ -289,12 +300,13 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     }
 
     private static getVertexIcon(vertex: Vertex): Option<Icon<any>> {
-        return LRoomLabel.getIconClass(VERTEX_ICON_CLASS_PAIRS, vertex.getTags())
-            .map(iconClass => divIcon({
-                html: <i class={iconClass}></i> as HTMLElement,
-                className: "icon",
-                iconSize: [28, 28]
-            }));
+        // return LRoomLabel.getIconClass(VERTEX_ICON_CLASS_PAIRS, vertex.getTags())
+        //     .map(iconClass => divIcon({
+        //         html: <i class={iconClass}></i> as HTMLElement,
+        //         className: "icon",
+        //         iconSize: [28, 28]
+        //     }));
+        throw "no";
     }
 
     private static layerIsMarker(layer: Layer): boolean {

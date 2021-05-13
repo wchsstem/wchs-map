@@ -30,6 +30,7 @@ export class TextLabel implements Label {
 
     public render(ctx: CanvasRenderingContext2D, centeredAt: Point): void {
         ctx.font = LabelLayer.FONT;
+        ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";
         this.renderLines(this.linesSizes, ctx, centeredAt.add(point(1, 1)));
         this.renderLines(this.linesSizes, ctx, centeredAt.add(point(1, -1)));
@@ -42,7 +43,7 @@ export class TextLabel implements Label {
     private renderLines(linesSizes: [string, Point][], ctx: CanvasRenderingContext2D, centeredAt: Point): void {
         const lineTopLeft = centeredAt.subtract(this.size.divideBy(2));
         for (const [line, size] of linesSizes) {
-            const left = lineTopLeft.x + ((this.size.x - size.x) / 2);
+            const left = lineTopLeft.x + (this.size.x / 2);
             const bottom = lineTopLeft.y + size.y;
             ctx.fillText(line, left, bottom);
             lineTopLeft.y += size.y + TextLabel.LINE_SPACING_PX;
