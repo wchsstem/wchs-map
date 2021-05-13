@@ -7,10 +7,11 @@ import Vertex from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { LayerGroup, LayerOptions, Map as LMap, latLng } from "leaflet";
-import { Label, LabelLayer } from "./label/LabelLayer";
+import { Label, LabelLayer, ClickableLabel, isClickable } from "./label/LabelLayer";
 import { TextLabel } from "./label/TextLabel";
 import { IconLabel } from "./label/IconLabel";
 import { Outline, OutlineLayer } from "./OutlineLayer";
+import { Sidebar } from "../Sidebar/SidebarController";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_PAIRS = [
@@ -44,7 +45,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     private labelLayer: LabelLayer | undefined;
     private readonly outlineLayer: OutlineLayer;
 
-    constructor(map: MapData, floorNumber: string, options?: LayerOptions) {
+    constructor(map: MapData, sidebar: Sidebar, floorNumber: string, options?: LayerOptions) {
         super([], options);
 
         this.floorNumber = floorNumber;
@@ -88,6 +89,9 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
                 }
 
                 const roomLabel = LRoomLabel.getRoomLabel(room);
+                if (isClickable(roomLabel)) {
+                    roomLabel.addClickListener(e => sidebar.openInfo(room));
+                }
                 if (room.isInfrastructure()) {
                     infrastructureLabels.push(roomLabel);
                 } else if (room.isEmergency()) {

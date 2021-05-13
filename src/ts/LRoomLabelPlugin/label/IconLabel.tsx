@@ -1,12 +1,13 @@
-import { LatLng, Point, point } from "leaflet";
-import { Label } from "./LabelLayer";
+import { LatLng, Point, point, Map as LMap, LeafletMouseEvent } from "leaflet";
+import { ClickableLabel, ClickListener } from "./LabelLayer";
 import { h } from "../../JSX";
 
-export class IconLabel implements Label {
+export class IconLabel implements ClickableLabel {
     private readonly center: LatLng;
     private readonly icon: string;
     private readonly iconSize: Point;
     private readonly closed: boolean;
+    private readonly clickListeners: ClickListener[];
 
     private static textMeasureCtx: CanvasRenderingContext2D | undefined;
 
@@ -28,6 +29,7 @@ export class IconLabel implements Label {
         this.icon = icon;
         this.iconSize = IconLabel.measureIcon(icon);
         this.closed = closed;
+        this.clickListeners = [];
     }
 
     public getSize(): Point {
@@ -57,6 +59,22 @@ export class IconLabel implements Label {
         const topLeft = centeredAt.subtract(this.iconSize.divideBy(2));
         ctx.fillText(this.icon, topLeft.x + (this.iconSize.x / 2), topLeft.y + this.iconSize.y - IconLabel.ICON_VERTICAL_OFFSET_PX);
         ctx.font = oldFont;
+    }
+
+    public addClickListener(listener: ClickListener): void {
+        this.clickListeners.push(listener);
+    }
+
+    public didClickLabel(e: LeafletMouseEvent, map: LMap, zoom: number): boolean {
+        const centerPoint = map.project(this.center, zoom);
+        const clickPoint = map.project(e.latlng);
+        return centerPoint.distanceTo(clickPoint) < IconLabel.RADIUS_PX;
+    }
+
+    public onClick(e: LeafletMouseEvent): void {
+        for (const listener of this.clickListeners) {
+            listener(e);
+        }
     }
 
     private static measureIcon(icon: string): Point {

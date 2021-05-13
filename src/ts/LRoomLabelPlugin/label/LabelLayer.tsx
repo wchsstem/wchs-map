@@ -1,4 +1,5 @@
-import { Coords, GridLayer, GridLayerOptions, LatLng, LeafletEventHandlerFn, Map as LMap, Point, point, PointExpression } from "leaflet";
+import { fromMap } from "@nvarner/monads";
+import { Coords, GridLayer, GridLayerOptions, LatLng, LeafletEventHandlerFn, LeafletMouseEvent, Map as LMap, Point, point, PointExpression } from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
 import { h } from "../../JSX";
 
@@ -15,6 +16,7 @@ type RBushEntry = {
 
 export class LabelLayer extends GridLayer {
     private readonly labels: Label[];
+    private readonly clickableLabels: ClickableLabel[];
     private readonly visibleLabels: Map<number, VisibleLabels>;
 
     public static readonly FONT = "12px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif";
@@ -23,6 +25,7 @@ export class LabelLayer extends GridLayer {
     public constructor(labels: Label[], options?: GridLayerOptions) {
         super(options);
         this.labels = labels;
+        this.clickableLabels = labels.filter(label => isClickable(label)) as ClickableLabel[];
         this.visibleLabels = new Map();
     }
 
@@ -61,6 +64,18 @@ export class LabelLayer extends GridLayer {
         const events = super.getEvents!();
         // Prevent layers from being invalidated after panning
         delete events["viewprereset"];
+        events["click"] = e => {
+            const me = e as LeafletMouseEvent;
+            fromMap(this.visibleLabels, this._map.getZoom()).ifSome(visibleLabels => {
+                const clickedLabels = visibleLabels.getLabels(point(1, 1), me.latlng)
+                    .filter(label =>
+                        isClickable(label)
+                        && label.didClickLabel(me, this._map, this._map.getZoom())) as ClickableLabel[];
+                if (clickedLabels.length > 0) {
+                    clickedLabels[0].onClick(me);
+                }
+            });
+        };
         return events;
     }
 }
@@ -135,4 +150,16 @@ export interface Label {
     getSize(): Point;
     getCenter(): LatLng;
     render(ctx: CanvasRenderingContext2D, centeredAt: Point): void;
+}
+
+export type ClickListener = (e: LeafletMouseEvent) => void;
+
+export interface ClickableLabel extends Label {
+    addClickListener(listener: ClickListener): void;
+    didClickLabel(e: LeafletMouseEvent, map: LMap, zoom: number): boolean;
+    onClick(e: LeafletMouseEvent): void;
+}
+
+export function isClickable(label: Label): label is ClickableLabel {
+    return "addClickListener" in label && "didClickLabel" in label && "onClick" in label;
 }
