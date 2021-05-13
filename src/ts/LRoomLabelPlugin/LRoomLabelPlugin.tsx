@@ -17,11 +17,11 @@ import { TextLabel } from "./TextLabel";
 import { IconLabel } from "./IconLabel";
 
 // TODO: Wow these icons are bad. Get new ones.
-const VERTEX_ICON_CLASS_PAIRS = [
-    T2.new("up", "fas fa-sort-amount-up-alt"),
-    T2.new("down", "fas fa-sort-amount-down-alt"),
-    T2.new("stairs", "fas fa-align-justify"),
-    T2.new("elevator", "fas fa-door-closed")
+const VERTEX_ICON_PAIRS = [
+    T2.new("up", "\uf885"), // fa-sort-amount-up-alt
+    T2.new("down", "\uf884"), // fa-sort-amount-down-alt
+    T2.new("stairs", "\uf039"), // fa-align-justify
+    T2.new("elevator", "\uf52a"), // fa-door-closed
 ];
 const ROOM_ICON_PAIRS = [
     T2.new("women-bathroom", "\uf182"), // fa-female
@@ -90,22 +90,22 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
                 // roomMarker.on("click", () => {
                 //     sidebar.openInfo(room);
                 // });
+
+                // if (room.outline.length !== 0) {
+                //     const outline = polygon(room.outline.map((point) => [point[1], point[0]]), {
+                //         stroke: false,
+                //         color: "#7DB534"
+                //     });
+                //     this.roomOutlines.push(outline);
+                //     // super.addLayer(outline);
+                //     outline.on("click", () => {
+                //         sidebar.openInfo(room);
+                //     });
+                // } else {
+                //     console.log(`Room has no outline: ${room.getName()}`);
+                // }
+
                 const roomLabel = this.getRoomLabel(room);
-
-                if (room.outline.length !== 0) {
-                    const outline = polygon(room.outline.map((point) => [point[1], point[0]]), {
-                        stroke: false,
-                        color: "#7DB534"
-                    });
-                    this.roomOutlines.push(outline);
-                    // super.addLayer(outline);
-                    outline.on("click", () => {
-                        sidebar.openInfo(room);
-                    });
-                } else {
-                    console.log(`Room has no outline: ${room.getName()}`);
-                }
-
                 if (room.isInfrastructure()) {
                     infrastructureMarkers.push(roomLabel);
                 } else if (room.isEmergency()) {
@@ -118,16 +118,9 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
             }
         }
 
-        // for (const vertex of vertices) {
-        //     if (vertex.getLocation().getFloor() === floorNumber) {
-        //         LRoomLabel.getVertexIcon(vertex).ifSome(icon => {
-        //             const vertexMarker = marker(vertex.getLocation().getXY(), {
-        //                 icon: icon
-        //             });
-        //             labels.push(vertexMarker);
-        //         });
-        //     }
-        // }
+        vertices
+            .filter(vertex => vertex.getLocation().getFloor() === floorNumber)
+            .forEach(vertex => LRoomLabel.getVertexLabel(vertex).ifSome(label => labels.push(label)));
 
         this.labelLayer = new LabelLayer(labels, {
             minZoom: -Infinity,
@@ -259,44 +252,9 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         });
     }
 
-    private getRoomIcon(room: Room): Icon<any> {
-        // const iconDivClassName = room.tags.includes("closed") ? "closed room-icon" : "room-icon";
-        // const iconClassName = LRoomLabel.getIconClass(ROOM_ICON_PAIRS, room.getTags());
-
-        // return iconClassName.match({
-        //     some: iconClassName => divIcon({
-        //         html: <i class={iconClassName} />,
-        //         className: iconDivClassName,
-        //         iconSize: [28, 28]
-        //     }),
-        //     none: () => {
-        //         const iconText = room.getShortName();
-        //         return divIcon({
-        //             html: <div>{iconText}</div>,
-        //             className: "room-label",
-        //             iconSize: LRoomLabel.textSize(iconText)
-        //         });
-        //     }
-        // });
-        throw "no";
-    }
-
-    private static textSize(text: string): [number, number] {
-        const words = text.split(" ");
-        return words
-            .map(LRoomLabel.wordSize)
-            .reduce(
-                ([maxWidth, totalHeight], [currWidth, currHeight]) =>
-                    [Math.max(maxWidth, currWidth), totalHeight + currHeight]);
-    }
-
-    private static wordSize(word: string): [number, number] {
-        // 'm' for extra padding because this seems to underestimate
-        const metrics = LRoomLabel.textWidthContext.measureText(word + "m");
-        return [
-            metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight,
-            1.5 * (metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent)
-        ];
+    private static getVertexLabel(vertex: Vertex): Option<Label> {
+        return LRoomLabel.getIcon(VERTEX_ICON_PAIRS, vertex.getTags())
+            .map(icon => new IconLabel(vertex.getLocation().getXY(), icon));
     }
 
     private static getVertexIcon(vertex: Vertex): Option<Icon<any>> {
@@ -307,10 +265,5 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         //         iconSize: [28, 28]
         //     }));
         throw "no";
-    }
-
-    private static layerIsMarker(layer: Layer): boolean {
-        // TODO: find a better way to tell (i.e. less hacky, documented, works even if layer is hidden)
-        return "_icon" in layer && layer["_icon"] != null;
     }
 }
