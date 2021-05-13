@@ -48,7 +48,6 @@ function main() {
         minZoom: -1,
         maxBounds: bounds.pad(0.5),
         maxBoundsViscosity: 1,
-        // zoomSnap: 0,
         zoomSnap: 1,
         zoomDelta: 0.4,
         wheelPxPerZoomLevel: 75
