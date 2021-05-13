@@ -29,8 +29,10 @@ export class LabelLayer extends GridLayer {
     protected createTile(coords: Coords): HTMLElement {
         const tileSize = this.getTileSize();
 
-        const tile = <canvas width={tileSize.x} height={tileSize.y} /> as HTMLCanvasElement;
+        const pixelRatio = devicePixelRatio ?? 1;
+        const tile = <canvas width={tileSize.x * pixelRatio} height={tileSize.y * pixelRatio} /> as HTMLCanvasElement;
         const ctx = tile.getContext("2d")!;
+        ctx.scale(pixelRatio, pixelRatio);
 
         ctx.font = LabelLayer.FONT;
 
