@@ -6,6 +6,7 @@ export class IconLabel implements Label {
     private readonly center: LatLng;
     private readonly icon: string;
     private readonly iconSize: Point;
+    private readonly closed: boolean;
 
     private static textMeasureCtx: CanvasRenderingContext2D | undefined;
 
@@ -14,10 +15,19 @@ export class IconLabel implements Label {
     private static readonly ICON_FONT = "900 14px \"Font Awesome 5 Free\"";
     private static readonly ICON_VERTICAL_OFFSET_PX = 1;
 
-    public constructor(center: LatLng, icon: string) {
+    private static readonly BORDER_COLOR = "#cccccc";
+    private static readonly BACKGROUND_COLOR = "#ffffff";
+    private static readonly ICON_COLOR = "#000000";
+
+    private static readonly CLOSED_BORDER_COLOR = "#757575";
+    private static readonly CLOSED_BACKGROUND_COLOR = "#a7a7a7";
+    private static readonly CLOSED_ICON_COLOR = "#c93d3d";
+
+    public constructor(center: LatLng, icon: string, closed: boolean) {
         this.center = center;
         this.icon = icon;
         this.iconSize = IconLabel.measureIcon(icon);
+        this.closed = closed;
     }
 
     public getSize(): Point {
@@ -29,12 +39,12 @@ export class IconLabel implements Label {
     }
 
     public render(ctx: CanvasRenderingContext2D, centeredAt: Point): void {
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = this.closed ? IconLabel.CLOSED_BACKGROUND_COLOR : IconLabel.BACKGROUND_COLOR;
         ctx.beginPath();
         ctx.arc(centeredAt.x, centeredAt.y, IconLabel.RADIUS_PX, 0, 2 * Math.PI);
         ctx.fill();
 
-        ctx.strokeStyle = "#cccccc";
+        ctx.strokeStyle = this.closed ? IconLabel.CLOSED_BORDER_COLOR : IconLabel.BORDER_COLOR;
         ctx.lineWidth = IconLabel.BORDER_PX;
         ctx.beginPath();
         ctx.arc(centeredAt.x, centeredAt.y, IconLabel.RADIUS_PX - (IconLabel.BORDER_PX / 2), 0, 2 * Math.PI);
@@ -43,7 +53,7 @@ export class IconLabel implements Label {
         const oldFont = ctx.font;
         ctx.font = IconLabel.ICON_FONT;
         ctx.textAlign = "center";
-        ctx.fillStyle = "#000000";
+        ctx.fillStyle = this.closed ? IconLabel.CLOSED_ICON_COLOR : IconLabel.ICON_COLOR;
         const topLeft = centeredAt.subtract(this.iconSize.divideBy(2));
         ctx.fillText(this.icon, topLeft.x + (this.iconSize.x / 2), topLeft.y + this.iconSize.y - IconLabel.ICON_VERTICAL_OFFSET_PX);
         ctx.font = oldFont;

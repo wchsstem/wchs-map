@@ -6,8 +6,7 @@ import { settings, Watcher } from "../settings";
 import Vertex from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
-import { Sidebar } from "../Sidebar/SidebarController";
-import { LayerGroup, LayerOptions, Marker, Map as LMap, latLng } from "leaflet";
+import { LayerGroup, LayerOptions, Map as LMap, latLng } from "leaflet";
 import { Label, LabelLayer } from "./label/LabelLayer";
 import { TextLabel } from "./label/TextLabel";
 import { IconLabel } from "./label/IconLabel";
@@ -189,7 +188,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
 
         return icon.match({
             some: icon => {
-                return new IconLabel(room.center.getXY(), icon) as Label;
+                return new IconLabel(room.center.getXY(), icon, room.hasTag("closed")) as Label;
             },
             none: () => {
                 const text = room.getShortName();
@@ -200,6 +199,6 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
 
     private static getVertexLabel(vertex: Vertex): Option<Label> {
         return LRoomLabel.getIcon(VERTEX_ICON_PAIRS, vertex.getTags())
-            .map(icon => new IconLabel(vertex.getLocation().getXY(), icon));
+            .map(icon => new IconLabel(vertex.getLocation().getXY(), icon, false));
     }
 }
