@@ -2,6 +2,7 @@ import { fromMap } from "@nvarner/monads";
 import { Coords, GridLayer, GridLayerOptions, LatLng, LeafletEventHandlerFn, LeafletMouseEvent, Map as LMap, Point, point, PointExpression } from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
 import { h } from "../../JSX";
+import { ClickListener } from "../LRoomLabelPlugin";
 
 /**
  * RBush entry representing the LatLang bounding box around a Label
@@ -70,7 +71,7 @@ export class LabelLayer extends GridLayer {
                 const clickedLabels = visibleLabels.getLabels(point(1, 1), me.latlng)
                     .filter(label =>
                         isClickable(label)
-                        && label.didClickLabel(me, this._map, this._map.getZoom())) as ClickableLabel[];
+                        && label.didClick(me, this._map, this._map.getZoom())) as ClickableLabel[];
                 if (clickedLabels.length > 0) {
                     clickedLabels[0].onClick(me);
                 }
@@ -152,14 +153,12 @@ export interface Label {
     render(ctx: CanvasRenderingContext2D, centeredAt: Point): void;
 }
 
-export type ClickListener = (e: LeafletMouseEvent) => void;
-
 export interface ClickableLabel extends Label {
     addClickListener(listener: ClickListener): void;
-    didClickLabel(e: LeafletMouseEvent, map: LMap, zoom: number): boolean;
+    didClick(e: LeafletMouseEvent, map: LMap, zoom: number): boolean;
     onClick(e: LeafletMouseEvent): void;
 }
 
 export function isClickable(label: Label): label is ClickableLabel {
-    return "addClickListener" in label && "didClickLabel" in label && "onClick" in label;
+    return "addClickListener" in label && "didClick" in label && "onClick" in label;
 }

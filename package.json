@@ -21,6 +21,7 @@
     "@types/domhandler": "^2.4.1",
     "@types/kd-tree-javascript": "^1.0.0",
     "@types/leaflet": "^1.7.0",
+    "@types/point-in-polygon": "^1.0.0",
     "rollup": "^2.38.4",
     "rollup-plugin-copy": "^2.0.1",
     "rollup-plugin-json": "^4.0.0",
@@ -41,6 +42,7 @@
     "leaflet": "^1.7.0",
     "leaflet-sidebar-v2": "^3.2.3",
     "minisearch": "^3.0.0",
+    "point-in-polygon": "^1.1.0",
     "rbush": "^3.0.1"
   }
 }

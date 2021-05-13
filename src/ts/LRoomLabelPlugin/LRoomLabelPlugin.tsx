@@ -6,7 +6,7 @@ import { settings, Watcher } from "../settings";
 import Vertex from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
-import { LayerGroup, LayerOptions, Map as LMap, latLng } from "leaflet";
+import { LayerGroup, LayerOptions, Map as LMap, latLng, LeafletMouseEvent } from "leaflet";
 import { Label, LabelLayer, ClickableLabel, isClickable } from "./label/LabelLayer";
 import { TextLabel } from "./label/TextLabel";
 import { IconLabel } from "./label/IconLabel";
@@ -69,21 +69,10 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
 
         for (const room of rooms) {
             if (room.center.getFloor() === floorNumber) {
-                // const roomIcon = this.getRoomIcon(room);
-                // const roomMarker =  marker(room.center.getXY(), {
-                //     icon: roomIcon,
-                //     interactive: true
-                // });
-                // roomMarker.on("click", () => {
-                //     sidebar.openInfo(room);
-                // });
-
                 if (room.outline.length !== 0) {
                     const outline = new Outline(room.outline.map(point => latLng(point[1], point[0])));
+                    outline.addClickListener(_ => sidebar.openInfo(room));
                     outlines.push(outline);
-                    // outline.on("click", () => {
-                    //     sidebar.openInfo(room);
-                    // });
                 } else {
                     console.log(`Room has no outline: ${room.getName()}`);
                 }
@@ -206,3 +195,5 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
             .map(icon => new IconLabel(vertex.getLocation().getXY(), icon, false));
     }
 }
+
+export type ClickListener = (e: LeafletMouseEvent) => void;

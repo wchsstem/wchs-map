@@ -1,6 +1,8 @@
-import { Coords, GridLayer, GridLayerOptions, LatLng, LeafletEventHandlerFn, Map as LMap, Point, point, PointExpression } from "leaflet";
+import { Coords, GridLayer, GridLayerOptions, latLng, LatLng, LeafletEventHandlerFn, LeafletMouseEvent, Map as LMap, Point, point, PointExpression } from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
 import { h } from "../JSX";
+import { ClickListener } from "./LRoomLabelPlugin";
+import pointInPolygon from "point-in-polygon";
 
 export class OutlineLayer extends GridLayer {
     private readonly outlines: RBush<Outline>;
@@ -35,6 +37,18 @@ export class OutlineLayer extends GridLayer {
         const events = super.getEvents!();
         // Prevent layers from being invalidated after panning
         delete events["viewprereset"];
+        events["click"] = e => {
+            const me = e as LeafletMouseEvent;
+            const clickedOutlines = this.outlines.search({
+                maxX: me.latlng.lng + 1,
+                maxY: me.latlng.lat + 1,
+                minX: me.latlng.lng,
+                minY: me.latlng.lat
+            }).filter(outline => outline.didClick(me));
+            if (clickedOutlines.length > 0) {
+                clickedOutlines[0].onClick(me);
+            }
+        };
         return events;
     }
 
@@ -56,6 +70,7 @@ export class OutlineLayer extends GridLayer {
 
 export class Outline implements BBox {
     private readonly points: LatLng[];
+    private readonly clickListeners: ClickListener[];
 
     public readonly maxX: number;
     public readonly maxY: number;
@@ -64,6 +79,7 @@ export class Outline implements BBox {
 
     public constructor(points: LatLng[]) {
         this.points = points;
+        this.clickListeners = [];
 
         const [maxX, maxY, minX, minY] = points.reduce(
             ([maxX, maxY, minX, minY], point) => [
@@ -88,5 +104,20 @@ export class Outline implements BBox {
         }
         ctx.lineTo(points[0].x, points[0].y);
         ctx.fill();
+    }
+
+    public addClickListener(listener: ClickListener): void {
+        this.clickListeners.push(listener);
+    }
+
+    public didClick(e: LeafletMouseEvent): boolean {
+        const polygon = this.points.map(latlng => [latlng.lng, latlng.lat]);
+        return pointInPolygon([e.latlng.lng, e.latlng.lat], polygon);
+    }
+
+    public onClick(e: LeafletMouseEvent): void {
+        for (const listener of this.clickListeners) {
+            listener(e);
+        }
     }
 }

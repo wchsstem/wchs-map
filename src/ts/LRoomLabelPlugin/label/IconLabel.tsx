@@ -1,6 +1,7 @@
 import { LatLng, Point, point, Map as LMap, LeafletMouseEvent } from "leaflet";
-import { ClickableLabel, ClickListener } from "./LabelLayer";
+import { ClickableLabel } from "./LabelLayer";
 import { h } from "../../JSX";
+import { ClickListener } from "../LRoomLabelPlugin";
 
 export class IconLabel implements ClickableLabel {
     private readonly center: LatLng;
@@ -65,7 +66,7 @@ export class IconLabel implements ClickableLabel {
         this.clickListeners.push(listener);
     }
 
-    public didClickLabel(e: LeafletMouseEvent, map: LMap, zoom: number): boolean {
+    public didClick(e: LeafletMouseEvent, map: LMap, zoom: number): boolean {
         const centerPoint = map.project(this.center, zoom);
         const clickPoint = map.project(e.latlng);
         return centerPoint.distanceTo(clickPoint) < IconLabel.RADIUS_PX;
