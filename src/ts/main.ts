@@ -82,8 +82,8 @@ function main() {
     // Create sidebar
     const sidebar = new Sidebar(map, mapData, geocoder, locator, logger, floors);
 
-    floors.addLayer(new LRoomLabel(mapData, sidebar, "1"));
-    floors.addLayer(new LRoomLabel(mapData, sidebar, "2"));
+    floors.addLayer(new LRoomLabel(mapData, "1"));
+    // floors.addLayer(new LRoomLabel(mapData, "2"));
 
     // Display vertices, edges, mouse click location
     let devLayers: Option<LSomeLayerWithFloor[]> = None;

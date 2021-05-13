@@ -1,20 +1,17 @@
-import RBush, { BBox } from "rbush/rbush";
-
-import "./label.scss";
 import MapData from "../MapData";
 import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 import Room from "../Room";
 
-import { h } from "../JSX";
 import { settings, Watcher } from "../settings";
 import Vertex from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { Sidebar } from "../Sidebar/SidebarController";
-import { divIcon, LayerGroup, LayerOptions, Marker, Polygon, polygon, Map as LMap, Icon, Layer } from "leaflet";
-import { Label, LabelLayer } from "./LabelLayer";
-import { TextLabel } from "./TextLabel";
-import { IconLabel } from "./IconLabel";
+import { LayerGroup, LayerOptions, Marker, Map as LMap, latLng } from "leaflet";
+import { Label, LabelLayer } from "./label/LabelLayer";
+import { TextLabel } from "./label/TextLabel";
+import { IconLabel } from "./label/IconLabel";
+import { Outline, OutlineLayer } from "./OutlineLayer";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_PAIRS = [
@@ -38,31 +35,17 @@ const ROOM_ICON_PAIRS = [
 ];
 
 export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloor {
-    private tree: RBush<BBox>;
     private allLabels: Marker[];
     private floorNumber: string;
-    private roomOutlines: Polygon[];
-    private hiding: boolean;
     private removeWatcher: Option<Watcher>;
     private readonly labelLayer: LabelLayer;
+    private readonly outlineLayer: OutlineLayer;
 
-    private static textWidthCanvas: HTMLCanvasElement;
-    private static textWidthContext: CanvasRenderingContext2D;
-
-    constructor(map: MapData, sidebar: Sidebar, floorNumber: string, options?: LayerOptions) {
+    constructor(map: MapData, floorNumber: string, options?: LayerOptions) {
         super([], options);
 
-        if (!LRoomLabel.textWidthCanvas) {
-            LRoomLabel.textWidthCanvas = <canvas></canvas>;
-            LRoomLabel.textWidthContext = LRoomLabel.textWidthCanvas.getContext("2d")!;
-            LRoomLabel.textWidthContext.font = "12px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif";
-        }
-
-        this.tree = new RBush();
         this.allLabels = [];
         this.floorNumber = floorNumber;
-        this.roomOutlines = [];
-        this.hiding = false;
         this.removeWatcher = None;
 
         // First room will be least important, last will be most important
@@ -78,6 +61,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         const emergencyMarkers: Label[] = [];
         const closedMarkers: Label[] = [];
 
+        const outlines = [];
         const labels = [];
 
         for (const room of rooms) {
@@ -91,19 +75,15 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
                 //     sidebar.openInfo(room);
                 // });
 
-                // if (room.outline.length !== 0) {
-                //     const outline = polygon(room.outline.map((point) => [point[1], point[0]]), {
-                //         stroke: false,
-                //         color: "#7DB534"
-                //     });
-                //     this.roomOutlines.push(outline);
-                //     // super.addLayer(outline);
-                //     outline.on("click", () => {
-                //         sidebar.openInfo(room);
-                //     });
-                // } else {
-                //     console.log(`Room has no outline: ${room.getName()}`);
-                // }
+                if (room.outline.length !== 0) {
+                    const outline = new Outline(room.outline.map(point => latLng(point[1], point[0])));
+                    outlines.push(outline);
+                    // outline.on("click", () => {
+                    //     sidebar.openInfo(room);
+                    // });
+                } else {
+                    console.log(`Room has no outline: ${room.getName()}`);
+                }
 
                 const roomLabel = this.getRoomLabel(room);
                 if (room.isInfrastructure()) {
@@ -121,13 +101,17 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         vertices
             .filter(vertex => vertex.getLocation().getFloor() === floorNumber)
             .forEach(vertex => LRoomLabel.getVertexLabel(vertex).ifSome(label => labels.push(label)));
+        
+        this.outlineLayer = new OutlineLayer(outlines, {
+            minZoom: -Infinity,
+            maxZoom: Infinity,
+            pane: "overlayPane"
+        });
+        super.addLayer(this.outlineLayer);
 
         this.labelLayer = new LabelLayer(labels, {
             minZoom: -Infinity,
             maxZoom: Infinity,
-            updateWhenZooming: false,
-            keepBuffer: 5,
-            updateWhenIdle: true,
             pane: "overlayPane"
         });
         super.addLayer(this.labelLayer);
@@ -181,12 +165,9 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
 
     onAdd(map: LMap): this {
         super.onAdd(map);
-        map.on("zoomend", this.reload, this);
-        this.reload();
 
         const watcher = new Watcher(shouldShowUnknown => {
             const shouldShow = shouldShowUnknown as boolean;
-            this.hiding = !shouldShow;
             if (shouldShow) {
                 super.onAdd(map);
             } else {
@@ -205,32 +186,8 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
 
         settings.removeWatcher("show-markers", this.removeWatcher.unwrap());
         this.removeWatcher = None;
-
-        map.removeEventListener("zoomend", this.reload, this);
         
         return this;
-    }
-
-    reload() {
-        this.tree.clear();
-
-        if (!this.hiding) {
-            this.showVisibleLayers();
-        }
-    }
-
-    private showVisibleLayers() {
-        // const iconBBoxs = this.allLabels
-        //     .filter(LRoomLabel.layerIsMarker)
-        //     .map(LRoomLabel.pairMarkerWithBBox);
-        // const toShow = [];
-        // for (const iconBBox of iconBBoxs) {
-        //     if (!this.tree.collides(iconBBox.e1)) {
-        //         // Can be seen
-        //         toShow.push(iconBBox.e0);
-        //         this.tree.insert(iconBBox.e1);
-        //     }
-        // }
     }
 
     private static getIcon(pairs: T2<string, string>[], tags: string[]): Option<string> {
@@ -255,15 +212,5 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     private static getVertexLabel(vertex: Vertex): Option<Label> {
         return LRoomLabel.getIcon(VERTEX_ICON_PAIRS, vertex.getTags())
             .map(icon => new IconLabel(vertex.getLocation().getXY(), icon));
-    }
-
-    private static getVertexIcon(vertex: Vertex): Option<Icon<any>> {
-        // return LRoomLabel.getIconClass(VERTEX_ICON_CLASS_PAIRS, vertex.getTags())
-        //     .map(iconClass => divIcon({
-        //         html: <i class={iconClass}></i> as HTMLElement,
-        //         className: "icon",
-        //         iconSize: [28, 28]
-        //     }));
-        throw "no";
     }
 }

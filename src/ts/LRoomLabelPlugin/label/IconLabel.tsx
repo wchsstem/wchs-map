@@ -1,6 +1,6 @@
 import { LatLng, Point, point } from "leaflet";
 import { Label } from "./LabelLayer";
-import { h } from "../JSX";
+import { h } from "../../JSX";
 
 export class IconLabel implements Label {
     private readonly center: LatLng;

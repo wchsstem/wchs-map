@@ -1,6 +1,6 @@
 import { LatLng, point, Point } from "leaflet";
 import { Label, LabelLayer } from "./LabelLayer";
-import { h } from "../JSX";
+import { h } from "../../JSX";
 
 export class TextLabel implements Label {
     private readonly size: Point;

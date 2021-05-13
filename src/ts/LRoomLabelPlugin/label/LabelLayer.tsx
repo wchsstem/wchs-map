@@ -1,9 +1,9 @@
 import { Coords, GridLayer, GridLayerOptions, LatLng, LeafletEventHandlerFn, Map as LMap, Point, point, PointExpression } from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
-import { h } from "../JSX";
+import { h } from "../../JSX";
 
 /**
- * RBush entry representing the LatLang bounding box around a Marker
+ * RBush entry representing the LatLang bounding box around a Label
  */
 type RBushEntry = {
     minX: number,
@@ -100,7 +100,7 @@ class VisibleLabels {
 
     public getLabels(within: Point, center: LatLng): Label[] {
         // TODO: Replace 100 with a number calculated as the max label bbox width/height
-        const bbox = this.bbox(within.add(point(100, 100)), center);
+        const bbox = this.bbox(within, center);
         return this.visibleLabelIndex.search(bbox).map(entry => entry.label);
     }
 
