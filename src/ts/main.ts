@@ -50,7 +50,8 @@ function main() {
         maxBoundsViscosity: 1,
         zoomSnap: 1,
         zoomDelta: 0.4,
-        wheelPxPerZoomLevel: 150
+        wheelPxPerZoomLevel: 150,
+        fadeAnimation: false
     });
     map.fitBounds(bounds.pad(0.05));
 
