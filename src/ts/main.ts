@@ -17,7 +17,7 @@ import { Logger } from "./LogPane/LogPane";
 import { Geocoder } from "./Geocoder";
 import { Locator } from "./Locator";
 import { Sidebar } from "./Sidebar/SidebarController";
-import { CRS, LatLngBounds, map as lMap, popup } from "leaflet";
+import { CRS, LatLngBounds, map as lMap, popup, control } from "leaflet";
 import { None, Some, Option } from "@nvarner/monads";
 
 function main() {
@@ -49,7 +49,7 @@ function main() {
         maxBounds: bounds.pad(0.5),
         maxBoundsViscosity: 1,
         zoomSnap: 1,
-        zoomDelta: 0.4,
+        zoomDelta: 1,
         wheelPxPerZoomLevel: 150,
         fadeAnimation: false
     });
@@ -60,12 +60,7 @@ function main() {
 
     // Create geocoder
     const geocoder = new Geocoder();
-    (async () => {
-        // Initialize geocoder with definitions
-        for (const room of mapData.getAllRooms()) {
-            geocoder.addDefinition(room);
-        }
-    })();
+    mapData.getAllRooms().forEach(room => geocoder.addDefinition(room));
 
     // Initialize locator
     const locator = new Locator(logger);
