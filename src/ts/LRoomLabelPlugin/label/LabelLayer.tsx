@@ -15,22 +15,36 @@ type RBushEntry = {
     label: Label
 }
 
+export interface LabelLayerOptions extends GridLayerOptions {
+    labels: Label[],
+    maxNativeZoom: number,
+    minNativeZoom: number
+}
+
 export class LabelLayer extends GridLayer {
     private readonly labels: Label[];
-    private readonly clickableLabels: ClickableLabel[];
     private readonly visibleLabels: Map<number, VisibleLabels>;
+    private readonly tileCache: Map<string, HTMLElement>;
 
     public static readonly FONT = "12px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif";
     public static readonly LABEL_MIN_SPACING_PX = 3;
 
-    public constructor(labels: Label[], options?: GridLayerOptions) {
+    public constructor(options: LabelLayerOptions) {
         super(options);
-        this.labels = labels;
-        this.clickableLabels = labels.filter(label => isClickable(label)) as ClickableLabel[];
+
+        this.labels = options.labels;
         this.visibleLabels = new Map();
+        this.tileCache = new Map();
     }
 
     protected createTile(coords: Coords): HTMLElement {
+        const cachedTile = this.tileCache.get(JSON.stringify(coords));
+        if (cachedTile !== undefined) {
+            console.log("used cached");
+            return cachedTile;
+        }
+        console.log("not cached");
+
         const tileSize = this.getTileSize();
 
         const pixelRatio = devicePixelRatio ?? 1;
@@ -58,6 +72,7 @@ export class LabelLayer extends GridLayer {
             label.render(ctx, canvasPoint);
         }
 
+        this.tileCache.set(JSON.stringify(coords), tile);
         return tile;
     }
 

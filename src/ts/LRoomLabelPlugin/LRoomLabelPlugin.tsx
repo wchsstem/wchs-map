@@ -6,12 +6,13 @@ import { settings, Watcher } from "../settings";
 import Vertex from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
-import { LayerGroup, LayerOptions, Map as LMap, latLng, LeafletMouseEvent } from "leaflet";
-import { Label, LabelLayer, ClickableLabel, isClickable } from "./label/LabelLayer";
+import { LayerGroup, LayerOptions, Map as LMap, latLng, LeafletMouseEvent, LatLngBounds } from "leaflet";
+import { Label, LabelLayer, isClickable } from "./label/LabelLayer";
 import { TextLabel } from "./label/TextLabel";
 import { IconLabel } from "./label/IconLabel";
 import { Outline, OutlineLayer } from "./OutlineLayer";
 import { Sidebar } from "../Sidebar/SidebarController";
+import { BOUNDS } from "../bounds";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_PAIRS = [
@@ -34,6 +35,12 @@ const ROOM_ICON_PAIRS = [
     T2.new("idf", "\uf6ff") // fa-network-wired
 ];
 
+export interface RoomLabelLayerOptions extends LayerOptions {
+    minNativeZoom: number,
+    maxNativeZoom: number,
+    bounds: LatLngBounds
+}
+
 export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloor {
     private readonly normalLabels: Label[];
     private readonly infrastructureLabels: Label[];
@@ -45,8 +52,12 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     private labelLayer: LabelLayer | undefined;
     private readonly outlineLayer: OutlineLayer;
 
-    constructor(map: MapData, sidebar: Sidebar, floorNumber: string, options?: LayerOptions) {
+    private readonly options: RoomLabelLayerOptions;
+
+    constructor(map: MapData, sidebar: Sidebar, floorNumber: string, options: RoomLabelLayerOptions) {
         super([], options);
+
+        this.options = options;
 
         this.floorNumber = floorNumber;
         this.removeWatcher = None;
@@ -133,11 +144,15 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         if (this.labelLayer !== undefined) {
             super.removeLayer(this.labelLayer);
         }
-        this.labelLayer = new LabelLayer(labels, {
+        this.labelLayer = new LabelLayer({
             minZoom: -Infinity,
             maxZoom: Infinity,
             pane: "overlayPane",
-            tileSize: 2048
+            tileSize: 2048,
+            labels: labels,
+            minNativeZoom: this.options.minNativeZoom,
+            maxNativeZoom: this.options.maxNativeZoom,
+            bounds: this.options.bounds
         });
         super.addLayer(this.labelLayer);
     }

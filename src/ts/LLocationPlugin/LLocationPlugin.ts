@@ -20,7 +20,7 @@ export class LLocation extends LayerGroup {
     constructor(locator: Locator, options?: L.LayerOptions) {
         options = options ?? {};
         if (!("attribution" in options)) {
-            options["attribution"] = "© OpenStreetMap contributors";
+            options.attribution = "© OpenStreetMap contributors";
         }
 
         super([], options);

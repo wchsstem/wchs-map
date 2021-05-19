@@ -17,8 +17,9 @@ import { Logger } from "./LogPane/LogPane";
 import { Geocoder } from "./Geocoder";
 import { Locator } from "./Locator";
 import { Sidebar } from "./Sidebar/SidebarController";
-import { CRS, LatLngBounds, map as lMap, popup, control } from "leaflet";
+import { CRS, map as lMap, popup } from "leaflet";
 import { None, Some, Option } from "@nvarner/monads";
+import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
 
 function main() {
     if ("serviceWorker" in navigator) {
@@ -27,36 +28,24 @@ function main() {
 
     const logger = Logger.new();
 
-    // Churchill is 600ft long and 400ft across; portables add to that
-
-    // bounds used to just be defined in terms of constants, but due to mistakes made when choosing those constants and
-    // the subsequent addition of the portables, this was used instead. It should be easier to configure for existing maps,
-    // but new maps should instead carefully choose a coordinate system such that the bounds fit the aspect ratio of the
-    // base map image to avoid having to do this.
-    const width = 161.31325; // width of 1st floor from Inkscape; arbitrary unit
-    const height = 123.15513; // width of 2nd floor from Inkscape; same unit as width
-    const scale = 3.78;
-    const pushX = 5;
-    const bounds = new LatLngBounds([0, pushX], [scale * height, (scale * width) + pushX]);
-
     // Create map
     const map = lMap("map", {
         crs: CRS.Simple,
-        center: bounds.getCenter(),
+        center: BOUNDS.getCenter(),
         transform3DLimit: 2^20, // Prevents room overlay from drifting off the map in Firefox
-        maxZoom: 3,
-        minZoom: -1,
-        maxBounds: bounds.pad(0.5),
+        maxZoom: MAX_ZOOM,
+        minZoom: MIN_ZOOM,
+        maxBounds: BOUNDS.pad(0.5),
         maxBoundsViscosity: 1,
         zoomSnap: 1,
         zoomDelta: 1,
         wheelPxPerZoomLevel: 150,
         fadeAnimation: false
     });
-    map.fitBounds(bounds.pad(0.05));
+    map.fitBounds(BOUNDS.pad(0.05));
 
     // @ts-ignore: JSON works fine here
-    const mapData = new MapData(mapDataJson, bounds);
+    const mapData = new MapData(mapDataJson, BOUNDS);
 
     // Create geocoder
     const geocoder = new Geocoder();
@@ -78,10 +67,19 @@ function main() {
     // Create sidebar
     const sidebar = new Sidebar(map, mapData, geocoder, locator, logger, floors);
 
-    floors.addLayer(new LRoomLabel(mapData, sidebar, "1"));
-    floors.addLayer(new LRoomLabel(mapData, sidebar, "2"));
+    // Create room label layers
+    mapData
+        .getFloors()
+        .map(floorData => floorData.number)
+        .map(floor => new LRoomLabel(mapData, sidebar, floor, {
+            minNativeZoom: MIN_ZOOM,
+            maxNativeZoom: MAX_ZOOM,
+            bounds: BOUNDS
+        }))
+        .forEach(layer => floors.addLayer(layer));
 
-    // Display vertices, edges, mouse click location
+    // Lazily set up dev mode when enabled
+    // Displays vertices, edges, mouse click location
     let devLayers: Option<LSomeLayerWithFloor[]> = None;
 
     const locationPopup = popup();

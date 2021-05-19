@@ -1,4 +1,4 @@
-import { Coords, GridLayer, GridLayerOptions, latLng, LatLng, LeafletEventHandlerFn, LeafletMouseEvent, Map as LMap, Point, point, PointExpression } from "leaflet";
+import { Coords, GridLayer, GridLayerOptions, LatLng, LeafletEventHandlerFn, LeafletMouseEvent, Point, point } from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
 import { h } from "../JSX";
 import { ClickListener } from "./LRoomLabelPlugin";
@@ -6,14 +6,21 @@ import pointInPolygon from "point-in-polygon";
 
 export class OutlineLayer extends GridLayer {
     private readonly outlines: RBush<Outline>;
+    private readonly tileCache: Map<Coords, HTMLElement>;
 
     public constructor(outlines: Outline[], options?: GridLayerOptions) {
         super(options);
         this.outlines = new RBush();
         this.outlines.load(outlines);
+        this.tileCache = new Map();
     }
 
     protected createTile(coords: Coords): HTMLElement {
+        const cachedTile = this.tileCache.get(coords);
+        if (cachedTile !== undefined) {
+            return cachedTile;
+        }
+
         const tileSize = this.getTileSize();
 
         const tile = <canvas width={tileSize.x} height={tileSize.y} /> as HTMLCanvasElement;
@@ -30,6 +37,7 @@ export class OutlineLayer extends GridLayer {
             outline.render(ctx, latLng => this._map.project(latLng, coords.z).subtract(tileTopLeftPoint));
         }
 
+        this.tileCache.set(coords, tile);
         return tile;
     }
 
