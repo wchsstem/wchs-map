@@ -1,5 +1,5 @@
 import { fromMap } from "@nvarner/monads";
-import { Coords, GridLayer, GridLayerOptions, LatLng, LeafletEventHandlerFn, LeafletMouseEvent, Map as LMap, Point, point, PointExpression } from "leaflet";
+import { Coords, GridLayer, GridLayerOptions, LatLng, LatLngBounds, LeafletEventHandlerFn, LeafletMouseEvent, Map as LMap, Point, point, PointExpression } from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
 import { h } from "../../JSX";
 import { ClickListener } from "../LRoomLabelPlugin";
@@ -18,7 +18,8 @@ type RBushEntry = {
 export interface LabelLayerOptions extends GridLayerOptions {
     labels: Label[],
     maxNativeZoom: number,
-    minNativeZoom: number
+    minNativeZoom: number,
+    bounds: LatLngBounds
 }
 
 export class LabelLayer extends GridLayer {
@@ -40,10 +41,8 @@ export class LabelLayer extends GridLayer {
     protected createTile(coords: Coords): HTMLElement {
         const cachedTile = this.tileCache.get(JSON.stringify(coords));
         if (cachedTile !== undefined) {
-            console.log("used cached");
             return cachedTile;
         }
-        console.log("not cached");
 
         const tileSize = this.getTileSize();
 

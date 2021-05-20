@@ -1,22 +1,29 @@
-import { Coords, GridLayer, GridLayerOptions, LatLng, LeafletEventHandlerFn, LeafletMouseEvent, Point, point } from "leaflet";
+import { Coords, GridLayer, GridLayerOptions, LatLng, LatLngBounds, LeafletEventHandlerFn, LeafletMouseEvent, Point, point } from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
 import { h } from "../JSX";
 import { ClickListener } from "./LRoomLabelPlugin";
 import pointInPolygon from "point-in-polygon";
 
+export interface OutlineLayerOptions extends GridLayerOptions {
+    outlines: Outline[],
+    maxNativeZoom: number,
+    minNativeZoom: number,
+    bounds: LatLngBounds
+}
+
 export class OutlineLayer extends GridLayer {
     private readonly outlines: RBush<Outline>;
-    private readonly tileCache: Map<Coords, HTMLElement>;
+    private readonly tileCache: Map<string, HTMLElement>;
 
-    public constructor(outlines: Outline[], options?: GridLayerOptions) {
+    public constructor(options: OutlineLayerOptions) {
         super(options);
         this.outlines = new RBush();
-        this.outlines.load(outlines);
+        this.outlines.load(options.outlines);
         this.tileCache = new Map();
     }
 
     protected createTile(coords: Coords): HTMLElement {
-        const cachedTile = this.tileCache.get(coords);
+        const cachedTile = this.tileCache.get(JSON.stringify(coords));
         if (cachedTile !== undefined) {
             return cachedTile;
         }
@@ -37,7 +44,7 @@ export class OutlineLayer extends GridLayer {
             outline.render(ctx, latLng => this._map.project(latLng, coords.z).subtract(tileTopLeftPoint));
         }
 
-        this.tileCache.set(coords, tile);
+        this.tileCache.set(JSON.stringify(coords), tile);
         return tile;
     }
 

@@ -12,7 +12,6 @@ import { TextLabel } from "./label/TextLabel";
 import { IconLabel } from "./label/IconLabel";
 import { Outline, OutlineLayer } from "./OutlineLayer";
 import { Sidebar } from "../Sidebar/SidebarController";
-import { BOUNDS } from "../bounds";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_PAIRS = [
@@ -108,9 +107,13 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
             .filter(vertex => vertex.getLocation().getFloor() === floorNumber)
             .forEach(vertex => LRoomLabel.getVertexLabel(vertex).ifSome(label => labels.push(label)));
         
-        this.outlineLayer = new OutlineLayer(outlines, {
+        this.outlineLayer = new OutlineLayer({
+            outlines: outlines,
             minZoom: -Infinity,
             maxZoom: Infinity,
+            minNativeZoom: this.options.minNativeZoom,
+            maxNativeZoom: this.options.maxNativeZoom,
+            bounds: this.options.bounds,
             pane: "overlayPane",
             tileSize: 2048
         });
