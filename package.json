@@ -19,6 +19,7 @@
     "@rollup/plugin-node-resolve": "^11.1.1",
     "@rollup/plugin-typescript": "^8.2.0",
     "@types/domhandler": "^2.4.1",
+    "@types/fontfaceobserver": "^0.0.6",
     "@types/kd-tree-javascript": "^1.0.0",
     "@types/leaflet": "^1.7.0",
     "@types/point-in-polygon": "^1.0.0",
@@ -38,6 +39,7 @@
   "dependencies": {
     "@nvarner/monads": "^0.4.0",
     "@tyriar/fibonacci-heap": "^2.0.9",
+    "fontfaceobserver": "^2.1.0",
     "kd-tree-javascript": "^1.0.3",
     "leaflet": "^1.7.0",
     "leaflet-sidebar-v2": "^3.2.3",

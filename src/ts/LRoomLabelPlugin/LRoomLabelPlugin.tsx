@@ -12,6 +12,7 @@ import { TextLabel } from "./label/TextLabel";
 import { IconLabel } from "./label/IconLabel";
 import { Outline, OutlineLayer } from "./OutlineLayer";
 import { Sidebar } from "../Sidebar/SidebarController";
+import FontFaceObserver from "fontfaceobserver";
 
 // TODO: Wow these icons are bad. Get new ones.
 const VERTEX_ICON_PAIRS = [
@@ -49,7 +50,6 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     private floorNumber: string;
     private removeWatcher: Option<Watcher>;
     private labelLayer: LabelLayer | undefined;
-    private readonly outlineLayer: OutlineLayer;
 
     private readonly options: RoomLabelLayerOptions;
 
@@ -74,7 +74,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         const emergencyLabels: Label[] = [];
         const closedLabels: Label[] = [];
 
-        const outlines = [];
+        const outlines: Outline[] = [];
         const labels = [];
 
         for (const room of rooms) {
@@ -106,30 +106,35 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         vertices
             .filter(vertex => vertex.getLocation().getFloor() === floorNumber)
             .forEach(vertex => LRoomLabel.getVertexLabel(vertex).ifSome(label => labels.push(label)));
-        
-        this.outlineLayer = new OutlineLayer({
-            outlines: outlines,
-            minZoom: -Infinity,
-            maxZoom: Infinity,
-            minNativeZoom: this.options.minNativeZoom,
-            maxNativeZoom: this.options.maxNativeZoom,
-            bounds: this.options.bounds,
-            pane: "overlayPane",
-            tileSize: 2048
-        });
-        super.addLayer(this.outlineLayer);
+
 
         this.normalLabels = labels;
         this.infrastructureLabels = infrastructureLabels;
         this.emergencyLabels = emergencyLabels;
         this.closedLabels = closedLabels;
 
-        this.createLabelLayer();
-        
-        const recreateLabelLayer = new Watcher(_ => this.createLabelLayer());
-        settings.addWatcher("show-infrastructure", recreateLabelLayer, false);
-        settings.addWatcher("show-emergency", recreateLabelLayer, false);
-        settings.addWatcher("show-closed", recreateLabelLayer, false);
+        // Wait for FontAwesome to load so icons render properly
+        const fontAwesome = new FontFaceObserver("Font Awesome 5 Free", { weight: 900 });
+        fontAwesome.load("\uf462").then(() => {
+            const outlineLayer = new OutlineLayer({
+                outlines: outlines,
+                minZoom: -Infinity,
+                maxZoom: Infinity,
+                minNativeZoom: this.options.minNativeZoom,
+                maxNativeZoom: this.options.maxNativeZoom,
+                bounds: this.options.bounds,
+                pane: "overlayPane",
+                tileSize: 2048
+            });
+            super.addLayer(outlineLayer);
+
+            this.createLabelLayer();
+            
+            const recreateLabelLayer = new Watcher(_ => this.createLabelLayer());
+            settings.addWatcher("show-infrastructure", recreateLabelLayer, false);
+            settings.addWatcher("show-emergency", recreateLabelLayer, false);
+            settings.addWatcher("show-closed", recreateLabelLayer, false);
+        });
     }
 
     private createLabelLayer(): void {

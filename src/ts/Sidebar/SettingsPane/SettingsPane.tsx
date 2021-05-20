@@ -61,13 +61,9 @@ export class SettingsPane extends Pane {
             settingsContainer.appendChild(categoryContainer);
         });
 
-        const versionContainer = <li />;
-        settings.addWatcher("version", new Watcher(version => versionContainer.innerText = `Version: ${version}`));
-
         const aboutContainer = <li>
             <h2>About</h2>
             <ul>
-                {versionContainer}
             </ul>
         </li>;
         settingsContainer.appendChild(aboutContainer);

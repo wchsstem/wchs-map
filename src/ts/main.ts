@@ -1,7 +1,6 @@
 import * as mapDataJson from "../data/map_compiled.json";
 
 import "../../node_modules/leaflet/dist/leaflet.css";
-
 import "../assets/fontawesome/all.min.css";
 
 import { settings, Watcher } from "./settings";
