@@ -13,7 +13,7 @@ export abstract class Pane {
     public getPanelOptions(): PanelOptions {
         return {
             id: this.getPaneId(),
-            tab: `<i class="fas ${this.getPaneIconClass()}"}></i>`,
+            tab: `<i class="fas ${this.getPaneIconClass()}"></i>`,
             title: this.getPaneTitle(),
             pane: this.getPaneElement(),
             position: this.getPosition(),
