@@ -134,6 +134,7 @@ settings.setDefault("show-infrastructure", false);
 settings.setDefault("show-emergency", false);
 settings.setDefault("logger", false);
 settings.setDefault("show-markers", true);
+settings.setDefault("location-permission", false);
 settings.setDefault("pd1", "");
 settings.setDefault("pd2", "");
 settings.setDefault("pd3", "");

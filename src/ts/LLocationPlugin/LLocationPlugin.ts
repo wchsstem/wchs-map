@@ -25,11 +25,6 @@ export class LLocation extends LayerGroup {
 
         super([], options);
 
-        locator.addStateUpdateHandler(
-            (oldState, newState, position, accuracyRadius) =>
-            this.onLocationStateChange(oldState, newState, position, accuracyRadius)
-        );
-
         this.locator = locator;
         this.control = new LLocationControl(() => { this.locate() }, { position: "topright" });
 
@@ -41,6 +36,12 @@ export class LLocation extends LayerGroup {
             const hidingLocation = hidingLocationUnknown as boolean;
             this.onChangeHidingLocation(hidingLocation);
         }));
+
+        locator.addStateUpdateHandler(
+            (_oldState, newState, position, accuracyRadius) =>
+                this.onLocationStateChange(newState, position, accuracyRadius)
+        );
+        this.onLocationStateChange(locator.getPositionState(), None, None);
     }
 
     onAdd(map: L.Map): this {
@@ -58,7 +59,6 @@ export class LLocation extends LayerGroup {
     }
 
     private onLocationStateChange(
-        oldState: PositionState,
         newState: PositionState,
         position: Option<L.LatLng>,
         accuracyRadius: Option<number>
@@ -82,7 +82,9 @@ export class LLocation extends LayerGroup {
             case PositionState.UnsureNearChurchill:
                 // Show greyed out circle instead
                 this.positionMarker.ifSome(positionMarker => super.removeLayer(positionMarker));
-                this.positionMarker = Some(new PositionMarker(position.unwrap(), accuracyRadius.unwrap(), true));
+                this.positionMarker =
+                    this.positionMarker.map(_ => new PositionMarker(position.unwrap(), accuracyRadius.unwrap(), true));
+                this.control.onLocationAvailable();
                 break;
             case PositionState.Unknown:
                 this.positionMarker.ifSome(positionMarker => super.removeLayer(positionMarker));

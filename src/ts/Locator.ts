@@ -1,6 +1,8 @@
 import { None, Option, Some } from "@nvarner/monads";
 import { LatLng } from "leaflet";
 import { Logger } from "./LogPane/LogPane";
+import { settings, Watcher } from "./settings";
+import { Pane } from "./Sidebar/Pane";
 
 const SENSITIVITY = 10;
 
@@ -16,6 +18,7 @@ export class Locator {
     private positionState: PositionState;
     private latestPosition: Option<LatLng>;
     private latestAccuracyRadius: Option<number>;
+    private currentWatchId: Option<number>;
 
     private readonly canEverGeolocate: boolean;
 
@@ -23,26 +26,23 @@ export class Locator {
         this.logger = logger;
 
         this.onUpdateStateHandles = [];
-        this.positionState = PositionState.Unknown;
+        // Assume near Churchill
+        this.positionState = PositionState.UnsureNearChurchill;
         this.latestPosition = None;
         this.latestAccuracyRadius = None;
+        this.currentWatchId = None;
 
         this.canEverGeolocate = "geolocation" in navigator;
 
         if (this.canEverGeolocate) {
-            const onPositionUpdate = (latestPosition: GeolocationPosition) => {
-                this.onPositionUpdate(latestPosition);
-            };
-            const onPositionError = (error: GeolocationPositionError) => {
-                this.onPositionError(error);
-            };
-
-            // Get the rough current position once so we have a decent idea of the current location, but request a good
-            // location to be updated as often as possible.
-            navigator.geolocation.getCurrentPosition(onPositionUpdate, onPositionError);
-            navigator.geolocation.watchPosition(onPositionUpdate, onPositionError, {
-                enableHighAccuracy: true
-            });
+            settings.addWatcher("location-permission", new Watcher(hasPermissionUnknown => {
+                const hasPermission = hasPermissionUnknown as boolean;
+                if (hasPermission) {
+                    this.initialize();
+                } else {
+                    this.disengage();
+                }
+            }));
         }
     }
 
@@ -60,6 +60,7 @@ export class Locator {
     }
 
     public getLatestPosition(): Option<LatLng> {
+        this.tryInitializeIfNeeded();
         return this.latestPosition;
     }
 
@@ -70,6 +71,38 @@ export class Locator {
     public isNearChurchill(): boolean {
         const state = this.getPositionState();
         return state === PositionState.NearChurchill || state === PositionState.UnsureNearChurchill;
+    }
+
+    private tryInitializeIfNeeded(): void {
+        if (this.canEverGeolocate && !settings.getData("location-permission").unwrap() as boolean) {
+            navigator.geolocation.getCurrentPosition(latestPosition => {
+                settings.updateData("location-permission", true);
+                this.onPositionUpdate(latestPosition);
+            });
+        }
+    }
+
+    private initialize(): void {
+        const onPositionUpdate = (latestPosition: GeolocationPosition) => {
+            this.onPositionUpdate(latestPosition);
+        };
+        const onPositionError = (error: GeolocationPositionError) => {
+            this.onPositionError(error);
+        };
+
+        this.currentWatchId.ifSome(_ => this.disengage());
+
+        // Get the rough current position once so we have a decent idea of the current location, but request a good
+        // location to be updated as often as possible.
+        navigator.geolocation.getCurrentPosition(onPositionUpdate, onPositionError);
+        this.currentWatchId = Some(navigator.geolocation.watchPosition(onPositionUpdate, onPositionError, {
+            enableHighAccuracy: true
+        }));
+    }
+
+    private disengage(): void {
+        this.currentWatchId.ifSome(id => navigator.geolocation.clearWatch(id));
+        this.currentWatchId = None;
     }
 
     private onPositionUpdate(latestPosition: GeolocationPosition): void {
@@ -84,6 +117,9 @@ export class Locator {
 
     private onPositionError(error: GeolocationPositionError): void {
         this.logger.log(`geolocation error: ${error.message}`);
+        if (error.code == error.PERMISSION_DENIED) {
+            settings.updateData("location-permission", false);
+        }
         this.setPositionStateUnknown();
     }
 
