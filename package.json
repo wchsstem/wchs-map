@@ -39,6 +39,7 @@
   "dependencies": {
     "@nvarner/monads": "^0.4.0",
     "@tyriar/fibonacci-heap": "^2.0.9",
+    "@web/rollup-plugin-html": "^1.7.0",
     "fontfaceobserver": "^2.1.0",
     "kd-tree-javascript": "^1.0.3",
     "leaflet": "^1.7.0",

@@ -1,5 +1,6 @@
 import commonjs from "@rollup/plugin-commonjs";
 import copy from "rollup-plugin-copy";
+import html from "@web/rollup-plugin-html";
 import json from "rollup-plugin-json";
 import progress from "rollup-plugin-progress";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
@@ -9,6 +10,17 @@ import typescript from "@rollup/plugin-typescript";
 
 // TODO: Read the SVG files to copy from map.json
 export default [
+    {
+        input: "./src/index.html",
+        output: {
+            dir: "./dist"
+        },
+        plugins: [
+            html({
+                extractAssets: false
+            })
+        ]
+    },
     {
         input: "./src/ts/main.ts",
         output: {
@@ -33,7 +45,6 @@ export default [
             }),
             copy({
                 targets: [
-                    "./src/index.html",
                     "./src/assets/",
                     "./src/manifest.json"
                 ],
