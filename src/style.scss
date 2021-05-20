@@ -50,6 +50,24 @@ h2 {
     }
 }
 
+.icon {
+    $size: 24px;
+    width: $size !important;
+    height: $size !important;
+    border-radius: $size;
+    transition: opacity 0.2s;
+    background-color: #ffffff;
+    display: flex !important;
+    margin-left: -($size / 2) !important;
+    margin-top: -($size / 2) !important;
+
+    border: 2px solid rgba(0, 0, 0, 0.2);
+
+    * {
+        margin: auto;
+    }
+}
+
 $breakpoints: (phone: 640px,
                tablet: 1000px,
                desktop: 1024px);
