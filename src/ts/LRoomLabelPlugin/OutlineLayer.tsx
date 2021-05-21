@@ -59,7 +59,10 @@ export class OutlineLayer extends GridLayer {
                 maxY: me.latlng.lat + 1,
                 minX: me.latlng.lng,
                 minY: me.latlng.lat
-            }).filter(outline => outline.didClick(me));
+            })
+            .filter(outline => outline.didClick(me))
+            // Assume that user intends to click on smallest target
+            .sort((a, b) => a.bboxArea() - b.bboxArea());
             if (clickedOutlines.length > 0) {
                 clickedOutlines[0].onClick(me);
             }
@@ -134,5 +137,9 @@ export class Outline implements BBox {
         for (const listener of this.clickListeners) {
             listener(e);
         }
+    }
+
+    public bboxArea(): number {
+        return (this.maxX - this.minX) * (this.maxY - this.minY);
     }
 }
