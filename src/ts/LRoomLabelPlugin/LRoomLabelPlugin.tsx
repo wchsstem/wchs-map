@@ -25,14 +25,16 @@ const ROOM_ICON_PAIRS = [
     T2.new("women-bathroom", "\uf182"), // fa-female
     T2.new("men-bathroom", "\uf183"), // fa-male
     T2.new("unknown-bathroom", "\uf7d8"), // fa-toilet
-    T2.new("ec", "\uf037"), // fa-bolt
+    T2.new("ec", "\uf0e7"), // fa-bolt
     T2.new("bsc", "\uf71e"), // fa-toilet-paper
     T2.new("wf", "\uf043"), // fa-tint
     T2.new("hs", "\ue06b"), // fa-pump-soap
     T2.new("bleed-control", "\uf462"), // fa-band-aid
     T2.new("aed", "\uf21e"), // fa-heartbeat
     T2.new("ahu", "\uf72e"), // fa-wind
-    T2.new("idf", "\uf6ff") // fa-network-wired
+    T2.new("idf", "\uf6ff"), // fa-network-wired
+    T2.new("eru", "\uf128"), // fa-question
+    T2.new("cp", "\uf023")
 ];
 
 export interface RoomLabelLayerOptions extends LayerOptions {
@@ -89,7 +91,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
 
                 const roomLabel = LRoomLabel.getRoomLabel(room);
                 if (isClickable(roomLabel)) {
-                    roomLabel.addClickListener(e => sidebar.openInfo(room));
+                    roomLabel.addClickListener(_ => sidebar.openInfo(room));
                 }
                 if (room.isInfrastructure()) {
                     infrastructureLabels.push(roomLabel);

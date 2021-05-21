@@ -106,7 +106,7 @@ export const SETTING_SECTIONS: [string, string[]][] = [
     ["Advanced", ["synergy", "dev", "logger", "show-markers"]]
 ];
 
-export const INFRASTRUCTURE_TAGS: Set<string> = new Set(["bsc", "ec", "ahu", "idf", "mdf"]);
+export const INFRASTRUCTURE_TAGS: Set<string> = new Set(["bsc", "ec", "ahu", "idf", "mdf", "eru", "cp"]);
 
 export const EMERGENCY_TAGS: Set<string> = new Set(["aed", "bleed-control"]);
 

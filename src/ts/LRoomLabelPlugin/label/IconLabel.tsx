@@ -86,10 +86,6 @@ export class IconLabel implements ClickableLabel {
         const ctx = IconLabel.textMeasureCtx;
 
         const metrics = ctx.measureText(icon);
-        // return point(
-        //     metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight,
-        //     metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
-        // );
         return point(
             metrics.width,
             metrics.actualBoundingBoxAscent

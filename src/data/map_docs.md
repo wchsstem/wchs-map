@@ -67,6 +67,8 @@ alphabet. So, for example, the closet off of 152 is numbered 152Z. This is inspi
 well exemplified in the Office (144) and Counseling (107).
 
 Incomplete list of rooms within rooms with unknown numbers:
+ - 124Z
+ - 139Z
  - 147Z
  - 153Y
  - 153Z
@@ -76,15 +78,20 @@ Incomplete list of rooms within rooms with unknown numbers:
  - 159Z
  - 161Z
  - 163Z (Concessions)
+ - 169Z
+ - 261Z (MDF)
 
 #### Standalone rooms
 For standalone rooms, their room number will be x, followed by their floor number, followed by a unique two digit
 number. For example, the attendance office is numbered x100. These rooms should be given an alternate name in map.json
-if at all possible because these room numbers are really placeholders and will probably be confusing for users.
+if at all possible, because these room numbers are really placeholders and will probably be confusing for users.
 
 Current list of standalone rooms with unknown numbers:
  - x100 (Attendance Office)
  - x200 (Office)
+ - x201 (Storage)
+ - x202 (Storage)
+ - x203
 
 ## Vertex IDs
 Vertex IDs follow a specific pattern based on their location. The IDs chosen are not important for the mapping software,
@@ -92,7 +99,7 @@ but are useful for developers to quickly name and locate vertices.
 
 ### IDs starting with 'R'
 These are doors for a room or rarely vertices within a room. They are in the form 'R{room number}:{id}', where id is a
-unique ID to identify that identifies the particular vertex associated with a room. It is usually 0 as most rooms only
+unique ID to identify that identifies the particular vertex associated with a room. It is usually 0, as most rooms only
 have a single vertex associated with them for their single door.
 
 ### IDs starting with 'H'
@@ -117,3 +124,33 @@ outlines look great, but Leaflet does not, so the green highlights do not follow
 to point. To address this issue, extra points were added on these curves so the green highlight followed them well
 enough to not be noticed. If you want to edit these curves, you should delete these extra points first, do your edits,
 then add them back in.
+
+## Acronym Guessing
+Some rooms are labelled with acronyms. These are typically not classrooms and are filed as infrastructure rooms. They
+are not usually documented, so I've made educated guesses at their meanings.
+
+### EC: Electrical Closet
+This is almost certainly correct, as EC-12/ERU-6 has a sign taped to the door labeling it "Electrical Closet 12".
+
+### BSC: Bathroom Supply Closet
+This is likely as student bathrooms are usually adjacent to a BSC. However, there are BSCs not obviously near bathrooms
+and staff bathrooms don't seem to be near BSCs.
+
+### AHU: Air Handling Unit
+AHU seems to be a common HVAC term referring to the machine that circulates warm/cool air throughout the school. The
+varied placement of AHUs throughout the school supports this. In particular, the dualing AHUs at the auditorium match
+the auditorium's large size and usual cool temperature, especially compared to the rest of the school.
+
+### ERU: ?
+My guess is that ERUs are some type of HVAC room. I've found that ERU can stand for Energy Recovery Unit or Emmisions
+Reduction Unit but do not know which, if either, applies here.
+
+### MDF: Main Distribution Frame, IDF: Intermediate Distribution Frame
+These are computer networking (and maybe also phone networking) rooms. The MDF is central, and the IDFs improve service
+farther from the MDF. These are very common telecommunications acronyms and their placement and number is logical with
+respect to them.
+
+### CP: Control Panel, PS: Power Supply, EZM: Zone Expansion Module (?)
+Only CP should show up on the map, but all three of these are on door signs. They seem to be acronyms used by Napco
+Security. The CP is probably a central controller, PS seems to be backup power, and the EZM allows for more things to
+be connected to the security system.
