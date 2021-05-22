@@ -370,6 +370,18 @@
             "floor": "1",
             "location": [174, 113.875]
         },
+        "H4:11": {
+            "floor": "1",
+            "location": [186.5, 79.25]
+        },
+        "H4:12": {
+            "floor": "1",
+            "location": [186.5, 89.375]
+        },
+        "H4:13": {
+            "floor": "1",
+            "location": [186.5, 71.375]
+        },
         "H5:0": {
             "floor": "1",
             "location": [21.25, 130.75]
@@ -725,6 +737,10 @@
             "floor": "1",
             "location": [463.25, 187.5]
         },
+        "H8:29": {
+            "floor": "1",
+            "location": [260, 213.25]
+        },
         "H9:0": {
             "floor": "1",
             "location": [485.5, 57]
@@ -860,6 +876,18 @@
         "RBSC4:0": {
             "floor": "1",
             "location": [348, 69.625]
+        },
+        "RBW105:0": {
+            "floor": "1",
+            "location": [188.875, 89.375]
+        },
+        "RBM105:0": {
+            "floor": "1",
+            "location": [188.875, 79.25]
+        },
+        "RBSC5:0": {
+            "floor": "1",
+            "location": [188.875, 71.375]
         },
         "RBM102:0": {
             "floor": "1",
@@ -1016,6 +1044,10 @@
         "RIDF102:0": {
             "floor": "1",
             "location": [384, 70.25]
+        },
+        "RIDF103:0": {
+            "floor": "1",
+            "location": [254.25, 213.25]
         },
         "RIDF104:0": {
             "floor": "1",
@@ -3329,7 +3361,6 @@
         ["H8:22", "R143:0"],
         ["H8:6", "R130A:0"],
         ["H8:6", "H8:20"],
-        ["H8:21", "H8:20"],
         ["H8:20", "H8:7"],
         ["H8:7", "R130A:1"],
         ["R130A:0", "R130B:0"],
@@ -3916,7 +3947,16 @@
         ["H14:5", "RBSC14:0"],
         ["H16:19", "H16:0"],
         ["H16:19", "R251:0"],
-        ["H16:19", "H16:1"]
+        ["H16:19", "H16:1"],
+        ["H4:11", "RBM105:0"],
+        ["H4:11", "H4:0"],
+        ["H4:11", "H4:12"],
+        ["H4:12", "RBW105:0"],
+        ["H4:11", "H4:13"],
+        ["H4:13", "RBSC5:0"],
+        ["H8:29", "H8:21"],
+        ["H8:29", "H8:20"],
+        ["H8:29", "RIDF103:0"]
     ],
     "rooms": {
         "100": {
@@ -4872,9 +4912,30 @@
             "names": ["BSC-3", "Bathroom Supply Closet 3"],
             "tags": ["bsc"]
         },
+        "BW105": {
+            "vertices": ["RBW105:0"],
+            "names": [
+                "Women's Restroom (Auditorium)", "Women's Bathroom (Auditorium)",
+                "Women's Restroom (Theater)", "Women's Bathroom (Theater)"
+            ],
+            "tags": ["closed", "women-bathroom"]
+        },
+        "BM105": {
+            "vertices": ["RBM105:0"],
+            "names": [
+                "Men's Restroom (Auditorium)", "Men's Bathroom (Auditorium)",
+                "Men's Restroom (Theater)", "Men's Bathroom (Theater)"
+            ],
+            "tags": ["closed", "men-bathroom"]
+        },
+        "BSC5": {
+            "vertices": ["RBSC5:0"],
+            "names": ["BSC-5", "Bathroom Supply Closet 5"],
+            "tags": ["bsc"]
+        },
         "BSC12": {
             "vertices": ["RBSC12:0"],
-            "names": ["BAS-12", "Bathroom Supply Closet 12"],
+            "names": ["BSC-12", "Bathroom Supply Closet 12"],
             "tags": ["bsc"]
         },
         "BSC14": {
@@ -5160,6 +5221,11 @@
         "IDF2": {
             "vertices": ["RIDF102:0"],
             "names": ["IDF2", "Intermediate Distribution Frame 2"],
+            "tags": ["idf"]
+        },
+        "IDF3": {
+            "vertices": ["RIDF103:0"],
+            "names": ["IDF3", "Intermediate Distribution Frame 3"],
             "tags": ["idf"]
         },
         "IDF4": {
