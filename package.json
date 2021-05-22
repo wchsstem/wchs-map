@@ -1,6 +1,6 @@
 {
   "name": "churchill-map",
-  "version": "1.0.0",
+  "version": "0.7.2",
   "description": "",
   "private": true,
   "scripts": {
@@ -30,6 +30,7 @@
     "rollup-plugin-serve": "^1.1.0",
     "rollup-plugin-styles": "^3.14.1",
     "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-version-injector": "^1.3.3",
     "sass": "^1.32.8",
     "serve": "^11.3.2",
     "ts-node": "^8.10.2",

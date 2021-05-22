@@ -7,6 +7,7 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 import styles from "rollup-plugin-styles";
 import { terser } from "rollup-plugin-terser";
 import typescript from "@rollup/plugin-typescript";
+import versionInjector from "rollup-plugin-version-injector";
 
 export default [
     {
@@ -43,6 +44,9 @@ export default [
                 exclude: "node_modules/**",
                 preferConst: true
             }),
+            versionInjector({
+                injectInComments: false
+            }),
             copy({
                 targets: [
                     "./src/assets/",
@@ -65,6 +69,9 @@ export default [
         plugins: [
             typescript({
                 target: "es2017"
+            }),
+            versionInjector({
+                injectInComments: false
             }),
             terser(),
             progress()

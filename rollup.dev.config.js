@@ -7,6 +7,7 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 import serve from "rollup-plugin-serve";
 import styles from "rollup-plugin-styles";
 import typescript from "@rollup/plugin-typescript";
+import versionInjector from "rollup-plugin-version-injector";
 
 // TODO: Read the SVG files to copy from map.json
 export default [
@@ -43,6 +44,9 @@ export default [
                 exclude: "node_modules/**",
                 preferConst: true
             }),
+            versionInjector({
+                injectInComments: false
+            }),
             copy({
                 targets: [
                     "./src/assets/",
@@ -72,6 +76,9 @@ export default [
         plugins: [
             typescript({
                 target: "es2017"
+            }),
+            versionInjector({
+                injectInComments: false
             }),
             progress()
         ]

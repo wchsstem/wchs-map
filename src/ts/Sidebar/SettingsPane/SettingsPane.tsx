@@ -61,9 +61,11 @@ export class SettingsPane extends Pane {
             settingsContainer.appendChild(categoryContainer);
         });
 
+        // Version injected by versionInjector
         const aboutContainer = <li>
             <h2>About</h2>
             <ul>
+                <li>Version: {"[VI]{version}[/VI]"}</li>
             </ul>
         </li>;
         settingsContainer.appendChild(aboutContainer);
