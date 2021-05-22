@@ -1,5 +1,5 @@
 // Injected by versionInjector
-const VERSION = "[VI]{version}[/VI]";
+const VERSION = "v[VI]{version}[/VI]";
 
 const CACHE_NAME = "WCHS-map-" + VERSION;
 const toCache = [
