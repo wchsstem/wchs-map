@@ -3,7 +3,7 @@ import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 import Room from "../Room";
 
 import { settings, Watcher } from "../settings";
-import Vertex from "../Vertex";
+import { Vertex } from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { T2 } from "../Tuple";
 import { LayerGroup, LayerOptions, Map as LMap, latLng, LeafletMouseEvent, LatLngBounds } from "leaflet";

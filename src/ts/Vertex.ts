@@ -1,28 +1,53 @@
 import { LatLng } from "leaflet";
 import { BuildingLocation } from "./BuildingLocation";
 
-export default class Vertex {
+/**
+ * Represents a vertex in the map's navigation graph
+ */
+export class Vertex {
     private readonly location: BuildingLocation;
-    private readonly tags: string[];
+    private readonly tags: VertexTag[];
 
     constructor(vertex: {
         floor: string,
         location: number[],
-        tags?: string[]
+        tags?: VertexTag[]
     }) {
         this.location = new BuildingLocation(new LatLng(vertex.location[1], vertex.location[0]), vertex.floor);
-        this.tags = vertex.tags || [];
+        this.tags = vertex.tags ?? [];
     }
 
-    getLocation(): BuildingLocation {
+    public getLocation(): BuildingLocation {
         return this.location;
     }
 
-    hasTag(tag: string): boolean {
+    public hasTag(tag: VertexTag): boolean {
         return this.tags.includes(tag);
     }
     
-    getTags(): string[] {
+    public getTags(): VertexTag[] {
         return this.tags;
     }
+}
+
+/**
+ * Tags which may be present on a vertex
+ */
+export enum VertexTag {
+    /**
+     * Vertex represents a staircase
+     */
+    Stairs = "stairs",
+    /**
+     * Vertex represents an elevator
+     */
+    Elevator = "elevator",
+    /**
+     * Vertex represents an up-only elevator
+     */
+    Up = "up",
+    /**
+     * Vertex represents a down-only elevator
+     */
+    Down = "down",
 }

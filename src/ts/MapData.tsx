@@ -2,7 +2,7 @@ import { fromMap, None, Option, Some } from "@nvarner/monads";
 
 import Graph from "./Graph";
 import Room from "./Room";
-import Vertex from "./Vertex";
+import { Vertex, VertexTag } from "./Vertex";
 import { LSomeLayerWithFloor, LLayerGroupWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
 import { GeocoderDefinition } from "./Geocoder";
 import { BuildingLocation } from "./BuildingLocation";
@@ -31,7 +31,7 @@ export default class MapData {
         vertices: Array<{
             floor: string,
             location: [number, number],
-            tags: string[]
+            tags: VertexTag[]
         }>,
         edges: [string, string, boolean?][],
         rooms: Array<{
@@ -219,7 +219,7 @@ export default class MapData {
         for (const [vertexString, vertexId] of this.vertexStringToId.entries()) {
             const vertex = this.graph.getVertex(vertexId);
             if (vertex.getLocation().getFloor() === floor) {
-                const color = vertex.hasTag("stairs") || vertex.hasTag("elevator") ? "#0000ff" : "#00ff00";
+                const color = vertex.hasTag(VertexTag.Stairs) || vertex.hasTag(VertexTag.Elevator) ? "#0000ff" : "#00ff00";
                 const location = vertex.getLocation().getXY();
                 circle(vertex.getLocation().getXY(), {
                     "radius": 1,
