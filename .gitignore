@@ -1,6 +1,7 @@
 .cache
 .vscode
-dist
-node_modules
+dist/
+docs/
+node_modules/
 src/data/map_compiled.json
 ssl/

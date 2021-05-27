@@ -9,7 +9,8 @@
     "build": "rollup -c",
     "serve-build": "rollup -c && npx serve dist",
     "watch": "rollup -c rollup.dev.config.js -w",
-    "check": "tsc --noEmit --strict --noFallthroughCasesInSwitch"
+    "check": "tsc --noEmit --strict --noFallthroughCasesInSwitch",
+    "doc": "typedoc --out docs --includeVersion src/ts/*"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +36,7 @@
     "serve": "^11.3.2",
     "ts-node": "^8.10.2",
     "tslib": "^2.1.0",
+    "typedoc": "^0.20.36",
     "typescript": "^4.2.3"
   },
   "dependencies": {
