@@ -11,7 +11,7 @@ const toCache = [
     "/assets/fontawesome/webfonts/fa-solid-900.woff2",
     "/assets/app-icon/icon-192.png",
     "/assets/app-icon/icon-512.png",
-    "/assets/app-icon/favicon_v0.ico"
+    "/assets/app-icon/favicon_v1.ico"
 ];
 
 self.addEventListener("install", e => {
@@ -30,29 +30,24 @@ self.addEventListener("fetch", e => {
 
     // @ts-ignore: Valid for SW install event
     e.respondWith(async function() {
-        if (request.url.endsWith("/version.json")) {
-            return new Response(new Blob([`{"version":"${VERSION}"}`], { type: "application/json" }));
-        } else {
-            const result = await caches.match(request)
-                .then((response) => {
-                    if (response) {
+        return await caches.match(request)
+            .then((response) => {
+                if (response) {
+                    return response;
+                }
+                return fetch(request).then((response) => {
+                    if (!response || response.status !== 200 || response.type !== "basic") {
                         return response;
                     }
-                    return fetch(request).then((response) => {
-                        if (!response || response.status !== 200 || response.type !== "basic") {
-                            return response;
-                        }
 
-                        const responseToCache = response.clone();
-                        caches.open(CACHE_NAME)
-                            .then((cache) => {
-                                cache.put(request, responseToCache);
-                            });
-                        return response;
-                    });
+                    const responseToCache = response.clone();
+                    caches.open(CACHE_NAME)
+                        .then((cache) => {
+                            cache.put(request, responseToCache);
+                        });
+                    return response;
                 });
-            return result;
-        }
+            });
     }());
 });
 
