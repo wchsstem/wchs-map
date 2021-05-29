@@ -7,10 +7,9 @@ import { LSomeLayerWithFloor, LLayerGroupWithFloor } from "./LFloorsPlugin/LFloo
 import { GeocoderDefinition } from "./Geocoder";
 import { BuildingLocation } from "./BuildingLocation";
 
-import { h } from "../ts/JSX";
+import { h } from "./JSX";
 import { circle, divIcon, LatLng, marker, polyline } from "leaflet";
-import { flatten, zip, zipInto } from "./functional";
-import { t } from "./Tuple";
+import { flatten, t, zip, zipInto } from "./utils";
 
 type Floor = {
     number: string,

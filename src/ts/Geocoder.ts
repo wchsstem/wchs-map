@@ -2,7 +2,7 @@ import { Option, fromMap, Some, None } from "@nvarner/monads";
 import { kdTree } from "kd-tree-javascript";
 import MiniSearch from "minisearch";
 import { BuildingLocationWithEntrances } from "./BuildingLocation";
-import { t } from "./Tuple";
+import { t } from "./utils";
 
 export class GeocoderSuggestion {
     public readonly name: string;
