@@ -1,5 +1,4 @@
 import { fromMap, Option } from "@nvarner/monads";
-import { T2 } from "./Tuple";
 
 class Settings {
     private data: Map<string, unknown>;
@@ -87,14 +86,16 @@ export class Watcher {
  * Key:
  *  - dropdown: dropdown to choose between the finite set of options specified in `DROPDOWN_DATA`
  */
-export const SETTING_INPUT_TYPE: Map<string, string> = new Map();
-SETTING_INPUT_TYPE.set("bathroom-gender", "dropdown");
+export const SETTING_INPUT_TYPE: Map<string, string> = new Map([
+    ["bathroom-gender", "dropdown"]
+]);
 
 /**
  * Indicates the finite set of dropdown options in the order they should be displayed.
  */
-export const DROPDOWN_DATA: Map<string, T2<string, string>[]> = new Map();
-DROPDOWN_DATA.set("bathroom-gender", [T2.new("", "no-selection"), T2.new("Man", "m"), T2.new("Woman", "w")]);
+export const DROPDOWN_DATA: Map<string, [string, string][]> = new Map([
+    ["bathroom-gender", [["", "no-selection"], ["Man", "m"], ["Woman", "w"]]]
+]);
 
 /**
  * Defines the order and contents of sections in the settings menu. The first entry of each element is the title of the

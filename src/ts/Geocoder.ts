@@ -2,7 +2,7 @@ import { Option, fromMap, Some, None } from "@nvarner/monads";
 import { kdTree } from "kd-tree-javascript";
 import MiniSearch from "minisearch";
 import { BuildingLocationWithEntrances } from "./BuildingLocation";
-import { T2 } from "./Tuple";
+import { t } from "./Tuple";
 
 export class GeocoderSuggestion {
     public readonly name: string;
@@ -169,22 +169,14 @@ export class Geocoder {
         distance: (from: BuildingLocationWithEntrances, to: BuildingLocationWithEntrances) => Option<number>
     ): Option<GeocoderDefinition> {
         return [...this.definitionsByLocation.entries()]
-            // Only definitions satisfyting predicate
             .filter(([_location, definition]) => predicate(definition))
-            // Get distance and convert to T2
-            .map(([location, definition]) => T2.new(distance(origin, location), definition))
-            // Remove None distances, unwrap Some distances
-            .filter(distanceDefinition => distanceDefinition.e0.isSome())
-            .map(distanceDefinition => distanceDefinition.map(e0 => e0.unwrap(), e1 => e1))
-            // Find the minimum distance
-            .reduce<Option<T2<number, GeocoderDefinition>>>((min, curr) => {
-                if (min.isNone() || curr.e0 < min.unwrap().e0)
-                    return Some(curr);
-                else
-                   return min;
-            }, None)
-            // Get the definition
-            .map(distanceDefinition => distanceDefinition.e1);
+            .map(([location, definition]) => t(distance(origin, location), definition))
+            .filter(([distance, _definition]) => distance.isSome())
+            .map(([distance, definition]) => t(distance.unwrap(), definition))
+            .reduce<Option<[number, GeocoderDefinition]>>((min, curr) => {
+                return min.isNone() || curr[0] < min.unwrap()[0] ? Some(curr) : min;
+             }, None)
+            .map(([_distance, definition]) => definition);
     }
 }
 

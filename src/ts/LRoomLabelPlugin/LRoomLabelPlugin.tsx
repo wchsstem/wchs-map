@@ -5,7 +5,6 @@ import Room from "../Room";
 import { settings, Watcher } from "../settings";
 import { Vertex } from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
-import { T2 } from "../Tuple";
 import { LayerGroup, LayerOptions, Map as LMap, latLng, LeafletMouseEvent, LatLngBounds } from "leaflet";
 import { Label, LabelLayer, isClickable } from "./label/LabelLayer";
 import { TextLabel } from "./label/TextLabel";
@@ -15,26 +14,26 @@ import { Sidebar } from "../Sidebar/SidebarController";
 import FontFaceObserver from "fontfaceobserver";
 
 // TODO: Wow these icons are bad. Get new ones.
-const VERTEX_ICON_PAIRS = [
-    T2.new("up", "\uf885"), // fa-sort-amount-up-alt
-    T2.new("down", "\uf884"), // fa-sort-amount-down-alt
-    T2.new("stairs", "\uf039"), // fa-align-justify
-    T2.new("elevator", "\uf52a"), // fa-door-closed
+const ICON_FOR_VERTEX_TAG: [string, string][] = [
+    ["up", "\uf885"], // fa-sort-amount-up-alt
+    ["down", "\uf884"], // fa-sort-amount-down-alt
+    ["stairs", "\uf039"], // fa-align-justify
+    ["elevator", "\uf52a"], // fa-door-closed
 ];
-const ROOM_ICON_PAIRS = [
-    T2.new("women-bathroom", "\uf182"), // fa-female
-    T2.new("men-bathroom", "\uf183"), // fa-male
-    T2.new("unknown-bathroom", "\uf7d8"), // fa-toilet
-    T2.new("ec", "\uf0e7"), // fa-bolt
-    T2.new("bsc", "\uf71e"), // fa-toilet-paper
-    T2.new("wf", "\uf043"), // fa-tint
-    T2.new("hs", "\ue06b"), // fa-pump-soap
-    T2.new("bleed-control", "\uf462"), // fa-band-aid
-    T2.new("aed", "\uf21e"), // fa-heartbeat
-    T2.new("ahu", "\uf72e"), // fa-wind
-    T2.new("idf", "\uf6ff"), // fa-network-wired
-    T2.new("eru", "\uf128"), // fa-question
-    T2.new("cp", "\uf023")
+const ICON_FOR_ROOM_TAG: [string, string][] = [
+    ["women-bathroom", "\uf182"], // fa-female
+    ["men-bathroom", "\uf183"], // fa-male
+    ["unknown-bathroom", "\uf7d8"], // fa-toilet
+    ["ec", "\uf0e7"], // fa-bolt
+    ["bsc", "\uf71e"], // fa-toilet-paper
+    ["wf", "\uf043"], // fa-tint
+    ["hs", "\ue06b"], // fa-pump-soap
+    ["bleed-control", "\uf462"], // fa-band-aid
+    ["aed", "\uf21e"], // fa-heartbeat
+    ["ahu", "\uf72e"], // fa-wind
+    ["idf", "\uf6ff"], // fa-network-wired
+    ["eru", "\uf128"], // fa-question
+    ["cp", "\uf023"]
 ];
 
 export interface RoomLabelLayerOptions extends LayerOptions {
@@ -198,13 +197,13 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         return this;
     }
 
-    private static getIcon(pairs: T2<string, string>[], tags: string[]): Option<string> {
-        return pairs.map(pair => tags.includes(pair.e0) ? Some(pair.e1) : None)
+    private static getIcon(pairs: [string, string][], tags: string[]): Option<string> {
+        return pairs.map(([tag, icon]) => tags.includes(tag) ? Some(icon) : None)
             .reduce((acc, className) => acc.or(className));
     }
 
     private static getRoomLabel(room: Room): Label {
-        const icon = LRoomLabel.getIcon(ROOM_ICON_PAIRS, room.getTags());
+        const icon = LRoomLabel.getIcon(ICON_FOR_ROOM_TAG, room.getTags());
 
         return icon.match({
             some: icon => {
@@ -218,7 +217,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     }
 
     private static getVertexLabel(vertex: Vertex): Option<Label> {
-        return LRoomLabel.getIcon(VERTEX_ICON_PAIRS, vertex.getTags())
+        return LRoomLabel.getIcon(ICON_FOR_VERTEX_TAG, vertex.getTags())
             .map(icon => new IconLabel(vertex.getLocation().getXY(), icon, false));
     }
 }

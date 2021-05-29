@@ -3,7 +3,6 @@ import { h } from "../../JSX";
 import { DROPDOWN_DATA, NAME_MAPPING, settings, SETTING_INPUT_TYPE, SETTING_SECTIONS, Watcher } from "../../settings";
 import { fromMap, Option, Some, None } from "@nvarner/monads";
 import { genPaneElement, genTextInput } from "../../GenHtml/GenHtml";
-import { T2 } from "../../Tuple";
 
 export class SettingsPane extends Pane {
     private readonly pane: HTMLElement;
@@ -121,12 +120,14 @@ export class SettingsPane extends Pane {
         return SettingsPane.createSetting(mappedName, control);
     }
 
-    private static createDropdownSetting(name: string, value: string, optionDisplayAndIds: T2<string, string>[], nameMapping: Map<string, string>): HTMLElement {
+    private static createDropdownSetting(
+        name: string,
+        value: string,
+        optionDisplayAndIds: [string, string][],
+        nameMapping: Map<string, string>
+    ): HTMLElement {
         const control = <select />;
-        for (const displayAndId of optionDisplayAndIds) {
-            const display = displayAndId.e0;
-            const id = displayAndId.e1;
-
+        for (const [display, id] of optionDisplayAndIds) {
             const option = <option value={id}>{display}</option>;
             if (id == value) {
                 option.setAttribute("selected", "selected");

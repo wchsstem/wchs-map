@@ -1,7 +1,6 @@
 import "./generated.scss";
 
 import Room from "../Room";
-import { T2 } from "../Tuple";
 
 export function genElText(element: string, text: string): HTMLElement {
     const tn = document.createTextNode(text);
@@ -82,12 +81,9 @@ export function genRoomPopup(room: Room, navigateToHandler: () => void): HTMLEle
     return rootEl;
 }
 
-export function htmlDropdown(displayAndIds: T2<string, string>[]): HTMLSelectElement {
+export function htmlDropdown(displayAndIds: [string, string][]): HTMLSelectElement {
     const select = document.createElement("select");
-    for (const displayAndId of displayAndIds) {
-        const display = displayAndId.e0;
-        const id = displayAndId.e1;
-
+    for (const [display, id] of displayAndIds) {
         const option = document.createElement("option");
         option.setAttribute("value", id);
 
