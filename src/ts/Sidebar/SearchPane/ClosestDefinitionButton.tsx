@@ -4,7 +4,7 @@ import { h } from "../../JSX";
 import { LFloors } from "../../LFloorsPlugin/LFloorsPlugin";
 import { LocationOnlyDefinition } from "../../LocationOnlyDefinition";
 import { Locator } from "../../Locator";
-import MapData from "../../MapData";
+import { MapData } from "../../MapData";
 
 export class ClosestDefinitionButton {
     private readonly geocoder: Geocoder;

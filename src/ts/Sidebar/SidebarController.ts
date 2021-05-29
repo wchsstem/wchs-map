@@ -1,6 +1,6 @@
 import { control } from "leaflet";
 
-import MapData from "../MapData";
+import { MapData } from "../MapData";
 
 import "./sidebar.scss";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";

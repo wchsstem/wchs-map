@@ -4,7 +4,7 @@ import "../../node_modules/leaflet/dist/leaflet.css";
 import "../assets/fontawesome/all.min.css";
 
 import { settings, Watcher } from "./settings";
-import MapData from "./MapData";
+import { MapData } from "./MapData";
 import { LFloors, LSomeLayerWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../style.scss";
@@ -68,7 +68,7 @@ function main() {
 
     // Create room label layers
     mapData
-        .getFloors()
+        .getAllFloors()
         .map(floorData => floorData.number)
         .map(floor => new LRoomLabel(mapData, sidebar, floor, {
             minNativeZoom: MIN_ZOOM,
@@ -94,7 +94,7 @@ function main() {
         if (dev) {
             if (devLayers.isNone()) {
                 const layers = mapData
-                    .getFloors()
+                    .getAllFloors()
                     .map(floorData => floorData.number)
                     .map(floor => mapData.createDevLayerGroup(floor));
                 devLayers = Some(layers);

@@ -1,48 +1,63 @@
 import { fromMap, None, Option, Some } from "@nvarner/monads";
 import { FibonacciHeap, INode } from "@tyriar/fibonacci-heap";
 
-export default class Graph<K, V> {
-    private adjList: Map<K, Array<[K, number]>>;
-    private vertices: Map<K, V>;
+type AdjList<K> = Map<K, [K, number][]>;
+type Edge<K> = [K, K, number, boolean];
 
-    constructor() {
-        this.adjList = new Map();
-        this.vertices = new Map();
-    }
+export class Graph<K, V> {
+    private readonly adjList: AdjList<K>;
+    private readonly vertices: Map<K, V>;
 
-    addVertex(id: K, value: V) {
-        this.adjList.set(id, []);
-        this.vertices.set(id, value);
-    }
+    public constructor(vertices: Map<K, V>, edges: Edge<K>[]) {
+        this.vertices = vertices;
 
-    addEdge(p: K, q: K, weight: number) {
-        this.adjList.get(p)!.push([q, weight]);
-        this.adjList.get(q)!.push([p, weight]);
+        const adjList = new Map([...vertices.keys()].map(key => [key, []] as [K, [K, number][]]));
+        edges.forEach(edge => Graph.addEdgeTo(adjList, edge));
+        this.adjList = adjList;
     }
 
     /**
-     * Adds a directed edge from p to q with a given weight
-     * @param p Vertex to start from
-     * @param q Vertex to end on
+     * Modifies an adjacency list to add an edge
+     * @param adjList Adjacency list to add the edge to
+     * @param from Vertex to start from
+     * @param to Vertex to end on
      * @param weight Weight of the edge
+     * @param directed True if the edge should be one-way, false if it should be two-way
      */
-    addDirectedEdge(p: K, q: K, weight: number) {
-        this.adjList.get(p)!.push([q, weight]);
+    private static addEdgeTo<K>(adjList: AdjList<K>, [from, to, weight, directed]: Edge<K>) {
+        adjList.get(from)!.push([to, weight]);
+        if (!directed) {
+            adjList.get(to)!.push([from, weight]);
+        }
     }
 
-    getVertex(p: K): V {
+    public getVertex(p: K): V {
         return this.vertices.get(p)!;
     }
 
-    getIdsAndVertices(): [K, V][] {
+    /**
+     * Get all vertex IDs and their associated vertices
+     */
+    public getIdsAndVertices(): [K, V][] {
         return [...this.vertices.entries()];
     }
 
-    getNeighbors(v: K): K[] {
+    /**
+     * Get vertices that have an edge from `v`
+     * @param v ID of the vertex to find the neighbors of
+     */
+    public getNeighbors(v: K): K[] {
         return this.adjList.get(v)!.map(u => u[0]);
     }
 
-    getWeight(v: K, u: K): Option<number> {
+    /**
+     * Get the weight of an edge between two vertices
+     * @param v ID of the edge's starting vertex
+     * @param u ID of the edge's ending vertex
+     * @returns `Some(weight)` if the edge exists, `None` if not. Keep in mind that directed edges are one-way, so the
+     * order of `u` and `v` can affect the return value.
+     */
+    public getWeight(v: K, u: K): Option<number> {
         const maybeNeighbors = fromMap(this.adjList, v);
         if (maybeNeighbors.isNone()) {
             return None;
@@ -57,7 +72,17 @@ export default class Graph<K, V> {
             return None;
     }
 
-    dijkstra(source: K): [Map<K, number>, Map<K, K | null>] {
+    /**
+     * Run Dijkstra's pathfinding algorithm on the graph
+     * @param source ID of the vertex to start from
+     * @returns `[totalWeightToVertex, predecessor]`
+     *  - `totalWeightToVertex` stores the sum of the weights along the edges from `source` to any vertex in the graph.
+     * If the weight is `Infinity`, there does not exist a path from `source` to that vertex.
+     *  - `predecessor` represents the vertex before any vertex in the graph along the fastest path from `source`. It
+     * can be used to find the path from `source` to any vertex by repeatedly finding the vertex before until reaching
+     * `source`. If the predecessor is `null`, the vertex either is `source` or has no path from `source`.
+     */
+    public dijkstra(source: K): [Map<K, number>, Map<K, K | null>] {
         let dist: Map<K, number> = new Map();
         let prev: Map<K, K | null> = new Map();
 
@@ -91,24 +116,30 @@ export default class Graph<K, V> {
             }
         }
 
-        return [dist, prev as Map<K, K>];
+        return [dist, prev];
     }
 
-    toString(): String {
-        let result = "";
-
-        for (const v of this.adjList.keys()) {
-            let row = `${v} ->`;
-
-            fromMap(this.adjList, v).ifSome(connected => {
-                for (const w of connected) {
-                    row = `${row} ${w}`;
-                }
-            });
-
-            result = `${result}${row}\n`;
+    /**
+     * Generate a path of neighboring vertices to a destination from a `prev` map
+     * @param src Original start of the path
+     * @param dest Destination to find the path to
+     * @param prev Map from vertex to previous vertex
+     */
+    public pathFromPrev(src: K, dest: K, prev: Map<K, K | null>): Option<K[]> {
+        if (src === dest) {
+            return Some([dest]);
         }
 
-        return result;
+        const prevVertex = prev.get(dest);
+        if (!prevVertex) {
+            // No path from src to dest
+            return None;
+        }
+
+        const pathToPrev = this.pathFromPrev(src, prevVertex, prev);
+        return pathToPrev.match({
+            some: path => Some([dest, ...path]),
+            none: None as Option<K[]>
+        });
     }
 }

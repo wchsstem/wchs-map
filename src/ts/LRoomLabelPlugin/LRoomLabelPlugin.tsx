@@ -1,4 +1,4 @@
-import MapData from "../MapData";
+import { MapData } from "../MapData";
 import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 import Room from "../Room";
 

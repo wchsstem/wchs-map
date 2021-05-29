@@ -5,7 +5,7 @@ import { h } from "../../JSX";
 import { ClosestBathroomButton } from "./ClosestBathroomButton";
 import { ClosestBottleFillingStationButton } from "./ClosestBottleFillingStationButton";
 import { Locator } from "../../Locator";
-import MapData from "../../MapData";
+import { MapData } from "../../MapData";
 import { LFloors } from "../../LFloorsPlugin/LFloorsPlugin";
 import { BuildingLocation, BuildingLocationWithEntrances } from "../../BuildingLocation";
 import { LocationOnlyDefinition } from "../../LocationOnlyDefinition";

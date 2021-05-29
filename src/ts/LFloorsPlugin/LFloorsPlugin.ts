@@ -1,7 +1,7 @@
 import { Some, None, Option, fromMap } from "@nvarner/monads";
 
 import "./floors.scss";
-import MapData from "../MapData";
+import { MapData } from "../MapData";
 import { Control, DomEvent, imageOverlay, layerGroup, LayerGroup, Util } from "leaflet";
 
 export class LFloors extends LayerGroup {
@@ -28,7 +28,7 @@ export class LFloors extends LayerGroup {
 
         // Reversing the array means that floors are ordered intuitively in the JSON (1, 2, 3...) and intuitively in the
         // control (higher floors on top)
-        for (const floorData of map.getFloors().reverse()) {
+        for (const floorData of map.getAllFloors().reverse()) {
             const floorMap = imageOverlay(floorData.image, map.getBounds(), { pane: "tilePane" });
             this.allFloors.set(floorData.number, layerGroup([floorMap]));
         }

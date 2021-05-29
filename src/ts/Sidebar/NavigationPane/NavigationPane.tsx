@@ -3,7 +3,7 @@ import { genTextInput, genPaneElement } from "../../GenHtml/GenHtml";
 import { BuildingLocation, BuildingLocationWithEntrances } from "../../BuildingLocation";
 import { None, Option, Some } from "@nvarner/monads";
 import { clearResults, updateWithResults } from "../../utils";
-import MapData from "../../MapData";
+import { MapData } from "../../MapData";
 import { LFloors, LSomeLayerWithFloor } from "../../LFloorsPlugin/LFloorsPlugin";
 
 import { h } from "../../JSX";

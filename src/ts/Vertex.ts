@@ -8,7 +8,7 @@ export class Vertex {
     private readonly location: BuildingLocation;
     private readonly tags: VertexTag[];
 
-    constructor(vertex: {
+    public constructor(vertex: {
         floor: string,
         location: number[],
         tags?: VertexTag[]
