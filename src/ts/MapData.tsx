@@ -166,23 +166,6 @@ export class MapData {
     }
 
     /**
-     * Create the mapping from names to rooms with that name
-     * @param rooms Rooms to create the mapping for
-     */
-    private static roomNameMapping(rooms: Room[]): Map<string, Room[]> {
-        const roomNames = rooms.map(room => room.names ?? []);
-        const roomsToNames = zip(rooms, roomNames);
-        const namesToRoom = flatten(roomsToNames.map(([room, names]) => names.map(name => t(name, room))));
-        return namesToRoom.reduce((mapping, [name, room]) => {
-            if (!mapping.has(name)) {
-                mapping.set(name, []);
-            }
-            mapping.get(name)!.push(room);
-            return mapping;
-        }, new Map());
-    }
-
-    /**
      * Get the bounds of the map
      */
     public getBounds(): L.LatLngBounds {
