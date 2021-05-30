@@ -78,7 +78,6 @@ export class MapData {
     private readonly vertexStringToId: Map<string, number>;
     private readonly graph: Graph<number, Vertex>;
     private readonly rooms: Map<string, Room>;
-    private readonly roomsFromNames: Map<string, Room[]>;
     private readonly floors: Floor[];
     private readonly edges: Edge[];
     private readonly bounds: L.LatLngBounds;
@@ -87,7 +86,6 @@ export class MapData {
         this.vertexStringToId = MapData.createVertexNameMapping(mapData.vertices);
         this.graph = MapData.navigationGraph(mapData.vertices, mapData.edges, this.vertexStringToId);
         this.rooms = MapData.roomNumberMapping(mapData.rooms, this.vertexStringToId, this.graph);
-        this.roomsFromNames = MapData.roomNameMapping([...this.rooms.values()]);
         this.floors = mapData.floors;
         this.edges = mapData.edges.map(([from, to, directed]) => [from, to, !!directed]);
         this.bounds = bounds;
