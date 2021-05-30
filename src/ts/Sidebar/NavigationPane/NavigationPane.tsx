@@ -10,6 +10,7 @@ import { h } from "../../JSX";
 import { FlooredMarker, flooredMarker } from "./FlooredMarker";
 import { Geocoder, GeocoderDefinition } from "../../Geocoder";
 import { Pane } from "../Pane";
+import { Logger } from "../../LogPane/LogPane";
 
 export class NavigationPane extends Pane {
     private readonly pane: HTMLElement;
@@ -17,6 +18,7 @@ export class NavigationPane extends Pane {
     private readonly toInput: HTMLInputElement;
     private readonly mapData: MapData;
     private readonly geocoder: Geocoder;
+    private readonly logger: Logger;
 
     private readonly floorsLayer: LFloors;
     private pathLayers: Set<LSomeLayerWithFloor>;
@@ -36,6 +38,7 @@ export class NavigationPane extends Pane {
         toInput: HTMLInputElement,
         mapData: MapData,
         geocoder: Geocoder,
+        logger: Logger,
         floorsLayer: LFloors,
         pathLayers: Set<LSomeLayerWithFloor>,
         map: Option<Map>,
@@ -51,6 +54,7 @@ export class NavigationPane extends Pane {
         this.toInput = toInput;
         this.mapData = mapData;
         this.geocoder = geocoder;
+        this.logger = logger;
         this.floorsLayer = floorsLayer;
         this.pathLayers = pathLayers;
         this.map = map;
@@ -61,7 +65,13 @@ export class NavigationPane extends Pane {
         this.toPin = toPin;
     }
 
-    public static new(geocoder: Geocoder, mapData: MapData, floorsLayer: LFloors, focus: () => any): NavigationPane {
+    public static new(
+        geocoder: Geocoder,
+        mapData: MapData,
+        logger: Logger,
+        floorsLayer: LFloors,
+        focus: () => unknown
+    ): NavigationPane {
         const fromPinButton = <a class="leaflet-style button" href="#" role="button" title="Choose starting point">
             <i class="fas fa-map-marker-alt"></i>
         </a> as HTMLAnchorElement;
@@ -96,7 +106,22 @@ export class NavigationPane extends Pane {
 
         const navPane = genPaneElement("Navigation", [toFromContainer, resultContainer]);
 
-        const navigationPane = new NavigationPane(navPane, fromInput, toInput, mapData, geocoder, floorsLayer, new Set(), None, focus, None, None, None, None);
+        const navigationPane = new NavigationPane(
+            navPane,
+            fromInput,
+            toInput,
+            mapData,
+            geocoder,
+            logger,
+            floorsLayer,
+            new Set(),
+            None,
+            focus,
+            None,
+            None,
+            None,
+            None
+        );
 
         swapToFrom.addEventListener("click", _event => navigationPane.swapNav(true, true));
         fromInput.addEventListener("input", async _event => {
@@ -239,8 +264,14 @@ export class NavigationPane extends Pane {
         this.clearNav();
         const path = this.mapData.findBestPath(fromDefinition, toDefinition);
         path.ifSome(path => {
-            this.pathLayers = this.mapData.createLayerGroupsFromPath(path);
-            this.pathLayers.forEach(layer => this.floorsLayer.addLayer(layer));
+            const resPathLayers = this.mapData.createLayerGroupsFromPath(path);
+            resPathLayers.match({
+                ok: pathLayers => {
+                    this.pathLayers = pathLayers;
+                    this.pathLayers.forEach(layer => this.floorsLayer.addLayer(layer));
+                },
+                err: error => this.logger.logError(`Error in NavigationPane.calcNav: ${error}`)
+            });
         });
     }
 

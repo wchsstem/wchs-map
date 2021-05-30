@@ -19,6 +19,7 @@ import { Sidebar } from "./Sidebar/SidebarController";
 import { CRS, map as lMap, popup } from "leaflet";
 import { None, Some, Option } from "@nvarner/monads";
 import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
+import { extractResult } from "./utils";
 
 function main() {
     if ("serviceWorker" in navigator) {
@@ -45,7 +46,11 @@ function main() {
     map.fitBounds(BOUNDS.pad(0.05));
 
     // @ts-ignore: JSON works fine here
-    const mapData = new MapData(mapDataJson, BOUNDS);
+    const resMapData = MapData.new(mapDataJson, BOUNDS);
+    if (resMapData.isErr()) {
+        logger.logError(`Error constructing MapData: ${resMapData.unwrapErr()}`);
+    }
+    const mapData = resMapData.unwrap();
 
     // Create geocoder
     const geocoder = new Geocoder();
@@ -94,11 +99,16 @@ function main() {
 
         if (dev) {
             if (devLayers.isNone()) {
-                const layers = mapData
+                const resLayers = extractResult(mapData
                     .getAllFloors()
                     .map(floorData => floorData.number)
-                    .map(floor => mapData.createDevLayerGroup(floor));
-                devLayers = Some(layers);
+                    .map(floor => mapData.createDevLayerGroup(floor)));
+                if (resLayers.isErr()) {
+                    logger.logError(`Error in dev mode watcher constructing dev layers: ${resLayers.unwrapErr()}`);
+                    return;
+                } else {
+                    devLayers = Some(resLayers.unwrap());
+                }
             }
             devLayers.unwrap().forEach(devLayer => floors.addLayer(devLayer));
             map.on("click", showClickLoc);

@@ -1,13 +1,14 @@
-import { Control, Map, PanelOptions } from "leaflet";
+import { PanelOptions } from "leaflet";
 import { genPaneElement } from "../GenHtml/GenHtml";
-import { None, Option, Some } from "@nvarner/monads";
+import { Either, Left, None, Option, Right, Some } from "@nvarner/monads";
 import { h } from "../JSX";
 
 export class Logger {
-    private queue: string[];
+    /** Queue for logs to post ASAP; left is normal log, right is error log */
+    private queue: Either<string, string>[];
     private logPane: Option<LogPane>;
 
-    private constructor(queue: string[], logPane: Option<LogPane>) {
+    private constructor(queue: Either<string, string>[], logPane: Option<LogPane>) {
         this.queue = queue;
         this.logPane = logPane;
     }
@@ -18,13 +19,33 @@ export class Logger {
 
     public log(logData: string): void {
         this.logPane.match({
-            some: logPane => { logPane.log(logData) },
-            none: () => { this.queue.push(logData) }
+            some: logPane => {
+                logPane.log(logData);
+            },
+            none: () => {
+                this.queue.push(Left(logData));
+            }
         });
+        console.log(logData);
+    }
+
+    public logError(logData: string): void {
+        this.logPane.match({
+            some: logPane => {
+                logPane.logError(logData);
+            },
+            none: () => {
+                this.queue.push(Right(logData));
+            }
+        });
+        console.error(logData);
     }
 
     public associateWithLogPane(logPane: LogPane): void {
-        this.queue.forEach(queued => logPane.log(queued));
+        this.queue.forEach(queued => queued.match({
+            left: logData => logPane.log(logData),
+            right: logData => logPane.logError(logData)
+        }));
         this.queue = [];
         this.logPane = Some(logPane);
     }
@@ -48,6 +69,12 @@ export class LogPane {
 
     public log(logData: string): void {
         const logElement = <li>{ logData }</li>;
+        this.logs.appendChild(logElement);
+    }
+
+    public logError(logData: string): void {
+        // TODO: Include styling to make these stand out
+        const logElement = <li class="error">{ logData }</li>;
         this.logs.appendChild(logElement);
     }
 

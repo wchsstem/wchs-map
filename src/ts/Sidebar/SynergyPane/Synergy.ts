@@ -53,7 +53,7 @@ export class Synergy {
             const room = geocoder.getDefinitionFromName(roomNumber).match({
                 some: room => room,
                 none: () => {
-                    logger.log(`Could not find room number for ${roomNumber}`);
+                    logger.logError(`Could not find room number for ${roomNumber}`);
                     return null;
                 }
             });

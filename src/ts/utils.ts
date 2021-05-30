@@ -1,9 +1,10 @@
 import { GeocoderSuggestion } from "./Geocoder";
+import { Ok, Option, Result, Some } from "@nvarner/monads";
 
 // Tuple
 
 /**
- * Explicately create a tuple. Same as doing `[x, y, ...]`, but can return a tuple type instead of array.
+ * Explicitly create a tuple. Same as doing `[x, y, ...]`, but can return a tuple type instead of array.
  * @param a Elements of the tuple
  * @returns Tuple of `a`s
  */
@@ -69,6 +70,28 @@ export function zipInto(a: unknown[][], b: unknown[]): unknown[] {
  */
 export function flatten<T>(a: T[][]): T[] {
     return a.reduce((flat, el) => [...flat, ...el], []);
+}
+
+/**
+ * Turn an array of `Option`s into an `Option` of an array. If any `None`s exist in the array, returns `None`.
+ * Otherwise, returns `Some` of the entire array of unwrapped elements.
+ */
+export function extractOption<T>(a: Option<T>[]): Option<T[]> {
+    return a.reduce((optAcc, optCurr) => optCurr.andThen(curr => optAcc.map(acc => {
+        acc.push(curr);
+        return acc;
+    })), Some([] as T[]));
+}
+
+/**
+ * Turn an array of `Option`s into an `Option` of an array. If any `None`s exist in the array, returns `None`.
+ * Otherwise, returns `Some` of the entire array of unwrapped elements.
+ */
+export function extractResult<T, E>(a: Result<T, E>[]): Result<T[], E> {
+    return a.reduce((optAcc, optCurr) => optCurr.andThen(curr => optAcc.map(acc => {
+        acc.push(curr);
+        return acc;
+    })), Ok([] as T[]) as Result<T[], E>);
 }
 
 // Object

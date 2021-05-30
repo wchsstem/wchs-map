@@ -1,4 +1,4 @@
-import { fromMap, None, Option, Some } from "@nvarner/monads";
+import { Err, fromMap, None, Ok, Option, Result, Some } from "@nvarner/monads";
 
 import { Graph } from "./Graph";
 import Room from "./Room";
@@ -9,7 +9,7 @@ import { BuildingLocation } from "./BuildingLocation";
 
 import { h } from "./JSX";
 import { circle, divIcon, LatLng, marker, polyline } from "leaflet";
-import { flatten, t, zip, zipInto } from "./utils";
+import { extractOption, flatten, t, zip, zipInto } from "./utils";
 import { STAIR_WEIGHT } from "./config";
 
 type Floor = {
@@ -82,12 +82,34 @@ export class MapData {
     private readonly edges: Edge[];
     private readonly bounds: L.LatLngBounds;
 
-    public constructor(mapData: JsonMap, bounds: L.LatLngBounds) {
-        this.vertexStringToId = MapData.createVertexNameMapping(mapData.vertices);
-        this.graph = MapData.navigationGraph(mapData.vertices, mapData.edges, this.vertexStringToId);
-        this.rooms = MapData.roomNumberMapping(mapData.rooms, this.vertexStringToId, this.graph);
-        this.floors = mapData.floors;
-        this.edges = mapData.edges.map(([from, to, directed]) => [from, to, !!directed]);
+    public static new(mapData: JsonMap, bounds: L.LatLngBounds): Result<MapData, string> {
+        const vertexStringToId = MapData.createVertexNameMapping(mapData.vertices);
+        const graph = MapData.navigationGraph(mapData.vertices, mapData.edges, vertexStringToId);
+
+        const resRooms = MapData.roomNumberMapping(mapData.rooms, vertexStringToId, graph);
+        if (resRooms.isErr()) {
+            return Err(resRooms.unwrapErr());
+        }
+        const rooms = resRooms.unwrap();
+
+        const edges = mapData.edges.map(([from, to, directed]) => t(from, to, !!directed));
+
+        return Ok(new MapData(vertexStringToId, graph, rooms, mapData.floors, edges, bounds))
+    }
+
+    private constructor(
+        vertexStringToId: Map<string, number>,
+        graph: Graph<number, Vertex>,
+        rooms: Map<string, Room>,
+        floors: Floor[],
+        edges: Edge[],
+        bounds: L.LatLngBounds
+    ) {
+        this.vertexStringToId = vertexStringToId;
+        this.graph = graph;
+        this.rooms = rooms;
+        this.floors = floors;
+        this.edges = edges;
         this.bounds = bounds;
     }
 
@@ -141,28 +163,56 @@ export class MapData {
         jsonNumbersRooms: JsonRooms,
         vertexNameMapping: Map<string, number>,
         navigationGraph: Graph<number, Vertex>
-    ): Map<string, Room> {
+    ): Result<Map<string, Room>, string> {
         const roomNumbers = Object.keys(jsonNumbersRooms);
         const jsonRooms = Object.values(jsonNumbersRooms);
-        const someVertices = jsonRooms
-            .map(room => navigationGraph.getVertex(vertexNameMapping.get(room.vertices[0])!));
-        const roomFloorNumbers = someVertices.map(roomVertex => roomVertex.getLocation().getFloor());
-        const roomCenters = zipInto(zip(jsonRooms, someVertices), roomFloorNumbers)
+
+        const vertexNames = jsonRooms.map(room => room.vertices[0])
+        const vertexIds = vertexNames.map(name => vertexNameMapping.get(name));
+
+        // Check for no undefined vertex IDs
+        const undefinedVertexIds = zip(vertexNames, vertexIds).filter(([_name, id]) => id === undefined);
+        if (undefinedVertexIds.length > 0) {
+            const unmapped = undefinedVertexIds.map(([name, _id]) => name);
+            return Err(`vertices in rooms not assigned IDs: ${unmapped}`);
+        }
+
+        // Just checked for not undefined
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const maybeVertices = vertexIds.map(id => navigationGraph.getVertex(id!));
+
+        // Check for no None vertices
+        const noneVertices = zip(maybeVertices, vertexNames).filter(([vertex, _name]) => vertex.isNone());
+        if (noneVertices.length > 0) {
+            const noneVertexNames = noneVertices.map(([_vertex, name]) => name);
+            return Err(`vertices in rooms not present in navigation graph: ${noneVertexNames}`);
+        }
+
+        const vertices = maybeVertices.map(vertex => vertex.unwrap());
+        const roomFloorNumbers = vertices.map(roomVertex => roomVertex.getLocation().getFloor());
+        const roomCenters = zipInto(zip(jsonRooms, vertices), roomFloorNumbers)
             .map(([room, vertex, floor]) => room.center !== undefined
                 ? new BuildingLocation(new LatLng(room.center[1], room.center[0]), floor)
                 : vertex.getLocation()
             );
-        const roomEntrances = jsonRooms
-            .map(room => room.vertices
-                .map(vertexStringId => vertexNameMapping.get(vertexStringId)!)
-                .map(vertexId => navigationGraph.getVertex(vertexId).getLocation())
-            );
+
+        const optRoomEntrances = extractOption(jsonRooms
+            .map(room => extractOption(room.vertices.map(vertexStringId => fromMap(vertexNameMapping, vertexStringId)))
+                .andThen(vertexIds => extractOption(vertexIds.map(vertexId => navigationGraph.getVertex(vertexId))
+                    .map(vertices => vertices.map(vertex => vertex.getLocation())))
+                )
+            ));
+        if (optRoomEntrances.isNone()) {
+            return Err("error managing room entrance vertices");
+        }
+        const roomEntrances = optRoomEntrances.unwrap();
+
         const roomsArray = zipInto(zipInto(zip(roomNumbers, roomEntrances), jsonRooms), roomCenters)
                 .map(([roomNumber, entrances, room, center]) => t(
                     roomNumber,
                     new Room(entrances, roomNumber, room.names ?? [], room.outline, center, room.area ?? 0, room.tags ?? [])
                 ));
-        return new Map(roomsArray);
+        return Ok(new Map(roomsArray));
     }
 
     /**
@@ -263,14 +313,23 @@ export class MapData {
      * Create a layer with vertices, edges, and clock location popup for one floor
      * @param floor Floor to create the dev layer for
      */
-    public createDevLayerGroup(floor: string): LSomeLayerWithFloor {
+    public createDevLayerGroup(floor: string): Result<LSomeLayerWithFloor, string> {
         // Create layer showing points and edges
         const devLayer = new LLayerGroupWithFloor([], {
             floorNumber: floor
         });
-        for (const edge of this.edges) {
-            const p = this.graph.getVertex(this.vertexStringToId.get(edge[0])!);
-            const q = this.graph.getVertex(this.vertexStringToId.get(edge[1])!);
+        for (const [pName, qName] of this.edges) {
+            const resP = fromMap(this.vertexStringToId, pName).andThen(pId => this.graph.getVertex(pId));
+            if (resP.isNone()) {
+                return Err(`could not find edge start vertex ${pName} while constructing dev layer`);
+            }
+            const p = resP.unwrap();
+
+            const resQ = fromMap(this.vertexStringToId, qName).andThen(qId => this.graph.getVertex(qId));
+            if (resQ.isNone()) {
+                return Err(`could not find edge end vertex ${qName} while constructing dev layer`);
+            }
+            const q = resQ.unwrap();
 
             if (p.getLocation().getFloor() === floor && q.getLocation().getFloor() === floor) {
                 const pLoc = p.getLocation();
@@ -279,32 +338,46 @@ export class MapData {
             }
         }
 
-        for (const [vertexString, vertexId] of this.vertexStringToId.entries()) {
-            const vertex = this.graph.getVertex(vertexId);
+        for (const [vertexName, vertexId] of this.vertexStringToId.entries()) {
+            const resVertex = this.graph.getVertex(vertexId);
+            if (resVertex.isNone()) {
+                return Err(`could not find vertex ${vertexName} while constructing dev layer`);
+            }
+            const vertex = resVertex.unwrap();
             if (vertex.getLocation().getFloor() === floor) {
                 const color = MapData.vertexColor(vertex);
                 const location = vertex.getLocation().getXY();
                 circle(vertex.getLocation().getXY(), {
                     "radius": 1,
                     "color": color
-                }).bindPopup(`${vertexString} (${vertexId})<br/>${location.lng}, ${location.lat}`).addTo(devLayer);
+                }).bindPopup(`${vertexName} (${vertexId})<br/>${location.lng}, ${location.lat}`).addTo(devLayer);
             }
         }
 
-        return devLayer;
+        return Ok(devLayer);
     }
 
     /**
      * Create layer groups displaying a path, one for each floor of a building
      * @param path The path to create a group for
      */
-    public createLayerGroupsFromPath(path: number[]): Set<LSomeLayerWithFloor> {
+    public createLayerGroupsFromPath(path: number[]): Result<Set<LSomeLayerWithFloor>, string> {
         const layers = new Map();
         let last = path[0];
 
         for (const vert of path) {
-            const p = this.graph.getVertex(last);
-            const q = this.graph.getVertex(vert);
+            const resP = this.graph.getVertex(last);
+            if (resP.isNone()) {
+                return Err(`could not find vertex with id ${last} while constructing a layer group from a path`);
+            }
+            const p = resP.unwrap();
+
+            const resQ = this.graph.getVertex(vert);
+            if (resQ.isNone()) {
+                return Err(`could not find vertex with id ${vert} while constructing a layer group from a path`);
+            }
+            const q = resQ.unwrap();
+
             const pLoc = p.getLocation();
             const qLoc = q.getLocation();
             const pFloor = pLoc.getFloor();
@@ -344,7 +417,7 @@ export class MapData {
             last = vert;
         }
 
-        return new Set(layers.values());
+        return Ok(new Set(layers.values()));
     }
 
     /**

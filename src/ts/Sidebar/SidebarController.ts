@@ -42,7 +42,7 @@ export class Sidebar {
         });
         this.sidebar.addTo(this.map);
 
-        this.navigationPane = NavigationPane.new(geocoder, mapData, floorsLayer, () => this.sidebar.open("nav"));
+        this.navigationPane = NavigationPane.new(geocoder, mapData, logger, floorsLayer, () => this.sidebar.open("nav"));
         this.floorsLayer = floorsLayer;
 
         this.infoPane = None;

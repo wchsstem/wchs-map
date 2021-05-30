@@ -116,7 +116,7 @@ export class Locator {
     }
 
     private onPositionError(error: GeolocationPositionError): void {
-        this.logger.log(`geolocation error: ${error.message}`);
+        this.logger.logError(`geolocation error: ${error.message}`);
         if (error.code == error.PERMISSION_DENIED) {
             this.settings.updateData("location-permission", false);
         }
@@ -146,10 +146,10 @@ export class Locator {
         if (this.positionState === PositionState.NearChurchill) {
             const distToLast = position.distanceTo(this.latestPosition.unwrap());
             if (distToLast < MOVEMENT_SENSITIVITY) {
-                this.logger.log(`got update, not moving dot (distance of ${distToLast})`);
+                this.logger.logError(`got update, not moving dot (distance of ${distToLast})`);
                 return; // Did not move enough; probably just in one place with GPS noise
             } else {
-                this.logger.log(`got update, moving dot (distance of ${distToLast})`);
+                this.logger.logError(`got update, moving dot (distance of ${distToLast})`);
             }
         }
 

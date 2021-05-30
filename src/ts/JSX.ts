@@ -16,12 +16,16 @@ export function h(tag: string, props: Props | null, ...children: HTMLElement[]):
 
     return element;
 }
+
+// namespaces seem to be required for JSX to work properly
+// eslint-disable-next-line
 export namespace h {
+    // eslint-disable-next-line
     export declare namespace JSX {
         interface IntrinsicElements {
-            [name: string]: any
+            [name: string]: unknown
         }
-    };
+    }
 }
 
 /**
