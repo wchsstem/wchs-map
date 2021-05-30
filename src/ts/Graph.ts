@@ -25,14 +25,20 @@ export class Graph<K, V> {
      * @param directed True if the edge should be one-way, false if it should be two-way
      */
     private static addEdgeTo<K>(adjList: AdjList<K>, [from, to, weight, directed]: Edge<K>) {
-        adjList.get(from)!.push([to, weight]);
+        this.addDirectedEdge(adjList, from, to, weight);
         if (!directed) {
-            adjList.get(to)!.push([from, weight]);
+            this.addDirectedEdge(adjList, to, from, weight);
         }
     }
 
-    public getVertex(p: K): V {
-        return this.vertices.get(p)!;
+    private static addDirectedEdge<K>(adjList: AdjList<K>, from: K, to: K, weight: number) {
+        const neighborList = adjList.get(from) ?? [];
+        neighborList.push([to, weight]);
+        adjList.set(from, neighborList);
+    }
+
+    public getVertex(p: K): Option<V> {
+        return fromMap(this.vertices, p);
     }
 
     /**
@@ -47,7 +53,7 @@ export class Graph<K, V> {
      * @param v ID of the vertex to find the neighbors of
      */
     public getNeighbors(v: K): K[] {
-        return this.adjList.get(v)!.map(u => u[0]);
+        return fromMap(this.adjList, v).unwrapOr([]).map(([to, _weight]) => to);
     }
 
     /**
@@ -83,8 +89,8 @@ export class Graph<K, V> {
      * `source`. If the predecessor is `null`, the vertex either is `source` or has no path from `source`.
      */
     public dijkstra(source: K): [Map<K, number>, Map<K, K | null>] {
-        let dist: Map<K, number> = new Map();
-        let prev: Map<K, K | null> = new Map();
+        const dist: Map<K, number> = new Map();
+        const prev: Map<K, K | null> = new Map();
 
         dist.set(source, 0);
 
@@ -97,19 +103,29 @@ export class Graph<K, V> {
                 // TODO: Maybe use None?
                 prev.set(v, null);
             }
+
+            // dist is guaranteed to contain v; dist[source] is set, and dist[v not source] is set
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const node = q.insert(dist.get(v)!, v);
             vertexToNode.set(v, node);
         }
 
         while (!q.isEmpty()) {
+            // Guaranteed to have a minimum as q is not empty; guaranteed to have a value because one always inserted
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const u = q.extractMinimum()!.value!;
 
             for (const v of this.getNeighbors(u)) {
+                // dist is guaranteed to contain all possible v
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const vWeight = dist.get(v)!;
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const alt = dist.get(u)! + this.getWeight(u, v).unwrap();
                 if (alt < vWeight) {
                     dist.set(v, alt);
                     prev.set(v, u);
+                    // vertexToNode guaranteed to contain all v
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     const node = vertexToNode.get(v)!;
                     q.decreaseKey(node, alt);
                 }

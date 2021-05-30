@@ -9,7 +9,10 @@ export function genElText(element: string, text: string): HTMLElement {
     return el;
 }
 
-export function genButtonLabel(label: string, onClickHandler?: (this: HTMLAnchorElement, ev: MouseEvent) => any): HTMLElement {
+export function genButtonLabel(
+    label: string,
+    onClickHandler?: (this: HTMLAnchorElement, ev: MouseEvent) => unknown
+): HTMLElement {
     const labelEl = genElText("span", label);
 
     const rootEl = document.createElement("a");
@@ -25,7 +28,11 @@ export function genButtonLabel(label: string, onClickHandler?: (this: HTMLAnchor
     return rootEl;
 }
 
-export function genButtonIcon(iconClass: string, onClickHandler?: (this: HTMLAnchorElement, ev: MouseEvent) => any, title?: string): HTMLAnchorElement {
+export function genButtonIcon(
+    iconClass: string,
+    onClickHandler?: (this: HTMLAnchorElement, ev: MouseEvent) => unknown,
+    title?: string
+): HTMLAnchorElement {
     const button = document.createElement("a");
     button.classList.add("button");
     button.setAttribute("href", "#");
@@ -46,7 +53,7 @@ export function genButtonIcon(iconClass: string, onClickHandler?: (this: HTMLAnc
     return button;
 }
 
-export function genTextInput(placeholder?: string, content?: string, border: boolean = true): HTMLInputElement {
+export function genTextInput(placeholder?: string, content?: string, border = true): HTMLInputElement {
     const inputEl = document.createElement("input");
     inputEl.classList.add("leaflet-style");
     inputEl.classList.add("search-bar");
