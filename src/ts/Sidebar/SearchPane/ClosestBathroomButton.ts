@@ -1,15 +1,16 @@
 import { BuildingLocation } from "../../BuildingLocation";
-import { Geocoder, GeocoderDefinition } from "../../Geocoder";
+import { DefinitionTag, Geocoder, GeocoderDefinition } from "../../Geocoder";
 import { LFloors } from "../../LFloorsPlugin/LFloorsPlugin";
 import { Locator } from "../../Locator";
 import { MapData } from "../../MapData";
-import { settings } from "../../settings";
+import { Settings } from "../../settings";
 import { ClosestDefinitionButton } from "./ClosestDefinitionButton";
 
 export class ClosestBathroomButton extends ClosestDefinitionButton {
     public constructor(
         geocoder: Geocoder,
         locator: Locator,
+        settings: Settings,
         mapData: MapData,
         floorsLayer: LFloors,
         onGetClosest: (closest: GeocoderDefinition, starting: BuildingLocation) => void
@@ -20,16 +21,18 @@ export class ClosestBathroomButton extends ClosestDefinitionButton {
             mapData,
             floorsLayer,
             definition => {
-                if (definition.hasTag("closed"))
+                if (definition.hasTag(DefinitionTag.Closed))
                     return false;
 
                 const gender = settings.getData("bathroom-gender").unwrap();
-                if (gender === "m")
-                    return definition.hasTag("men-bathroom");
-                else if (gender === "w")
-                    return definition.hasTag("women-bathroom");
-                else
-                    return definition.hasTag("men-bathroom") || definition.hasTag("women-bathroom");
+                if (gender === "m") {
+                    return definition.hasTag(DefinitionTag.MenBathroom);
+                } else if (gender === "w") {
+                    return definition.hasTag(DefinitionTag.WomenBathroom);
+                } else {
+                    return definition.hasTag(DefinitionTag.MenBathroom)
+                        || definition.hasTag(DefinitionTag.WomenBathroom);
+                }
             },
             "fas fa-restroom",
             "Nearest Restroom",

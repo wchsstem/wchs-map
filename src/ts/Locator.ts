@@ -1,13 +1,12 @@
 import { None, Option, Some } from "@nvarner/monads";
 import { LatLng } from "leaflet";
+import { MOVEMENT_SENSITIVITY } from "./config";
 import { Logger } from "./LogPane/LogPane";
-import { settings, Watcher } from "./settings";
-import { Pane } from "./Sidebar/Pane";
-
-const SENSITIVITY = 10;
+import { Settings } from "./settings";
 
 export class Locator {
     private readonly logger: Logger;
+    private readonly settings: Settings;
 
     private onUpdateStateHandles: ((
         oldState: PositionState,
@@ -22,8 +21,9 @@ export class Locator {
 
     private readonly canEverGeolocate: boolean;
 
-    public constructor(logger: Logger) {
+    public constructor(logger: Logger, settings: Settings) {
         this.logger = logger;
+        this.settings = settings;
 
         this.onUpdateStateHandles = [];
         // Assume near Churchill
@@ -35,14 +35,14 @@ export class Locator {
         this.canEverGeolocate = "geolocation" in navigator;
 
         if (this.canEverGeolocate) {
-            settings.addWatcher("location-permission", new Watcher(hasPermissionUnknown => {
+            settings.addWatcher("location-permission", hasPermissionUnknown => {
                 const hasPermission = hasPermissionUnknown as boolean;
                 if (hasPermission) {
                     this.initialize();
                 } else {
                     this.disengage();
                 }
-            }));
+            });
         }
     }
 
@@ -74,9 +74,9 @@ export class Locator {
     }
 
     private tryInitializeIfNeeded(): void {
-        if (this.canEverGeolocate && !settings.getData("location-permission").unwrap() as boolean) {
+        if (this.canEverGeolocate && !this.settings.getData("location-permission").unwrap() as boolean) {
             navigator.geolocation.getCurrentPosition(latestPosition => {
-                settings.updateData("location-permission", true);
+                this.settings.updateData("location-permission", true);
                 this.onPositionUpdate(latestPosition);
             });
         }
@@ -118,7 +118,7 @@ export class Locator {
     private onPositionError(error: GeolocationPositionError): void {
         this.logger.log(`geolocation error: ${error.message}`);
         if (error.code == error.PERMISSION_DENIED) {
-            settings.updateData("location-permission", false);
+            this.settings.updateData("location-permission", false);
         }
         this.setPositionStateUnknown();
     }
@@ -145,7 +145,7 @@ export class Locator {
 
         if (this.positionState === PositionState.NearChurchill) {
             const distToLast = position.distanceTo(this.latestPosition.unwrap());
-            if (distToLast < SENSITIVITY) {
+            if (distToLast < MOVEMENT_SENSITIVITY) {
                 this.logger.log(`got update, not moving dot (distance of ${distToLast})`);
                 return; // Did not move enough; probably just in one place with GPS noise
             } else {

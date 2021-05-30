@@ -1,5 +1,5 @@
 import { BuildingLocation } from "../../BuildingLocation";
-import { Geocoder, GeocoderDefinition } from "../../Geocoder";
+import { DefinitionTag, Geocoder, GeocoderDefinition } from "../../Geocoder";
 import { LFloors } from "../../LFloorsPlugin/LFloorsPlugin";
 import { Locator } from "../../Locator";
 import { MapData } from "../../MapData";
@@ -18,7 +18,7 @@ export class ClosestBscButton extends ClosestDefinitionButton {
             locator,
             mapData,
             floorsLayer,
-            definition => !definition.hasTag("closed") && definition.hasTag("bsc"),
+            definition => !definition.hasTag(DefinitionTag.Closed) && definition.hasTag(DefinitionTag.BSC),
             "fas fa-toilet-paper",
             "Nearest Bathroom Supply Closet",
             onGetClosest,

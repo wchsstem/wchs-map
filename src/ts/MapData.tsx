@@ -4,12 +4,13 @@ import { Graph } from "./Graph";
 import Room from "./Room";
 import { Vertex, VertexTag } from "./Vertex";
 import { LSomeLayerWithFloor, LLayerGroupWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
-import { GeocoderDefinition } from "./Geocoder";
+import { DefinitionTag, GeocoderDefinition } from "./Geocoder";
 import { BuildingLocation } from "./BuildingLocation";
 
 import { h } from "./JSX";
 import { circle, divIcon, LatLng, marker, polyline } from "leaflet";
 import { flatten, t, zip, zipInto } from "./utils";
+import { STAIR_WEIGHT } from "./config";
 
 type Floor = {
     number: string,
@@ -57,7 +58,7 @@ type JsonRoom = {
      */
     names?: string[],
     area?: number,
-    tags?: string[]
+    tags?: DefinitionTag[]
 }
 
 type JsonRooms = { [roomNumber: string]: JsonRoom };
@@ -72,8 +73,7 @@ type JsonMap = {
     rooms: JsonRooms
 }
 
-const STAIRS_WEIGHT = 10;
-
+/** Represents and stores all data known about the map */
 export class MapData {
     private readonly vertexStringToId: Map<string, number>;
     private readonly graph: Graph<number, Vertex>;
@@ -126,7 +126,7 @@ export class MapData {
                 t(vertexStringToId.get(from)!, vertexStringToId.get(to)!));
         const edgeWeights = edgeEndpointIds
             .map(([from, to]) => t(vertices.get(from)!, vertices.get(to)!))
-            .map(([from, to]) => from.getLocation().distanceTo(to.getLocation()).unwrapOr(STAIRS_WEIGHT));
+            .map(([from, to]) => from.getLocation().distanceTo(to.getLocation()).unwrapOr(STAIR_WEIGHT));
         const edges = zipInto(zipInto(edgeEndpointIds, edgeWeights), edgeDirected);
 
         return new Graph<number, Vertex>(vertices, edges);

@@ -1,5 +1,5 @@
 import { BuildingLocationWithEntrances } from "./BuildingLocation";
-import { GeocoderDefinition } from "./Geocoder";
+import { DefinitionTag, GeocoderDefinition } from "./Geocoder";
 import { deepCopy } from "./utils";
 
 export class LocationOnlyDefinition implements GeocoderDefinition {
@@ -22,12 +22,13 @@ export class LocationOnlyDefinition implements GeocoderDefinition {
     public getDescription(): string {
         return "";
     }
-    public getTags(): string[] {
+    public getTags(): DefinitionTag[] {
         return [];
     }
-    public hasTag(tag: string): boolean {
+    public hasTag(tag: DefinitionTag): boolean {
         return false;
     }
+
     // TODO: Better implementation
     public extendedWithAlternateName(name: string): GeocoderDefinition {
         return deepCopy(this);

@@ -2,7 +2,6 @@ import { MapData } from "../MapData";
 import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
 import Room from "../Room";
 
-import { settings, Watcher } from "../settings";
 import { Vertex } from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
 import { LayerGroup, LayerOptions, Map as LMap, latLng, LeafletMouseEvent, LatLngBounds } from "leaflet";
@@ -12,29 +11,9 @@ import { IconLabel } from "./label/IconLabel";
 import { Outline, OutlineLayer } from "./OutlineLayer";
 import { Sidebar } from "../Sidebar/SidebarController";
 import FontFaceObserver from "fontfaceobserver";
-
-// TODO: Wow these icons are bad. Get new ones.
-const ICON_FOR_VERTEX_TAG: [string, string][] = [
-    ["up", "\uf885"], // fa-sort-amount-up-alt
-    ["down", "\uf884"], // fa-sort-amount-down-alt
-    ["stairs", "\uf039"], // fa-align-justify
-    ["elevator", "\uf52a"], // fa-door-closed
-];
-const ICON_FOR_ROOM_TAG: [string, string][] = [
-    ["women-bathroom", "\uf182"], // fa-female
-    ["men-bathroom", "\uf183"], // fa-male
-    ["unknown-bathroom", "\uf7d8"], // fa-toilet
-    ["ec", "\uf0e7"], // fa-bolt
-    ["bsc", "\uf71e"], // fa-toilet-paper
-    ["wf", "\uf043"], // fa-tint
-    ["hs", "\ue06b"], // fa-pump-soap
-    ["bleed-control", "\uf462"], // fa-band-aid
-    ["aed", "\uf21e"], // fa-heartbeat
-    ["ahu", "\uf72e"], // fa-wind
-    ["idf", "\uf6ff"], // fa-network-wired
-    ["eru", "\uf128"], // fa-question
-    ["cp", "\uf023"]
-];
+import { Settings } from "../settings";
+import { ICON_FOR_ROOM_TAG, ICON_FOR_VERTEX_TAG } from "../config";
+import { DefinitionTag } from "../Geocoder";
 
 export interface RoomLabelLayerOptions extends LayerOptions {
     minNativeZoom: number,
@@ -43,21 +22,31 @@ export interface RoomLabelLayerOptions extends LayerOptions {
 }
 
 export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloor {
+    private readonly settings: Settings;
+
     private readonly normalLabels: Label[];
     private readonly infrastructureLabels: Label[];
     private readonly emergencyLabels: Label[];
     private readonly closedLabels: Label[];
 
     private floorNumber: string;
-    private removeWatcher: Option<Watcher>;
+    private removeWatcher: Option<(newValue: unknown) => void>;
     private labelLayer: LabelLayer | undefined;
 
     private readonly options: RoomLabelLayerOptions;
 
-    constructor(map: MapData, sidebar: Sidebar, floorNumber: string, options: RoomLabelLayerOptions) {
+    constructor(
+        map: MapData,
+        sidebar: Sidebar,
+        settings: Settings,
+        floorNumber: string,
+        options: RoomLabelLayerOptions
+    ) {
         super([], options);
 
         this.options = options;
+
+        this.settings = settings;
 
         this.floorNumber = floorNumber;
         this.removeWatcher = None;
@@ -131,7 +120,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
 
             this.createLabelLayer();
             
-            const recreateLabelLayer = new Watcher(_ => this.createLabelLayer());
+            const recreateLabelLayer = () => this.createLabelLayer();
             settings.addWatcher("show-infrastructure", recreateLabelLayer, false);
             settings.addWatcher("show-emergency", recreateLabelLayer, false);
             settings.addWatcher("show-closed", recreateLabelLayer, false);
@@ -140,13 +129,13 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
 
     private createLabelLayer(): void {
         let labels = this.normalLabels;
-        if (settings.getData("show-infrastructure").unwrap() as boolean) {
+        if (this.settings.getData("show-infrastructure").unwrap() as boolean) {
             labels = labels.concat(this.infrastructureLabels);
         }
-        if (settings.getData("show-emergency").unwrap() as boolean) {
+        if (this.settings.getData("show-emergency").unwrap() as boolean) {
             labels = labels.concat(this.emergencyLabels);
         }
-        if (settings.getData("show-closed").unwrap() as boolean) {
+        if (this.settings.getData("show-closed").unwrap() as boolean) {
             labels = labels.concat(this.closedLabels);
         }
 
@@ -173,16 +162,16 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     public onAdd(map: LMap): this {
         super.onAdd(map);
 
-        const watcher = new Watcher(shouldShowUnknown => {
+        const watcher = (shouldShowUnknown: unknown) => {
             const shouldShow = shouldShowUnknown as boolean;
             if (shouldShow) {
                 super.onAdd(map);
             } else {
                 super.onRemove(map);
             }
-        });
+        };
 
-        settings.addWatcher("show-markers", watcher);
+        this.settings.addWatcher("show-markers", watcher);
         this.removeWatcher = Some(watcher);
 
         return this;
@@ -191,9 +180,9 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     public onRemove(map: LMap): this {
         super.onRemove(map);
 
-        settings.removeWatcher("show-markers", this.removeWatcher.unwrap());
+        this.settings.removeWatcher("show-markers", this.removeWatcher.unwrap());
         this.removeWatcher = None;
-        
+
         return this;
     }
 
@@ -207,7 +196,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
 
         return icon.match({
             some: icon => {
-                return new IconLabel(room.center.getXY(), icon, room.hasTag("closed")) as Label;
+                return new IconLabel(room.center.getXY(), icon, room.hasTag(DefinitionTag.Closed)) as Label;
             },
             none: () => {
                 const text = room.getShortName();

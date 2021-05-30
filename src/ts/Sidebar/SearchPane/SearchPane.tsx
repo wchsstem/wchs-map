@@ -13,12 +13,12 @@ import { NavigationPane } from "../NavigationPane/NavigationPane";
 import { ClosestHandSanitizerStationButton } from "./ClosestHandSanitizerStationButton";
 import { ClosestBleedingControlKitButton } from "./ClosestBleedingControlKitButton";
 import { ClosestAedButton } from "./ClosestAedButton";
-import { settings, Watcher } from "../../settings";
 import { ClosestAhuButton } from "./ClosestAhuButton";
 import { ClosestEcButton } from "./ClosestEcButton";
 import { ClosestBscButton } from "./ClosestBscButton";
 import { Some } from "@nvarner/monads";
 import { Sidebar } from "../SidebarController";
+import { Settings } from "../../settings";
 
 export class SearchPane extends Pane {
     private readonly pane: HTMLElement;
@@ -30,6 +30,7 @@ export class SearchPane extends Pane {
     public constructor(
         geocoder: Geocoder,
         locator: Locator,
+        settings: Settings,
         mapData: MapData,
         floorsLayer: LFloors,
         sidebarController: Sidebar,
@@ -54,6 +55,7 @@ export class SearchPane extends Pane {
         const closestBathroomButton = new ClosestBathroomButton(
             geocoder,
             locator,
+            settings,
             mapData,
             floorsLayer,
             (closest, starting) => this.handleClosestButtonClick(closest, starting)
@@ -88,7 +90,7 @@ export class SearchPane extends Pane {
             floorsLayer,
             (closest, starting) => this.handleClosestButtonClick(closest, starting)
         ).getHtml();
-        settings.addWatcher("show-emergency", new Watcher(show => {
+        settings.addWatcher("show-emergency", show => {
             if (show) {
                 closestBleedingControlKitButton.classList.remove("hidden");
                 closestAedButton.classList.remove("hidden");
@@ -96,7 +98,7 @@ export class SearchPane extends Pane {
                 closestBleedingControlKitButton.classList.add("hidden");
                 closestAedButton.classList.add("hidden");
             }
-        }));
+        });
 
         // Infrastructure
         const closestAhuButton = new ClosestAhuButton(
@@ -120,7 +122,7 @@ export class SearchPane extends Pane {
             floorsLayer,
             (closest, starting) => this.handleClosestButtonClick(closest, starting)
         ).getHtml();
-        settings.addWatcher("show-infrastructure", new Watcher(show => {
+        settings.addWatcher("show-infrastructure", show => {
             if (show) {
                 closestAhuButton.classList.remove("hidden");
                 closestEcButton.classList.remove("hidden");
@@ -130,7 +132,7 @@ export class SearchPane extends Pane {
                 closestEcButton.classList.add("hidden");
                 closestBscButton.classList.add("hidden");
             }
-        }));
+        });
 
         const categoryButtonContainer = <div class="wrapper">
             {closestBathroomButton}

@@ -1,5 +1,5 @@
 import { BuildingLocation } from "../../BuildingLocation";
-import { Geocoder, GeocoderDefinition } from "../../Geocoder";
+import { DefinitionTag, Geocoder, GeocoderDefinition } from "../../Geocoder";
 import { LFloors } from "../../LFloorsPlugin/LFloorsPlugin";
 import { Locator } from "../../Locator";
 import { MapData } from "../../MapData";
@@ -18,7 +18,7 @@ export class ClosestAedButton extends ClosestDefinitionButton {
             locator,
             mapData,
             floorsLayer,
-            definition => !definition.hasTag("closed") && definition.hasTag("aed"),
+            definition => !definition.hasTag(DefinitionTag.Closed) && definition.hasTag(DefinitionTag.AED),
             "fas fa-heartbeat",
             "Nearest AED",
             onGetClosest,

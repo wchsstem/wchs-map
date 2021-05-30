@@ -3,7 +3,7 @@ import * as mapDataJson from "../data/map_compiled.json";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../assets/fontawesome/all.min.css";
 
-import { settings, Watcher } from "./settings";
+import { Settings } from "./settings";
 import { MapData } from "./MapData";
 import { LFloors, LSomeLayerWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
@@ -25,6 +25,7 @@ function main() {
         navigator.serviceWorker.register("/serviceWorker.js");
     }
 
+    const settings = defaultSettings();
     const logger = Logger.new();
 
     // Create map
@@ -51,11 +52,11 @@ function main() {
     mapData.getAllRooms().forEach(room => geocoder.addDefinition(room));
 
     // Initialize locator
-    const locator = new Locator(logger);
+    const locator = new Locator(logger, settings);
 
     // Add location dot if we might be able to use it
     if (locator.getCanEverGeolocate()) {
-        const location = new LLocation(locator);
+        const location = new LLocation(locator, settings);
         location.addTo(map);
     }
 
@@ -64,13 +65,13 @@ function main() {
     floors.addTo(map);
 
     // Create sidebar
-    const sidebar = new Sidebar(map, mapData, geocoder, locator, logger, floors);
+    const sidebar = new Sidebar(map, mapData, geocoder, locator, logger, settings, floors);
 
     // Create room label layers
     mapData
         .getAllFloors()
         .map(floorData => floorData.number)
-        .map(floor => new LRoomLabel(mapData, sidebar, floor, {
+        .map(floor => new LRoomLabel(mapData, sidebar, settings, floor, {
             minNativeZoom: MIN_ZOOM,
             maxNativeZoom: MAX_ZOOM,
             bounds: BOUNDS
@@ -88,7 +89,7 @@ function main() {
             .openOn(map);
     }
 
-    settings.addWatcher("dev", new Watcher(devUnknown => {
+    settings.addWatcher("dev", devUnknown => {
         const dev = devUnknown as boolean;
 
         if (dev) {
@@ -107,7 +108,31 @@ function main() {
                 map.off("click", showClickLoc);
             });
         }
-    }));
+    });
+}
+
+function defaultSettings(): Settings {
+    const settings = new Settings("settings");
+    settings.setDefault("bathroom-gender", "no-selection");
+    settings.setDefault("dev", false);
+    settings.setDefault("synergy", false);
+    settings.setDefault("hiding-location", false);
+    settings.setDefault("show-closed", false);
+    settings.setDefault("show-infrastructure", false);
+    settings.setDefault("show-emergency", false);
+    settings.setDefault("logger", false);
+    settings.setDefault("show-markers", true);
+    settings.setDefault("location-permission", false);
+    settings.setDefault("pd1", "");
+    settings.setDefault("pd2", "");
+    settings.setDefault("pd3", "");
+    settings.setDefault("pd4", "");
+    settings.setDefault("pd5", "");
+    settings.setDefault("pd6", "");
+    settings.setDefault("pd7", "");
+    settings.setDefault("pd8", "");
+    settings.setDefault("hr", "");
+    return settings;
 }
 
 main();

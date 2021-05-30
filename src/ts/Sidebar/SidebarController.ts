@@ -4,7 +4,6 @@ import { MapData } from "../MapData";
 
 import "./sidebar.scss";
 import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
-import { settings, Watcher } from "../settings";
 import { Geocoder, GeocoderDefinition } from "../Geocoder";
 import { None, Option, Some } from "@nvarner/monads";
 import { NavigationPane } from "./NavigationPane/NavigationPane";
@@ -15,6 +14,7 @@ import { Pane } from "./Pane";
 import { SearchPane } from "./SearchPane/SearchPane";
 import { InfoPane } from "./InfoPane";
 import { SettingsPane } from "./SettingsPane/SettingsPane";
+import { Settings } from "../settings";
 
 export class Sidebar {
     private readonly map: L.Map;
@@ -25,7 +25,15 @@ export class Sidebar {
 
     private infoPane: Option<InfoPane>;
 
-    public constructor(map: L.Map, mapData: MapData, geocoder: Geocoder, locator: Locator, logger: Logger, floorsLayer: LFloors) {
+    public constructor(
+        map: L.Map,
+        mapData: MapData,
+        geocoder: Geocoder,
+        locator: Locator,
+        logger: Logger,
+        settings: Settings,
+        floorsLayer: LFloors
+    ) {
         this.map = map;
 
         this.sidebar = control.sidebar({
@@ -42,6 +50,7 @@ export class Sidebar {
         const searchPane = new SearchPane(
             geocoder,
             locator,
+            settings,
             mapData,
             floorsLayer,
             this,
@@ -56,25 +65,25 @@ export class Sidebar {
 
         const synergyPane = new SynergyPane(geocoder, logger);
 
-        this.addPane(new SettingsPane());
+        this.addPane(new SettingsPane(settings));
 
         const logPane = LogPane.new();
         logger.associateWithLogPane(logPane);
-        settings.addWatcher("logger", new Watcher(enable => {
+        settings.addWatcher("logger", enable => {
             if (enable) {
                 this.sidebar.addPanel(logPane.getPanelOptions());
             } else {
                 this.sidebar.removePanel(logPane.getId());
             }
-        }));
+        });
 
-        settings.addWatcher("synergy", new Watcher((enable) => {
+        settings.addWatcher("synergy", enable => {
             if (enable) {
                 this.addPane(synergyPane);
             } else {
                 this.removePane(synergyPane);
             }
-        }));
+        });
     }
 
     protected addPane(pane: Pane) {

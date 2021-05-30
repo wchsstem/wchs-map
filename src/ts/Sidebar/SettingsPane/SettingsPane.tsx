@@ -1,28 +1,31 @@
 import { Pane } from "../Pane";
 import { h } from "../../JSX";
-import { DROPDOWN_DATA, NAME_MAPPING, settings, SETTING_INPUT_TYPE, SETTING_SECTIONS, Watcher } from "../../settings";
+import { DROPDOWN_DATA, NAME_MAPPING, SETTING_INPUT_TYPE, SETTING_SECTIONS } from "../../config";
 import { fromMap, Option, Some, None } from "@nvarner/monads";
 import { genPaneElement, genTextInput } from "../../GenHtml/GenHtml";
+import { Settings } from "../../settings";
+import { removeChildren } from "../../utils";
 
 export class SettingsPane extends Pane {
+    private readonly settings: Settings;
+
     private readonly pane: HTMLElement;
 
-    public constructor() {
+    public constructor(settings: Settings) {
         super();
+
+        this.settings = settings;
 
         const settingsContainer = <ul class="wrapper settings-container" />;
 
         SETTING_SECTIONS.forEach(([category, categorySettings]) => {
-            const categorySettingsContainer = <ul />;
+            const categorySettingsContainer = <ul/>;
 
-            categorySettings.forEach(name => {
+            categorySettings.map(name => {
                 const container = <li class="setting-container"></li>;
-                categorySettingsContainer.appendChild(container);
 
-                const watcher = new Watcher(data => {
-                    while (container.firstChild !== null) {
-                        container.removeChild(container.firstChild);
-                    }
+                settings.addWatcher(name, data => {
+                    removeChildren(container);
 
                     let setting = null;
                     if (typeof data === "string") {
@@ -32,7 +35,7 @@ export class SettingsPane extends Pane {
                                 if (type === "dropdown") {
                                     // Assume exists
                                     const optionDisplayAndIds = fromMap(DROPDOWN_DATA, name).unwrap();
-                                    return Some(SettingsPane.createDropdownSetting(name, data, optionDisplayAndIds, NAME_MAPPING));
+                                    return Some(this.createDropdownSetting(name, data, optionDisplayAndIds, NAME_MAPPING));
                                 } else {
                                     return None;
                                 }
@@ -40,18 +43,18 @@ export class SettingsPane extends Pane {
                             none: () => None
                         });
                         setting = maybeSetting.match({
-                            some: (s) => s,
-                            none: () => SettingsPane.createStringSetting(name, data, NAME_MAPPING)
+                            some: s => s,
+                            none: () => this.createStringSetting(name, data, NAME_MAPPING)
                         });
                     } else if (typeof data === "boolean") {
-                        setting = SettingsPane.createBooleanSetting(name, data, NAME_MAPPING);
+                        setting = this.createBooleanSetting(name, data, NAME_MAPPING);
                     }
                     if (setting !== null) {
                         container.appendChild(setting);
                     }
                 });
-                settings.addWatcher(name, watcher);
-            });
+                return container;
+            }).forEach(container => categorySettingsContainer.appendChild(container));
 
             const categoryContainer = <li>
                 <h2>{category}</h2>
@@ -92,35 +95,54 @@ export class SettingsPane extends Pane {
         return "bottom";
     }
 
-    private static createSetting(name: string, control: HTMLElement): HTMLDivElement {
+    private createSettingFor(name: string, data: unknown): Option<HTMLElement> {
+        let setting: Option<HTMLElement> = None;
+        if (typeof data === "string") {
+            setting = Some(fromMap(SETTING_INPUT_TYPE, name)
+                .andThen(type => {
+                    if (type === "dropdown") {
+                        // Assume exists if type is dropdown
+                        const optionDisplayAndIds = DROPDOWN_DATA.get(name)!;
+                        return Some(this.createDropdownSetting(name, data, optionDisplayAndIds, NAME_MAPPING));
+                    } else {
+                        return None;
+                    }
+                }).unwrapOrElse(() => this.createStringSetting(name, data, NAME_MAPPING)));
+        } else if (typeof data === "boolean") {
+            setting = Some(this.createBooleanSetting(name, data, NAME_MAPPING));
+        }
+        return setting;
+    }
+
+    private createSetting(name: string, control: HTMLElement): HTMLDivElement {
         return <div>
             <label>{name}</label>
             {control}
         </div>;
     }
 
-    private static createStringSetting(name: string, value: string, nameMapping: Map<string, string>): HTMLDivElement {
+    private createStringSetting(name: string, value: string, nameMapping: Map<string, string>): HTMLDivElement {
         const control = genTextInput("", value);
         control.addEventListener("change", () => {
-            settings.updateData(name, control.value);
+            this.settings.updateData(name, control.value);
         });
 
         const mappedName = fromMap(nameMapping, name).unwrapOr(name);
-        return SettingsPane.createSetting(mappedName, control);
+        return this.createSetting(mappedName, control);
     }
 
-    private static createBooleanSetting(name: string, value: boolean, nameMapping: Map<string, string>): HTMLElement {
+    private createBooleanSetting(name: string, value: boolean, nameMapping: Map<string, string>): HTMLElement {
         const control = <input type="checkbox" />;
         control.checked = value;
         control.addEventListener("change", () => {
-            settings.updateData(name, control.checked);
+            this.settings.updateData(name, control.checked);
         });
 
         const mappedName = fromMap(nameMapping, name).unwrapOr(name);
-        return SettingsPane.createSetting(mappedName, control);
+        return this.createSetting(mappedName, control);
     }
 
-    private static createDropdownSetting(
+    private createDropdownSetting(
         name: string,
         value: string,
         optionDisplayAndIds: [string, string][],
@@ -136,10 +158,10 @@ export class SettingsPane extends Pane {
         }
 
         control.addEventListener("change", () => {
-            settings.updateData(name, control.value);
+            this.settings.updateData(name, control.value);
         });
 
         const mappedName = fromMap(nameMapping, name).unwrapOr(name);
-        return SettingsPane.createSetting(mappedName, control);
+        return this.createSetting(mappedName, control);
     }
 }

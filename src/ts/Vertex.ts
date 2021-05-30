@@ -30,24 +30,14 @@ export class Vertex {
     }
 }
 
-/**
- * Tags which may be present on a vertex
- */
+/** Tag which may be present on a vertex */
 export enum VertexTag {
-    /**
-     * Vertex represents a staircase
-     */
+    /** Vertex represents a staircase */
     Stairs = "stairs",
-    /**
-     * Vertex represents an elevator
-     */
+    /** Vertex represents an elevator */
     Elevator = "elevator",
-    /**
-     * Vertex represents an up-only elevator
-     */
+    /** Vertex represents an up-only staircase */
     Up = "up",
-    /**
-     * Vertex represents a down-only elevator
-     */
+    /** Vertex represents a down-only staircase */
     Down = "down",
 }

@@ -1,11 +1,12 @@
 import { LLocationControl } from "./LLocationControl";
-import { settings, Watcher } from "../settings";
 import { None, Option, Some } from "@nvarner/monads";
 import { Locator, PositionState } from "../Locator";
 import { circle, circleMarker, LayerGroup } from "leaflet";
+import { Settings } from "../settings";
 
 export class LLocation extends LayerGroup {
     private readonly locator: Locator;
+    private readonly settings: Settings;
     private readonly control: LLocationControl;
 
     private hidingLocation: boolean;
@@ -17,7 +18,7 @@ export class LLocation extends LayerGroup {
      * Creates a new layer that shows the user's location on the map.
      * @param options Any extra Leaflet layer options
      */
-    constructor(locator: Locator, options?: L.LayerOptions) {
+    constructor(locator: Locator, settings: Settings, options?: L.LayerOptions) {
         options = options ?? {};
         if (!("attribution" in options)) {
             options.attribution = "© OpenStreetMap contributors";
@@ -26,16 +27,17 @@ export class LLocation extends LayerGroup {
         super([], options);
 
         this.locator = locator;
+        this.settings = settings;
         this.control = new LLocationControl(() => { this.locate() }, { position: "topright" });
 
         this.positionMarker = None;
         this.map = None;
         
         this.hidingLocation = false;
-        settings.addWatcher("hiding-location", new Watcher((hidingLocationUnknown) => {
+        settings.addWatcher("hiding-location", hidingLocationUnknown => {
             const hidingLocation = hidingLocationUnknown as boolean;
             this.onChangeHidingLocation(hidingLocation);
-        }));
+        });
 
         locator.addStateUpdateHandler(
             (_oldState, newState, position, accuracyRadius) =>

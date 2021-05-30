@@ -73,6 +73,12 @@ export function flatten<T>(a: T[][]): T[] {
 
 // Object
 
+/**
+ * Creates a deep copy of an object. This means that fields of the object are also recursively copied, so the result is
+ * entirely independent of the original.
+ * @param a Object to copy
+ * @returns Copy of `a`
+ */
 export function deepCopy<T>(a: T): T {
     if (typeof a !== "object" || a === null) {
         return a;
@@ -96,6 +102,15 @@ export function deepCopy<T>(a: T): T {
 }
 
 // DOM
+
+/**
+ * Removes all children of an element.
+ */
+export function removeChildren(element: HTMLElement) {
+    while (element.lastChild !== null) {
+        element.removeChild(element.lastChild);
+    }
+}
 
 export function updateWithResults(
     query: string,

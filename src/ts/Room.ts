@@ -1,6 +1,6 @@
 import { BuildingLocation, BuildingLocationWithEntrances } from "./BuildingLocation";
-import { GeocoderDefinition } from "./Geocoder";
-import { EMERGENCY_TAGS, INFRASTRUCTURE_TAGS } from "./settings";
+import { DefinitionTag, GeocoderDefinition } from "./Geocoder";
+import { EMERGENCY_TAGS, INFRASTRUCTURE_TAGS } from "./config";
 import { deepCopy } from "./utils";
 
 export default class Room implements GeocoderDefinition {
@@ -11,7 +11,7 @@ export default class Room implements GeocoderDefinition {
     public readonly center: BuildingLocation;
     public readonly outline: [number, number][];
     public readonly area: number;
-    public readonly tags: string[];
+    public readonly tags: DefinitionTag[];
 
     public constructor(
         entrances: BuildingLocation[],
@@ -20,7 +20,7 @@ export default class Room implements GeocoderDefinition {
         outline: [number, number][],
         center: BuildingLocation,
         area: number,
-        tags: string[]
+        tags: DefinitionTag[]
     ) {
         this.entrances = entrances;
         this.roomNumber = roomNumber;
@@ -76,11 +76,11 @@ export default class Room implements GeocoderDefinition {
     /**
      * May be displayed to the user and used in search.
      */
-    public getTags(): string[] {
+    public getTags(): DefinitionTag[] {
         return this.tags;
     }
 
-    public hasTag(tag: string): boolean {
+    public hasTag(tag: DefinitionTag): boolean {
         return this.tags.includes(tag);
     }
 
@@ -93,7 +93,7 @@ export default class Room implements GeocoderDefinition {
     }
 
     public estimateImportance(): number {
-        return this.area + (100 * this.tags.filter(tag => tag !== "closed").length);
+        return this.area + (100 * this.tags.filter(tag => tag !== DefinitionTag.Closed).length);
     }
 
     public isInfrastructure(): boolean {
@@ -105,6 +105,6 @@ export default class Room implements GeocoderDefinition {
     }
 
     public isClosed(): boolean {
-        return this.tags.includes("closed");
+        return this.tags.includes(DefinitionTag.Closed);
     }
 }
