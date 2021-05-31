@@ -20,6 +20,7 @@ import { CRS, map as lMap, popup } from "leaflet";
 import { None, Some, Option } from "@nvarner/monads";
 import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
 import { extractResult } from "./utils";
+import { TextMeasurer } from "./TextMeasurer";
 
 function main() {
     if ("serviceWorker" in navigator) {
@@ -49,6 +50,8 @@ function main() {
     const resMapData = MapData.new(mapDataJson as unknown as JsonMap, BOUNDS);
     if (resMapData.isErr()) {
         logger.logError(`Error constructing MapData: ${resMapData.unwrapErr()}`);
+        // TODO: Error handling
+        return;
     }
     const mapData = resMapData.unwrap();
 
@@ -58,6 +61,14 @@ function main() {
 
     // Initialize locator
     const locator = new Locator(logger, settings);
+
+    const resTextMeasurer = TextMeasurer.new();
+    if (resTextMeasurer.isErr()) {
+        logger.logError(`Error constructing text measurer: ${resTextMeasurer.unwrapErr()}`);
+        // TODO: Error handling
+        return;
+    }
+    const textMeasurer = resTextMeasurer.unwrap();
 
     // Add location dot if we might be able to use it
     if (locator.getCanEverGeolocate()) {
@@ -82,7 +93,7 @@ function main() {
     mapData
         .getAllFloors()
         .map(floorData => floorData.number)
-        .map(floor => new LRoomLabel(mapData, sidebar, settings, logger, floor, {
+        .map(floor => new LRoomLabel(mapData, sidebar, settings, logger, textMeasurer, floor, {
             minNativeZoom: MIN_ZOOM,
             maxNativeZoom: MAX_ZOOM,
             bounds: BOUNDS

@@ -33,6 +33,20 @@ export const ICON_FOR_ROOM_TAG: [DefinitionTag, string][] = [
     [DefinitionTag.CP, "\uf023"]
 ];
 
+/** CSS font string for icons */
+export const ICON_FONT = "900 14px \"Font Awesome 5 Free\"";
+
+// Labels
+
+/** Spacing in pixels between each line in multiline map labels */
+export const LABEL_LINE_SPACING_PX = 3;
+
+/** CSS font string for map labels */
+export const LABEL_FONT = "12px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif";
+
+/** Minimum distance in pixels between two map labels */
+export const LABEL_MIN_SPACING_PX = 3;
+
 // Navigation
 
 /** Edge weight for edge representing going up or down stairs in the navigation graph */

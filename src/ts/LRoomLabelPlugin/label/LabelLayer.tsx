@@ -1,6 +1,7 @@
 import { fromMap } from "@nvarner/monads";
 import { Coords, GridLayer, GridLayerOptions, LatLng, LatLngBounds, LeafletEventHandlerFn, LeafletMouseEvent, Map as LMap, Point, point, PointExpression } from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
+import { LABEL_FONT, LABEL_MIN_SPACING_PX } from "../../config";
 import { h } from "../../JSX";
 import { Logger } from "../../LogPane/LogPane";
 import { ClickListener } from "../LRoomLabelPlugin";
@@ -30,9 +31,6 @@ export class LabelLayer extends GridLayer {
     private readonly visibleLabels: Map<number, VisibleLabels>;
     private readonly tileCache: Map<string, HTMLElement>;
 
-    public static readonly FONT = "12px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif";
-    public static readonly LABEL_MIN_SPACING_PX = 3;
-
     public constructor(logger: Logger, options: LabelLayerOptions) {
         super(options);
 
@@ -56,7 +54,7 @@ export class LabelLayer extends GridLayer {
         if (ctx !== null) {
             ctx.scale(pixelRatio, pixelRatio);
 
-            ctx.font = LabelLayer.FONT;
+            ctx.font = LABEL_FONT;
 
             const tileTopLeftPoint = coords.scaleBy(tileSize);
 
@@ -117,10 +115,10 @@ class VisibleLabels {
 
         for (const label of labels) {
             const bbox = this.bboxFrom(label);
-            bbox.maxX += LabelLayer.LABEL_MIN_SPACING_PX;
-            bbox.maxY += LabelLayer.LABEL_MIN_SPACING_PX;
-            bbox.minX -= LabelLayer.LABEL_MIN_SPACING_PX;
-            bbox.minY -= LabelLayer.LABEL_MIN_SPACING_PX;
+            bbox.maxX += LABEL_MIN_SPACING_PX;
+            bbox.maxY += LABEL_MIN_SPACING_PX;
+            bbox.minX -= LABEL_MIN_SPACING_PX;
+            bbox.minY -= LABEL_MIN_SPACING_PX;
 
             if (!visibleLabels.collides(bbox)) {
                 const entry = this.rBushEntryFrom(label);

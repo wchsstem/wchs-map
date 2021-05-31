@@ -15,6 +15,7 @@ import { Settings } from "../settings";
 import { ICON_FOR_ROOM_TAG, ICON_FOR_VERTEX_TAG } from "../config";
 import { DefinitionTag } from "../Geocoder";
 import { Logger } from "../LogPane/LogPane";
+import { TextMeasurer } from "../TextMeasurer";
 
 export interface RoomLabelLayerOptions extends LayerOptions {
     minNativeZoom: number,
@@ -25,6 +26,7 @@ export interface RoomLabelLayerOptions extends LayerOptions {
 export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloor {
     private readonly settings: Settings;
     private readonly logger: Logger;
+    private readonly textMeasurer: TextMeasurer;
 
     private readonly normalLabels: Label[];
     private readonly infrastructureLabels: Label[];
@@ -42,6 +44,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         sidebar: Sidebar,
         settings: Settings,
         logger: Logger,
+        textMeasurer: TextMeasurer,
         floorNumber: string,
         options: RoomLabelLayerOptions
     ) {
@@ -51,6 +54,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
 
         this.settings = settings;
         this.logger = logger;
+        this.textMeasurer = textMeasurer;
 
         this.floorNumber = floorNumber;
         this.removeWatcher = None;
@@ -200,18 +204,18 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
 
         return icon.match({
             some: icon => {
-                return new IconLabel(this.logger, room.center.getXY(), icon, room.hasTag(DefinitionTag.Closed)) as Label;
+                return new IconLabel(this.textMeasurer, room.center.getXY(), icon, room.hasTag(DefinitionTag.Closed)) as Label;
             },
             none: () => {
                 const text = room.getShortName();
-                return new TextLabel(room.center.getXY(), text);
+                return new TextLabel(this.textMeasurer, room.center.getXY(), text);
             }
         });
     }
 
     private getVertexLabel(vertex: Vertex): Option<Label> {
         return LRoomLabel.getIcon(ICON_FOR_VERTEX_TAG, vertex.getTags())
-            .map(icon => new IconLabel(this.logger, vertex.getLocation().getXY(), icon, false));
+            .map(icon => new IconLabel(this.textMeasurer, vertex.getLocation().getXY(), icon, false));
     }
 }
 

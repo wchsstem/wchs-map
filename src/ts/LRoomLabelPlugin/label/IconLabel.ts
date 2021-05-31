@@ -1,11 +1,11 @@
 import { LatLng, Point, point, Map as LMap, LeafletMouseEvent } from "leaflet";
 import { ClickableLabel } from "./LabelLayer";
-import { h } from "../../JSX";
 import { ClickListener } from "../LRoomLabelPlugin";
-import { Logger } from "../../LogPane/LogPane";
+import { TextMeasurer } from "../../TextMeasurer";
+import { ICON_FONT } from "../../config";
 
 export class IconLabel implements ClickableLabel {
-    private readonly logger: Logger;
+    private readonly textMeasurer: TextMeasurer;
 
     private readonly center: LatLng;
     private readonly icon: string;
@@ -13,11 +13,8 @@ export class IconLabel implements ClickableLabel {
     private readonly closed: boolean;
     private readonly clickListeners: ClickListener[];
 
-    private static textMeasureCtx: CanvasRenderingContext2D | null | undefined;
-
     private static readonly RADIUS_PX = 14;
     private static readonly BORDER_PX = 2;
-    private static readonly ICON_FONT = "900 14px \"Font Awesome 5 Free\"";
     private static readonly ICON_VERTICAL_OFFSET_PX = 1;
 
     private static readonly BORDER_COLOR = "#cccccc";
@@ -28,8 +25,8 @@ export class IconLabel implements ClickableLabel {
     private static readonly CLOSED_BACKGROUND_COLOR = "#a7a7a7";
     private static readonly CLOSED_ICON_COLOR = "#c93d3d";
 
-    public constructor(logger: Logger, center: LatLng, icon: string, closed: boolean) {
-        this.logger = logger;
+    public constructor(textMeasurer: TextMeasurer, center: LatLng, icon: string, closed: boolean) {
+        this.textMeasurer = textMeasurer;
         this.center = center;
         this.icon = icon;
         this.iconSize = this.measureIcon(icon);
@@ -58,7 +55,7 @@ export class IconLabel implements ClickableLabel {
         ctx.stroke();
 
         const oldFont = ctx.font;
-        ctx.font = IconLabel.ICON_FONT;
+        ctx.font = ICON_FONT;
         ctx.textAlign = "center";
         ctx.fillStyle = this.closed ? IconLabel.CLOSED_ICON_COLOR : IconLabel.ICON_COLOR;
         const topLeft = centeredAt.subtract(this.iconSize.divideBy(2));
@@ -83,23 +80,6 @@ export class IconLabel implements ClickableLabel {
     }
 
     private measureIcon(icon: string): Point {
-        if (!IconLabel.textMeasureCtx) {
-            IconLabel.textMeasureCtx = (<canvas /> as HTMLCanvasElement).getContext("2d");
-        }
-
-        if (IconLabel.textMeasureCtx) {
-            IconLabel.textMeasureCtx.font = IconLabel.ICON_FONT;
-            const ctx = IconLabel.textMeasureCtx;
-    
-            const metrics = ctx.measureText(icon);
-            return point(
-                metrics.width,
-                metrics.actualBoundingBoxAscent
-            );
-        } else {
-            // TODO: Tell user to use reasonable browser
-            this.logger.logError("cannot get 2d canvas context in IconLabel");
-            return point(0, 0);
-        }
+        return this.textMeasurer.measureOneLine(icon, ICON_FONT);
     }
 }
