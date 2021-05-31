@@ -14,6 +14,7 @@ import FontFaceObserver from "fontfaceobserver";
 import { Settings } from "../settings";
 import { ICON_FOR_ROOM_TAG, ICON_FOR_VERTEX_TAG } from "../config";
 import { DefinitionTag } from "../Geocoder";
+import { Logger } from "../LogPane/LogPane";
 
 export interface RoomLabelLayerOptions extends LayerOptions {
     minNativeZoom: number,
@@ -23,6 +24,7 @@ export interface RoomLabelLayerOptions extends LayerOptions {
 
 export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloor {
     private readonly settings: Settings;
+    private readonly logger: Logger;
 
     private readonly normalLabels: Label[];
     private readonly infrastructureLabels: Label[];
@@ -39,6 +41,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         map: MapData,
         sidebar: Sidebar,
         settings: Settings,
+        logger: Logger,
         floorNumber: string,
         options: RoomLabelLayerOptions
     ) {
@@ -47,6 +50,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         this.options = options;
 
         this.settings = settings;
+        this.logger = logger;
 
         this.floorNumber = floorNumber;
         this.removeWatcher = None;
@@ -77,7 +81,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
                     console.log(`Room has no outline: ${room.getName()}`);
                 }
 
-                const roomLabel = LRoomLabel.getRoomLabel(room);
+                const roomLabel = this.getRoomLabel(room);
                 if (isClickable(roomLabel)) {
                     roomLabel.addClickListener(_ => sidebar.openInfo(room));
                 }
@@ -95,7 +99,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
 
         vertices
             .filter(vertex => vertex.getLocation().getFloor() === floorNumber)
-            .forEach(vertex => LRoomLabel.getVertexLabel(vertex).ifSome(label => labels.push(label)));
+            .forEach(vertex => this.getVertexLabel(vertex).ifSome(label => labels.push(label)));
 
 
         this.normalLabels = labels;
@@ -115,7 +119,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
                 bounds: this.options.bounds,
                 pane: "overlayPane",
                 tileSize: 2048
-            });
+            }, logger);
             super.addLayer(outlineLayer);
 
             this.createLabelLayer();
@@ -142,7 +146,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         if (this.labelLayer !== undefined) {
             super.removeLayer(this.labelLayer);
         }
-        this.labelLayer = new LabelLayer({
+        this.labelLayer = new LabelLayer(this.logger, {
             minZoom: -Infinity,
             maxZoom: Infinity,
             pane: "overlayPane",
@@ -191,12 +195,12 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
             .reduce((acc, className) => acc.or(className));
     }
 
-    private static getRoomLabel(room: Room): Label {
+    private getRoomLabel(room: Room): Label {
         const icon = LRoomLabel.getIcon(ICON_FOR_ROOM_TAG, room.getTags());
 
         return icon.match({
             some: icon => {
-                return new IconLabel(room.center.getXY(), icon, room.hasTag(DefinitionTag.Closed)) as Label;
+                return new IconLabel(this.logger, room.center.getXY(), icon, room.hasTag(DefinitionTag.Closed)) as Label;
             },
             none: () => {
                 const text = room.getShortName();
@@ -205,9 +209,9 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
         });
     }
 
-    private static getVertexLabel(vertex: Vertex): Option<Label> {
+    private getVertexLabel(vertex: Vertex): Option<Label> {
         return LRoomLabel.getIcon(ICON_FOR_VERTEX_TAG, vertex.getTags())
-            .map(icon => new IconLabel(vertex.getLocation().getXY(), icon, false));
+            .map(icon => new IconLabel(this.logger, vertex.getLocation().getXY(), icon, false));
     }
 }
 

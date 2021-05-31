@@ -13,7 +13,7 @@ export class IconLabel implements ClickableLabel {
     private readonly closed: boolean;
     private readonly clickListeners: ClickListener[];
 
-    private static textMeasureCtx: CanvasRenderingContext2D | null;
+    private static textMeasureCtx: CanvasRenderingContext2D | null | undefined;
 
     private static readonly RADIUS_PX = 14;
     private static readonly BORDER_PX = 2;
@@ -83,11 +83,11 @@ export class IconLabel implements ClickableLabel {
     }
 
     private measureIcon(icon: string): Point {
-        if (IconLabel.textMeasureCtx === null) {
+        if (!IconLabel.textMeasureCtx) {
             IconLabel.textMeasureCtx = (<canvas /> as HTMLCanvasElement).getContext("2d");
         }
 
-        if (IconLabel.textMeasureCtx !== null) {
+        if (IconLabel.textMeasureCtx) {
             IconLabel.textMeasureCtx.font = IconLabel.ICON_FONT;
             const ctx = IconLabel.textMeasureCtx;
     

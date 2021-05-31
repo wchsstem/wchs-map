@@ -82,7 +82,7 @@ function main() {
     mapData
         .getAllFloors()
         .map(floorData => floorData.number)
-        .map(floor => new LRoomLabel(mapData, sidebar, settings, floor, {
+        .map(floor => new LRoomLabel(mapData, sidebar, settings, logger, floor, {
             minNativeZoom: MIN_ZOOM,
             maxNativeZoom: MAX_ZOOM,
             bounds: BOUNDS
