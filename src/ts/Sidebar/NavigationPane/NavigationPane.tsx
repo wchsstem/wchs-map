@@ -24,7 +24,7 @@ export class NavigationPane extends Pane {
     private pathLayers: Set<LSomeLayerWithFloor>;
     private map: Option<Map>;
 
-    public readonly focus: () => any;
+    public readonly focus: () => unknown;
 
     private fromDefinition: Option<GeocoderDefinition>;
     private toDefinition: Option<GeocoderDefinition>;
@@ -42,7 +42,7 @@ export class NavigationPane extends Pane {
         floorsLayer: LFloors,
         pathLayers: Set<LSomeLayerWithFloor>,
         map: Option<Map>,
-        focus: () => any,
+        focus: () => unknown,
         fromDefinition: Option<GeocoderDefinition>,
         toDefinition: Option<GeocoderDefinition>,
         fromPin: Option<FlooredMarker>,
@@ -327,15 +327,15 @@ export class NavigationPane extends Pane {
         });
 
         pin.on("move", event => {
-            // @ts-ignore: Included in move event
+            // eslint-disable-next-line
+            // @ts-ignore: event does have latlng for move event
             const latLng = event.latlng;
             const pinLocation = new BuildingLocation(latLng, location.getFloor());
 
             NavigationPane.onNewPinLocation(pinLocation, geocoder, setNavigation);
-        })
-            .on("dragend", _event => {
-                NavigationPane.centerPin(pin, getNavigation);
-            });
+        }).on("dragend", _event => {
+            NavigationPane.centerPin(pin, getNavigation);
+        });
 
         NavigationPane.onNewPinLocation(location, geocoder, setNavigation);
         NavigationPane.centerPin(pin, getNavigation);

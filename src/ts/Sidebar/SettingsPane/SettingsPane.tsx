@@ -1,6 +1,6 @@
 import { Pane } from "../Pane";
 import { h } from "../../JSX";
-import { DROPDOWN_DATA, NAME_MAPPING, SETTING_INPUT_TYPE, SETTING_SECTIONS } from "../../config";
+import { NAME_MAPPING, SETTING_INPUT_TYPE, SETTING_SECTIONS } from "../../config";
 import { fromMap, Option, Some, None } from "@nvarner/monads";
 import { genPaneElement, genTextInput } from "../../GenHtml/GenHtml";
 import { Settings } from "../../settings";
@@ -27,31 +27,8 @@ export class SettingsPane extends Pane {
                 settings.addWatcher(name, data => {
                     removeChildren(container);
 
-                    let setting = null;
-                    if (typeof data === "string") {
-                        const inputType = fromMap(SETTING_INPUT_TYPE, name);
-                        const maybeSetting: Option<HTMLElement> = inputType.match({
-                            some: (type) => {
-                                if (type === "dropdown") {
-                                    // Assume exists
-                                    const optionDisplayAndIds = fromMap(DROPDOWN_DATA, name).unwrap();
-                                    return Some(this.createDropdownSetting(name, data, optionDisplayAndIds, NAME_MAPPING));
-                                } else {
-                                    return None;
-                                }
-                            },
-                            none: () => None
-                        });
-                        setting = maybeSetting.match({
-                            some: s => s,
-                            none: () => this.createStringSetting(name, data, NAME_MAPPING)
-                        });
-                    } else if (typeof data === "boolean") {
-                        setting = this.createBooleanSetting(name, data, NAME_MAPPING);
-                    }
-                    if (setting !== null) {
-                        container.appendChild(setting);
-                    }
+                    this.createSettingElementFor(name, data)
+                        .ifSome(setting => container.appendChild(setting));
                 });
                 return container;
             }).forEach(container => categorySettingsContainer.appendChild(container));
@@ -95,14 +72,14 @@ export class SettingsPane extends Pane {
         return "bottom";
     }
 
-    private createSettingFor(name: string, data: unknown): Option<HTMLElement> {
+    private createSettingElementFor(name: string, data: unknown): Option<HTMLElement> {
         let setting: Option<HTMLElement> = None;
         if (typeof data === "string") {
             setting = Some(fromMap(SETTING_INPUT_TYPE, name)
-                .andThen(type => {
+                .andThen(([type, settingData]) => {
                     if (type === "dropdown") {
                         // Assume exists if type is dropdown
-                        const optionDisplayAndIds = DROPDOWN_DATA.get(name)!;
+                        const optionDisplayAndIds = settingData;
                         return Some(this.createDropdownSetting(name, data, optionDisplayAndIds, NAME_MAPPING));
                     } else {
                         return None;

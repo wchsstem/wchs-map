@@ -62,20 +62,18 @@ export const MOVEMENT_SENSITIVITY = 10;
 
 // Settings
 
+/** Indicates the finite set of dropdown options in the order they should be displayed. */
+type DropdownData = [string, string][];
+
+type InputTypeAndData = ["dropdown", DropdownData];
+
 /**
  * Indicates the control type that should be used for a certain setting.
  * Key:
  *  - dropdown: dropdown to choose between the finite set of options specified in `DROPDOWN_DATA`
  */
-export const SETTING_INPUT_TYPE: Map<string, string> = new Map([
-    ["bathroom-gender", "dropdown"]
-]);
-
-/**
- * Indicates the finite set of dropdown options in the order they should be displayed.
- */
-export const DROPDOWN_DATA: Map<string, [string, string][]> = new Map([
-    ["bathroom-gender", [["", "no-selection"], ["Man", "m"], ["Woman", "w"]]]
+export const SETTING_INPUT_TYPE: Map<string, InputTypeAndData> = new Map([
+    ["bathroom-gender", ["dropdown", [["", "no-selection"], ["Man", "m"], ["Woman", "w"]]]]
 ]);
 
 /**
