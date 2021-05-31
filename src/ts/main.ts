@@ -66,7 +66,13 @@ function main() {
     }
 
     const attribution = "<a href='https://www.nathanvarner.com' target='_blank' rel='noopener'>© Nathan Varner</a>";
-    const floors = new LFloors(mapData, "1", { attribution: attribution });
+
+    const resFloors = LFloors.new(mapData, "1", { attribution: attribution });
+    if (resFloors.isErr()) {
+        logger.logError(`Error constructing LFloors: ${resFloors.unwrapErr()}`);
+    }
+    const floors = resFloors.unwrap();
+
     floors.addTo(map);
 
     // Create sidebar

@@ -1,18 +1,21 @@
-import { Some, None, Option, fromMap } from "@nvarner/monads";
+import { Some, None, Option, fromMap, Result, Err, Ok } from "@nvarner/monads";
 
 import "./floors.scss";
 import { MapData } from "../MapData";
-import { Control, DomEvent, imageOverlay, layerGroup, LayerGroup, Util } from "leaflet";
+import { Control, DomEvent, imageOverlay, Layer, layerGroup, LayerGroup, LayerOptions, Util } from "leaflet";
+import { zip } from "../utils";
 
 export class LFloors extends LayerGroup {
-    private allFloors: Map<string, L.LayerGroup>;
+    private readonly allFloors: Map<string, LayerGroup>;
+    private readonly defaultFloorNumber: string;
+
     private control: Option<LFloorsControl>;
-    private defaultFloorNumber: string;
-    private currentFloor: L.LayerGroup;
+
+    private currentFloor: LayerGroup;
     private currentFloorNumber: string;
 
-    // Stores all additions to the map by floor number
-    private additions: Map<string, Set<L.Layer>>;
+    /** Stores all additions to the map by floor number */
+    private additions: Map<string, Set<Layer>>;
 
     /**
      * Creates a new layer that allows for switching between floors of a building.
@@ -20,29 +23,56 @@ export class LFloors extends LayerGroup {
      * @param defaultFloorNumber The number of the floor to start on
      * @param options Any extra Leaflet layer options
      */
-    constructor(map: MapData, defaultFloorNumber: string, options: L.LayerOptions) {
-        super([], options);
+    public static new(map: MapData, defaultFloorNumber: string, options: L.LayerOptions): Result<LFloors, string> {
+        const allFloorData = map
+            .getAllFloors()
+            // Reversing the array means that floors are ordered intuitively in the JSON (1, 2, 3...) and intuitively in
+            // the control (higher floors on top)
+            .reverse()
 
-        this.allFloors = new Map();
-        this.control = None;
+        const floorImages = allFloorData
+            .map(floorData => imageOverlay(floorData.image, map.getBounds(), { pane: "tilePane" }))
+            .map(image => layerGroup([image]));
+        
+        const floorNumbers = allFloorData.map(floorData => floorData.number);
 
-        // Reversing the array means that floors are ordered intuitively in the JSON (1, 2, 3...) and intuitively in the
-        // control (higher floors on top)
-        for (const floorData of map.getAllFloors().reverse()) {
-            const floorMap = imageOverlay(floorData.image, map.getBounds(), { pane: "tilePane" });
-            this.allFloors.set(floorData.number, layerGroup([floorMap]));
+        const allFloors = new Map(zip(floorNumbers, floorImages));
+
+        const resCurrentFloor = fromMap(allFloors, defaultFloorNumber).match({
+            some: floor => Ok(floor),
+            none: Err(`could not find floor ${defaultFloorNumber}`) as Result<LayerGroup, string>
+        });
+        if (resCurrentFloor.isErr()) {
+            return Err(resCurrentFloor.unwrapErr());
         }
+        const currentFloor = resCurrentFloor.unwrap();
 
-        this.defaultFloorNumber = defaultFloorNumber;
-
-        this.currentFloor = this.allFloors.get(this.defaultFloorNumber)!;
-        this.currentFloorNumber = this.defaultFloorNumber;
-        super.addLayer(this.currentFloor);
-
-        this.additions = new Map();
+        return Ok(
+            new LFloors(options, allFloors, None, defaultFloorNumber, currentFloor, defaultFloorNumber, new Map())
+        );
     }
 
-    getFloors(): IterableIterator<string> {
+    private constructor(
+        options: LayerOptions,
+        allFloors: Map<string, L.LayerGroup>,
+        control: Option<LFloorsControl>,
+        defaultFloorNumber: string,
+        currentFloor: L.LayerGroup,
+        currentFloorNumber: string,
+        additions: Map<string, Set<Layer>>
+    ) {
+        super([], options);
+        super.addLayer(currentFloor);
+
+        this.allFloors = allFloors;
+        this.control = control;
+        this.defaultFloorNumber = defaultFloorNumber;
+        this.currentFloor = currentFloor;
+        this.currentFloorNumber = currentFloorNumber;
+        this.additions = additions;
+    }
+
+    public getFloors(): IterableIterator<string> {
         return this.allFloors.keys();
     }
 
@@ -142,7 +172,7 @@ class LFloorsControl extends Control {
     private floors: IterableIterator<string>;
     private defaultFloor: string;
     private setFloorCallback: (floor: string) => void;
-    private floorControls: Map<String, HTMLElement>;
+    private floorControls: Map<string, HTMLElement>;
 
     constructor(floors: IterableIterator<string>, defaultFloor: string, setFloorCallback: (floor: string) => void,
         options?: L.ControlOptions) {
@@ -157,7 +187,7 @@ class LFloorsControl extends Control {
         Util.setOptions(this, options);
     }
 
-    onAdd(map: L.Map): HTMLElement {
+    onAdd(_map: L.Map): HTMLElement {
         return this.regenerate();
     }
 
