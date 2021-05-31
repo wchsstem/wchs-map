@@ -2,15 +2,18 @@ import { LatLng, Point, point, Map as LMap, LeafletMouseEvent } from "leaflet";
 import { ClickableLabel } from "./LabelLayer";
 import { h } from "../../JSX";
 import { ClickListener } from "../LRoomLabelPlugin";
+import { Logger } from "../../LogPane/LogPane";
 
 export class IconLabel implements ClickableLabel {
+    private readonly logger: Logger;
+
     private readonly center: LatLng;
     private readonly icon: string;
     private readonly iconSize: Point;
     private readonly closed: boolean;
     private readonly clickListeners: ClickListener[];
 
-    private static textMeasureCtx: CanvasRenderingContext2D | undefined;
+    private static textMeasureCtx: CanvasRenderingContext2D | null;
 
     private static readonly RADIUS_PX = 14;
     private static readonly BORDER_PX = 2;
@@ -25,10 +28,11 @@ export class IconLabel implements ClickableLabel {
     private static readonly CLOSED_BACKGROUND_COLOR = "#a7a7a7";
     private static readonly CLOSED_ICON_COLOR = "#c93d3d";
 
-    public constructor(center: LatLng, icon: string, closed: boolean) {
+    public constructor(logger: Logger, center: LatLng, icon: string, closed: boolean) {
+        this.logger = logger;
         this.center = center;
         this.icon = icon;
-        this.iconSize = IconLabel.measureIcon(icon);
+        this.iconSize = this.measureIcon(icon);
         this.closed = closed;
         this.clickListeners = [];
     }
@@ -78,17 +82,24 @@ export class IconLabel implements ClickableLabel {
         }
     }
 
-    private static measureIcon(icon: string): Point {
-        if (IconLabel.textMeasureCtx === undefined) {
-            IconLabel.textMeasureCtx = (<canvas /> as HTMLCanvasElement).getContext("2d")!;
-            IconLabel.textMeasureCtx.font = IconLabel.ICON_FONT;
+    private measureIcon(icon: string): Point {
+        if (IconLabel.textMeasureCtx === null) {
+            IconLabel.textMeasureCtx = (<canvas /> as HTMLCanvasElement).getContext("2d");
         }
-        const ctx = IconLabel.textMeasureCtx;
 
-        const metrics = ctx.measureText(icon);
-        return point(
-            metrics.width,
-            metrics.actualBoundingBoxAscent
-        );
+        if (IconLabel.textMeasureCtx !== null) {
+            IconLabel.textMeasureCtx.font = IconLabel.ICON_FONT;
+            const ctx = IconLabel.textMeasureCtx;
+    
+            const metrics = ctx.measureText(icon);
+            return point(
+                metrics.width,
+                metrics.actualBoundingBoxAscent
+            );
+        } else {
+            // TODO: Tell user to use reasonable browser
+            this.logger.logError("cannot get 2d canvas context in IconLabel");
+            return point(0, 0);
+        }
     }
 }

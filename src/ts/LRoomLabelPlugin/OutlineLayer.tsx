@@ -3,6 +3,7 @@ import RBush, { BBox } from "rbush/rbush";
 import { h } from "../JSX";
 import { ClickListener } from "./LRoomLabelPlugin";
 import pointInPolygon from "point-in-polygon";
+import { Logger } from "../LogPane/LogPane";
 
 export interface OutlineLayerOptions extends GridLayerOptions {
     outlines: Outline[],
@@ -14,12 +15,14 @@ export interface OutlineLayerOptions extends GridLayerOptions {
 export class OutlineLayer extends GridLayer {
     private readonly outlines: RBush<Outline>;
     private readonly tileCache: Map<string, HTMLElement>;
+    private readonly logger: Logger;
 
-    public constructor(options: OutlineLayerOptions) {
+    public constructor(options: OutlineLayerOptions, logger: Logger) {
         super(options);
         this.outlines = new RBush();
         this.outlines.load(options.outlines);
         this.tileCache = new Map();
+        this.logger = logger;
     }
 
     protected createTile(coords: Coords): HTMLElement {
@@ -31,17 +34,22 @@ export class OutlineLayer extends GridLayer {
         const tileSize = this.getTileSize();
 
         const tile = <canvas width={tileSize.x} height={tileSize.y} /> as HTMLCanvasElement;
-        const ctx = tile.getContext("2d")!;
-        ctx.fillStyle = "rgba(125, 181, 52, 0.2)";
+        const ctx = tile.getContext("2d");
+        if (ctx !== null) {
+            ctx.fillStyle = "rgba(125, 181, 52, 0.2)";
 
-        const tileTopLeftPoint = coords.scaleBy(tileSize);
-        const tileBBox = this.tileBBox(coords, tileSize);
+            const tileTopLeftPoint = coords.scaleBy(tileSize);
+            const tileBBox = this.tileBBox(coords, tileSize);
 
-        tile.setAttribute("data-bbox", JSON.stringify(tileBBox));
+            tile.setAttribute("data-bbox", JSON.stringify(tileBBox));
 
-        const renderableOutlines = this.outlines.search(tileBBox);
-        for (const outline of renderableOutlines) {
-            outline.render(ctx, latLng => this._map.project(latLng, coords.z).subtract(tileTopLeftPoint));
+            const renderableOutlines = this.outlines.search(tileBBox);
+            for (const outline of renderableOutlines) {
+                outline.render(ctx, latLng => this._map.project(latLng, coords.z).subtract(tileTopLeftPoint));
+            }
+        } else {
+            // TODO: Tell user to use reasonable browser
+            this.logger.logError("cannot get 2d canvas context in OutlineLayer");
         }
 
         this.tileCache.set(JSON.stringify(coords), tile);
@@ -49,7 +57,7 @@ export class OutlineLayer extends GridLayer {
     }
 
     public getEvents(): { [name: string]: LeafletEventHandlerFn } {
-        const events = super.getEvents!();
+        const events = super.getEvents ? super.getEvents() : {};
         // Prevent layers from being invalidated after panning
         delete events["viewprereset"];
         events["click"] = e => {

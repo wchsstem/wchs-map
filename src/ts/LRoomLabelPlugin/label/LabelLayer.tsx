@@ -2,6 +2,7 @@ import { fromMap } from "@nvarner/monads";
 import { Coords, GridLayer, GridLayerOptions, LatLng, LatLngBounds, LeafletEventHandlerFn, LeafletMouseEvent, Map as LMap, Point, point, PointExpression } from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
 import { h } from "../../JSX";
+import { Logger } from "../../LogPane/LogPane";
 import { ClickListener } from "../LRoomLabelPlugin";
 
 /**
@@ -23,6 +24,8 @@ export interface LabelLayerOptions extends GridLayerOptions {
 }
 
 export class LabelLayer extends GridLayer {
+    private readonly logger: Logger;
+
     private readonly labels: Label[];
     private readonly visibleLabels: Map<number, VisibleLabels>;
     private readonly tileCache: Map<string, HTMLElement>;
@@ -30,9 +33,10 @@ export class LabelLayer extends GridLayer {
     public static readonly FONT = "12px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif";
     public static readonly LABEL_MIN_SPACING_PX = 3;
 
-    public constructor(options: LabelLayerOptions) {
+    public constructor(logger: Logger, options: LabelLayerOptions) {
         super(options);
 
+        this.logger = logger;
         this.labels = options.labels;
         this.visibleLabels = new Map();
         this.tileCache = new Map();
@@ -48,27 +52,31 @@ export class LabelLayer extends GridLayer {
 
         const pixelRatio = devicePixelRatio ?? 1;
         const tile = <canvas width={tileSize.x * pixelRatio} height={tileSize.y * pixelRatio} /> as HTMLCanvasElement;
-        const ctx = tile.getContext("2d")!;
-        ctx.scale(pixelRatio, pixelRatio);
+        const ctx = tile.getContext("2d");
+        if (ctx !== null) {
+            ctx.scale(pixelRatio, pixelRatio);
 
-        ctx.font = LabelLayer.FONT;
+            ctx.font = LabelLayer.FONT;
 
-        const tileTopLeftPoint = coords.scaleBy(tileSize);
+            const tileTopLeftPoint = coords.scaleBy(tileSize);
 
-        const tileCenterPoint = coords.add(point(0.5, 0.5)).scaleBy(tileSize);
-        const tileCenter = this._map.unproject(tileCenterPoint, coords.z);
+            const tileCenterPoint = coords.add(point(0.5, 0.5)).scaleBy(tileSize);
+            const tileCenter = this._map.unproject(tileCenterPoint, coords.z);
 
-        if (!this.visibleLabels.has(coords.z)) {
-            this.visibleLabels.set(coords.z, new VisibleLabels(this.labels, coords.z, this._map));
-        }
-        const visibleLabels = this.visibleLabels.get(coords.z)!;
+            const visibleLabels =
+                this.visibleLabels.get(coords.z) ?? new VisibleLabels(this.labels, coords.z, this._map);
+            this.visibleLabels.set(coords.z, visibleLabels);
 
-        const renderableLabels = visibleLabels.getLabels(tileSize, tileCenter);
-        for (const label of renderableLabels) {
-            const latLng = label.getCenter();
-            const point = this._map.project(latLng, coords.z);
-            const canvasPoint = point.subtract(tileTopLeftPoint);
-            label.render(ctx, canvasPoint);
+            const renderableLabels = visibleLabels.getLabels(tileSize, tileCenter);
+            for (const label of renderableLabels) {
+                const latLng = label.getCenter();
+                const point = this._map.project(latLng, coords.z);
+                const canvasPoint = point.subtract(tileTopLeftPoint);
+                label.render(ctx, canvasPoint);
+            }
+        } else {
+            // TODO: Tell user to use reasonable browser
+            this.logger.logError("cannot get 2d canvas context in LabelLayer");
         }
 
         this.tileCache.set(JSON.stringify(coords), tile);
@@ -76,7 +84,7 @@ export class LabelLayer extends GridLayer {
     }
 
     public getEvents(): { [name: string]: LeafletEventHandlerFn } {
-        const events = super.getEvents!();
+        const events = super.getEvents ? super.getEvents() : {};
         // Prevent layers from being invalidated after panning
         delete events["viewprereset"];
         events["click"] = e => {
