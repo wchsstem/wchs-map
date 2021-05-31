@@ -6,11 +6,12 @@
   "scripts": {
     "compileMapJson": "compile_map_json src/data/map.json src/data/map_compiled.json",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint .",
-    "build": "lint && rollup -c",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --noEmit --strict --noFallthroughCasesInSwitch",
+    "build": "rollup -c",
     "serve-build": "rollup -c && npx serve dist",
     "watch": "rollup -c rollup.dev.config.js -w",
-    "check": "tsc --noEmit --strict --noFallthroughCasesInSwitch",
+    "check": "typecheck && lint",
     "doc": "typedoc --out docs --includeVersion src/ts/*"
   },
   "keywords": [],
