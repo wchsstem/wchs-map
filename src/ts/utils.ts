@@ -94,6 +94,38 @@ export function extractResult<T, E>(a: Result<T, E>[]): Result<T[], E> {
     })), Ok([] as T[]) as Result<T[], E>);
 }
 
+/**
+ * Due to TypeScript's lack of something like Rust's `?` operator, working with `Result`s can be cumbersome. This
+ * function converts `Result`s into something like Go's error handling paradigm, which is at least more concise and type
+ * safe than a naive TypeScript-Result paradigm.
+ * 
+ * ## Example
+ * ```typescript
+ * const resultRandom: Result<number, string> = maybeRandom();
+ * 
+ * const randErr = goRes(resultRandom, "could not get random number");
+ * if (randErr[1] !== null) { return Err(randErr[1]); }
+ * const rand: number = randErr[0];
+ * ```
+ * or preferably, simply
+ * ```typescript
+ * const randErr = goRes(maybeRandom(), "could not get random number");
+ * if (randErr[1] !== null) { return Err(randErr[1]); }
+ * const rand = randErr[0];
+ * ``` 
+ * 
+ * @param a Result to Go-ify
+ * @param errorMessage Error message prefix to use in case of `Err`
+ * @returns If `a` is `Ok(something)`, returns `[something, null]`. If `a` is `Err(error)`, returns
+ * `[null, errorMessage + error]`.
+ */
+export function goRes<T, U>(a: Result<T, U>, errorMessage = ""): [T, null] | [null, string] {
+    return a.match<[T, null] | [null, string]>({
+        ok: value => [value, null],
+        err: error => [null, `${errorMessage}${error}`]
+    });
+}
+
 // Object
 
 /**

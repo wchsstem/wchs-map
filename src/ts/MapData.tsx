@@ -9,7 +9,7 @@ import { BuildingLocation } from "./BuildingLocation";
 
 import { h } from "./JSX";
 import { circle, divIcon, LatLng, marker, polyline } from "leaflet";
-import { extractOption, flatten, t, zip, zipInto } from "./utils";
+import { extractOption, flatten, goRes, t, zip, zipInto } from "./utils";
 import { STAIR_WEIGHT } from "./config";
 
 type Floor = {
@@ -20,7 +20,7 @@ type Floor = {
 /**
  * JSON representation of a vertex in the navigation graph
  */
-type JsonVertex = {
+export type JsonVertex = {
     floor: string,
     location: [number, number],
     tags: VertexTag[]
@@ -84,13 +84,14 @@ export class MapData {
 
     public static new(mapData: JsonMap, bounds: L.LatLngBounds): Result<MapData, string> {
         const vertexStringToId = MapData.createVertexNameMapping(mapData.vertices);
-        const graph = MapData.navigationGraph(mapData.vertices, mapData.edges, vertexStringToId);
 
-        const resRooms = MapData.roomNumberMapping(mapData.rooms, vertexStringToId, graph);
-        if (resRooms.isErr()) {
-            return Err(resRooms.unwrapErr());
-        }
-        const rooms = resRooms.unwrap();
+        const graphErr = goRes(MapData.navigationGraph(mapData.vertices, mapData.edges, vertexStringToId));
+        if (graphErr[1] !== null) { return Err(graphErr[1]); }
+        const graph = graphErr[0];
+
+        const roomsErr = goRes(MapData.roomNumberMapping(mapData.rooms, vertexStringToId, graph));
+        if (roomsErr[1] !== null) { return Err(roomsErr[1]); }
+        const rooms = roomsErr[0];
 
         const edges = mapData.edges.map(([from, to, directed]) => t(from, to, !!directed));
 
@@ -127,29 +128,79 @@ export class MapData {
      * Create the navigation graph for a map
      * @param jsonVertices JSON vertex data
      * @param jsonEdges JSON edge data
-     * @param vertexStringToId Mapping from vertex string names to integer IDs
+     * @param vertexNameToId Mapping from vertex string names to integer IDs
      * @returns Navigation graph for the map
      */
     private static navigationGraph(
         jsonVertices: JsonVertices,
         jsonEdges: JsonEdge[],
-        vertexStringToId: Map<string, number>
-    ): Graph<number, Vertex> {
-        const verticesArray = Object.entries(jsonVertices)
-            .map(([name, _vertex]) => t(name, vertexStringToId.get(name)!))
-            .map(([name, id]) => t(id, new Vertex(jsonVertices[name])));
-        const vertices = new Map(verticesArray);
+        vertexNameToId: Map<string, number>
+    ): Result<Graph<number, Vertex>, string> {
+        const verticesErr = goRes(this.navigationGraphVertices(jsonVertices, vertexNameToId));
+        if (verticesErr[1] !== null) { return Err(verticesErr[1]); }
+        const vertices = verticesErr[0];
 
+        const edgesErr = goRes(this.navigationGraphEdges(jsonEdges, vertexNameToId, vertices));
+        if (edgesErr[1] !== null) { return Err(edgesErr[1]); }
+        const edges = edgesErr[0];
+
+        return Ok(new Graph<number, Vertex>(vertices, edges));
+    }
+
+    private static navigationGraphVertices(
+        jsonVertices: JsonVertices,
+        vertexNameToId: Map<string, number>
+    ): Result<Map<number, Vertex>, string> {
+        const optVertexIds = extractOption(Object.keys(jsonVertices).map(name => fromMap(vertexNameToId, name)));
+        if (optVertexIds.isNone()) {
+            return Err("unknown vertex while constructing navigation graph vertices");
+        }
+        const vertexIds = optVertexIds.unwrap();
+
+        const vertexObjects = Object.values(jsonVertices).map(jsonVertex => new Vertex(jsonVertex));
+
+        return Ok(new Map(zip(vertexIds, vertexObjects)));
+    }
+
+    private static navigationGraphEdges(
+        jsonEdges: JsonEdge[],
+        vertexNameToId: Map<string, number>,
+        vertices: Map<number, Vertex>
+    ): Result<[number, number, number, boolean][], string> {
         const edgeDirected = jsonEdges.map(([_from, _to, directed]) => directed ?? false);
-        const edgeEndpointIds = jsonEdges
-            .map(([from, to, _directed]) =>
-                t(vertexStringToId.get(from)!, vertexStringToId.get(to)!));
-        const edgeWeights = edgeEndpointIds
-            .map(([from, to]) => t(vertices.get(from)!, vertices.get(to)!))
-            .map(([from, to]) => from.getLocation().distanceTo(to.getLocation()).unwrapOr(STAIR_WEIGHT));
-        const edges = zipInto(zipInto(edgeEndpointIds, edgeWeights), edgeDirected);
 
-        return new Graph<number, Vertex>(vertices, edges);
+        const optEdgeFromIds = extractOption(jsonEdges.map(([from, _to, _directed]) => fromMap(vertexNameToId, from)));
+        if (optEdgeFromIds.isNone()) {
+            return Err("unknown from vertex name while constructing navigation graph edges");
+        }
+        const edgeFromIds = optEdgeFromIds.unwrap();
+
+        const optEdgeToIds = extractOption(jsonEdges.map(([_from, to, _directed]) => fromMap(vertexNameToId, to)));
+        if (optEdgeToIds.isNone()) {
+            return Err("unknown to vertex name while constructing navigation graph edges");
+        }
+        const edgeToIds = optEdgeToIds.unwrap();
+
+        const edgeEndpointIds = zip(edgeFromIds, edgeToIds);
+
+        const optEdgeFromVertices = extractOption(edgeFromIds.map(from => fromMap(vertices, from)));
+        if (optEdgeFromVertices.isNone()) {
+            return Err("unknown from vertex while constructing navigation graph edges");
+        }
+        const edgeFromVertices = optEdgeFromVertices.unwrap();
+
+        const optEdgeToVertices = extractOption(edgeToIds.map(to => fromMap(vertices, to)));
+        if (optEdgeFromVertices.isNone()) {
+            return Err("unknown to vertex while constructing navigation graph edges");
+        }
+        const edgeToVertices = optEdgeToVertices.unwrap();
+
+        const edgeEndpointVertices = zip(edgeFromVertices, edgeToVertices);
+
+        const edgeWeights = edgeEndpointVertices
+            .map(([from, to]) => from.getLocation().distanceTo(to.getLocation()).unwrapOr(STAIR_WEIGHT));
+
+        return Ok(zipInto(zipInto(edgeEndpointIds, edgeWeights), edgeDirected));
     }
 
     /**
@@ -230,10 +281,10 @@ export class MapData {
     }
 
     /**
-     * Get the room with the specified room number
+     * Get the room with the specified room number if it exists
      */
-    public getRoom(roomNumber: string): Room {
-        return this.rooms.get(roomNumber)!;
+    public getRoom(roomNumber: string): Option<Room> {
+        return fromMap(this.rooms, roomNumber);
     }
 
     public getAllRooms(): Room[] {
@@ -272,7 +323,9 @@ export class MapData {
 
         const results = this.definitionDijkstra(src);
         const pathOptions = flatten(results
-            .map(([dist, prev, exit]) => destEntrances.map(entrance => t(dist.get(entrance)!, prev, entrance, exit))));
+            .map(([dist, prev, exit]) =>
+                destEntrances.map(entrance => t(fromMap(dist, entrance).unwrapOr(Infinity), prev, entrance, exit))
+            ));
         if (pathOptions.length === 0) {
             // Either src or dest had no entrances
             return None;
@@ -297,7 +350,9 @@ export class MapData {
     public findBestPathLength(src: GeocoderDefinition, dest: GeocoderDefinition): Option<number> {
         const destEntrances = this.entranceVertexIds(dest);
         const results = this.definitionDijkstra(src);
-        const distances = flatten(results.map(([dist]) => destEntrances.map(entrance => dist.get(entrance)!)));
+        const distances = flatten(results.map(
+            ([dist]) => destEntrances.map(entrance => fromMap(dist, entrance).unwrapOr(Infinity))
+        ));
         return distances.length > 0 ? Some(Math.min(...distances)) : None;
     }
 
