@@ -7,11 +7,11 @@
     "compileMapJson": "compile_map_json src/data/map.json src/data/map_compiled.json",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --max-warnings 0",
-    "typecheck": "tsc --noEmit --strict --noFallthroughCasesInSwitch",
+    "check": "tsc --noEmit --strict --noFallthroughCasesInSwitch",
+    "prebuild-check": "npm run lint",
     "build": "rollup -c",
     "serve-build": "rollup -c && npx serve dist",
     "watch": "rollup -c rollup.dev.config.js -w",
-    "check": "typecheck && lint",
     "doc": "typedoc --out docs --includeVersion src/ts/*"
   },
   "keywords": [],
