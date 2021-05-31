@@ -16,6 +16,9 @@
         "@typescript-eslint"
     ],
     "rules": {
-        "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_|^h$" }]
+        "@typescript-eslint/no-unused-vars": ["warn", {
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^h$"
+        }]
     }
 }
