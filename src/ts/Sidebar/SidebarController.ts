@@ -86,19 +86,19 @@ export class Sidebar {
         });
     }
 
-    protected addPane(pane: Pane) {
+    protected addPane(pane: Pane): void {
         this.sidebar.addPanel(pane.getPanelOptions());
     }
 
-    protected removePane(pane: Pane) {
+    protected removePane(pane: Pane): void {
         this.sidebar.removePanel(pane.getPaneId());
     }
 
-    protected openPane(pane: Pane) {
+    protected openPane(pane: Pane): void {
         this.sidebar.open(pane.getPaneId());
     }
 
-    public openInfo(definition: GeocoderDefinition) {
+    public openInfo(definition: GeocoderDefinition): void {
         this.infoPane.ifSome(infoPane => this.removePane(infoPane));
         const infoPane = new InfoPane(
             definition,
@@ -110,7 +110,7 @@ export class Sidebar {
         this.infoPane = Some(infoPane);
     }
 
-    public openInfoForName(geocoder: Geocoder, name: string) {
+    public openInfoForName(geocoder: Geocoder, name: string): void {
         geocoder.getDefinitionFromName(name).ifSome(location => this.openInfo(location));
     }
 

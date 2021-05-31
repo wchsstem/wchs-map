@@ -4,7 +4,7 @@ import "../../node_modules/leaflet/dist/leaflet.css";
 import "../assets/fontawesome/all.min.css";
 
 import { Settings } from "./settings";
-import { MapData } from "./MapData";
+import { JsonMap, MapData } from "./MapData";
 import { LFloors, LSomeLayerWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../style.scss";
@@ -45,8 +45,8 @@ function main() {
     });
     map.fitBounds(BOUNDS.pad(0.05));
 
-    // @ts-ignore: JSON works fine here
-    const resMapData = MapData.new(mapDataJson, BOUNDS);
+    // mapDataJson is actually valid as JsonMap, but TS can't tell (yet?), so the unknown hack is needed
+    const resMapData = MapData.new(mapDataJson as unknown as JsonMap, BOUNDS);
     if (resMapData.isErr()) {
         logger.logError(`Error constructing MapData: ${resMapData.unwrapErr()}`);
     }

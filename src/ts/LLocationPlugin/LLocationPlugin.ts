@@ -66,7 +66,7 @@ export class LLocation extends LayerGroup {
         accuracyRadius: Option<number>
     ): void {
         switch (newState) {
-            case PositionState.NearChurchill:
+            case PositionState.NearChurchill: {
                 this.positionMarker.ifSome(positionMarker => super.removeLayer(positionMarker));
                 const positionMarker = new PositionMarker(position.unwrap(), accuracyRadius.unwrap());
                 this.positionMarker = Some(positionMarker);
@@ -75,7 +75,7 @@ export class LLocation extends LayerGroup {
                 }
                 // When near Churchill, location is available
                 this.control.onLocationAvailable();
-                break;
+            } break;
             case PositionState.NotNearChurchill:
                 this.positionMarker.ifSome(positionMarker => super.removeLayer(positionMarker));
                 // When not near Churchill, location is not available
@@ -119,7 +119,7 @@ export class LLocation extends LayerGroup {
 }
 
 class PositionMarker extends LayerGroup {
-    constructor(position: L.LatLng, accuracyRadius: number, unsure: boolean=false) {
+    constructor(position: L.LatLng, accuracyRadius: number, unsure = false) {
         const color = unsure ? "#bcbcbc" : "#3388ff";
 
         const positionPoint = circleMarker(position, {

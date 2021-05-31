@@ -4,9 +4,11 @@ import { deepCopy } from "./utils";
 
 export class LocationOnlyDefinition implements GeocoderDefinition {
     private readonly location: BuildingLocationWithEntrances;
+    private readonly alternateNames: string[];
 
-    public constructor(location: BuildingLocationWithEntrances) {
+    public constructor(location: BuildingLocationWithEntrances, alternateNames: string[] = []) {
         this.location = location;
+        this.alternateNames = alternateNames;
     }
     
     public getLocation(): BuildingLocationWithEntrances {
@@ -17,20 +19,24 @@ export class LocationOnlyDefinition implements GeocoderDefinition {
         return "";
     }
     public getAlternateNames(): string[] {
-        return [];
+        return this.alternateNames;
     }
+
     public getDescription(): string {
         return "";
     }
+
     public getTags(): DefinitionTag[] {
         return [];
     }
-    public hasTag(tag: DefinitionTag): boolean {
+
+    public hasTag(_tag: DefinitionTag): boolean {
         return false;
     }
 
-    // TODO: Better implementation
     public extendedWithAlternateName(name: string): GeocoderDefinition {
-        return deepCopy(this);
+        const newNames = deepCopy(this.alternateNames);
+        newNames.push(name);
+        return new LocationOnlyDefinition(this.location, newNames);
     }
 }

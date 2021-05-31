@@ -171,7 +171,7 @@ declare module "rbush/rbush" {
          * Note that the `maxEntries` option from the constructor must be the same
          * in both trees for export/import to work properly.
          */
-        toJSON(): any;
+        toJSON(): unknown;
 
         /**
          * Imports previously exported data into the tree (i.e., data that was
@@ -187,6 +187,6 @@ declare module "rbush/rbush" {
          *
          * @param data The previously exported JSON data.
          */
-        fromJSON(data: any): RBush<T>;
+        fromJSON(data: unknown): RBush<T>;
     }
 }

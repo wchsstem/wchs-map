@@ -22,14 +22,15 @@ export class Settings {
     }
 
     /** Loads data saved from a previous page load into this instance by the prefix, if data is available */
-    protected loadSavedData() {
+    protected loadSavedData(): void {
         if (typeof(Storage) !== "undefined") {
             for (const key in window.localStorage) {
                 if (key.startsWith(`${this.prefix}_`)) {
                     const unprefixedKey = key.substring(this.prefix.length + 1);
-                    // @ts-ignore: Must exist in localStorage, so not null
-                    const data: string = window.localStorage.getItem(key);
-                    this.updateData(unprefixedKey, JSON.parse(data));
+                    const data = window.localStorage.getItem(key);
+                    if (data !== null) {
+                        this.updateData(unprefixedKey, JSON.parse(data));
+                    }
                 }
             }
         }
@@ -50,7 +51,7 @@ export class Settings {
      * @param watcher Function to call when data changes
      * @param callOnAdd If true, calls the watcher immediately after registering it
      */
-    public addWatcher(dataId: string, watcher: (newValue: unknown) => void, callOnAdd: boolean = true): void {
+    public addWatcher(dataId: string, watcher: (newValue: unknown) => void, callOnAdd = true): void {
         const watchersForId = fromMap(this.watchers, dataId).unwrapOr([]);
         watchersForId.push(watcher);
         this.watchers.set(dataId, watchersForId);

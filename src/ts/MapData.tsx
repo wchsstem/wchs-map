@@ -66,7 +66,7 @@ type JsonRooms = { [roomNumber: string]: JsonRoom };
 /**
  * JSON representation of the entire map
  */
-type JsonMap = {
+export type JsonMap = {
     floors: Floor[],
     vertices: JsonVertices,
     edges: JsonEdge[],

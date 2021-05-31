@@ -14,21 +14,18 @@ const toCache = [
     "/assets/app-icon/favicon_v1.ico"
 ];
 
-self.addEventListener("install", e => {
-    // @ts-ignore: Valid for SW install event
+self.oninstall = e => {
     e.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
                 return cache.addAll(toCache);
             })
     );
-});
+};
 
-self.addEventListener("fetch", e => {
-    // @ts-ignore: Valid for fetch event
+self.onfetch = e => {
     const request: Request = e.request;
 
-    // @ts-ignore: Valid for SW install event
     e.respondWith(async function() {
         return await caches.match(request)
             .then((response) => {
@@ -49,11 +46,10 @@ self.addEventListener("fetch", e => {
                 });
             });
     }());
-});
+};
 
-self.addEventListener("activate", (e) => {
+self.onactivate = e => {
     // Clear all old caches when a new service worker takes over
-    // @ts-ignore: Valid for SW install event
     e.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
@@ -62,4 +58,4 @@ self.addEventListener("activate", (e) => {
             )
         })
     )
-});
+};

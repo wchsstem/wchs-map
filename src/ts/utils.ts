@@ -108,15 +108,19 @@ export function deepCopy<T>(a: T): T {
     }
 
     if (Array.isArray(a)) {
+        // eslint-disable-next-line
         // @ts-ignore: TS can't tell that each element will be the same type, so this is okay
         return a.map(entry => deepCopy(entry));
     } else if (a !== null && a !== undefined && typeof a === "object") {
         return Object.getOwnPropertyNames(a)
             .reduce((copy, property) => {
-                const descriptor = Object.getOwnPropertyDescriptor(a, property)!;
-                Object.defineProperty(copy, property, descriptor);
-                // @ts-ignore: TS can't tell that indexing here is okay and the types will be the same
-                copy[property] = deepCopy(a[property]);
+                const descriptor = Object.getOwnPropertyDescriptor(a, property);
+                if (descriptor !== undefined) {
+                    Object.defineProperty(copy, property, descriptor);
+                    // eslint-disable-next-line
+                    // @ts-ignore: TS can't tell that indexing here is okay and the types will be the same
+                    copy[property] = deepCopy(a[property]);
+                }
                 return copy;
             }, Object.create(Object.getPrototypeOf(a)));
     } else {
@@ -124,12 +128,27 @@ export function deepCopy<T>(a: T): T {
     }
 }
 
+/**
+ * Determine if a key is present in an object. Allows TypeScript to permit indexing into objects.
+ * 
+ * Example:
+ * ```typescript
+ * const a = { hello: "world" };
+ * if (has(a, "hello")) {
+ *     console.log(a["hello"]); // No errors!
+ * }
+ * ```
+ */
+export function has<T>(object: T, key: PropertyKey): key is keyof T {
+    return key in object;
+}
+
 // DOM
 
 /**
  * Removes all children of an element.
  */
-export function removeChildren(element: HTMLElement) {
+export function removeChildren(element: HTMLElement): void {
     while (element.lastChild !== null) {
         element.removeChild(element.lastChild);
     }
@@ -140,7 +159,7 @@ export function updateWithResults(
     results: GeocoderSuggestion[],
     resultContainer: HTMLElement,
     onClickResult: (result: GeocoderSuggestion) => void
-) {
+): void {
     if (query === "") {
         resultContainer.classList.add("hidden");
         return;
