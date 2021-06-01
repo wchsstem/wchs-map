@@ -1,21 +1,86 @@
 image: node:12
 
-pages:
-  stage: deploy
+stages:
+  - install_deps
+  - build
+  - check
+  - deploy
+
+# install_deps stage
+install_npm_deps:
+  stage: install_deps
+  needs: []
   script:
-  - wget https://gitlab.com/wchs-map/indoor-map-lib/-/jobs/artifacts/master/raw/target/release/compile_map_json?job=build -O compile_map_json
-  - chmod +x compile_map_json
-  - export PATH="$PATH:./"
-  - npm install --unsafe-perm=true --allow-root --loglevel verbose
-  - npm run compileMapJson
-  - npm run prebuild-check
-  - npm run build
-  - mv dist public
-  - apt-get update -qq && apt-get install -y -qq sshpass
-  - export SSHPASS=$USER_PASS
-  - sshpass -e scp -o stricthostkeychecking=no -r public/* gitlab@54.39.146.11:/var/www/wchs.nvarner.me/public_html
+    - npm install --unsafe-perm=true --allow-root --loglevel verbose
   artifacts:
     paths:
-    - public
+      - node_modules/
+
+install_compile_map_json:
+  stage: install_deps
+  needs: []
+  script:
+    - wget https://gitlab.com/wchs-map/indoor-map-lib/-/jobs/artifacts/master/raw/target/release/compile_map_json?job=build -O compile_map_json
+    - chmod +x compile_map_json
+  artifacts:
+    paths:
+      - compile_map_json
+
+# build stage
+compile_map_json:
+  stage: build
+  needs: [install_npm_deps, install_compile_map_json]
+  script:
+    - export PATH="$PATH:./"
+    - npm run compileMapJson
+  artifacts:
+    paths:
+      - src/data/map_compiled.json
+
+build:
+  stage: build
+  needs: [install_npm_deps, compile_map_json]
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+
+doc:
+  stage: build
+  needs: [install_npm_deps]
+  script:
+    - npm run doc
+  artifacts:
+    paths:
+      - docs/
+
+# Check stage
+lint:
+  stage: check
+  needs: [install_npm_deps]
+  script:
+    - npm run lint
+
+# Deploy stage
+deploy-app:
+  stage: deploy
+  script:
+  - apt-get update -qq && apt-get install -y -qq sshpass
+  - export SSHPASS=$USER_PASS
+  - sshpass -e scp -o stricthostkeychecking=no -r dist/* gitlab@54.39.146.11:/var/www/wchs.nvarner.me/public_html
+  artifacts:
+    paths:
+      - dist
   only:
-  - master
+    - master
+
+deploy-docs:
+  stage: deploy
+  script:
+    - mv docs/ public/
+  artifacts:
+    paths:
+      - public/
+  only:
+    - master

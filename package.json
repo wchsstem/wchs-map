@@ -8,7 +8,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --max-warnings 0",
     "check": "tsc --noEmit --strict --noFallthroughCasesInSwitch",
-    "prebuild-check": "npm run lint",
     "build": "rollup -c",
     "serve-build": "rollup -c && npx serve dist",
     "watch": "rollup -c rollup.dev.config.js -w",
