@@ -2,6 +2,7 @@ image: node:12
 
 stages:
   - install_deps
+  - prebuild
   - build
   - check
   - deploy
@@ -26,9 +27,9 @@ install_compile_map_json:
     paths:
       - compile_map_json
 
-# build stage
+# prebuild stage
 compile_map_json:
-  stage: build
+  stage: prebuild
   needs: [install_npm_deps, install_compile_map_json]
   script:
     - export PATH="$PATH:./"
@@ -37,6 +38,7 @@ compile_map_json:
     paths:
       - src/data/map_compiled.json
 
+# build stage
 build:
   stage: build
   needs: [install_npm_deps, compile_map_json]
