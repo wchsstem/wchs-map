@@ -11,7 +11,7 @@
     "build": "rollup -c",
     "serve-build": "rollup -c && npx serve dist",
     "watch": "rollup -c rollup.dev.config.js -w",
-    "doc": "typedoc --out docs --includeVersion --exclude 'src/data/map_compiles.json' --externalPattern 'node_modules/**/*.ts' --excludeExternals src/ts/*"
+    "doc": "typedoc --out docs --includeVersion src/ts/*"
   },
   "keywords": [],
   "author": "",

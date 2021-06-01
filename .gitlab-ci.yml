@@ -50,7 +50,8 @@ build:
 
 doc:
   stage: build
-  needs: [install_npm_deps]
+  # tsdoc freaks out if it can't find map_compiled.json
+  needs: [install_npm_deps, compile_map_json]
   script:
     - npm run doc
   artifacts:
