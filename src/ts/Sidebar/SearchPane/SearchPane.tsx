@@ -18,7 +18,7 @@ import { ClosestEcButton } from "./ClosestEcButton";
 import { ClosestBscButton } from "./ClosestBscButton";
 import { Some } from "@nvarner/monads";
 import { Sidebar } from "../SidebarController";
-import { Settings } from "../../settings";
+import { ISettings } from "../../settings/ISettings";
 
 export class SearchPane extends Pane {
     private readonly pane: HTMLElement;
@@ -30,7 +30,7 @@ export class SearchPane extends Pane {
     public constructor(
         geocoder: Geocoder,
         locator: Locator,
-        settings: Settings,
+        settings: ISettings,
         mapData: MapData,
         floorsLayer: LFloors,
         sidebarController: Sidebar,

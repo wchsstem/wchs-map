@@ -3,12 +3,11 @@ import * as mapDataJson from "../data/map_compiled.json";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../assets/fontawesome/all.min.css";
 
-import { Settings } from "./settings";
+import { Settings } from "./settings/Settings";
 import { JsonMap, MapData } from "./MapData";
 import { LFloors, LSomeLayerWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../style.scss";
-import LRoomLabel from "./LRoomLabelPlugin/LRoomLabelPlugin";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "leaflet-sidebar-v2";
 import { LLocation } from "./LLocationPlugin/LLocationPlugin";
@@ -19,16 +18,18 @@ import { Sidebar } from "./Sidebar/SidebarController";
 import { CRS, map as lMap, popup } from "leaflet";
 import { None, Some, Option } from "@nvarner/monads";
 import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
-import { extractResult } from "./utils";
+import { extractResult, goRes } from "./utils";
 import { TextMeasurer } from "./TextMeasurer";
+import { createInjector } from "typed-inject";
+import { ATTRIBUTION } from "./config";
+import { RoomLabelFactory } from "./LRoomLabelPlugin/RoomLabelFactory";
 
 function main() {
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("/serviceWorker.js");
     }
 
-    const settings = defaultSettings();
-    const logger = Logger.new();
+    const logger = new Logger();
 
     // Create map
     const map = lMap("map", {
@@ -47,53 +48,57 @@ function main() {
     map.fitBounds(BOUNDS.pad(0.05));
 
     // mapDataJson is actually valid as JsonMap, but TS can't tell (yet?), so the unknown hack is needed
-    const resMapData = MapData.new(mapDataJson as unknown as JsonMap, BOUNDS);
-    if (resMapData.isErr()) {
-        logger.logError(`Error constructing MapData: ${resMapData.unwrapErr()}`);
+    const mapDataErr = goRes(MapData.new(mapDataJson as unknown as JsonMap, BOUNDS));
+    if (mapDataErr[1] !== null) {
+        logger.logError(`Error constructing MapData: ${mapDataErr[1]}`);
         // TODO: Error handling
         return;
     }
-    const mapData = resMapData.unwrap();
+    const mapData = mapDataErr[0];
 
-    // Create geocoder
-    const geocoder = new Geocoder();
-    mapData.getAllRooms().forEach(room => geocoder.addDefinition(room));
-
-    // Initialize locator
-    const locator = new Locator(logger, settings);
-
-    const resTextMeasurer = TextMeasurer.new();
-    if (resTextMeasurer.isErr()) {
-        logger.logError(`Error constructing text measurer: ${resTextMeasurer.unwrapErr()}`);
+    const floorsErr = goRes(LFloors.new(mapData, "1", { attribution: ATTRIBUTION }));
+    if (floorsErr[1] !== null) {
+        logger.logError(`Error constructing LFloors: ${floorsErr[1]}`);
         // TODO: Error handling
         return;
     }
-    const textMeasurer = resTextMeasurer.unwrap();
-
-    // Add location dot if we might be able to use it
-    if (locator.getCanEverGeolocate()) {
-        const location = new LLocation(locator, settings);
-        location.addTo(map);
-    }
-
-    const attribution = "<a href='https://www.nathanvarner.com' target='_blank' rel='noopener'>© Nathan Varner</a>";
-
-    const resFloors = LFloors.new(mapData, "1", { attribution: attribution });
-    if (resFloors.isErr()) {
-        logger.logError(`Error constructing LFloors: ${resFloors.unwrapErr()}`);
-    }
-    const floors = resFloors.unwrap();
+    const floors = floorsErr[0];
 
     floors.addTo(map);
 
-    // Create sidebar
-    const sidebar = new Sidebar(map, mapData, geocoder, locator, logger, settings, floors);
+    const textMeasurerErr = goRes(TextMeasurer.new());
+    if (textMeasurerErr[1] !== null) {
+        logger.logError(`Error constructing text measurer: ${textMeasurerErr[1]}`);
+        // TODO: Error handling
+        return;
+    }
+    const textMeasurer = textMeasurerErr[0];
+
+    const injector = createInjector()
+        .provideValue("logger", logger)
+        .provideValue("map", map)
+        .provideValue("mapData", mapData)
+        .provideValue("floors", floors)
+        .provideValue("textMeasurer", textMeasurer)
+        .provideFactory("settings", defaultSettings)
+        .provideClass("geocoder", Geocoder)
+        .provideClass("locator", Locator)
+        .provideClass("sidebar", Sidebar);
+
+    const settings = injector.resolve("settings");
+    const locator = injector.resolve("locator");
+
+    // Add location dot if we might be able to use it
+    if (locator.getCanEverGeolocate()) {
+        const location = injector.injectClass(LLocation);
+        location.addTo(map);
+    }
 
     // Create room label layers
     mapData
         .getAllFloors()
         .map(floorData => floorData.number)
-        .map(floor => new LRoomLabel(mapData, sidebar, settings, logger, textMeasurer, floor, {
+        .map(floor => injector.injectClass(RoomLabelFactory).build(floor, {
             minNativeZoom: MIN_ZOOM,
             maxNativeZoom: MAX_ZOOM,
             bounds: BOUNDS

@@ -1,7 +1,7 @@
 import { Coords, GridLayer, GridLayerOptions, LatLng, LatLngBounds, LeafletEventHandlerFn, LeafletMouseEvent, Point, point } from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
 import { h } from "../JSX";
-import { ClickListener } from "./LRoomLabelPlugin";
+import { ClickListener } from "./RoomLabel";
 import pointInPolygon from "point-in-polygon";
 import { Logger } from "../LogPane/LogPane";
 

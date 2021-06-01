@@ -2,11 +2,11 @@ import { None, Option, Some } from "@nvarner/monads";
 import { LatLng } from "leaflet";
 import { MOVEMENT_SENSITIVITY } from "./config";
 import { Logger } from "./LogPane/LogPane";
-import { Settings } from "./settings";
+import { ISettings } from "./settings/ISettings";
 
 export class Locator {
     private readonly logger: Logger;
-    private readonly settings: Settings;
+    private readonly settings: ISettings;
 
     private onUpdateStateHandles: ((
         oldState: PositionState,
@@ -21,7 +21,8 @@ export class Locator {
 
     private readonly canEverGeolocate: boolean;
 
-    public constructor(logger: Logger, settings: Settings) {
+    static inject = ["logger", "settings"] as const;
+    public constructor(logger: Logger, settings: ISettings) {
         this.logger = logger;
         this.settings = settings;
 

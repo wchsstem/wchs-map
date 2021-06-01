@@ -2,6 +2,7 @@ import { Option, fromMap, Some, None } from "@nvarner/monads";
 import { kdTree } from "kd-tree-javascript";
 import MiniSearch from "minisearch";
 import { BuildingLocationWithEntrances } from "./BuildingLocation";
+import { MapData } from "./MapData";
 import { t } from "./utils";
 
 export class GeocoderSuggestion {
@@ -96,7 +97,8 @@ export class Geocoder {
     /** Spatial indices of room center locations, indexed by floor */
     private readonly roomCenterIndices: Map<string, BuildingKDTree>;
 
-    constructor() {
+    static inject = ["mapData"] as const;
+    public constructor(mapData: MapData) {
         this.search = (async () => {
             return new MiniSearch({
                 idField: "getName",
@@ -117,6 +119,8 @@ export class Geocoder {
         this.definitionsByLocation = new Map();
         this.allNames = new Set();
         this.roomCenterIndices = new Map();
+
+        mapData.getAllRooms().forEach(room => this.addDefinition(room));
     }
 
     /**

@@ -1,6 +1,6 @@
 import { LatLng, Point, point, Map as LMap, LeafletMouseEvent } from "leaflet";
 import { ClickableLabel } from "./LabelLayer";
-import { ClickListener } from "../LRoomLabelPlugin";
+import { ClickListener } from "../RoomLabel";
 import { TextMeasurer } from "../../TextMeasurer";
 import { ICON_FONT } from "../../config";
 

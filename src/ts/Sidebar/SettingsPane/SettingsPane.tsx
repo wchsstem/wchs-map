@@ -3,15 +3,15 @@ import { h } from "../../JSX";
 import { NAME_MAPPING, SETTING_INPUT_TYPE, SETTING_SECTIONS } from "../../config";
 import { fromMap, Option, Some, None } from "@nvarner/monads";
 import { genPaneElement, genTextInput } from "../../GenHtml/GenHtml";
-import { Settings } from "../../settings";
+import { ISettings } from "../../settings/ISettings";
 import { removeChildren } from "../../utils";
 
 export class SettingsPane extends Pane {
-    private readonly settings: Settings;
+    private readonly settings: ISettings;
 
     private readonly pane: HTMLElement;
 
-    public constructor(settings: Settings) {
+    public constructor(settings: ISettings) {
         super();
 
         this.settings = settings;

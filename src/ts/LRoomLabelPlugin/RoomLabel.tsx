@@ -11,7 +11,7 @@ import { IconLabel } from "./label/IconLabel";
 import { Outline, OutlineLayer } from "./OutlineLayer";
 import { Sidebar } from "../Sidebar/SidebarController";
 import FontFaceObserver from "fontfaceobserver";
-import { Settings } from "../settings";
+import { ISettings } from "../settings/ISettings";
 import { ICON_FOR_ROOM_TAG, ICON_FOR_VERTEX_TAG } from "../config";
 import { DefinitionTag } from "../Geocoder";
 import { Logger } from "../LogPane/LogPane";
@@ -23,8 +23,8 @@ export interface RoomLabelLayerOptions extends LayerOptions {
     bounds: LatLngBounds
 }
 
-export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloor {
-    private readonly settings: Settings;
+export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
+    private readonly settings: ISettings;
     private readonly logger: Logger;
     private readonly textMeasurer: TextMeasurer;
 
@@ -33,16 +33,17 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     private readonly emergencyLabels: Label[];
     private readonly closedLabels: Label[];
 
-    private floorNumber: string;
+    private readonly floorNumber: string;
+
     private removeWatcher: Option<(newValue: unknown) => void>;
     private labelLayer: LabelLayer | undefined;
 
     private readonly options: RoomLabelLayerOptions;
 
-    constructor(
+    public constructor(
         map: MapData,
         sidebar: Sidebar,
-        settings: Settings,
+        settings: ISettings,
         logger: Logger,
         textMeasurer: TextMeasurer,
         floorNumber: string,
@@ -200,7 +201,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     }
 
     private getRoomLabel(room: Room): Label {
-        const icon = LRoomLabel.getIcon(ICON_FOR_ROOM_TAG, room.getTags());
+        const icon = RoomLabel.getIcon(ICON_FOR_ROOM_TAG, room.getTags());
 
         return icon.match({
             some: icon => {
@@ -214,7 +215,7 @@ export default class LRoomLabel extends LayerGroup implements LSomeLayerWithFloo
     }
 
     private getVertexLabel(vertex: Vertex): Option<Label> {
-        return LRoomLabel.getIcon(ICON_FOR_VERTEX_TAG, vertex.getTags())
+        return RoomLabel.getIcon(ICON_FOR_VERTEX_TAG, vertex.getTags())
             .map(icon => new IconLabel(this.textMeasurer, vertex.getLocation().getXY(), icon, false));
     }
 }

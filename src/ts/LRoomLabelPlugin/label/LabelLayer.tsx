@@ -4,7 +4,7 @@ import RBush, { BBox } from "rbush/rbush";
 import { LABEL_FONT, LABEL_MIN_SPACING_PX } from "../../config";
 import { h } from "../../JSX";
 import { Logger } from "../../LogPane/LogPane";
-import { ClickListener } from "../LRoomLabelPlugin";
+import { ClickListener } from "../RoomLabel";
 
 /**
  * RBush entry representing the LatLang bounding box around a Label

@@ -3,14 +3,14 @@ import { DefinitionTag, Geocoder, GeocoderDefinition } from "../../Geocoder";
 import { LFloors } from "../../LFloorsPlugin/LFloorsPlugin";
 import { Locator } from "../../Locator";
 import { MapData } from "../../MapData";
-import { Settings } from "../../settings";
+import { ISettings } from "../../settings/ISettings";
 import { ClosestDefinitionButton } from "./ClosestDefinitionButton";
 
 export class ClosestBathroomButton extends ClosestDefinitionButton {
     public constructor(
         geocoder: Geocoder,
         locator: Locator,
-        settings: Settings,
+        settings: ISettings,
         mapData: MapData,
         floorsLayer: LFloors,
         onGetClosest: (closest: GeocoderDefinition, starting: BuildingLocation) => void

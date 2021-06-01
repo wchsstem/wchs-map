@@ -14,7 +14,7 @@ import { Pane } from "./Pane";
 import { SearchPane } from "./SearchPane/SearchPane";
 import { InfoPane } from "./InfoPane";
 import { SettingsPane } from "./SettingsPane/SettingsPane";
-import { Settings } from "../settings";
+import { ISettings } from "../settings/ISettings";
 
 export class Sidebar {
     private readonly map: L.Map;
@@ -25,14 +25,15 @@ export class Sidebar {
 
     private infoPane: Option<InfoPane>;
 
+    static inject = ["map", "mapData", "geocoder", "locator", "logger", "settings", "floors"] as const;
     public constructor(
         map: L.Map,
         mapData: MapData,
         geocoder: Geocoder,
         locator: Locator,
         logger: Logger,
-        settings: Settings,
-        floorsLayer: LFloors
+        settings: ISettings,
+        floors: LFloors
     ) {
         this.map = map;
 
@@ -42,8 +43,8 @@ export class Sidebar {
         });
         this.sidebar.addTo(this.map);
 
-        this.navigationPane = NavigationPane.new(geocoder, mapData, logger, floorsLayer, () => this.sidebar.open("nav"));
-        this.floorsLayer = floorsLayer;
+        this.navigationPane = NavigationPane.new(geocoder, mapData, logger, floors, () => this.sidebar.open("nav"));
+        this.floorsLayer = floors;
 
         this.infoPane = None;
 
@@ -52,7 +53,7 @@ export class Sidebar {
             locator,
             settings,
             mapData,
-            floorsLayer,
+            floors,
             this,
             this.navigationPane,
             result => {
