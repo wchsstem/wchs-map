@@ -11,7 +11,7 @@
     "build": "rollup -c",
     "serve-build": "rollup -c && npx serve dist",
     "watch": "rollup -c rollup.dev.config.js -w",
-    "doc": "typedoc --out docs --includeVersion src/ts/*"
+    "doc": "typedoc --out docs --includeVersion --exclude 'src/data/map_compiles.json' --externalPattern 'node_modules/**/*.ts' --excludeExternals src/ts/*"
   },
   "keywords": [],
   "author": "",
@@ -25,7 +25,6 @@
     "@types/kd-tree-javascript": "^1.0.0",
     "@types/leaflet": "^1.7.0",
     "@types/point-in-polygon": "^1.0.0",
-    "@types/service_worker_api": "^0.0.9",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "@typescript-eslint/parser": "^4.25.0",
     "eslint": "^7.27.0",

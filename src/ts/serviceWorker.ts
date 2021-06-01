@@ -14,6 +14,8 @@ const toCache = [
     "/assets/app-icon/favicon_v1.ico"
 ];
 
+// eslint-disable-next-line
+// @ts-ignore: poor TS support for service workers leads to no proper types here
 self.oninstall = e => {
     e.waitUntil(
         caches.open(CACHE_NAME)
@@ -23,6 +25,8 @@ self.oninstall = e => {
     );
 };
 
+// eslint-disable-next-line
+// @ts-ignore: poor TS support for service workers leads to no proper types here
 self.onfetch = e => {
     const request: Request = e.request;
 
@@ -48,6 +52,8 @@ self.onfetch = e => {
     }());
 };
 
+// eslint-disable-next-line
+// @ts-ignore: poor TS support for service workers leads to no proper types here
 self.onactivate = e => {
     // Clear all old caches when a new service worker takes over
     e.waitUntil(
