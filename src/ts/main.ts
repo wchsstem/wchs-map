@@ -5,7 +5,7 @@ import "../assets/fontawesome/all.min.css";
 
 import { Settings } from "./settings/Settings";
 import { JsonMap, MapData } from "./MapData";
-import { LFloors, LSomeLayerWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
+import { LFloors } from "./LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../style.scss";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
@@ -15,14 +15,14 @@ import { Logger } from "./LogPane/LogPane";
 import { Geocoder } from "./Geocoder";
 import { Locator } from "./Locator";
 import { Sidebar } from "./Sidebar/SidebarController";
-import { CRS, map as lMap, popup } from "leaflet";
-import { None, Some, Option } from "@nvarner/monads";
+import { CRS, map as lMap } from "leaflet";
 import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
-import { extractResult, goRes } from "./utils";
+import { goRes } from "./utils";
 import { TextMeasurer } from "./TextMeasurer";
 import { createInjector } from "typed-inject";
 import { ATTRIBUTION } from "./config";
 import { RoomLabelFactory } from "./LRoomLabelPlugin/RoomLabelFactory";
+import { DeveloperModeService } from "./DeveloperModeService";
 
 function main() {
     if ("serviceWorker" in navigator) {
@@ -85,10 +85,8 @@ function main() {
         .provideClass("locator", Locator)
         .provideClass("sidebar", Sidebar);
 
-    const settings = injector.resolve("settings");
-    const locator = injector.resolve("locator");
-
     // Add location dot if we might be able to use it
+    const locator = injector.resolve("locator");
     if (locator.getCanEverGeolocate()) {
         const location = injector.injectClass(LLocation);
         location.addTo(map);
@@ -105,42 +103,8 @@ function main() {
         }))
         .forEach(layer => floors.addLayer(layer));
 
-    // Lazily set up dev mode when enabled
-    // Displays vertices, edges, mouse click location
-    let devLayers: Option<LSomeLayerWithFloor[]> = None;
-
-    const locationPopup = popup();
-    function showClickLoc(e: L.LeafletMouseEvent): void {
-        locationPopup.setLatLng(e.latlng)
-            .setContent(`${e.latlng.lng}, ${e.latlng.lat}`)
-            .openOn(map);
-    }
-
-    settings.addWatcher("dev", devUnknown => {
-        const dev = devUnknown as boolean;
-
-        if (dev) {
-            if (devLayers.isNone()) {
-                const resLayers = extractResult(mapData
-                    .getAllFloors()
-                    .map(floorData => floorData.number)
-                    .map(floor => mapData.createDevLayerGroup(floor)));
-                if (resLayers.isErr()) {
-                    logger.logError(`Error in dev mode watcher constructing dev layers: ${resLayers.unwrapErr()}`);
-                    return;
-                } else {
-                    devLayers = Some(resLayers.unwrap());
-                }
-            }
-            devLayers.unwrap().forEach(devLayer => floors.addLayer(devLayer));
-            map.on("click", showClickLoc);
-        } else {
-            devLayers.ifSome(layers => {
-                layers.forEach(devLayer => floors.removeLayer(devLayer));
-                map.off("click", showClickLoc);
-            });
-        }
-    });
+    // Set up developer mode
+    injector.injectClass(DeveloperModeService);
 }
 
 function defaultSettings(): Settings {

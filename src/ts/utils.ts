@@ -84,8 +84,8 @@ export function extractOption<T>(a: Option<T>[]): Option<T[]> {
 }
 
 /**
- * Turn an array of `Option`s into an `Option` of an array. If any `None`s exist in the array, returns `None`.
- * Otherwise, returns `Some` of the entire array of unwrapped elements.
+ * Turn an array of `Result`s into a `Result` of an array. If any `Err`s exist in the array, returns one of those
+ * `Err`s. Otherwise, returns `Ok` of the entire array of unwrapped elements.
  */
 export function extractResult<T, E>(a: Result<T, E>[]): Result<T[], E> {
     return a.reduce((optAcc, optCurr) => optCurr.andThen(curr => optAcc.map(acc => {
