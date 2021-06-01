@@ -78,7 +78,8 @@ deploy-app:
   only:
     - master
 
-deploy-docs:
+# deploy docs (called pages so docs end up on GitLab Pages)
+pages:
   stage: deploy
   script:
     - mv docs/ public/
