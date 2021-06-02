@@ -1,5 +1,10 @@
 image: node:12
 
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .npm/
+
 stages:
   - install_deps
   - prebuild
@@ -12,7 +17,7 @@ install_npm_deps:
   stage: install_deps
   needs: []
   script:
-    - npm install --unsafe-perm=true --allow-root --loglevel verbose
+    - npm ci --cache .npm --prefer-offline --unsafe-perm=true --allow-root --loglevel verbose
   artifacts:
     paths:
       - node_modules/
