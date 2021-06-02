@@ -5,6 +5,18 @@ import { MapData } from "../MapData";
 import { imageOverlay, Layer, layerGroup, LayerGroup, LayerOptions } from "leaflet";
 import { zip } from "../utils";
 import { FloorsControl } from "./FloorsControl";
+import { IInjectableFactory } from "../IInjectableFactory";
+
+export function floorsFactoryFactory(
+    defaultFloorNumber: string,
+    options: L.LayerOptions
+): IInjectableFactory<LFloors, readonly["mapData"]> {
+    const factory = (map: MapData) => {
+        return LFloors.new(map, defaultFloorNumber, options);
+    }
+    factory.inject = ["mapData"] as const;
+    return factory;
+}
 
 export class LFloors extends LayerGroup {
     /** Mapping from floor numbers to floors */

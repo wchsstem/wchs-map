@@ -1,6 +1,11 @@
 import { Err, Ok, Result } from "@nvarner/monads";
 import { point, Point } from "leaflet";
 
+export function textMeasurerFactory(): Result<TextMeasurer, string> {
+    return TextMeasurer.new();
+}
+textMeasurerFactory.inject = [] as const;
+
 /** Measures the dimensions of text */
 export class TextMeasurer {
     /** Canvas ctx used to measure text */

@@ -4,8 +4,8 @@ import "../../node_modules/leaflet/dist/leaflet.css";
 import "../assets/fontawesome/all.min.css";
 
 import { Settings } from "./settings/Settings";
-import { JsonMap, MapData } from "./MapData";
-import { LFloors } from "./LFloorsPlugin/LFloorsPlugin";
+import { JsonMap, mapDataFactoryFactory } from "./MapData";
+import { floorsFactoryFactory } from "./LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../style.scss";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
@@ -18,8 +18,8 @@ import { Sidebar } from "./Sidebar/SidebarController";
 import { CRS, map as lMap } from "leaflet";
 import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
 import { goRes } from "./utils";
-import { TextMeasurer } from "./TextMeasurer";
-import { createInjector } from "typed-inject";
+import { textMeasurerFactory } from "./TextMeasurer";
+import { createInjector } from "@nvarner/fallible-typed-inject";
 import { ATTRIBUTION } from "./config";
 import { RoomLabelFactory } from "./LRoomLabelPlugin/RoomLabelFactory";
 import { DeveloperModeService } from "./DeveloperModeService";
@@ -47,43 +47,27 @@ function main() {
     });
     map.fitBounds(BOUNDS.pad(0.05));
 
-    // mapDataJson is actually valid as JsonMap, but TS can't tell (yet?), so the unknown hack is needed
-    const mapDataErr = goRes(MapData.new(mapDataJson as unknown as JsonMap, BOUNDS));
-    if (mapDataErr[1] !== null) {
-        logger.logError(`Error constructing MapData: ${mapDataErr[1]}`);
-        // TODO: Error handling
-        return;
-    }
-    const mapData = mapDataErr[0];
-
-    const floorsErr = goRes(LFloors.new(mapData, "1", { attribution: ATTRIBUTION }));
-    if (floorsErr[1] !== null) {
-        logger.logError(`Error constructing LFloors: ${floorsErr[1]}`);
-        // TODO: Error handling
-        return;
-    }
-    const floors = floorsErr[0];
-
-    floors.addTo(map);
-
-    const textMeasurerErr = goRes(TextMeasurer.new());
-    if (textMeasurerErr[1] !== null) {
-        logger.logError(`Error constructing text measurer: ${textMeasurerErr[1]}`);
-        // TODO: Error handling
-        return;
-    }
-    const textMeasurer = textMeasurerErr[0];
-
-    const injector = createInjector()
+    const injectorErr = goRes(createInjector()
         .provideValue("logger", logger)
         .provideValue("map", map)
-        .provideValue("mapData", mapData)
-        .provideValue("floors", floors)
-        .provideValue("textMeasurer", textMeasurer)
+        // mapDataJson is actually valid as JsonMap, but TS can't tell (yet?), so the unknown hack is needed
+        .provideResultFactory("mapData", mapDataFactoryFactory(mapDataJson as unknown as JsonMap, BOUNDS))
+        .provideResultFactory("floors", floorsFactoryFactory("1", { attribution: ATTRIBUTION }))
+        .provideResultFactory("textMeasurer", textMeasurerFactory)
         .provideFactory("settings", defaultSettings)
         .provideClass("geocoder", Geocoder)
         .provideClass("locator", Locator)
-        .provideClass("sidebar", Sidebar);
+        .provideClass("sidebar", Sidebar)
+        .build());
+    if (injectorErr[1] !== null) {
+        logger.logError(`Error building injector: ${injectorErr[1]}`);
+        // TODO: Error handling
+        return;
+    }
+    const injector = injectorErr[0];
+
+    const floors = injector.resolve("floors");
+    floors.addTo(map);
 
     // Add location dot if we might be able to use it
     const locator = injector.resolve("locator");
@@ -93,6 +77,7 @@ function main() {
     }
 
     // Create room label layers
+    const mapData = injector.resolve("mapData");
     mapData
         .getAllFloors()
         .map(floorData => floorData.number)

@@ -11,6 +11,7 @@ import { h } from "./JSX";
 import { circle, divIcon, LatLng, marker, polyline } from "leaflet";
 import { extractOption, flatten, goRes, t, zip, zipInto } from "./utils";
 import { STAIR_WEIGHT } from "./config";
+import { IInjectableFactory } from "./IInjectableFactory";
 
 type Floor = {
     number: string,
@@ -71,6 +72,14 @@ export type JsonMap = {
     vertices: JsonVertices,
     edges: JsonEdge[],
     rooms: JsonRooms
+}
+
+export function mapDataFactoryFactory(mapData: JsonMap, bounds: L.LatLngBounds): IInjectableFactory<MapData, readonly []> {
+    const factory = () => {
+        return MapData.new(mapData, bounds);
+    }
+    factory.inject = [] as const;
+    return factory;
 }
 
 /** Represents and stores all data known about the map */

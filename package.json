@@ -40,11 +40,11 @@
     "serve": "^11.3.2",
     "ts-node": "^8.10.2",
     "tslib": "^2.1.0",
-    "typed-inject": "^3.0.0",
     "typedoc": "^0.20.36",
     "typescript": "^4.2.3"
   },
   "dependencies": {
+    "@nvarner/fallible-typed-inject": "^4.0.0",
     "@nvarner/monads": "^0.5.0",
     "@tyriar/fibonacci-heap": "^2.0.9",
     "@web/rollup-plugin-html": "^1.7.0",
