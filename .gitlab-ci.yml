@@ -17,7 +17,7 @@ install_npm_deps:
   stage: install_deps
   needs: []
   script:
-    - npm ci --cache .npm --prefer-offline --unsafe-perm=true --allow-root --loglevel verbose
+    - npm ci --also=dev --cache .npm --prefer-offline --unsafe-perm=true --allow-root --loglevel verbose
 
 install_compile_map_json:
   stage: install_deps
