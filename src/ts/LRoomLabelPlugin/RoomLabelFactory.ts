@@ -5,27 +5,15 @@ import { Sidebar } from "../Sidebar/SidebarController";
 import { TextMeasurer } from "../TextMeasurer";
 import { RoomLabel, RoomLabelLayerOptions } from "./RoomLabel";
 
-export class RoomLabelFactory {
-    private readonly mapData: MapData;
-    private readonly sidebar: Sidebar;
-    private readonly settings: ISettings;
-    private readonly logger: Logger;
-    private readonly textMeasurer: TextMeasurer;
-    
+export class RoomLabelFactory {    
     static inject = ["mapData", "sidebar", "settings", "logger", "textMeasurer"] as const;
     public constructor(
-        mapData: MapData,
-        sidebar: Sidebar,
-        settings: ISettings,
-        logger: Logger,
-        textMeasurer: TextMeasurer
-    ) {
-        this.mapData = mapData;
-        this.sidebar = sidebar;
-        this.settings = settings;
-        this.logger = logger;
-        this.textMeasurer = textMeasurer;
-    }
+        private readonly mapData: MapData,
+        private readonly sidebar: Sidebar,
+        private readonly settings: ISettings,
+        private readonly logger: Logger,
+        private readonly textMeasurer: TextMeasurer
+    ) {}
 
     public build(floorNumber: string, options: RoomLabelLayerOptions): RoomLabel {
         return new RoomLabel(

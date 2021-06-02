@@ -5,18 +5,17 @@ import { fromMap, Option } from "@nvarner/monads";
  * watchers to be notified when data changes.
  */
 export class Settings {
-    /** Used to separate the values of multiple Settings instances in LocalStorage */
-    private readonly prefix: string;
-
     private data: Map<string, unknown>;
     private watchers: Map<string, ((newValue: unknown) => void)[]>;
 
     /**
      * @param prefix An arbitrary but unique string without underscores that represents this specific settings object
      */
-    public constructor(prefix: string) {
+    public constructor(
+        /** Used to separate the values of multiple Settings instances in LocalStorage */
+        private readonly prefix: string
+    ) {
         this.data = new Map();
-        this.prefix = prefix;
         this.watchers = new Map();
         this.loadSavedData();
     }

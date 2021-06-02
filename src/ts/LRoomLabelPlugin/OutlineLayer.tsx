@@ -15,14 +15,13 @@ export interface OutlineLayerOptions extends GridLayerOptions {
 export class OutlineLayer extends GridLayer {
     private readonly outlines: RBush<Outline>;
     private readonly tileCache: Map<string, HTMLElement>;
-    private readonly logger: Logger;
 
-    public constructor(options: OutlineLayerOptions, logger: Logger) {
+    public constructor(options: OutlineLayerOptions, private readonly logger: Logger) {
         super(options);
+
         this.outlines = new RBush();
         this.outlines.load(options.outlines);
         this.tileCache = new Map();
-        this.logger = logger;
     }
 
     protected createTile(coords: Coords): HTMLElement {

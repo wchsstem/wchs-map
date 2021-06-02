@@ -1,17 +1,15 @@
 import { fromMap, None, Option, Some } from "@nvarner/monads";
 import { FibonacciHeap, INode } from "@tyriar/fibonacci-heap";
+import { t } from "./utils";
 
 type AdjList<K> = Map<K, [K, number][]>;
 type Edge<K> = [K, K, number, boolean];
 
 export class Graph<K, V> {
     private readonly adjList: AdjList<K>;
-    private readonly vertices: Map<K, V>;
 
-    public constructor(vertices: Map<K, V>, edges: Edge<K>[]) {
-        this.vertices = vertices;
-
-        const adjList = new Map([...vertices.keys()].map(key => [key, []] as [K, [K, number][]]));
+    public constructor(private readonly vertices: Map<K, V>, edges: Edge<K>[]) {
+        const adjList = new Map([...vertices.keys()].map(key => t(key, [])));
         edges.forEach(edge => Graph.addEdgeTo(adjList, edge));
         this.adjList = adjList;
     }

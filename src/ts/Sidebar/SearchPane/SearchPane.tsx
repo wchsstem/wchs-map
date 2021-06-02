@@ -24,24 +24,18 @@ export class SearchPane extends Pane {
     private readonly pane: HTMLElement;
     private readonly resultContainer: HTMLElement;
 
-    private readonly sidebarController: Sidebar;
-    private readonly navigationPane: NavigationPane;
-
     public constructor(
         geocoder: Geocoder,
         locator: Locator,
         settings: ISettings,
         mapData: MapData,
         floorsLayer: LFloors,
-        sidebarController: Sidebar,
-        navigationPane: NavigationPane,
+        private readonly sidebarController: Sidebar,
+        private readonly navigationPane: NavigationPane,
         onClickResult: (result: GeocoderSuggestion) => void
     ) {
         super();
 
-        this.sidebarController = sidebarController;
-        this.navigationPane = navigationPane;
-        
         const searchBar = genTextInput();
         const searchBarContainer = <div class="wrapper">{searchBar}</div>
         this.resultContainer = <div class="wrapper results-wrapper leaflet-style hidden" />

@@ -4,32 +4,16 @@ import { EMERGENCY_TAGS, INFRASTRUCTURE_TAGS } from "./config";
 import { deepCopy } from "./utils";
 
 export default class Room implements GeocoderDefinition {
-    public readonly entrances: BuildingLocation[];
-    public readonly roomNumber: string;
-    public readonly names: string[];
-    // The center may not be the geometric center. It can be any point that represents the room.
-    public readonly center: BuildingLocation;
-    public readonly outline: [number, number][];
-    public readonly area: number;
-    public readonly tags: DefinitionTag[];
-
     public constructor(
-        entrances: BuildingLocation[],
-        roomNumber: string,
-        names: string[],
-        outline: [number, number][],
-        center: BuildingLocation,
-        area: number,
-        tags: DefinitionTag[]
-    ) {
-        this.entrances = entrances;
-        this.roomNumber = roomNumber;
-        this.names = names;
-        this.center = center;
-        this.outline = outline;
-        this.area = area;
-        this.tags = tags;
-    }
+        public readonly entrances: BuildingLocation[],
+        public readonly roomNumber: string,
+        public readonly names: string[],
+        public readonly outline: [number, number][],
+        /** The center may not be the geometric center. It can be any point that represents the room. */
+        public readonly center: BuildingLocation,
+        public readonly area: number,
+        public readonly tags: DefinitionTag[]
+    ) {}
 
     /**
      * Displayed to the user and the main factor in search. Must be unique among rooms.

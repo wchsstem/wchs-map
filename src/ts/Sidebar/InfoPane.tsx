@@ -8,19 +8,13 @@ import { Pane } from "./Pane";
 export class InfoPane extends Pane {
     private readonly pane: HTMLElement;
 
-    private readonly navigationPane: NavigationPane;
-    private readonly moveToDefinition: (definition: GeocoderDefinition) => void;
-
     public constructor(
         definition: GeocoderDefinition,
-        navigationPane: NavigationPane,
-        moveToDefinition: (definition: GeocoderDefinition) => void
+        private readonly navigationPane: NavigationPane,
+        private readonly moveToDefinition: (definition: GeocoderDefinition) => void
     ) {
         super();
 
-        this.navigationPane = navigationPane;
-        this.moveToDefinition = moveToDefinition;
-        
         const paneElements: HTMLElement[] = [];
 
         this.createHeader(paneElements, definition);

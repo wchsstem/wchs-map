@@ -13,56 +13,23 @@ import { Pane } from "../Pane";
 import { Logger } from "../../LogPane/LogPane";
 
 export class NavigationPane extends Pane {
-    private readonly pane: HTMLElement;
-    private readonly fromInput: HTMLInputElement;
-    private readonly toInput: HTMLInputElement;
-    private readonly mapData: MapData;
-    private readonly geocoder: Geocoder;
-    private readonly logger: Logger;
-
-    private readonly floorsLayer: LFloors;
-    private pathLayers: Set<LSomeLayerWithFloor>;
-    private map: Option<Map>;
-
-    public readonly focus: () => unknown;
-
-    private fromDefinition: Option<GeocoderDefinition>;
-    private toDefinition: Option<GeocoderDefinition>;
-
-    private fromPin: Option<FlooredMarker>;
-    private toPin: Option<FlooredMarker>;
-
     private constructor(
-        pane: HTMLElement,
-        fromInput: HTMLInputElement,
-        toInput: HTMLInputElement,
-        mapData: MapData,
-        geocoder: Geocoder,
-        logger: Logger,
-        floorsLayer: LFloors,
-        pathLayers: Set<LSomeLayerWithFloor>,
-        map: Option<Map>,
-        focus: () => unknown,
-        fromDefinition: Option<GeocoderDefinition>,
-        toDefinition: Option<GeocoderDefinition>,
-        fromPin: Option<FlooredMarker>,
-        toPin: Option<FlooredMarker>
+        private readonly pane: HTMLElement,
+        private readonly fromInput: HTMLInputElement,
+        private readonly toInput: HTMLInputElement,
+        private readonly mapData: MapData,
+        private readonly geocoder: Geocoder,
+        private readonly logger: Logger,
+        private readonly floorsLayer: LFloors,
+        private pathLayers: Set<LSomeLayerWithFloor>,
+        private map: Option<Map>,
+        private focus: () => unknown,
+        private fromDefinition: Option<GeocoderDefinition>,
+        private toDefinition: Option<GeocoderDefinition>,
+        private fromPin: Option<FlooredMarker>,
+        private toPin: Option<FlooredMarker>
     ) {
         super();
-        this.pane = pane;
-        this.fromInput = fromInput;
-        this.toInput = toInput;
-        this.mapData = mapData;
-        this.geocoder = geocoder;
-        this.logger = logger;
-        this.floorsLayer = floorsLayer;
-        this.pathLayers = pathLayers;
-        this.map = map;
-        this.focus = focus;
-        this.fromDefinition = fromDefinition;
-        this.toDefinition = toDefinition;
-        this.fromPin = fromPin;
-        this.toPin = toPin;
     }
 
     public static new(

@@ -5,9 +5,6 @@ import { Logger } from "./LogPane/LogPane";
 import { ISettings } from "./settings/ISettings";
 
 export class Locator {
-    private readonly logger: Logger;
-    private readonly settings: ISettings;
-
     private onUpdateStateHandles: ((
         oldState: PositionState,
         newState: PositionState,
@@ -22,10 +19,7 @@ export class Locator {
     private readonly canEverGeolocate: boolean;
 
     static inject = ["logger", "settings"] as const;
-    public constructor(logger: Logger, settings: ISettings) {
-        this.logger = logger;
-        this.settings = settings;
-
+    public constructor(private readonly logger: Logger, private readonly settings: ISettings) {
         this.onUpdateStateHandles = [];
         // Assume near Churchill
         this.positionState = PositionState.UnsureNearChurchill;

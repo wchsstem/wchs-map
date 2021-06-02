@@ -3,14 +3,11 @@ import { DefinitionTag, GeocoderDefinition } from "./Geocoder";
 import { deepCopy } from "./utils";
 
 export class LocationOnlyDefinition implements GeocoderDefinition {
-    private readonly location: BuildingLocationWithEntrances;
-    private readonly alternateNames: string[];
+    public constructor(
+        private readonly location: BuildingLocationWithEntrances,
+        private readonly alternateNames: string[] = []
+    ) {}
 
-    public constructor(location: BuildingLocationWithEntrances, alternateNames: string[] = []) {
-        this.location = location;
-        this.alternateNames = alternateNames;
-    }
-    
     public getLocation(): BuildingLocationWithEntrances {
         return this.location;
     }

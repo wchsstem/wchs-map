@@ -8,23 +8,19 @@ import { Logger } from "./LogPane/LogPane";
 
 /** Lazily sets up dev mode when enabled. Displays vertices, edges, and mouse click location. */
 export class DeveloperModeService {
-    private readonly map: LMap;
-    private readonly mapData: MapData;
-    private readonly floors: LFloors;
-    private readonly logger: Logger;
-
     private readonly showClickLoc: (e: LeafletMouseEvent) => void;
 
     private readonly locationPopup: Popup;
     private devLayers: Option<LSomeLayerWithFloor[]>;
 
     static inject = ["settings", "map", "mapData", "floors", "logger"] as const;
-    public constructor(settings: ISettings, map: LMap, mapData: MapData, floors: LFloors, logger: Logger) {
-        this.map = map;
-        this.mapData = mapData;
-        this.floors = floors;
-        this.logger = logger;
-
+    public constructor(
+        settings: ISettings,
+        private readonly map: LMap,
+        private readonly mapData: MapData,
+        private readonly floors: LFloors,
+        private readonly logger: Logger
+    ) {
         this.showClickLoc =
             e => this.locationPopup.setLatLng(e.latlng)
                 .setContent(`${e.latlng.lng}, ${e.latlng.lat}`)

@@ -25,16 +25,13 @@ export interface LabelLayerOptions extends GridLayerOptions {
 }
 
 export class LabelLayer extends GridLayer {
-    private readonly logger: Logger;
-
     private readonly labels: Label[];
     private readonly visibleLabels: Map<number, VisibleLabels>;
     private readonly tileCache: Map<string, HTMLElement>;
 
-    public constructor(logger: Logger, options: LabelLayerOptions) {
+    public constructor(private readonly logger: Logger, options: LabelLayerOptions) {
         super(options);
 
-        this.logger = logger;
         this.labels = options.labels;
         this.visibleLabels = new Map();
         this.tileCache = new Map();

@@ -84,13 +84,6 @@ export function mapDataFactoryFactory(mapData: JsonMap, bounds: L.LatLngBounds):
 
 /** Represents and stores all data known about the map */
 export class MapData {
-    private readonly vertexStringToId: Map<string, number>;
-    private readonly graph: Graph<number, Vertex>;
-    private readonly rooms: Map<string, Room>;
-    private readonly floors: Floor[];
-    private readonly edges: Edge[];
-    private readonly bounds: L.LatLngBounds;
-
     public static new(mapData: JsonMap, bounds: L.LatLngBounds): Result<MapData, string> {
         const vertexStringToId = MapData.createVertexNameMapping(mapData.vertices);
 
@@ -108,20 +101,13 @@ export class MapData {
     }
 
     private constructor(
-        vertexStringToId: Map<string, number>,
-        graph: Graph<number, Vertex>,
-        rooms: Map<string, Room>,
-        floors: Floor[],
-        edges: Edge[],
-        bounds: L.LatLngBounds
-    ) {
-        this.vertexStringToId = vertexStringToId;
-        this.graph = graph;
-        this.rooms = rooms;
-        this.floors = floors;
-        this.edges = edges;
-        this.bounds = bounds;
-    }
+        private readonly vertexStringToId: Map<string, number>,
+        private readonly graph: Graph<number, Vertex>,
+        private readonly rooms: Map<string, Room>,
+        private readonly floors: Floor[],
+        private readonly edges: Edge[],
+        private readonly bounds: L.LatLngBounds
+    ) {}
 
     /**
      * Creates a map from vertex names to integer IDs

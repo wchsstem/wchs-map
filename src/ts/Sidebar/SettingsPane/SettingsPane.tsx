@@ -7,14 +7,10 @@ import { ISettings } from "../../settings/ISettings";
 import { removeChildren } from "../../utils";
 
 export class SettingsPane extends Pane {
-    private readonly settings: ISettings;
-
     private readonly pane: HTMLElement;
 
-    public constructor(settings: ISettings) {
+    public constructor(private readonly settings: ISettings) {
         super();
-
-        this.settings = settings;
 
         const settingsContainer = <ul class="wrapper settings-container" />;
 

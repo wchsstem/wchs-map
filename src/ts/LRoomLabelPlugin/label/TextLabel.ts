@@ -6,15 +6,13 @@ import { Label } from "./LabelLayer";
 
 export class TextLabel implements Label {
     private readonly size: Point;
-    private readonly center: LatLng;
     private readonly linesSizes: [string, Point][];
 
-    public constructor(textMeasurer: TextMeasurer, center: LatLng, content: string) {
+    public constructor(textMeasurer: TextMeasurer, private readonly center: LatLng, content: string) {
         const lines = content.split(" ");
         const [size, lineSizes] = textMeasurer.measureLines(lines, LABEL_LINE_SPACING_PX, LABEL_FONT);
 
         this.size = size;
-        this.center = center;
         this.linesSizes = zip(lines, lineSizes);
     }
 

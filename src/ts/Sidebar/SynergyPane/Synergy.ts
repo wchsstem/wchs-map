@@ -5,11 +5,11 @@ const COURSE_NAME_REGEX = /course-title.*">([^:]*): ([^<]*)<\//g;
 const ROOM_NUMBER_REGEX = /teacher-room.*">Room: ([^<]+)<\//g
 
 export class Course {
-    private period: string;
-    private name: string;
-    private room: GeocoderDefinition;
-
-    constructor(period: string, name: string, room: GeocoderDefinition) {
+    constructor(
+        private readonly period: string,
+        private readonly name: string,
+        private readonly room: GeocoderDefinition
+    ) {
         this.period = period;
         this.name = name;
         this.room = room;

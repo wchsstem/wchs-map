@@ -24,16 +24,10 @@ export interface RoomLabelLayerOptions extends LayerOptions {
 }
 
 export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
-    private readonly settings: ISettings;
-    private readonly logger: Logger;
-    private readonly textMeasurer: TextMeasurer;
-
     private readonly normalLabels: Label[];
     private readonly infrastructureLabels: Label[];
     private readonly emergencyLabels: Label[];
     private readonly closedLabels: Label[];
-
-    private readonly floorNumber: string;
 
     private removeWatcher: Option<(newValue: unknown) => void>;
     private labelLayer: LabelLayer | undefined;
@@ -43,21 +37,16 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
     public constructor(
         map: MapData,
         sidebar: Sidebar,
-        settings: ISettings,
-        logger: Logger,
-        textMeasurer: TextMeasurer,
-        floorNumber: string,
+        private readonly settings: ISettings,
+        private readonly logger: Logger,
+        private readonly textMeasurer: TextMeasurer,
+        private readonly floorNumber: string,
         options: RoomLabelLayerOptions
     ) {
         super([], options);
 
         this.options = options;
 
-        this.settings = settings;
-        this.logger = logger;
-        this.textMeasurer = textMeasurer;
-
-        this.floorNumber = floorNumber;
         this.removeWatcher = None;
 
         // First room will be least important, last will be most important
