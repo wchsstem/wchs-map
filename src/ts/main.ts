@@ -12,10 +12,10 @@ import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "leaflet-sidebar-v2";
 import { LLocation } from "./LLocationPlugin/LLocationPlugin";
 import { Logger } from "./LogPane/LogPane";
-import { Geocoder } from "./Geocoder";
+import { Geocoder } from "./Geocoder/Geocoder";
 import { Locator } from "./Locator";
-import { Sidebar } from "./Sidebar/SidebarController";
-import { CRS, map as lMap } from "leaflet";
+import { Sidebar } from "./Map/View/Sidebar/Sidebar";
+import { control, CRS, map as lMap } from "leaflet";
 import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
 import { goRes } from "./utils";
 import { textMeasurerFactory } from "./TextMeasurer";
@@ -23,6 +23,11 @@ import { createInjector } from "@nvarner/fallible-typed-inject";
 import { ATTRIBUTION } from "./config";
 import { RoomLabelFactory } from "./LRoomLabelPlugin/RoomLabelFactory";
 import { DeveloperModeService } from "./DeveloperModeService";
+import { SearchPane } from "./Map/View/Sidebar/SearchPane/SearchPane";
+import { navigationPaneFactory } from "./Map/View/Sidebar/NavigationPane/NavigationPane";
+import { LeafletMapController } from "./Map/Controller/LeafletMapController";
+import { LeafletMapView } from "./Map/View/LeafletMapView";
+import { LeafletMapModel } from "./Map/Model/LeafletMapModel";
 
 function main() {
     if ("serviceWorker" in navigator) {
@@ -47,9 +52,15 @@ function main() {
     });
     map.fitBounds(BOUNDS.pad(0.05));
 
+    const lSidebar = control.sidebar({
+        container: "sidebar",
+        closeButton: true
+    });
+
     const injectorErr = goRes(createInjector()
         .provideValue("logger", logger)
         .provideValue("map", map)
+        .provideValue("lSidebar", lSidebar)
         // mapDataJson is actually valid as JsonMap, but TS can't tell (yet?), so the unknown hack is needed
         .provideResultFactory("mapData", mapDataFactoryFactory(mapDataJson as unknown as JsonMap, BOUNDS))
         .provideResultFactory("floors", floorsFactoryFactory("1", { attribution: ATTRIBUTION }))
@@ -57,7 +68,12 @@ function main() {
         .provideFactory("settings", defaultSettings)
         .provideClass("geocoder", Geocoder)
         .provideClass("locator", Locator)
+        .provideFactory("navigationPane", navigationPaneFactory)
+        .provideClass("searchPane", SearchPane)
         .provideClass("sidebar", Sidebar)
+        .provideClass("mapView", LeafletMapView)
+        .provideClass("mapModel", LeafletMapModel)
+        .provideClass("mapController", LeafletMapController)
         .build());
     if (injectorErr[1] !== null) {
         logger.logError(`Error building injector: ${injectorErr[1]}`);

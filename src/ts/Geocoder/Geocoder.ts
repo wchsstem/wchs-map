@@ -1,98 +1,22 @@
 import { Option, fromMap, Some, None } from "@nvarner/monads";
 import { kdTree } from "kd-tree-javascript";
 import MiniSearch from "minisearch";
-import { BuildingLocationWithEntrances } from "./BuildingLocation";
-import { MapData } from "./MapData";
-import { t } from "./utils";
-
-export class GeocoderSuggestion {
-    public readonly name: string;
-
-    constructor(name: string) {
-        this.name = name;
-    }
-}
-
-export interface GeocoderDefinition {
-    /**
-     * Displayed to the user and the main factor in search. Must be unique among definitions.
-     */
-    getName(): string;
-
-    /*
-     * Not displayed to the user, but used in search.
-     */
-    getAlternateNames(): string[];
-
-    /**
-     * Displayed to the user and used in search.
-     */
-    getDescription(): string;
-
-    /**
-     * May be displayed to the user and used in search.
-     */
-    getTags(): DefinitionTag[];
-
-    hasTag(tag: DefinitionTag): boolean;
-
-    /**
-     * Returns a new definition with an extra alternate name added. Does not modify the object on which it is called.
-     */
-    extendedWithAlternateName(name: string): GeocoderDefinition;
-
-    getLocation(): BuildingLocationWithEntrances;
-}
-
-/** Tag which may be present on a definition */
-export enum DefinitionTag {
-    /**
-     * Location is closed to everyone. Should not be used on rooms when expected limited access is enforced (eg.
-     * electrical closets aren't closed just because you can't enter them).
-     */
-    Closed = "closed",
-    /** Bathroom for women */
-    WomenBathroom = "women-bathroom",
-    /** Bathroom for men */
-    MenBathroom = "men-bathroom",
-    /** Bathroom gender currently unknown */
-    UnknownBathroom = "unknown-bathroom",
-    /** Bathroom Supply Closet */
-    BSC = "bsc",
-    /** Water Fountain */
-    WF = "wf",
-    /** Electrical Closet */
-    EC = "ec",
-    /** Water Fountain */
-    EF = "wf",
-    /** Hand Sanitizing station */
-    HS = "hs",
-    /** Emergency Bleeding Control kits, installed in case of school shooting or similar event */
-    BleedControl = "bleed-control",
-    /** Defibrillator */
-    AED = "aed",
-    /** Air Handling Unit (HVAC room that blows air around) */
-    AHU = "ahu",
-    /** Intermediate Distribution Frame (support room for Internet and/or telephones) */
-    IDF = "idf",
-    /** Main Distribution Frame (main room for Internet and/or telephones) */
-    MDF = "mdf",
-    /** ERU, unknown meaning but likely HVAC-related; some doors are labeled as ERUs */
-    ERU = "eru",
-    /** Control Panel, security rooms housing a control panel and other such equipment */
-    CP = "cp"
-}
+import { MapData } from "../MapData";
+import { t } from "../utils";
+import { IGeocoderDefinition } from "./IGeocoderDefinition";
+import { GeocoderSuggestion } from "./GeocoderSuggestion";
+import { BuildingLocationWithEntrances } from "../BuildingLocation/BuildingLocationWithEntrances";
 
 export class Geocoder {
     private readonly search: Promise<MiniSearch>;
  
-    private readonly definitionsByName: Map<string, GeocoderDefinition>;
+    private readonly definitionsByName: Map<string, IGeocoderDefinition>;
     /**
      * Definitions indexed by alternate names. They are not guaranteed to be unique, so some definitions may be
      * overwritten. This should be used as a backup only if `definitionsByName` does not contain a requested name.
      */
-    private readonly definitionsByAltName: Map<string, GeocoderDefinition>;
-    private readonly definitionsByLocation: Map<BuildingLocationWithEntrances, GeocoderDefinition>;
+    private readonly definitionsByAltName: Map<string, IGeocoderDefinition>;
+    private readonly definitionsByLocation: Map<BuildingLocationWithEntrances, IGeocoderDefinition>;
     private readonly allNames: Set<string>;
     /** Spatial indices of room center locations, indexed by floor */
     private readonly roomCenterIndices: Map<string, BuildingKDTree>;
@@ -127,7 +51,7 @@ export class Geocoder {
      * Adds a definition to the geocoder. Overrides any other definition with the same name, if already added to the
      * geocoder. Returns the definition it replaced, if any.
      */
-    public async addDefinition(definition: GeocoderDefinition): Promise<Option<GeocoderDefinition>> {
+    public async addDefinition(definition: IGeocoderDefinition): Promise<Option<IGeocoderDefinition>> {
         // Deal with the existing definition if it exists
         const existing = fromMap(this.definitionsByName, definition.getName())
             .map(existing => {
@@ -151,7 +75,7 @@ export class Geocoder {
         return existing;
     }
 
-    public async removeDefinition(definition: GeocoderDefinition): Promise<void> {
+    public async removeDefinition(definition: IGeocoderDefinition): Promise<void> {
         this.definitionsByName.delete(definition.getName());
 
         const newDefinitionsByAltName = [...this.definitionsByAltName]
@@ -181,7 +105,7 @@ export class Geocoder {
             .map(searchResult => new GeocoderSuggestion(searchResult.getName));
     }
 
-    public getDefinitionFromName(name: string): Option<GeocoderDefinition> {
+    public getDefinitionFromName(name: string): Option<IGeocoderDefinition> {
         return fromMap(this.definitionsByName, name)
             .or(fromMap(this.definitionsByAltName, name));
     }
@@ -195,7 +119,7 @@ export class Geocoder {
     /**
      * Gets the definition closest to `location` on the same floor. Uses Euclidean distance.
      */
-    public getClosestDefinition(location: BuildingLocationWithEntrances): Option<GeocoderDefinition> {
+    public getClosestDefinition(location: BuildingLocationWithEntrances): Option<IGeocoderDefinition> {
         const tree = fromMap(this.roomCenterIndices, location.getFloor()).unwrap();
         const [closest] = tree.nearest(locationToKDTreeEntry(location), 1);
         return closest[0].definition;
@@ -208,15 +132,15 @@ export class Geocoder {
      */
     public getClosestDefinitionToFilteredWithDistance(
         origin: BuildingLocationWithEntrances,
-        predicate: (definition: GeocoderDefinition) => boolean,
+        predicate: (definition: IGeocoderDefinition) => boolean,
         distance: (from: BuildingLocationWithEntrances, to: BuildingLocationWithEntrances) => Option<number>
-    ): Option<GeocoderDefinition> {
+    ): Option<IGeocoderDefinition> {
         return [...this.definitionsByLocation.entries()]
             .filter(([_location, definition]) => predicate(definition))
             .map(([location, definition]) => t(distance(origin, location), definition))
             .filter(([distance, _definition]) => distance.isSome())
             .map(([distance, definition]) => t(distance.unwrap(), definition))
-            .reduce<Option<[number, GeocoderDefinition]>>((min, curr) => {
+            .reduce<Option<[number, IGeocoderDefinition]>>((min, curr) => {
                 return min.isNone() || curr[0] < min.unwrap()[0] ? Some(curr) : min;
              }, None)
             .map(([_distance, definition]) => definition);
@@ -226,11 +150,11 @@ export class Geocoder {
 interface KDTreeEntry {
     x: number,
     y: number,
-    definition: Option<GeocoderDefinition>
+    definition: Option<IGeocoderDefinition>
 }
 type BuildingKDTree = kdTree<KDTreeEntry>;
 
-function definitionToKDTreeEntry(definition: GeocoderDefinition): KDTreeEntry {
+function definitionToKDTreeEntry(definition: IGeocoderDefinition): KDTreeEntry {
     const location = definition.getLocation().getXY();
     return {
         x: location.lng,

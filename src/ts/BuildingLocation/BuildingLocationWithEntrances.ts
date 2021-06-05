@@ -1,41 +1,9 @@
-import { Option, Some, None } from "@nvarner/monads";
-import { LatLng } from "leaflet";
-
-export class BuildingLocation {
-    constructor(private readonly xy: LatLng, private readonly floor: string) {}
-
-    public getXY(): LatLng {
-        return this.xy;
-    }
-
-    public getFloor(): string {
-        return this.floor;
-    }
-
-    public distanceTo(other: BuildingLocation): Option<number> {
-        if (this.floor === other.floor) {
-            const dlat = other.xy.lat - this.xy.lat;
-            const dlng = other.xy.lng - this.xy.lng;
-            return Some(Math.sqrt((dlat * dlat) + (dlng * dlng)));
-        } else {
-            return None;
-        }
-    }
-
-    public distance2To(other: BuildingLocation): Option<number> {
-        if (this.floor === other.floor) {
-            const dlat = other.xy.lat - this.xy.lat;
-            const dlng = other.xy.lng - this.xy.lng;
-            return Some((dlat * dlat) + (dlng * dlng));
-        } else {
-            return None;
-        }
-    }
-}
+import { BuildingLocation } from "./BuildingLocation";
 
 /**
  * Represents a building location with entrance(s) that may be distinct from its center point.
  */
+
 export class BuildingLocationWithEntrances extends BuildingLocation {
     private readonly entrances: BuildingLocation[];
 

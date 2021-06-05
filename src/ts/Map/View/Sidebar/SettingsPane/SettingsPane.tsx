@@ -1,10 +1,10 @@
 import { Pane } from "../Pane";
-import { h } from "../../JSX";
-import { NAME_MAPPING, SETTING_INPUT_TYPE, SETTING_SECTIONS } from "../../config";
+import { h } from "../../../../JSX";
+import { NAME_MAPPING, SETTING_INPUT_TYPE, SETTING_SECTIONS } from "../../../../config";
 import { fromMap, Option, Some, None } from "@nvarner/monads";
-import { genPaneElement, genTextInput } from "../../GenHtml/GenHtml";
-import { ISettings } from "../../settings/ISettings";
-import { removeChildren } from "../../utils";
+import { genPaneElement, genTextInput } from "../../../../GenHtml/GenHtml";
+import { ISettings } from "../../../../settings/ISettings";
+import { removeChildren } from "../../../../utils";
 
 export class SettingsPane extends Pane {
     private readonly pane: HTMLElement;

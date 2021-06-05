@@ -1,9 +1,15 @@
-import { BuildingLocation, BuildingLocationWithEntrances } from "./BuildingLocation";
-import { DefinitionTag, GeocoderDefinition } from "./Geocoder";
+import { latLng } from "leaflet";
+import { BuildingLocation } from "./BuildingLocation/BuildingLocation";
+import { BuildingLocationBBox } from "./BuildingLocation/BuildingLocationBBox";
+import { BuildingLocationWithEntrances } from "./BuildingLocation/BuildingLocationWithEntrances";
 import { EMERGENCY_TAGS, INFRASTRUCTURE_TAGS } from "./config";
+import { DefinitionTag } from "./Geocoder/DefinitionTag";
+import { IGeocoderDefinition } from "./Geocoder/IGeocoderDefinition";
 import { deepCopy } from "./utils";
 
-export default class Room implements GeocoderDefinition {
+export default class Room implements IGeocoderDefinition {
+    private readonly boundingBox: BuildingLocationBBox;
+
     public constructor(
         public readonly entrances: BuildingLocation[],
         public readonly roomNumber: string,
@@ -13,7 +19,9 @@ export default class Room implements GeocoderDefinition {
         public readonly center: BuildingLocation,
         public readonly area: number,
         public readonly tags: DefinitionTag[]
-    ) {}
+    ) {
+        this.boundingBox = BuildingLocationBBox.fromPoints(outline.map(latLng), center.getFloor());
+    }
 
     /**
      * Displayed to the user and the main factor in search. Must be unique among rooms.
@@ -74,6 +82,10 @@ export default class Room implements GeocoderDefinition {
     
     public getLocation(): BuildingLocationWithEntrances {
         return new BuildingLocationWithEntrances(this.center, this.entrances);
+    }
+
+    public getBoundingBox(): BuildingLocationBBox {
+        return this.boundingBox;
     }
 
     public estimateImportance(): number {

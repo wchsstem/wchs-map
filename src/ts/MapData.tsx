@@ -4,14 +4,15 @@ import { Graph } from "./Graph";
 import Room from "./Room";
 import { Vertex, VertexTag } from "./Vertex";
 import { LSomeLayerWithFloor, LLayerGroupWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
-import { DefinitionTag, GeocoderDefinition } from "./Geocoder";
-import { BuildingLocation } from "./BuildingLocation";
+import { BuildingLocation } from "./BuildingLocation/BuildingLocation";
 
 import { h } from "./JSX";
 import { circle, divIcon, LatLng, marker, polyline } from "leaflet";
 import { extractOption, flatten, goRes, t, zip, zipInto } from "./utils";
 import { STAIR_WEIGHT } from "./config";
 import { IInjectableFactory } from "./IInjectableFactory";
+import { DefinitionTag } from "./Geocoder/DefinitionTag";
+import { IGeocoderDefinition } from "./Geocoder/IGeocoderDefinition";
 
 type Floor = {
     number: string,
@@ -293,7 +294,7 @@ export class MapData {
     /**
      * Get the IDs of the entrance vertices of a definition
      */
-    private entranceVertexIds(definition: GeocoderDefinition): number[] {
+    private entranceVertexIds(definition: IGeocoderDefinition): number[] {
         return definition.getLocation().getEntrances().map(entrance => this.getClosestVertex(entrance));
     }
 
@@ -302,7 +303,7 @@ export class MapData {
      * @param src Definition to run Dijkstra's algorithm on
      * @returns Results of running on each exit and the exit vertex IDs. See also `Graph.dijkstra`
      */
-    private definitionDijkstra(src: GeocoderDefinition): [Map<number, number>, Map<number, number | null>, number][] {
+    private definitionDijkstra(src: IGeocoderDefinition): [Map<number, number>, Map<number, number | null>, number][] {
         const entrances = this.entranceVertexIds(src);
         return zipInto(entrances.map(exitId => this.graph.dijkstra(exitId)), entrances);
     }
@@ -313,7 +314,7 @@ export class MapData {
      * @param dest Definition to end at
      * @returns Path from `src` to `dest` with the lowest total weight, if any exists, as an array of vertex IDs
      */
-    public findBestPath(src: GeocoderDefinition, dest: GeocoderDefinition): Option<number[]> {
+    public findBestPath(src: IGeocoderDefinition, dest: IGeocoderDefinition): Option<number[]> {
         const destEntrances = this.entranceVertexIds(dest);
 
         const results = this.definitionDijkstra(src);
@@ -342,7 +343,7 @@ export class MapData {
      * @param dest Definition to end on
      * @returns Total weight of the lowest weight path, if such a path exists
      */
-    public findBestPathLength(src: GeocoderDefinition, dest: GeocoderDefinition): Option<number> {
+    public findBestPathLength(src: IGeocoderDefinition, dest: IGeocoderDefinition): Option<number> {
         const destEntrances = this.entranceVertexIds(dest);
         const results = this.definitionDijkstra(src);
         const distances = flatten(results.map(

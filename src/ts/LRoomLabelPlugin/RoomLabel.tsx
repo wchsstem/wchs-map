@@ -9,13 +9,13 @@ import { Label, LabelLayer, isClickable } from "./label/LabelLayer";
 import { TextLabel } from "./label/TextLabel";
 import { IconLabel } from "./label/IconLabel";
 import { Outline, OutlineLayer } from "./OutlineLayer";
-import { Sidebar } from "../Sidebar/SidebarController";
 import FontFaceObserver from "fontfaceobserver";
 import { ISettings } from "../settings/ISettings";
 import { ICON_FOR_ROOM_TAG, ICON_FOR_VERTEX_TAG } from "../config";
-import { DefinitionTag } from "../Geocoder";
 import { Logger } from "../LogPane/LogPane";
 import { TextMeasurer } from "../TextMeasurer";
+import { DefinitionTag } from "../Geocoder/DefinitionTag";
+import { IMapController } from "../Map/Controller/IMapController";
 
 export interface RoomLabelLayerOptions extends LayerOptions {
     minNativeZoom: number,
@@ -36,7 +36,7 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
 
     public constructor(
         map: MapData,
-        sidebar: Sidebar,
+        mapController: IMapController,
         private readonly settings: ISettings,
         private readonly logger: Logger,
         private readonly textMeasurer: TextMeasurer,
@@ -69,7 +69,7 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
             if (room.center.getFloor() === floorNumber) {
                 if (room.outline.length !== 0) {
                     const outline = new Outline(room.outline.map(point => latLng(point[1], point[0])));
-                    outline.addClickListener(_ => sidebar.openInfo(room));
+                    outline.addClickListener(() => mapController.focusOnDefinition(room));
                     outlines.push(outline);
                 } else {
                     console.log(`Room has no outline: ${room.getName()}`);
@@ -77,7 +77,7 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
 
                 const roomLabel = this.getRoomLabel(room);
                 if (isClickable(roomLabel)) {
-                    roomLabel.addClickListener(_ => sidebar.openInfo(room));
+                    roomLabel.addClickListener(() => mapController.focusOnDefinition(room));
                 }
                 if (room.isInfrastructure()) {
                     infrastructureLabels.push(roomLabel);

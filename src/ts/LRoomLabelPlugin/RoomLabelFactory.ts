@@ -1,15 +1,15 @@
 import { Logger } from "../LogPane/LogPane";
 import { MapData } from "../MapData";
 import { ISettings } from "../settings/ISettings";
-import { Sidebar } from "../Sidebar/SidebarController";
 import { TextMeasurer } from "../TextMeasurer";
 import { RoomLabel, RoomLabelLayerOptions } from "./RoomLabel";
+import { IMapController } from "../Map/Controller/IMapController";
 
 export class RoomLabelFactory {    
-    static inject = ["mapData", "sidebar", "settings", "logger", "textMeasurer"] as const;
+    static inject = ["mapData", "mapController", "settings", "logger", "textMeasurer"] as const;
     public constructor(
         private readonly mapData: MapData,
-        private readonly sidebar: Sidebar,
+        private readonly mapController: IMapController,
         private readonly settings: ISettings,
         private readonly logger: Logger,
         private readonly textMeasurer: TextMeasurer
@@ -18,7 +18,7 @@ export class RoomLabelFactory {
     public build(floorNumber: string, options: RoomLabelLayerOptions): RoomLabel {
         return new RoomLabel(
             this.mapData,
-            this.sidebar,
+            this.mapController,
             this.settings,
             this.logger,
             this.textMeasurer,

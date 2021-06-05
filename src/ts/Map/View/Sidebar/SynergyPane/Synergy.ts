@@ -1,5 +1,6 @@
-import { Geocoder, GeocoderDefinition } from "../../Geocoder";
-import { Logger } from "../../LogPane/LogPane";
+import { Geocoder } from "../../../../Geocoder/Geocoder";
+import { IGeocoderDefinition } from "../../../../Geocoder/IGeocoderDefinition";
+import { Logger } from "../../../../LogPane/LogPane";
 
 const COURSE_NAME_REGEX = /course-title.*">([^:]*): ([^<]*)<\//g;
 const ROOM_NUMBER_REGEX = /teacher-room.*">Room: ([^<]+)<\//g
@@ -8,7 +9,7 @@ export class Course {
     constructor(
         private readonly period: string,
         private readonly name: string,
-        private readonly room: GeocoderDefinition
+        private readonly room: IGeocoderDefinition
     ) {
         this.period = period;
         this.name = name;
@@ -26,7 +27,7 @@ export class Course {
         return li;
     }
 
-    public getDefinition(): GeocoderDefinition {
+    public getDefinition(): IGeocoderDefinition {
         return this.room;
     }
 }

@@ -1,4 +1,4 @@
-import { DefinitionTag } from "./Geocoder";
+import { DefinitionTag } from "./Geocoder/DefinitionTag";
 import { VertexTag } from "./Vertex";
 
 // Map

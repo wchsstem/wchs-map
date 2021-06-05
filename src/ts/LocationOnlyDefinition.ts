@@ -1,12 +1,18 @@
-import { BuildingLocationWithEntrances } from "./BuildingLocation";
-import { DefinitionTag, GeocoderDefinition } from "./Geocoder";
+import { BuildingLocationBBox } from "./BuildingLocation/BuildingLocationBBox";
+import { BuildingLocationWithEntrances } from "./BuildingLocation/BuildingLocationWithEntrances";
+import { DefinitionTag } from "./Geocoder/DefinitionTag";
+import { IGeocoderDefinition } from "./Geocoder/IGeocoderDefinition";
 import { deepCopy } from "./utils";
 
-export class LocationOnlyDefinition implements GeocoderDefinition {
+export class LocationOnlyDefinition implements IGeocoderDefinition {
     public constructor(
         private readonly location: BuildingLocationWithEntrances,
         private readonly alternateNames: string[] = []
     ) {}
+
+    public getBoundingBox(): BuildingLocationBBox {
+        return new BuildingLocationBBox(this.location.getXY(), this.location.getXY(), this.location.getFloor());
+    }
 
     public getLocation(): BuildingLocationWithEntrances {
         return this.location;
@@ -15,6 +21,7 @@ export class LocationOnlyDefinition implements GeocoderDefinition {
     public getName(): string {
         return "";
     }
+
     public getAlternateNames(): string[] {
         return this.alternateNames;
     }
@@ -31,7 +38,7 @@ export class LocationOnlyDefinition implements GeocoderDefinition {
         return false;
     }
 
-    public extendedWithAlternateName(name: string): GeocoderDefinition {
+    public extendedWithAlternateName(name: string): IGeocoderDefinition {
         const newNames = deepCopy(this.alternateNames);
         newNames.push(name);
         return new LocationOnlyDefinition(this.location, newNames);

@@ -1,49 +1,51 @@
-import { genPaneElement, genTextInput } from "../../GenHtml/GenHtml";
-import { Geocoder, GeocoderDefinition, GeocoderSuggestion } from "../../Geocoder";
+import { genPaneElement, genTextInput } from "../../../../GenHtml/GenHtml";
+import { Geocoder } from "../../../../Geocoder/Geocoder";
 import { Pane } from "../Pane";
-import { h } from "../../JSX";
+import { h } from "../../../../JSX";
 import { ClosestBathroomButton } from "./ClosestBathroomButton";
 import { ClosestBottleFillingStationButton } from "./ClosestBottleFillingStationButton";
-import { Locator } from "../../Locator";
-import { MapData } from "../../MapData";
-import { LFloors } from "../../LFloorsPlugin/LFloorsPlugin";
-import { BuildingLocation, BuildingLocationWithEntrances } from "../../BuildingLocation";
-import { LocationOnlyDefinition } from "../../LocationOnlyDefinition";
-import { NavigationPane } from "../NavigationPane/NavigationPane";
+import { Locator } from "../../../../Locator";
+import { MapData } from "../../../../MapData";
+import { LFloors } from "../../../../LFloorsPlugin/LFloorsPlugin";
+import { BuildingLocation } from "../../../../BuildingLocation/BuildingLocation";
 import { ClosestHandSanitizerStationButton } from "./ClosestHandSanitizerStationButton";
 import { ClosestBleedingControlKitButton } from "./ClosestBleedingControlKitButton";
 import { ClosestAedButton } from "./ClosestAedButton";
 import { ClosestAhuButton } from "./ClosestAhuButton";
 import { ClosestEcButton } from "./ClosestEcButton";
 import { ClosestBscButton } from "./ClosestBscButton";
-import { Some } from "@nvarner/monads";
-import { Sidebar } from "../SidebarController";
-import { ISettings } from "../../settings/ISettings";
+import { ISettings } from "../../../../settings/ISettings";
+import { GeocoderSuggestion } from "../../../../Geocoder/GeocoderSuggestion";
+import { IGeocoderDefinition } from "../../../../Geocoder/IGeocoderDefinition";
 
 export class SearchPane extends Pane {
     private readonly pane: HTMLElement;
     private readonly resultContainer: HTMLElement;
 
+    private readonly resultClickHandlers: ((result: GeocoderSuggestion) => void)[];
+    private readonly closestClickHandlers: ((closest: IGeocoderDefinition, starting: BuildingLocation) => void)[]
+
+    static inject = ["geocoder", "locator", "settings", "mapData", "floors"] as const;
     public constructor(
         geocoder: Geocoder,
         locator: Locator,
         settings: ISettings,
         mapData: MapData,
-        floorsLayer: LFloors,
-        private readonly sidebarController: Sidebar,
-        private readonly navigationPane: NavigationPane,
-        onClickResult: (result: GeocoderSuggestion) => void
+        floorsLayer: LFloors
     ) {
         super();
 
+        this.resultClickHandlers = [];
+        this.closestClickHandlers = [];
+
         const searchBar = genTextInput();
-        const searchBarContainer = <div class="wrapper">{searchBar}</div>
-        this.resultContainer = <div class="wrapper results-wrapper leaflet-style hidden" />
+        const searchBarContainer = <div class="wrapper">{searchBar}</div>;
+        this.resultContainer = <div class="wrapper results-wrapper leaflet-style hidden" />;
 
         searchBar.addEventListener("input", async () => {
             const query = searchBar.value;
             const results = await geocoder.getSuggestionsFrom(query);
-            this.updateWithResults(query, results, onClickResult);
+            this.updateWithResults(query, results, result => this.onClickResult(result));
         });
 
         const closestBathroomButton = new ClosestBathroomButton(
@@ -52,21 +54,21 @@ export class SearchPane extends Pane {
             settings,
             mapData,
             floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
+            (closest, starting) => this.onClickClosestButton(closest, starting)
         ).getHtml();
         const closestBottleFillingButton = new ClosestBottleFillingStationButton(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
+            (closest, starting) => this.onClickClosestButton(closest, starting)
         ).getHtml();
         const closestHandSanitizerButton = new ClosestHandSanitizerStationButton(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
+            (closest, starting) => this.onClickClosestButton(closest, starting)
         ).getHtml();
 
         // Emergency
@@ -75,14 +77,14 @@ export class SearchPane extends Pane {
             locator,
             mapData,
             floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
+            (closest, starting) => this.onClickClosestButton(closest, starting)
         ).getHtml();
         const closestAedButton = new ClosestAedButton(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
+            (closest, starting) => this.onClickClosestButton(closest, starting)
         ).getHtml();
         settings.addWatcher("show-emergency", show => {
             if (show) {
@@ -100,21 +102,21 @@ export class SearchPane extends Pane {
             locator,
             mapData,
             floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
+            (closest, starting) => this.onClickClosestButton(closest, starting)
         ).getHtml();
         const closestEcButton = new ClosestEcButton(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
+            (closest, starting) => this.onClickClosestButton(closest, starting)
         ).getHtml();
         const closestBscButton = new ClosestBscButton(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            (closest, starting) => this.handleClosestButtonClick(closest, starting)
+            (closest, starting) => this.onClickClosestButton(closest, starting)
         ).getHtml();
         settings.addWatcher("show-infrastructure", show => {
             if (show) {
@@ -165,12 +167,31 @@ export class SearchPane extends Pane {
         return this.pane;
     }
 
-    private handleClosestButtonClick(closest: GeocoderDefinition, starting: BuildingLocation): void {
-        const entranceLocation = new BuildingLocationWithEntrances(starting, []);
-        const startingDefinition = new LocationOnlyDefinition(entranceLocation);
-        this.navigationPane.navigateFrom(Some(startingDefinition), true, false);
-        this.navigationPane.navigateTo(Some(closest), true, true);
-        this.sidebarController.openInfo(closest);
+    /**
+     * Register a callback for when a search result is clicked
+     * @param onClickResult The callback, which takes in the suggestion corresponding to the clicked result
+     */
+    public registerOnClickResult(onClickResult: (result: GeocoderSuggestion) => void): void {
+        this.resultClickHandlers.push(onClickResult);
+    }
+
+    /**
+     * Register a callback for when a closest <something. (eg. closest bathroom) button is clicked
+     * @param onClickClosest The callback, which takes in the closest definition and the definition the user is starting
+     * from
+     */
+    public registerOnClickClosest(
+        onClickClosest: (closest: IGeocoderDefinition, starting: BuildingLocation) => void
+    ): void {
+        this.closestClickHandlers.push(onClickClosest);
+    }
+
+    private onClickResult(result: GeocoderSuggestion): void {
+        this.resultClickHandlers.forEach(handler => handler(result));
+    }
+
+    private onClickClosestButton(closest: IGeocoderDefinition, starting: BuildingLocation): void {
+        this.closestClickHandlers.forEach(handler => handler(closest, starting));
     }
 
     private updateWithResults(

@@ -1,16 +1,28 @@
 import { Control, divIcon, Map } from "leaflet";
-import { genTextInput, genPaneElement } from "../../GenHtml/GenHtml";
-import { BuildingLocation, BuildingLocationWithEntrances } from "../../BuildingLocation";
+import { genTextInput, genPaneElement } from "../../../../GenHtml/GenHtml";
+import { BuildingLocation } from "../../../../BuildingLocation/BuildingLocation";
 import { None, Option, Some } from "@nvarner/monads";
-import { clearResults, updateWithResults } from "../../utils";
-import { MapData } from "../../MapData";
-import { LFloors, LSomeLayerWithFloor } from "../../LFloorsPlugin/LFloorsPlugin";
+import { clearResults, updateWithResults } from "../../../../utils";
+import { MapData } from "../../../../MapData";
+import { LFloors, LSomeLayerWithFloor } from "../../../../LFloorsPlugin/LFloorsPlugin";
 
-import { h } from "../../JSX";
+import { h } from "../../../../JSX";
 import { FlooredMarker, flooredMarker } from "./FlooredMarker";
-import { Geocoder, GeocoderDefinition } from "../../Geocoder";
+import { Geocoder } from "../../../../Geocoder/Geocoder";
 import { Pane } from "../Pane";
-import { Logger } from "../../LogPane/LogPane";
+import { Logger } from "../../../../LogPane/LogPane";
+import { IGeocoderDefinition } from "../../../../Geocoder/IGeocoderDefinition";
+import { BuildingLocationWithEntrances } from "../../../../BuildingLocation/BuildingLocationWithEntrances";
+
+export function navigationPaneFactory(
+    geocoder: Geocoder,
+    mapData: MapData,
+    logger: Logger,
+    floors: LFloors
+): NavigationPane {
+    return NavigationPane.new(geocoder, mapData, logger, floors);
+}
+navigationPaneFactory.inject = ["geocoder", "mapData", "logger", "floors"] as const;
 
 export class NavigationPane extends Pane {
     private constructor(
@@ -23,9 +35,8 @@ export class NavigationPane extends Pane {
         private readonly floorsLayer: LFloors,
         private pathLayers: Set<LSomeLayerWithFloor>,
         private map: Option<Map>,
-        private focus: () => unknown,
-        private fromDefinition: Option<GeocoderDefinition>,
-        private toDefinition: Option<GeocoderDefinition>,
+        private fromDefinition: Option<IGeocoderDefinition>,
+        private toDefinition: Option<IGeocoderDefinition>,
         private fromPin: Option<FlooredMarker>,
         private toPin: Option<FlooredMarker>
     ) {
@@ -36,8 +47,7 @@ export class NavigationPane extends Pane {
         geocoder: Geocoder,
         mapData: MapData,
         logger: Logger,
-        floorsLayer: LFloors,
-        focus: () => unknown
+        floors: LFloors
     ): NavigationPane {
         const fromPinButton = <a class="leaflet-style button" href="#" role="button" title="Choose starting point">
             <i class="fas fa-map-marker-alt"></i>
@@ -80,10 +90,9 @@ export class NavigationPane extends Pane {
             mapData,
             geocoder,
             logger,
-            floorsLayer,
+            floors,
             new Set(),
             None,
-            focus,
             None,
             None,
             None,
@@ -115,7 +124,7 @@ export class NavigationPane extends Pane {
                     navigationPane.floorsLayer.removeLayer(pin);
                 });
 
-                const pinLocation = new BuildingLocation(map.getCenter(), floorsLayer.getCurrentFloor());
+                const pinLocation = new BuildingLocation(map.getCenter(), floors.getCurrentFloor());
                 const pin = NavigationPane.genFromPin(pinLocation, geocoder, navigationPane);
                 pin.addTo(navigationPane.floorsLayer);
                 navigationPane.fromPin = Some(pin);
@@ -165,7 +174,7 @@ export class NavigationPane extends Pane {
         this.navigateTo(from, movePins, focus);
     }
 
-    public navigateTo(definition: Option<GeocoderDefinition>, movePin: boolean, focus: boolean): void {
+    public navigateTo(definition: Option<IGeocoderDefinition>, movePin: boolean, focus: boolean): void {
         this.toDefinition = definition;
 
         this.toInput.value = definition.match({
@@ -185,15 +194,10 @@ export class NavigationPane extends Pane {
                 this.toPin = Some(newPin);
             });
         }
-
-        if (focus) {
-            this.focus();
-        }
-
         this.calcNavIfNeeded();
     }
 
-    public navigateFrom(definition: Option<GeocoderDefinition>, movePin: boolean, focus: boolean): void {
+    public navigateFrom(definition: Option<IGeocoderDefinition>, movePin: boolean, focus: boolean): void {
         this.fromDefinition = definition;
 
         this.fromInput.value = definition.match({
@@ -214,10 +218,6 @@ export class NavigationPane extends Pane {
             });
         }
 
-        if (focus) {
-            this.focus();
-        }
-
         this.calcNavIfNeeded();
     }
 
@@ -227,7 +227,7 @@ export class NavigationPane extends Pane {
         }
     }
 
-    private calcNav(fromDefinition: GeocoderDefinition, toDefinition: GeocoderDefinition): void {
+    private calcNav(fromDefinition: IGeocoderDefinition, toDefinition: IGeocoderDefinition): void {
         this.clearNav();
         const path = this.mapData.findBestPath(fromDefinition, toDefinition);
         path.ifSome(path => {
@@ -242,8 +242,13 @@ export class NavigationPane extends Pane {
         });
     }
 
-    private clearNav(): void {
+    public clearNav(): void {
         this.pathLayers.forEach(layer => this.floorsLayer.removeLayer(layer));
+    }
+
+    public displayNav(layers: Set<LSomeLayerWithFloor>): void {
+        this.pathLayers = layers;
+        this.pathLayers.forEach(layer => this.floorsLayer.addLayer(layer));
     }
 
     private static genFromPin(
@@ -278,8 +283,8 @@ export class NavigationPane extends Pane {
         location: BuildingLocation,
         geocoder: Geocoder,
         iconClass: string,
-        setNavigation: (definition: Option<GeocoderDefinition>) => void,
-        getNavigation: () => Option<GeocoderDefinition>
+        setNavigation: (definition: Option<IGeocoderDefinition>) => void,
+        getNavigation: () => Option<IGeocoderDefinition>
     ): FlooredMarker {
         const icon = <i class="fas"></i> as HTMLElement;
         icon.classList.add(iconClass);
@@ -313,14 +318,14 @@ export class NavigationPane extends Pane {
     private static onNewPinLocation(
         location: BuildingLocation,
         geocoder: Geocoder,
-        setNavigation: (definition: Option<GeocoderDefinition>) => void
+        setNavigation: (definition: Option<IGeocoderDefinition>) => void
     ): void {
         const locationEntrances = new BuildingLocationWithEntrances(location, []);
         const closest = geocoder.getClosestDefinition(locationEntrances);
         setNavigation(closest);
     }
 
-    private static centerPin(pin: FlooredMarker, getNavigation: () => Option<GeocoderDefinition>): void {
+    private static centerPin(pin: FlooredMarker, getNavigation: () => Option<IGeocoderDefinition>): void {
         getNavigation().ifSome(fromDefinition => {
             pin.setLatLng(fromDefinition.getLocation().getXY());
         });
