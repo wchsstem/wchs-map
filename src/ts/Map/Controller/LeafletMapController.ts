@@ -22,14 +22,12 @@ export class LeafletMapController implements IMapController {
             this.navigateFrom(Some(startingDefinition));
             this.view.focusOnDefinition(closest);
         });
+
+        view.registerOnSwapNav(() => this.swapNav());
     }
 
     public focusOnDefinition(definition: IGeocoderDefinition): void {
         this.view.focusOnDefinition(definition);
-    }
-
-    private calcNavIfNeeded(): void {
-        this.model.navigateFrom.ifSome(from => this.model.navigateTo.ifSome(to => this.calcNav(from, to)));
     }
 
     private calcNav(from: IGeocoderDefinition, to: IGeocoderDefinition): void {
@@ -44,6 +42,10 @@ export class LeafletMapController implements IMapController {
         });
     }
 
+    private calcNavIfNeeded(): void {
+        this.model.navigateFrom.ifSome(from => this.model.navigateTo.ifSome(to => this.calcNav(from, to)));
+    }
+
     public navigateFrom(definition: Option<IGeocoderDefinition>): void {
         this.model.navigateFrom = definition;
         this.calcNavIfNeeded();
@@ -52,5 +54,11 @@ export class LeafletMapController implements IMapController {
     public navigateTo(definition: Option<IGeocoderDefinition>): void {
         this.model.navigateTo = definition;
         this.calcNavIfNeeded();
+    }
+
+    private swapNav(): void {
+        const from = this.model.navigateFrom;
+        this.navigateFrom(this.model.navigateTo);
+        this.navigateTo(from);
     }
 }

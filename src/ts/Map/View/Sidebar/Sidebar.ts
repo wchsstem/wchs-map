@@ -38,9 +38,9 @@ export class Sidebar {
         this.infoPane = None;
         
         searchPane.registerOnClickResult(result => this.openInfoForName(geocoder, result.name));
-        
         this.addPane(searchPane);
-        this.navigationPane.addTo(map, this.sidebar);
+
+        this.addPane(navigationPane);
 
         const synergyPane = new SynergyPane(geocoder, logger);
 
@@ -122,6 +122,14 @@ export class Sidebar {
     public registerOnFocusDefinition(onFocusDefinition: (definition: IGeocoderDefinition) => void): void {
         this.focusDefinitionHandlers.push(onFocusDefinition);
         this.infoPane.ifSome(infoPane => infoPane.registerOnFocusDefinition(onFocusDefinition));
+    }
+
+    /**
+     * Register a callback for when the source and destination of the navigation are swapped
+     * @param onSwap The callback
+     */
+    public registerOnSwapNav(onSwap: () => void): void {
+        this.navigationPane.registerOnSwapNav(onSwap);
     }
 
     public openInfoFor(definition: IGeocoderDefinition): void {

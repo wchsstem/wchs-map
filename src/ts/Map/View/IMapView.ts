@@ -18,6 +18,18 @@ export interface IMapView {
      */
     registerOnClickClosest(onClickClosest: (closest: IGeocoderDefinition, starting: BuildingLocation) => void): void;
 
+    /**
+     * Register a callback for when a definition is focused
+     * @param onFocusDefinition The callback, which takes in the definition being focused
+     */
+    registerOnFocusDefinition(onFocusDefinition: (definition: IGeocoderDefinition) => void): void;
+
+    /**
+     * Register a callback for when the source and destination of the navigation are swapped
+     * @param onSwap The callback
+     */
+    registerOnSwapNav(onSwap: () => void): void;
+
     /** Move the map's focus to a definition and display info about it */
     focusOnDefinition(definition: IGeocoderDefinition): void;
 

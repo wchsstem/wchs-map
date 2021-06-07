@@ -24,7 +24,7 @@ import { ATTRIBUTION } from "./config";
 import { RoomLabelFactory } from "./LRoomLabelPlugin/RoomLabelFactory";
 import { DeveloperModeService } from "./DeveloperModeService";
 import { SearchPane } from "./Map/View/Sidebar/SearchPane/SearchPane";
-import { navigationPaneFactory } from "./Map/View/Sidebar/NavigationPane/NavigationPane";
+import { NavigationPane } from "./Map/View/Sidebar/NavigationPane/NavigationPane";
 import { LeafletMapController } from "./Map/Controller/LeafletMapController";
 import { LeafletMapView } from "./Map/View/LeafletMapView";
 import { LeafletMapModel } from "./Map/Model/LeafletMapModel";
@@ -68,7 +68,7 @@ function main() {
         .provideFactory("settings", defaultSettings)
         .provideClass("geocoder", Geocoder)
         .provideClass("locator", Locator)
-        .provideFactory("navigationPane", navigationPaneFactory)
+        .provideClass("navigationPane", NavigationPane)
         .provideClass("searchPane", SearchPane)
         .provideClass("sidebar", Sidebar)
         .provideClass("mapView", LeafletMapView)

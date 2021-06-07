@@ -41,6 +41,14 @@ export class LeafletMapView implements IMapView {
         this.sidebar.registerOnFocusDefinition(onFocusDefinition);
     }
 
+    /**
+     * Register a callback for when the source and destination of the navigation are swapped
+     * @param onSwap The callback
+     */
+    public registerOnSwapNav(onSwap: () => void): void {
+        this.sidebar.registerOnSwapNav(onSwap);
+    }
+
     private goToDefinition(definition: IGeocoderDefinition): void {
         const location = definition.getLocation();
         this.map.fitBounds(definition.getBoundingBox().toLatLngBounds());

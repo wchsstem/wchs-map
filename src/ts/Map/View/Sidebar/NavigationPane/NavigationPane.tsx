@@ -1,66 +1,61 @@
-import { Control, divIcon, Map } from "leaflet";
+import { divIcon, Map } from "leaflet";
 import { genTextInput, genPaneElement } from "../../../../GenHtml/GenHtml";
 import { BuildingLocation } from "../../../../BuildingLocation/BuildingLocation";
 import { None, Option, Some } from "@nvarner/monads";
 import { clearResults, updateWithResults } from "../../../../utils";
-import { MapData } from "../../../../MapData";
 import { LFloors, LSomeLayerWithFloor } from "../../../../LFloorsPlugin/LFloorsPlugin";
 
 import { h } from "../../../../JSX";
 import { FlooredMarker, flooredMarker } from "./FlooredMarker";
 import { Geocoder } from "../../../../Geocoder/Geocoder";
 import { Pane } from "../Pane";
-import { Logger } from "../../../../LogPane/LogPane";
 import { IGeocoderDefinition } from "../../../../Geocoder/IGeocoderDefinition";
-import { BuildingLocationWithEntrances } from "../../../../BuildingLocation/BuildingLocationWithEntrances";
-
-export function navigationPaneFactory(
-    geocoder: Geocoder,
-    mapData: MapData,
-    logger: Logger,
-    floors: LFloors
-): NavigationPane {
-    return NavigationPane.new(geocoder, mapData, logger, floors);
-}
-navigationPaneFactory.inject = ["geocoder", "mapData", "logger", "floors"] as const;
 
 export class NavigationPane extends Pane {
-    private constructor(
-        private readonly pane: HTMLElement,
-        private readonly fromInput: HTMLInputElement,
-        private readonly toInput: HTMLInputElement,
-        private readonly mapData: MapData,
-        private readonly geocoder: Geocoder,
-        private readonly logger: Logger,
-        private readonly floorsLayer: LFloors,
-        private pathLayers: Set<LSomeLayerWithFloor>,
-        private map: Option<Map>,
-        private fromDefinition: Option<IGeocoderDefinition>,
-        private toDefinition: Option<IGeocoderDefinition>,
-        private fromPin: Option<FlooredMarker>,
-        private toPin: Option<FlooredMarker>
-    ) {
-        super();
-    }
+    private readonly navigateToHandlers: ((to: Option<IGeocoderDefinition>) => void)[];
+    private readonly navigateFromHandlers: ((from: Option<IGeocoderDefinition>) => void)[];
+    private readonly swapNavHandlers: (() => void)[];
+    private readonly moveFromPinHandlers: ((location: BuildingLocation) => void)[];
+    private readonly moveToPinHandlers: ((location: BuildingLocation) => void)[];
 
-    public static new(
-        geocoder: Geocoder,
-        mapData: MapData,
-        logger: Logger,
-        floors: LFloors
-    ): NavigationPane {
+    private snapPinHandler: (location: BuildingLocation) => BuildingLocation;
+
+    private pathLayers: Set<LSomeLayerWithFloor>;
+
+    private fromPin: Option<FlooredMarker>;
+    private toPin: Option<FlooredMarker>;
+
+    private readonly pane: HTMLElement;
+
+    static inject = ["floors", "map", "geocoder"] as const;
+    public constructor(private readonly floors: LFloors, private map: Map, geocoder: Geocoder) {
+        super();
+
+        this.navigateFromHandlers = [];
+        this.navigateToHandlers = [];
+        this.swapNavHandlers = [];
+        this.moveFromPinHandlers = [];
+        this.moveToPinHandlers = [];
+
+        this.snapPinHandler = (location) => location;
+
+        this.pathLayers = new Set();
+
+        this.fromPin = None;
+        this.toPin = None;
+
         const fromPinButton = <a class="leaflet-style button" href="#" role="button" title="Choose starting point">
-            <i class="fas fa-map-marker-alt"></i>
+            <i class="fas fa-map-marker-alt"/>
         </a> as HTMLAnchorElement;
         const fromInput = genTextInput();
 
         const toPinButton = <a class="leaflet-style button" href="#" role="button" title="Choose destination">
-            <i class="fas fa-flag-checkered"></i>
+            <i class="fas fa-flag-checkered"/>
         </a> as HTMLAnchorElement;
         const toInput = genTextInput();
 
         const swapToFrom = <a class="leaflet-style button swap-button" href="#" role="button" title="Swap to/from">
-            <i class="fas fa-exchange-alt"></i>
+            <i class="fas fa-exchange-alt"/>
         </a> as HTMLAnchorElement;
 
         const toFromContainer = <div class="wrapper">
@@ -79,33 +74,38 @@ export class NavigationPane extends Pane {
             {swapToFrom}
         </div>;
 
-        const resultContainer = <div class="wrapper results-wrapper leaflet-style hidden"></div>;
+        const resultContainer = <div class="wrapper results-wrapper leaflet-style hidden"/>;
 
-        const navPane = genPaneElement("Navigation", [toFromContainer, resultContainer]);
+        this.pane = genPaneElement("Navigation", [toFromContainer, resultContainer]);
 
-        const navigationPane = new NavigationPane(
-            navPane,
-            fromInput,
-            toInput,
-            mapData,
-            geocoder,
-            logger,
-            floors,
-            new Set(),
-            None,
-            None,
-            None,
-            None,
-            None
-        );
+        fromPinButton.addEventListener("click", _event => {
+            this.fromPin.ifSome(pin => {
+                this.floors.removeLayer(pin);
+            });
 
-        swapToFrom.addEventListener("click", _event => navigationPane.swapNav(true, true));
+            const pinLocation = new BuildingLocation(map.getCenter(), floors.getCurrentFloor());
+            const pin = this.genFromPin(pinLocation);
+            pin.addTo(this.floors);
+            this.fromPin = Some(pin);
+        });
+        toPinButton.addEventListener("click", _event => {
+            this.toPin.ifSome(pin => {
+                this.floors.removeLayer(pin);
+            });
+
+            const pinLocation = new BuildingLocation(map.getCenter(), floors.getCurrentFloor());
+            const pin = this.genToPin(pinLocation);
+            pin.addTo(this.floors);
+            this.toPin = Some(pin);
+        });
+
+        swapToFrom.addEventListener("click", _event => this.swapNav());
         fromInput.addEventListener("input", async _event => {
             const query = fromInput.value;
             const results = await geocoder.getSuggestionsFrom(query);
             updateWithResults(query, results, resultContainer, (result) => {
                 const definition = geocoder.getDefinitionFromName(result.name).unwrap();
-                navigationPane.navigateFrom(Some(definition), true, true);
+                this.navigateFrom(Some(definition));
                 clearResults(resultContainer);
             });
         });
@@ -114,43 +114,17 @@ export class NavigationPane extends Pane {
             const results = await geocoder.getSuggestionsFrom(query);
             updateWithResults(query, results, resultContainer, (result) => {
                 const definition = geocoder.getDefinitionFromName(result.name).unwrap();
-                navigationPane.navigateTo(Some(definition), true, true);
+                this.navigateTo(Some(definition));
                 clearResults(resultContainer);
             });
         });
-        fromPinButton.addEventListener("click", _event => {
-            navigationPane.map.ifSome(map => {
-                navigationPane.fromPin.ifSome(pin => {
-                    navigationPane.floorsLayer.removeLayer(pin);
-                });
-
-                const pinLocation = new BuildingLocation(map.getCenter(), floors.getCurrentFloor());
-                const pin = NavigationPane.genFromPin(pinLocation, geocoder, navigationPane);
-                pin.addTo(navigationPane.floorsLayer);
-                navigationPane.fromPin = Some(pin);
-            });
-        });
-        toPinButton.addEventListener("click", _event => {
-            navigationPane.map.ifSome(map => {
-                navigationPane.toPin.ifSome(pin => {
-                    navigationPane.floorsLayer.removeLayer(pin);
-                });
-
-                const pinLocation = new BuildingLocation(map.getCenter(), navigationPane.floorsLayer.getCurrentFloor());
-                const pin = NavigationPane.genToPin(pinLocation, geocoder, navigationPane);
-                pin.addTo(navigationPane.floorsLayer);
-                navigationPane.toPin = Some(pin);
-            });
-        });
-
-        return navigationPane;
     }
 
-    public addTo(map: Map, sidebar: Control.Sidebar): void {
-        this.map = Some(map);
+    // public addTo(map: Map, sidebar: Control.Sidebar): void {
+    //     this.map = Some(map);
 
-        sidebar.addPanel(this.getPanelOptions());
-    }
+    //     sidebar.addPanel(this.getPanelOptions());
+    // }
 
     public getPaneId(): string {
         return "nav";
@@ -168,128 +142,120 @@ export class NavigationPane extends Pane {
         return this.pane;
     }
 
-    private swapNav(movePins: boolean, focus: boolean): void {
-        const from = this.fromDefinition;
-        this.navigateFrom(this.toDefinition, movePins, focus);
-        this.navigateTo(from, movePins, focus);
+    private swapNav(): void {
+        this.swapNavHandlers.forEach(handler => handler());
     }
 
-    public navigateTo(definition: Option<IGeocoderDefinition>, movePin: boolean, focus: boolean): void {
-        this.toDefinition = definition;
-
-        this.toInput.value = definition.match({
-            some: room => room.getName(),
-            none: ""
-        });
-        if (movePin) {
-            definition.ifSome(definition => {
-                const location = definition.getLocation();
-
-                this.toPin.ifSome(pin => {
-                    this.floorsLayer.removeLayer(pin);
-                });
-
-                const newPin = NavigationPane.genToPin(location, this.geocoder, this)
-                    .addTo(this.floorsLayer);
-                this.toPin = Some(newPin);
-            });
-        }
-        this.calcNavIfNeeded();
+    public navigateTo(definition: Option<IGeocoderDefinition>): void {
+        this.navigateToHandlers.forEach(handler => handler(definition));
     }
 
-    public navigateFrom(definition: Option<IGeocoderDefinition>, movePin: boolean, focus: boolean): void {
-        this.fromDefinition = definition;
-
-        this.fromInput.value = definition.match({
-            some: room => room.getName(),
-            none: ""
-        });
-        if (movePin) {
-            definition.ifSome(definition => {
-                const location = definition.getLocation();
-
-                this.fromPin.ifSome(pin => {
-                    this.floorsLayer.removeLayer(pin);
-                });
-
-                const newPin = NavigationPane.genFromPin(location, this.geocoder, this)
-                    .addTo(this.floorsLayer);
-                this.fromPin = Some(newPin);
-            });
-        }
-
-        this.calcNavIfNeeded();
-    }
-
-    private calcNavIfNeeded(): void {
-        if (this.fromDefinition.isSome() && this.toDefinition.isSome()) {
-            this.calcNav(this.fromDefinition.unwrap(), this.toDefinition.unwrap());
-        }
-    }
-
-    private calcNav(fromDefinition: IGeocoderDefinition, toDefinition: IGeocoderDefinition): void {
-        this.clearNav();
-        const path = this.mapData.findBestPath(fromDefinition, toDefinition);
-        path.ifSome(path => {
-            const resPathLayers = this.mapData.createLayerGroupsFromPath(path);
-            resPathLayers.match({
-                ok: pathLayers => {
-                    this.pathLayers = pathLayers;
-                    this.pathLayers.forEach(layer => this.floorsLayer.addLayer(layer));
-                },
-                err: error => this.logger.logError(`Error in NavigationPane.calcNav: ${error}`)
-            });
-        });
+    public navigateFrom(definition: Option<IGeocoderDefinition>): void {
+        this.navigateFromHandlers.forEach(handler => handler(definition));
     }
 
     public clearNav(): void {
-        this.pathLayers.forEach(layer => this.floorsLayer.removeLayer(layer));
+        this.pathLayers.forEach(layer => this.floors.removeLayer(layer));
     }
 
     public displayNav(layers: Set<LSomeLayerWithFloor>): void {
         this.pathLayers = layers;
-        this.pathLayers.forEach(layer => this.floorsLayer.addLayer(layer));
+        this.pathLayers.forEach(layer => this.floors.addLayer(layer));
     }
 
-    private static genFromPin(
-        location: BuildingLocation,
-        geocoder: Geocoder,
-        navigationPane: NavigationPane
-    ): FlooredMarker {
-        return NavigationPane.genDraggablePin(
+    /**
+     * Register a callback for when the source and destination of the navigation are swapped
+     * @param onSwap The callback
+     */
+    public registerOnSwapNav(onSwap: () => void): void {
+        this.swapNavHandlers.push(onSwap);
+    }
+
+    /**
+     * Register a callback for when the user navigates to a definition
+     * @param onNavigateTo The callback, which takes in the definition the user navigated to
+     */
+    public registerOnNavigateTo(onNavigateTo: (definition: Option<IGeocoderDefinition>) => void): void {
+        this.navigateToHandlers.push(onNavigateTo);
+    }
+
+    /**
+     * Register a callback for when the user navigates from a definition
+     * @param onNavigateFrom The callback, which takes in the definition the user navigated from
+     */
+    public registerOnNavigateFrom(onNavigateFrom: (definition: Option<IGeocoderDefinition>) => void): void {
+        this.navigateFromHandlers.push(onNavigateFrom);
+    }
+
+    /**
+     * Register a callback for when the navigation pin representing the starting location is moved
+     * @param onMove The callback, which takes in the current position of the pin
+     */
+    public registerOnMoveFromPin(onMove: (currentLocation: BuildingLocation) => void): void {
+        this.moveFromPinHandlers.push(onMove);
+    }
+
+    /**
+     * Register a callback for when the navigation pin representing the destination is moved
+     * @param onMove The callback, which takes in the current position of the pin
+     */
+    public registerOnMoveToPin(onMove: (currentLocation: BuildingLocation) => void): void {
+        this.moveToPinHandlers.push(onMove);
+    }
+
+    /**
+     * Set the callback for snapping the pin's location when it isn't being dragged. Defaults to the identity function,
+     * ie. no snapping.
+     * @param snapPin The callback, which takes in the location of the pin and returns the location to snap to
+     */
+    public setSnapPinHandler(snapPin: (location: BuildingLocation) => BuildingLocation): void {
+        this.snapPinHandler = snapPin;
+    }
+
+    private onMoveFromPin(currentLocation: BuildingLocation): void {
+        this.moveFromPinHandlers.forEach(handler => handler(currentLocation));
+    }
+
+    private onMoveToPin(currentLocation: BuildingLocation): void {
+        this.moveToPinHandlers.forEach(handler => handler(currentLocation));
+    }
+
+    private genFromPin(location: BuildingLocation): FlooredMarker {
+        return this.genDraggableSnappingPin(
             location,
-            geocoder,
             "fa-map-marker-alt",
-            definition => navigationPane.navigateFrom(definition, false, false),
-            () => navigationPane.fromDefinition
+            location => this.onMoveFromPin(location),
+            location => this.snapPinHandler(location)
         );
     }
 
-    private static genToPin(
-        location: BuildingLocation,
-        geocoder: Geocoder,
-        navigationPane: NavigationPane
-    ): FlooredMarker {
-        return NavigationPane.genDraggablePin(
+    private genToPin(location: BuildingLocation): FlooredMarker {
+        return this.genDraggableSnappingPin(
             location,
-            geocoder,
             "fa-flag-checkered",
-            definition => navigationPane.navigateTo(definition, false, false),
-            () => navigationPane.toDefinition
+            location => this.onMoveToPin(location),
+            location => this.snapPinHandler(location)
         );
     }
 
-    private static genDraggablePin(
+    /**
+     * Create a draggable pin that snaps to a new location when released
+     * @param location Location to place the pin; note that the pin will be snapped before it is placed
+     * @param iconClass Class used for the icon
+     * @param onMove Called when the location of the pin changes, including while it is dragged and when it snaps
+     * @param snapToDefinition Given an initial location, return a location that snaps the pin
+     */
+    private genDraggableSnappingPin(
         location: BuildingLocation,
-        geocoder: Geocoder,
         iconClass: string,
-        setNavigation: (definition: Option<IGeocoderDefinition>) => void,
-        getNavigation: () => Option<IGeocoderDefinition>
+        onMove: (location: BuildingLocation) => void,
+        snapToDefinition: (snapFrom: BuildingLocation) => BuildingLocation
     ): FlooredMarker {
         const icon = <i class="fas"></i> as HTMLElement;
         icon.classList.add(iconClass);
 
-        const pin = flooredMarker(location, {
+        const snapLocation = snapToDefinition(location);
+        const pin = flooredMarker(snapLocation, {
             draggable: true,
             autoPan: true,
             icon: divIcon({
@@ -297,37 +263,40 @@ export class NavigationPane extends Pane {
                 html: icon
             })
         });
+        onMove(snapLocation);
 
         pin.on("move", event => {
             // eslint-disable-next-line
             // @ts-ignore: event does have latlng for move event
             const latLng = event.latlng;
-            const pinLocation = new BuildingLocation(latLng, location.getFloor());
-
-            NavigationPane.onNewPinLocation(pinLocation, geocoder, setNavigation);
-        }).on("dragend", _event => {
-            NavigationPane.centerPin(pin, getNavigation);
+            const pinLocation = new BuildingLocation(latLng, pin.getFloorNumber());
+            onMove(pinLocation);
+        }).on("dragend", event => {
+            // eslint-disable-next-line
+            // @ts-ignore: event does have latlng for move event
+            const latLng = event.latlng;
+            const pinLocation = new BuildingLocation(latLng, pin.getFloorNumber());
+            const snappedLocation = snapToDefinition(pinLocation);
+            pin.setLocation(snappedLocation);
+            onMove(snappedLocation);
         });
-
-        NavigationPane.onNewPinLocation(location, geocoder, setNavigation);
-        NavigationPane.centerPin(pin, getNavigation);
 
         return pin;
     }
 
-    private static onNewPinLocation(
-        location: BuildingLocation,
-        geocoder: Geocoder,
-        setNavigation: (definition: Option<IGeocoderDefinition>) => void
-    ): void {
-        const locationEntrances = new BuildingLocationWithEntrances(location, []);
-        const closest = geocoder.getClosestDefinition(locationEntrances);
-        setNavigation(closest);
-    }
+    // private static onNewPinLocation(
+    //     location: BuildingLocation,
+    //     geocoder: Geocoder,
+    //     setNavigation: (definition: Option<IGeocoderDefinition>) => void
+    // ): void {
+    //     const locationEntrances = new BuildingLocationWithEntrances(location, []);
+    //     const closest = geocoder.getClosestDefinition(locationEntrances);
+    //     setNavigation(closest);
+    // }
 
-    private static centerPin(pin: FlooredMarker, getNavigation: () => Option<IGeocoderDefinition>): void {
-        getNavigation().ifSome(fromDefinition => {
-            pin.setLatLng(fromDefinition.getLocation().getXY());
-        });
-    }
+    // private centerPinOnDefinition(pin: FlooredMarker, getNavigation: () => Option<IGeocoderDefinition>): void {
+    //     getNavigation().ifSome(fromDefinition => {
+    //         pin.setLatLng(fromDefinition.getLocation().getXY());
+    //     });
+    // }
 }
