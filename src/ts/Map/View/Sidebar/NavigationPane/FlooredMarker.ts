@@ -22,4 +22,8 @@ export class FlooredMarker extends Marker implements LSomeLayerWithFloor {
         this.setLatLng(location.getXY());
         this.floorNumber = location.getFloor();
     }
+
+    public getLocation(): BuildingLocation {
+        return new BuildingLocation(this.getLatLng(), this.getFloorNumber());
+    }
 }

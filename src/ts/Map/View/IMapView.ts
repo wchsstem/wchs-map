@@ -2,6 +2,7 @@ import { BuildingLocation } from "../../BuildingLocation/BuildingLocation";
 import { GeocoderSuggestion } from "../../Geocoder/GeocoderSuggestion";
 import { IGeocoderDefinition } from "../../Geocoder/IGeocoderDefinition";
 import { LSomeLayerWithFloor } from "../../LFloorsPlugin/LFloorsPlugin";
+import { Option } from "@nvarner/monads";
 
 /** Interface to interact with and manipulate the map GUI, including info boxes, search bars, and the map itself */
 export interface IMapView {
@@ -29,6 +30,37 @@ export interface IMapView {
      * @param onSwap The callback
      */
     registerOnSwapNav(onSwap: () => void): void;
+
+    /**
+     * Register a callback for when the user navigates to a definition
+     * @param onNavigateTo The callback, which takes in the definition the user navigated to
+     */
+    registerOnNavigateTo(onNavigateTo: (definition: Option<IGeocoderDefinition>) => void): void;
+
+    /**
+     * Register a callback for when the user navigates from a definition
+     * @param onNavigateFrom The callback, which takes in the definition the user navigated from
+     */
+    registerOnNavigateFrom(onNavigateFrom: (definition: Option<IGeocoderDefinition>) => void): void;
+
+    /**
+     * Register a callback for when the navigation pin representing the starting location is moved
+     * @param onMove The callback, which takes in the current position of the pin
+     */
+    registerOnMoveFromPin(onMove: (currentLocation: BuildingLocation) => void): void;
+
+    /**
+     * Register a callback for when the navigation pin representing the destination is moved
+     * @param onMove The callback, which takes in the current position of the pin
+     */
+    registerOnMoveToPin(onMove: (currentLocation: BuildingLocation) => void): void;
+
+    /**
+     * Set the callback for snapping the pin's location when it isn't being dragged. Defaults to the identity function,
+     * ie. no snapping.
+     * @param snapPin The callback, which takes in the location of the pin and returns the location to snap to
+     */
+    setSnapPinHandler(snapPin: (location: BuildingLocation) => BuildingLocation): void;
 
     /** Move the map's focus to a definition and display info about it */
     focusOnDefinition(definition: IGeocoderDefinition): void;

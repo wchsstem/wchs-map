@@ -28,7 +28,7 @@ export class NavigationPane extends Pane {
     private readonly pane: HTMLElement;
 
     static inject = ["floors", "map", "geocoder"] as const;
-    public constructor(private readonly floors: LFloors, private map: Map, geocoder: Geocoder) {
+    public constructor(private readonly floors: LFloors, map: Map, geocoder: Geocoder) {
         super();
 
         this.navigateFromHandlers = [];
@@ -119,12 +119,6 @@ export class NavigationPane extends Pane {
             });
         });
     }
-
-    // public addTo(map: Map, sidebar: Control.Sidebar): void {
-    //     this.map = Some(map);
-
-    //     sidebar.addPanel(this.getPanelOptions());
-    // }
 
     public getPaneId(): string {
         return "nav";
@@ -225,7 +219,10 @@ export class NavigationPane extends Pane {
             location,
             "fa-map-marker-alt",
             location => this.onMoveFromPin(location),
-            location => this.snapPinHandler(location)
+            location => {
+                console.log("loc", location);
+                return this.snapPinHandler(location);
+            }
         );
     }
 
@@ -271,12 +268,8 @@ export class NavigationPane extends Pane {
             const latLng = event.latlng;
             const pinLocation = new BuildingLocation(latLng, pin.getFloorNumber());
             onMove(pinLocation);
-        }).on("dragend", event => {
-            // eslint-disable-next-line
-            // @ts-ignore: event does have latlng for move event
-            const latLng = event.latlng;
-            const pinLocation = new BuildingLocation(latLng, pin.getFloorNumber());
-            const snappedLocation = snapToDefinition(pinLocation);
+        }).on("dragend", _event => {
+            const snappedLocation = snapToDefinition(pin.getLocation());
             pin.setLocation(snappedLocation);
             onMove(snappedLocation);
         });

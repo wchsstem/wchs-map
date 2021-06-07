@@ -7,13 +7,16 @@ import { BuildingLocationWithEntrances } from "../../BuildingLocation/BuildingLo
 import { LocationOnlyDefinition } from "../../LocationOnlyDefinition";
 import { MapData } from "../../MapData";
 import { Logger } from "../../LogPane/LogPane";
+import { Geocoder } from "../../Geocoder/Geocoder";
+import { BuildingLocation } from "../../BuildingLocation/BuildingLocation";
 
 export class LeafletMapController implements IMapController {
-    static inject = ["mapView", "mapModel", "mapData", "logger"] as const;
+    static inject = ["mapView", "mapModel", "mapData", "geocoder", "logger"] as const;
     public constructor(
         private readonly view: IMapView,
         private readonly model: IMapModel,
         private readonly mapData: MapData,
+        private readonly geocoder: Geocoder,
         private readonly logger: Logger
     ) {
         view.registerOnClickClosest((closest, starting) => {
@@ -24,6 +27,25 @@ export class LeafletMapController implements IMapController {
         });
 
         view.registerOnSwapNav(() => this.swapNav());
+
+        view.registerOnNavigateTo(definition => this.navigateTo(definition));
+
+        view.registerOnNavigateFrom(definition => this.navigateFrom(definition));
+
+        view.registerOnMoveToPin(location => {
+            const definition = geocoder.getClosestDefinition(new BuildingLocationWithEntrances(location, []));
+            this.navigateTo(definition);
+        });
+
+        view.registerOnMoveFromPin(location => {
+            const definition = geocoder.getClosestDefinition(new BuildingLocationWithEntrances(location, []));
+            this.navigateFrom(definition);
+        });
+
+        view.setSnapPinHandler(location => {
+            const definition = geocoder.getClosestDefinition(new BuildingLocationWithEntrances(location, []));
+            return definition.map<BuildingLocation>(definition => definition.getLocation()).unwrapOr(location);
+        });
     }
 
     public focusOnDefinition(definition: IGeocoderDefinition): void {

@@ -132,6 +132,47 @@ export class Sidebar {
         this.navigationPane.registerOnSwapNav(onSwap);
     }
 
+    /**
+     * Register a callback for when the user navigates to a definition
+     * @param onNavigateTo The callback, which takes in the definition the user navigated to
+     */
+    public registerOnNavigateTo(onNavigateTo: (definition: Option<IGeocoderDefinition>) => void): void {
+        this.navigationPane.registerOnNavigateTo(onNavigateTo);
+    }
+
+    /**
+     * Register a callback for when the user navigates from a definition
+     * @param onNavigateFrom The callback, which takes in the definition the user navigated from
+     */
+    public registerOnNavigateFrom(onNavigateFrom: (definition: Option<IGeocoderDefinition>) => void): void {
+        this.navigationPane.registerOnNavigateFrom(onNavigateFrom);
+    }
+
+    /**
+     * Register a callback for when the navigation pin representing the starting location is moved
+     * @param onMove The callback, which takes in the current position of the pin
+     */
+    public registerOnMoveFromPin(onMove: (currentLocation: BuildingLocation) => void): void {
+        this.navigationPane.registerOnMoveFromPin(onMove);
+    }
+
+    /**
+     * Register a callback for when the navigation pin representing the destination is moved
+     * @param onMove The callback, which takes in the current position of the pin
+     */
+    public registerOnMoveToPin(onMove: (currentLocation: BuildingLocation) => void): void {
+        this.navigationPane.registerOnMoveToPin(onMove);
+    }
+
+    /**
+     * Set the callback for snapping the pin's location when it isn't being dragged. Defaults to the identity function,
+     * ie. no snapping.
+     * @param snapPin The callback, which takes in the location of the pin and returns the location to snap to
+     */
+    public setSnapPinHandler(snapPin: (location: BuildingLocation) => BuildingLocation): void {
+        this.navigationPane.setSnapPinHandler(snapPin);
+    }
+
     public openInfoFor(definition: IGeocoderDefinition): void {
         const infoPane = this.setUpInfoPane(definition);
 
