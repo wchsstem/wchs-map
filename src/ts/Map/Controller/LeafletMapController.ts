@@ -48,7 +48,6 @@ export class LeafletMapController implements MapController {
         events.on("clickNavigateToSuggestion", suggestion => {
             const definition = geocoder.getDefinitionFromName(suggestion.name).unwrap();
             this.navigateTo(Some(definition), true);
-            this.moveToPin(definition.getLocation());
             this.view.clearNavSuggestions();
         });
 
@@ -60,6 +59,14 @@ export class LeafletMapController implements MapController {
         events.on("dragFromPin", location => {
             const definition = geocoder.getClosestDefinition(new BuildingLocationWithEntrances(location, []));
             this.navigateFrom(definition, false);
+        });
+
+        events.on("clickNavigateToDefinitionButton", definition => {
+            this.navigateTo(Some(definition), true);
+        });
+
+        events.on("clickFocusDefinitionButton", definition => {
+            this.focusOnDefinition(definition);
         });
 
         view.setSnapPinHandler(location => {

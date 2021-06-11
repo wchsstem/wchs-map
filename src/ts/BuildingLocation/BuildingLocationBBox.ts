@@ -1,4 +1,4 @@
-import { latLng, LatLng, latLngBounds, LatLngBoundsExpression } from "leaflet";
+import { latLng, LatLng, LatLngBounds, latLngBounds, LatLngBoundsExpression } from "leaflet";
 
 /** Represents a rectangular area on one floor */
 export class BuildingLocationBBox {
@@ -13,7 +13,7 @@ export class BuildingLocationBBox {
         const maxX = Math.max(...xs);
         const minX = Math.min(...xs);
 
-        const ys = points.map(point => point.lng);
+        const ys = points.map(point => point.lat);
         const maxY = Math.max(...ys);
         const minY = Math.min(...ys);
 
@@ -35,7 +35,7 @@ export class BuildingLocationBBox {
         return this.floor;
     }
 
-    public toLatLngBounds(): LatLngBoundsExpression {
+    public toLatLngBounds(): LatLngBounds {
         return latLngBounds(this.bottomLeft, this.topRight);
     }
 }

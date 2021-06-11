@@ -163,11 +163,11 @@ export class NavigationPane extends Pane {
     }
 
     public moveFromPin(location: BuildingLocation): void {
-        this.fromPin.ifSome(_pin => this.createFromPin(location));
+        this.createFromPin(location);
     }
 
     public moveToPin(location: BuildingLocation): void {
-        this.toPin.ifSome(_pin => this.createToPin(location));
+        this.createToPin(location);
     }
 
     public setNavigateFromInputContents(contents: string): void {

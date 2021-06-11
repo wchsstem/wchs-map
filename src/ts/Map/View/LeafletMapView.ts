@@ -45,7 +45,7 @@ export class LeafletMapView implements MapView {
 
     private goToDefinition(definition: GeocoderDefinition): void {
         const location = definition.getLocation();
-        this.map.fitBounds(definition.getBoundingBox().toLatLngBounds());
+        this.map.fitBounds(definition.getBoundingBox().toLatLngBounds().pad(0.1));
         this.floors.setFloor(location.getFloor());
     }
 

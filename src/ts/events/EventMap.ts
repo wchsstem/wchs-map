@@ -10,5 +10,6 @@ export interface EventMap {
     "dragToPin": (movedTo: BuildingLocation) => void,
     "clickResult": (result: GeocoderSuggestion) => void,
     "clickClosestButton": (closestDefinition: GeocoderDefinition, starting: BuildingLocation) => void,
-    "clickNavigateToDefinitionButton": (definition: GeocoderDefinition) => void
+    "clickNavigateToDefinitionButton": (definition: GeocoderDefinition) => void,
+    "clickFocusDefinitionButton": (definition: GeocoderDefinition) => void
 }
