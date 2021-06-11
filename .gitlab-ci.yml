@@ -73,7 +73,7 @@ test:
   stage: check
   needs: [install_npm_deps]
   script:
-    - npm run test
+    - npm run test-ci
   artifacts:
     when: always
     paths:
