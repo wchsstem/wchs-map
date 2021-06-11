@@ -21,6 +21,14 @@ export class LeafletMapView implements MapView {
         this.sidebar.moveToPin(location);
     }
 
+    public setNavigateFromInputContents(contents: string): void {
+        this.sidebar.setNavigateFromInputContents(contents);
+    }
+
+    public setNavigateToInputContents(contents: string): void {
+        this.sidebar.setNavigateToInputContents(contents);
+    }
+
     /** Remove search suggestions from typing in the navigate from or to fields */
     public clearNavSuggestions(): void {
         this.sidebar.clearNavSuggestions();

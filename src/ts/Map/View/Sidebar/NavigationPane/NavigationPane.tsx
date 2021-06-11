@@ -170,6 +170,14 @@ export class NavigationPane extends Pane {
         this.toPin.ifSome(_pin => this.createToPin(location));
     }
 
+    public setNavigateFromInputContents(contents: string): void {
+        this.fromInput.value = contents;
+    }
+
+    public setNavigateToInputContents(contents: string): void {
+        this.toInput.value = contents;
+    }
+
     /**
      * Set the callback for snapping the pin's location when it isn't being dragged. Defaults to the identity function,
      * ie. no snapping.

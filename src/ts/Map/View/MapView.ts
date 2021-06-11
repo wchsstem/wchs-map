@@ -28,4 +28,10 @@ export interface MapView {
 
     /** Set the location of the to pin */
     moveToPin(location: BuildingLocation): void;
+
+    /** Set the contents of the "navigate from" text input */
+    setNavigateFromInputContents(contents: string): void;
+
+    /** Set the contents of the "navigate to" text input */
+    setNavigateToInputContents(contents: string): void;
 }

@@ -98,17 +98,23 @@ export class LeafletMapController implements MapController {
 
     public navigateFrom(definition: Option<GeocoderDefinition>, movePin: boolean): void {
         this.model.navigateFrom = definition;
-        if (movePin) {
-            definition.ifSome(definition => this.moveFromPin(definition.getLocation()));
-        }
+        definition.ifSome(definition => {
+            if (movePin) {
+                this.moveFromPin(definition.getLocation());
+            }
+            this.view.setNavigateFromInputContents(definition.getName());
+        });
         this.calcNavIfNeeded();
     }
 
     public navigateTo(definition: Option<GeocoderDefinition>, movePin: boolean): void {
         this.model.navigateTo = definition;
-        if (movePin) {
-            definition.ifSome(definition => this.moveToPin(definition.getLocation()));
-        }
+        definition.ifSome(definition => {
+            if (movePin) {
+                this.moveToPin(definition.getLocation());
+            }
+            this.view.setNavigateToInputContents(definition.getName());
+        });
         this.calcNavIfNeeded();
     }
 }

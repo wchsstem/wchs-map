@@ -131,4 +131,12 @@ export class Sidebar {
     public moveToPin(location: BuildingLocation): void {
         this.navigationPane.moveToPin(location);
     }
+
+    public setNavigateFromInputContents(contents: string): void {
+        this.navigationPane.setNavigateFromInputContents(contents);
+    }
+
+    public setNavigateToInputContents(contents: string): void {
+        this.navigationPane.setNavigateToInputContents(contents);
+    }
 }
