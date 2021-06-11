@@ -42,14 +42,20 @@ export class LeafletMapController implements MapController {
         events.on("clickNavigateFromSuggestion", suggestion => {
             const definition = geocoder.getDefinitionFromName(suggestion.name).unwrap();
             this.navigateFrom(Some(definition), true);
-            this.view.clearNavSuggestions();
         });
 
         events.on("clickNavigateToSuggestion", suggestion => {
             const definition = geocoder.getDefinitionFromName(suggestion.name).unwrap();
             this.navigateTo(Some(definition), true);
-            this.view.clearNavSuggestions();
         });
+
+        events.on("clickClosestButton", (closestDefinition, starting) => {
+            geocoder.getClosestDefinition(new BuildingLocationWithEntrances(starting, []))
+                .ifSome(startingDefinition => {
+                    this.navigateFrom(Some(startingDefinition), true);
+                    this.navigateTo(Some(closestDefinition), true);
+                });
+        })
 
         events.on("dragToPin", location => {
             const definition = geocoder.getClosestDefinition(new BuildingLocationWithEntrances(location, []));
@@ -122,6 +128,7 @@ export class LeafletMapController implements MapController {
             }
             this.view.setNavigateToInputContents(definition.getName());
         });
+        this.view.clearNavSuggestions();
         this.calcNavIfNeeded();
     }
 }

@@ -1,4 +1,4 @@
-import { latLng, LatLng, LatLngBounds, latLngBounds, LatLngBoundsExpression } from "leaflet";
+import { latLng, LatLng, LatLngBounds, latLngBounds } from "leaflet";
 
 /** Represents a rectangular area on one floor */
 export class BuildingLocationBBox {
