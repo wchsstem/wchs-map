@@ -1,7 +1,7 @@
 import { BuildingLocation } from "../../../../BuildingLocation/BuildingLocation";
 import { DefinitionTag } from "../../../../Geocoder/DefinitionTag";
 import { Geocoder } from "../../../../Geocoder/Geocoder";
-import { IGeocoderDefinition } from "../../../../Geocoder/IGeocoderDefinition";
+import { GeocoderDefinition } from "../../../../Geocoder/GeocoderDefinition";
 import { LFloors } from "../../../../LFloorsPlugin/LFloorsPlugin";
 import { Locator } from "../../../../Locator";
 import { MapData } from "../../../../MapData";
@@ -15,7 +15,7 @@ export class ClosestBathroomButton extends ClosestDefinitionButton {
         settings: ISettings,
         mapData: MapData,
         floorsLayer: LFloors,
-        onGetClosest: (closest: IGeocoderDefinition, starting: BuildingLocation) => void
+        onGetClosest: (closest: GeocoderDefinition, starting: BuildingLocation) => void
     ) {
         super(
             geocoder,

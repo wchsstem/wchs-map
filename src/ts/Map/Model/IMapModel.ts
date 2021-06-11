@@ -1,8 +1,7 @@
-import { IGeocoderDefinition } from "../../Geocoder/IGeocoderDefinition";
+import { GeocoderDefinition } from "../../Geocoder/GeocoderDefinition";
 import { Option } from "@nvarner/monads";
-import { Geocoder } from "../../Geocoder/Geocoder";
 
 export interface IMapModel {
-    navigateFrom: Option<IGeocoderDefinition>;
-    navigateTo: Option<IGeocoderDefinition>;
+    navigateFrom: Option<GeocoderDefinition>;
+    navigateTo: Option<GeocoderDefinition>;
 }

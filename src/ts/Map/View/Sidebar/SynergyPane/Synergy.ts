@@ -1,5 +1,5 @@
 import { Geocoder } from "../../../../Geocoder/Geocoder";
-import { IGeocoderDefinition } from "../../../../Geocoder/IGeocoderDefinition";
+import { GeocoderDefinition } from "../../../../Geocoder/GeocoderDefinition";
 import { Logger } from "../../../../LogPane/LogPane";
 
 const COURSE_NAME_REGEX = /course-title.*">([^:]*): ([^<]*)<\//g;
@@ -9,7 +9,7 @@ export class Course {
     constructor(
         private readonly period: string,
         private readonly name: string,
-        private readonly room: IGeocoderDefinition
+        private readonly room: GeocoderDefinition
     ) {
         this.period = period;
         this.name = name;
@@ -27,7 +27,7 @@ export class Course {
         return li;
     }
 
-    public getDefinition(): IGeocoderDefinition {
+    public getDefinition(): GeocoderDefinition {
         return this.room;
     }
 }

@@ -1,10 +1,10 @@
 import { BuildingLocationBBox } from "./BuildingLocation/BuildingLocationBBox";
 import { BuildingLocationWithEntrances } from "./BuildingLocation/BuildingLocationWithEntrances";
 import { DefinitionTag } from "./Geocoder/DefinitionTag";
-import { IGeocoderDefinition } from "./Geocoder/IGeocoderDefinition";
+import { GeocoderDefinition } from "./Geocoder/GeocoderDefinition";
 import { deepCopy } from "./utils";
 
-export class LocationOnlyDefinition implements IGeocoderDefinition {
+export class LocationOnlyDefinition implements GeocoderDefinition {
     public constructor(
         private readonly location: BuildingLocationWithEntrances,
         private readonly alternateNames: string[] = []
@@ -38,7 +38,7 @@ export class LocationOnlyDefinition implements IGeocoderDefinition {
         return false;
     }
 
-    public extendedWithAlternateName(name: string): IGeocoderDefinition {
+    public extendedWithAlternateName(name: string): GeocoderDefinition {
         const newNames = deepCopy(this.alternateNames);
         newNames.push(name);
         return new LocationOnlyDefinition(this.location, newNames);

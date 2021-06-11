@@ -28,6 +28,7 @@ import { NavigationPane } from "./Map/View/Sidebar/NavigationPane/NavigationPane
 import { LeafletMapController } from "./Map/Controller/LeafletMapController";
 import { LeafletMapView } from "./Map/View/LeafletMapView";
 import { LeafletMapModel } from "./Map/Model/LeafletMapModel";
+import { Events } from "./events/Events";
 
 function main() {
     if ("serviceWorker" in navigator) {
@@ -68,6 +69,7 @@ function main() {
         .provideFactory("settings", defaultSettings)
         .provideClass("geocoder", Geocoder)
         .provideClass("locator", Locator)
+        .provideClass("events", Events)
         .provideClass("navigationPane", NavigationPane)
         .provideClass("searchPane", SearchPane)
         .provideClass("sidebar", Sidebar)

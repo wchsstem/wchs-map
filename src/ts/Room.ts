@@ -4,10 +4,10 @@ import { BuildingLocationBBox } from "./BuildingLocation/BuildingLocationBBox";
 import { BuildingLocationWithEntrances } from "./BuildingLocation/BuildingLocationWithEntrances";
 import { EMERGENCY_TAGS, INFRASTRUCTURE_TAGS } from "./config";
 import { DefinitionTag } from "./Geocoder/DefinitionTag";
-import { IGeocoderDefinition } from "./Geocoder/IGeocoderDefinition";
+import { GeocoderDefinition } from "./Geocoder/GeocoderDefinition";
 import { deepCopy } from "./utils";
 
-export default class Room implements IGeocoderDefinition {
+export default class Room implements GeocoderDefinition {
     private readonly boundingBox: BuildingLocationBBox;
 
     public constructor(

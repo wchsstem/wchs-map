@@ -1,6 +1,6 @@
-import { IGeocoderDefinition } from "../../Geocoder/IGeocoderDefinition";
+import { GeocoderDefinition } from "../../Geocoder/GeocoderDefinition";
 import { IMapModel } from "../Model/IMapModel";
-import { IMapView } from "../View/IMapView";
+import { MapView } from "../View/MapView";
 import { IMapController } from "./IMapController";
 import { Option, Some } from "@nvarner/monads";
 import { BuildingLocationWithEntrances } from "../../BuildingLocation/BuildingLocationWithEntrances";
@@ -9,35 +9,50 @@ import { MapData } from "../../MapData";
 import { Logger } from "../../LogPane/LogPane";
 import { Geocoder } from "../../Geocoder/Geocoder";
 import { BuildingLocation } from "../../BuildingLocation/BuildingLocation";
+import { Events } from "../../events/Events";
 
 export class LeafletMapController implements IMapController {
-    static inject = ["mapView", "mapModel", "mapData", "geocoder", "logger"] as const;
+    static inject = ["mapView", "mapModel", "mapData", "geocoder", "logger", "events"] as const;
     public constructor(
-        private readonly view: IMapView,
+        private readonly view: MapView,
         private readonly model: IMapModel,
         private readonly mapData: MapData,
-        private readonly geocoder: Geocoder,
-        private readonly logger: Logger
+        geocoder: Geocoder,
+        private readonly logger: Logger,
+        events: Events
     ) {
-        view.registerOnClickClosest((closest, starting) => {
+        events.on("clickResult", result => {
+            geocoder.getDefinitionFromName(result.name)
+                .ifSome(definition => view.focusOnDefinition(definition));
+        });
+
+        events.on("clickClosestButton", (closest, starting) => {
             const entranceLocation = new BuildingLocationWithEntrances(starting, []);
             const startingDefinition = new LocationOnlyDefinition(entranceLocation);
             this.navigateFrom(Some(startingDefinition));
             this.view.focusOnDefinition(closest);
         });
 
-        view.registerOnSwapNav(() => this.swapNav());
+        events.on("swapNav", () => this.swapNav());
 
-        view.registerOnNavigateTo(definition => this.navigateTo(definition));
+        events.on("clickNavigateFromSuggestion", suggestion => {
+            const definition = geocoder.getDefinitionFromName(suggestion.name).unwrap();
+            this.navigateFrom(Some(definition));
+            this.view.clearNavSuggestions();
+        });
 
-        view.registerOnNavigateFrom(definition => this.navigateFrom(definition));
+        events.on("clickNavigateToSuggestion", suggestion => {
+            const definition = geocoder.getDefinitionFromName(suggestion.name).unwrap();
+            this.navigateTo(Some(definition));
+            this.view.clearNavSuggestions();
+        });
 
-        view.registerOnMoveToPin(location => {
+        events.on("moveToPin", location => {
             const definition = geocoder.getClosestDefinition(new BuildingLocationWithEntrances(location, []));
             this.navigateTo(definition);
         });
 
-        view.registerOnMoveFromPin(location => {
+        events.on("moveFromPin", location => {
             const definition = geocoder.getClosestDefinition(new BuildingLocationWithEntrances(location, []));
             this.navigateFrom(definition);
         });
@@ -48,11 +63,11 @@ export class LeafletMapController implements IMapController {
         });
     }
 
-    public focusOnDefinition(definition: IGeocoderDefinition): void {
+    public focusOnDefinition(definition: GeocoderDefinition): void {
         this.view.focusOnDefinition(definition);
     }
 
-    private calcNav(from: IGeocoderDefinition, to: IGeocoderDefinition): void {
+    private calcNav(from: GeocoderDefinition, to: GeocoderDefinition): void {
         this.view.clearNav();
         const path = this.mapData.findBestPath(from, to);
         path.ifSome(path => {
@@ -68,12 +83,12 @@ export class LeafletMapController implements IMapController {
         this.model.navigateFrom.ifSome(from => this.model.navigateTo.ifSome(to => this.calcNav(from, to)));
     }
 
-    public navigateFrom(definition: Option<IGeocoderDefinition>): void {
+    public navigateFrom(definition: Option<GeocoderDefinition>): void {
         this.model.navigateFrom = definition;
         this.calcNavIfNeeded();
     }
 
-    public navigateTo(definition: Option<IGeocoderDefinition>): void {
+    public navigateTo(definition: Option<GeocoderDefinition>): void {
         this.model.navigateTo = definition;
         this.calcNavIfNeeded();
     }

@@ -9,15 +9,9 @@ import { h } from "../../../../JSX";
 import { FlooredMarker, flooredMarker } from "./FlooredMarker";
 import { Geocoder } from "../../../../Geocoder/Geocoder";
 import { Pane } from "../Pane";
-import { IGeocoderDefinition } from "../../../../Geocoder/IGeocoderDefinition";
+import { Events } from "../../../../events/Events";
 
 export class NavigationPane extends Pane {
-    private readonly navigateToHandlers: ((to: Option<IGeocoderDefinition>) => void)[];
-    private readonly navigateFromHandlers: ((from: Option<IGeocoderDefinition>) => void)[];
-    private readonly swapNavHandlers: (() => void)[];
-    private readonly moveFromPinHandlers: ((location: BuildingLocation) => void)[];
-    private readonly moveToPinHandlers: ((location: BuildingLocation) => void)[];
-
     private snapPinHandler: (location: BuildingLocation) => BuildingLocation;
 
     private pathLayers: Set<LSomeLayerWithFloor>;
@@ -25,17 +19,16 @@ export class NavigationPane extends Pane {
     private fromPin: Option<FlooredMarker>;
     private toPin: Option<FlooredMarker>;
 
+    private readonly fromInput: HTMLInputElement;
+    private readonly toInput: HTMLInputElement;
+    /** Holds search suggestions while typing in the from and to inputs */
+    private readonly resultContainer: HTMLElement;
+
     private readonly pane: HTMLElement;
 
-    static inject = ["floors", "map", "geocoder"] as const;
-    public constructor(private readonly floors: LFloors, map: Map, geocoder: Geocoder) {
+    static inject = ["floors", "map", "geocoder", "events"] as const;
+    public constructor(private readonly floors: LFloors, map: Map, geocoder: Geocoder, private readonly events: Events) {
         super();
-
-        this.navigateFromHandlers = [];
-        this.navigateToHandlers = [];
-        this.swapNavHandlers = [];
-        this.moveFromPinHandlers = [];
-        this.moveToPinHandlers = [];
 
         this.snapPinHandler = (location) => location;
 
@@ -47,12 +40,12 @@ export class NavigationPane extends Pane {
         const fromPinButton = <a class="leaflet-style button" href="#" role="button" title="Choose starting point">
             <i class="fas fa-map-marker-alt"/>
         </a> as HTMLAnchorElement;
-        const fromInput = genTextInput();
+        this.fromInput = genTextInput();
 
         const toPinButton = <a class="leaflet-style button" href="#" role="button" title="Choose destination">
             <i class="fas fa-flag-checkered"/>
         </a> as HTMLAnchorElement;
-        const toInput = genTextInput();
+        this.toInput = genTextInput();
 
         const swapToFrom = <a class="leaflet-style button swap-button" href="#" role="button" title="Swap to/from">
             <i class="fas fa-exchange-alt"/>
@@ -63,20 +56,20 @@ export class NavigationPane extends Pane {
                 <div class="wrapper">
                     <label class="leaflet-style no-border nav-label">From</label>
                     {fromPinButton}
-                    {fromInput}
+                    {this.fromInput}
                 </div>
                 <div class="wrapper">
                     <label class="leaflet-style no-border nav-label">To</label>
                     {toPinButton}
-                    {toInput}
+                    {this.toInput}
                 </div>
             </div>
             {swapToFrom}
         </div>;
 
-        const resultContainer = <div class="wrapper results-wrapper leaflet-style hidden"/>;
+        this.resultContainer = <div class="wrapper results-wrapper leaflet-style hidden"/>;
 
-        this.pane = genPaneElement("Navigation", [toFromContainer, resultContainer]);
+        this.pane = genPaneElement("Navigation", [toFromContainer, this.resultContainer]);
 
         fromPinButton.addEventListener("click", _event => {
             this.fromPin.ifSome(pin => {
@@ -100,22 +93,18 @@ export class NavigationPane extends Pane {
         });
 
         swapToFrom.addEventListener("click", _event => this.swapNav());
-        fromInput.addEventListener("input", async _event => {
-            const query = fromInput.value;
+        this.fromInput.addEventListener("input", async _event => {
+            const query = this.fromInput.value;
             const results = await geocoder.getSuggestionsFrom(query);
-            updateWithResults(query, results, resultContainer, (result) => {
-                const definition = geocoder.getDefinitionFromName(result.name).unwrap();
-                this.navigateFrom(Some(definition));
-                clearResults(resultContainer);
+            updateWithResults(query, results, this.resultContainer, suggestion => {
+                this.events.trigger("clickNavigateFromSuggestion", suggestion);
             });
         });
-        toInput.addEventListener("input", async _event => {
-            const query = toInput.value;
+        this.toInput.addEventListener("input", async _event => {
+            const query = this.toInput.value;
             const results = await geocoder.getSuggestionsFrom(query);
-            updateWithResults(query, results, resultContainer, (result) => {
-                const definition = geocoder.getDefinitionFromName(result.name).unwrap();
-                this.navigateTo(Some(definition));
-                clearResults(resultContainer);
+            updateWithResults(query, results, this.resultContainer, suggestion => {
+                this.events.trigger("clickNavigateFromSuggestion", suggestion);
             });
         });
     }
@@ -137,15 +126,12 @@ export class NavigationPane extends Pane {
     }
 
     private swapNav(): void {
-        this.swapNavHandlers.forEach(handler => handler());
+        this.events.trigger("swapNav");
     }
 
-    public navigateTo(definition: Option<IGeocoderDefinition>): void {
-        this.navigateToHandlers.forEach(handler => handler(definition));
-    }
-
-    public navigateFrom(definition: Option<IGeocoderDefinition>): void {
-        this.navigateFromHandlers.forEach(handler => handler(definition));
+    /** Remove search suggestions from typing in the navigate from or to fields */
+    public clearNavSuggestions(): void {
+        clearResults(this.resultContainer);
     }
 
     public clearNav(): void {
@@ -158,46 +144,6 @@ export class NavigationPane extends Pane {
     }
 
     /**
-     * Register a callback for when the source and destination of the navigation are swapped
-     * @param onSwap The callback
-     */
-    public registerOnSwapNav(onSwap: () => void): void {
-        this.swapNavHandlers.push(onSwap);
-    }
-
-    /**
-     * Register a callback for when the user navigates to a definition
-     * @param onNavigateTo The callback, which takes in the definition the user navigated to
-     */
-    public registerOnNavigateTo(onNavigateTo: (definition: Option<IGeocoderDefinition>) => void): void {
-        this.navigateToHandlers.push(onNavigateTo);
-    }
-
-    /**
-     * Register a callback for when the user navigates from a definition
-     * @param onNavigateFrom The callback, which takes in the definition the user navigated from
-     */
-    public registerOnNavigateFrom(onNavigateFrom: (definition: Option<IGeocoderDefinition>) => void): void {
-        this.navigateFromHandlers.push(onNavigateFrom);
-    }
-
-    /**
-     * Register a callback for when the navigation pin representing the starting location is moved
-     * @param onMove The callback, which takes in the current position of the pin
-     */
-    public registerOnMoveFromPin(onMove: (currentLocation: BuildingLocation) => void): void {
-        this.moveFromPinHandlers.push(onMove);
-    }
-
-    /**
-     * Register a callback for when the navigation pin representing the destination is moved
-     * @param onMove The callback, which takes in the current position of the pin
-     */
-    public registerOnMoveToPin(onMove: (currentLocation: BuildingLocation) => void): void {
-        this.moveToPinHandlers.push(onMove);
-    }
-
-    /**
      * Set the callback for snapping the pin's location when it isn't being dragged. Defaults to the identity function,
      * ie. no snapping.
      * @param snapPin The callback, which takes in the location of the pin and returns the location to snap to
@@ -206,19 +152,11 @@ export class NavigationPane extends Pane {
         this.snapPinHandler = snapPin;
     }
 
-    private onMoveFromPin(currentLocation: BuildingLocation): void {
-        this.moveFromPinHandlers.forEach(handler => handler(currentLocation));
-    }
-
-    private onMoveToPin(currentLocation: BuildingLocation): void {
-        this.moveToPinHandlers.forEach(handler => handler(currentLocation));
-    }
-
     private genFromPin(location: BuildingLocation): FlooredMarker {
         return this.genDraggableSnappingPin(
             location,
             "fa-map-marker-alt",
-            location => this.onMoveFromPin(location),
+            location => this.events.trigger("moveFromPin", location),
             location => {
                 console.log("loc", location);
                 return this.snapPinHandler(location);
@@ -230,7 +168,7 @@ export class NavigationPane extends Pane {
         return this.genDraggableSnappingPin(
             location,
             "fa-flag-checkered",
-            location => this.onMoveToPin(location),
+            location => this.events.trigger("moveToPin", location),
             location => this.snapPinHandler(location)
         );
     }
@@ -263,8 +201,7 @@ export class NavigationPane extends Pane {
         onMove(snapLocation);
 
         pin.on("move", event => {
-            // eslint-disable-next-line
-            // @ts-ignore: event does have latlng for move event
+            // @ts-expect-error: event does have latlng for move event
             const latLng = event.latlng;
             const pinLocation = new BuildingLocation(latLng, pin.getFloorNumber());
             onMove(pinLocation);
@@ -276,20 +213,4 @@ export class NavigationPane extends Pane {
 
         return pin;
     }
-
-    // private static onNewPinLocation(
-    //     location: BuildingLocation,
-    //     geocoder: Geocoder,
-    //     setNavigation: (definition: Option<IGeocoderDefinition>) => void
-    // ): void {
-    //     const locationEntrances = new BuildingLocationWithEntrances(location, []);
-    //     const closest = geocoder.getClosestDefinition(locationEntrances);
-    //     setNavigation(closest);
-    // }
-
-    // private centerPinOnDefinition(pin: FlooredMarker, getNavigation: () => Option<IGeocoderDefinition>): void {
-    //     getNavigation().ifSome(fromDefinition => {
-    //         pin.setLatLng(fromDefinition.getLocation().getXY());
-    //     });
-    // }
 }

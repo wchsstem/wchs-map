@@ -1,10 +1,10 @@
-import { IGeocoderDefinition } from "../../Geocoder/IGeocoderDefinition";
+import { GeocoderDefinition } from "../../Geocoder/GeocoderDefinition";
 import { None, Option } from "@nvarner/monads";
 import { IMapModel } from "./IMapModel";
 
 export class LeafletMapModel implements IMapModel {
-    public navigateFrom: Option<IGeocoderDefinition>;
-    public navigateTo: Option<IGeocoderDefinition>;
+    public navigateFrom: Option<GeocoderDefinition>;
+    public navigateTo: Option<GeocoderDefinition>;
 
     static inject = [] as const;
     public constructor() {

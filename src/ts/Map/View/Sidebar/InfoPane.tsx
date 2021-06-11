@@ -1,16 +1,20 @@
-import { Some } from "@nvarner/monads";
+import { Events } from "../../../events/Events";
 import { genButtonIcon, genPaneElement } from "../../../GenHtml/GenHtml";
-import { IGeocoderDefinition } from "../../../Geocoder/IGeocoderDefinition";
+import { GeocoderDefinition } from "../../../Geocoder/GeocoderDefinition";
 import { h } from "../../../JSX";
 import { NavigationPane } from "./NavigationPane/NavigationPane";
 import { Pane } from "./Pane";
 
 export class InfoPane extends Pane {
-    private readonly focusDefinitionHandlers: ((definition: IGeocoderDefinition) => void)[];
+    private readonly focusDefinitionHandlers: ((definition: GeocoderDefinition) => void)[];
 
     private readonly pane: HTMLElement;
 
-    public constructor(definition: IGeocoderDefinition, private readonly navigationPane: NavigationPane) {
+    public constructor(
+        definition: GeocoderDefinition,
+        private readonly navigationPane: NavigationPane,
+        private readonly events: Events
+    ) {
         super();
 
         this.focusDefinitionHandlers = [];
@@ -52,15 +56,15 @@ export class InfoPane extends Pane {
      * Register a callback for when a definition is focused
      * @param onFocusDefinition The callback, which takes in the definition being focused
      */
-    public registerOnFocusDefinition(onFocusDefinition: (definition: IGeocoderDefinition) => void): void {
+    public registerOnFocusDefinition(onFocusDefinition: (definition: GeocoderDefinition) => void): void {
         this.focusDefinitionHandlers.push(onFocusDefinition);
     }
 
-    private onFocusDefinition(definition: IGeocoderDefinition): void {
+    private onFocusDefinition(definition: GeocoderDefinition): void {
         this.focusDefinitionHandlers.forEach(handler => handler(definition));
     }
 
-    private createHeader(paneElements: HTMLElement[], definition: IGeocoderDefinition) {
+    private createHeader(paneElements: HTMLElement[], definition: GeocoderDefinition) {
         const header = document.createElement("div");
         header.classList.add("wrapper");
         header.classList.add("header-wrapper");
@@ -78,7 +82,7 @@ export class InfoPane extends Pane {
         header.appendChild(viewRoomButton);
 
         const navButton = genButtonIcon("fa-location-arrow", () => {
-            this.navigationPane.navigateTo(Some(definition), true, true);
+            this.events.trigger("clickNavigateToDefinitionButton", definition);
         }, "Navigate");
         header.appendChild(navButton);
     }

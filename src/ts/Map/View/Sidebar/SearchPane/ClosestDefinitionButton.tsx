@@ -1,7 +1,7 @@
 import { BuildingLocation } from "../../../../BuildingLocation/BuildingLocation";
 import { BuildingLocationWithEntrances } from "../../../../BuildingLocation/BuildingLocationWithEntrances";
 import { Geocoder } from "../../../../Geocoder/Geocoder";
-import { IGeocoderDefinition } from "../../../../Geocoder/IGeocoderDefinition";
+import { GeocoderDefinition } from "../../../../Geocoder/GeocoderDefinition";
 import { h } from "../../../../JSX";
 import { LFloors } from "../../../../LFloorsPlugin/LFloorsPlugin";
 import { LocationOnlyDefinition } from "../../../../LocationOnlyDefinition";
@@ -14,10 +14,10 @@ export class ClosestDefinitionButton {
         private readonly locator: Locator,
         private readonly mapData: MapData,
         private readonly floorsLayer: LFloors,
-        private readonly predicate: (definition: IGeocoderDefinition) => boolean,
+        private readonly predicate: (definition: GeocoderDefinition) => boolean,
         private readonly iconClass: string,
         private readonly titleText: string,
-        private readonly onGetClosest: (closest: IGeocoderDefinition, starting: BuildingLocation) => void,
+        private readonly onGetClosest: (closest: GeocoderDefinition, starting: BuildingLocation) => void,
     ) {}
 
     public getHtml(): HTMLElement {

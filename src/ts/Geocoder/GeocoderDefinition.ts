@@ -2,7 +2,7 @@ import { BuildingLocationBBox } from "../BuildingLocation/BuildingLocationBBox";
 import { BuildingLocationWithEntrances } from "../BuildingLocation/BuildingLocationWithEntrances";
 import { DefinitionTag } from "./DefinitionTag";
 
-export interface IGeocoderDefinition {
+export interface GeocoderDefinition {
     /**
      * Displayed to the user and the main factor in search. Must be unique among definitions.
      */
@@ -28,7 +28,7 @@ export interface IGeocoderDefinition {
     /**
      * Returns a new definition with an extra alternate name added. Does not modify the object on which it is called.
      */
-    extendedWithAlternateName(name: string): IGeocoderDefinition;
+    extendedWithAlternateName(name: string): GeocoderDefinition;
 
     /** Get some single location that represents */
     getLocation(): BuildingLocationWithEntrances;

@@ -3,20 +3,20 @@ import { kdTree } from "kd-tree-javascript";
 import MiniSearch from "minisearch";
 import { MapData } from "../MapData";
 import { t } from "../utils";
-import { IGeocoderDefinition } from "./IGeocoderDefinition";
+import { GeocoderDefinition } from "./GeocoderDefinition";
 import { GeocoderSuggestion } from "./GeocoderSuggestion";
 import { BuildingLocationWithEntrances } from "../BuildingLocation/BuildingLocationWithEntrances";
 
 export class Geocoder {
     private readonly search: Promise<MiniSearch>;
  
-    private readonly definitionsByName: Map<string, IGeocoderDefinition>;
+    private readonly definitionsByName: Map<string, GeocoderDefinition>;
     /**
      * Definitions indexed by alternate names. They are not guaranteed to be unique, so some definitions may be
      * overwritten. This should be used as a backup only if `definitionsByName` does not contain a requested name.
      */
-    private readonly definitionsByAltName: Map<string, IGeocoderDefinition>;
-    private readonly definitionsByLocation: Map<BuildingLocationWithEntrances, IGeocoderDefinition>;
+    private readonly definitionsByAltName: Map<string, GeocoderDefinition>;
+    private readonly definitionsByLocation: Map<BuildingLocationWithEntrances, GeocoderDefinition>;
     private readonly allNames: Set<string>;
     /** Spatial indices of room center locations, indexed by floor */
     private readonly roomCenterIndices: Map<string, BuildingKDTree>;
@@ -51,7 +51,7 @@ export class Geocoder {
      * Adds a definition to the geocoder. Overrides any other definition with the same name, if already added to the
      * geocoder. Returns the definition it replaced, if any.
      */
-    public async addDefinition(definition: IGeocoderDefinition): Promise<Option<IGeocoderDefinition>> {
+    public async addDefinition(definition: GeocoderDefinition): Promise<Option<GeocoderDefinition>> {
         // Deal with the existing definition if it exists
         const existing = fromMap(this.definitionsByName, definition.getName())
             .map(existing => {
@@ -75,7 +75,7 @@ export class Geocoder {
         return existing;
     }
 
-    public async removeDefinition(definition: IGeocoderDefinition): Promise<void> {
+    public async removeDefinition(definition: GeocoderDefinition): Promise<void> {
         this.definitionsByName.delete(definition.getName());
 
         const newDefinitionsByAltName = [...this.definitionsByAltName]
@@ -105,7 +105,7 @@ export class Geocoder {
             .map(searchResult => new GeocoderSuggestion(searchResult.getName));
     }
 
-    public getDefinitionFromName(name: string): Option<IGeocoderDefinition> {
+    public getDefinitionFromName(name: string): Option<GeocoderDefinition> {
         return fromMap(this.definitionsByName, name)
             .or(fromMap(this.definitionsByAltName, name));
     }
@@ -119,7 +119,7 @@ export class Geocoder {
     /**
      * Gets the definition closest to `location` on the same floor. Uses Euclidean distance.
      */
-    public getClosestDefinition(location: BuildingLocationWithEntrances): Option<IGeocoderDefinition> {
+    public getClosestDefinition(location: BuildingLocationWithEntrances): Option<GeocoderDefinition> {
         const tree = fromMap(this.roomCenterIndices, location.getFloor()).unwrap();
         const [closest] = tree.nearest(locationToKDTreeEntry(location), 1);
         return closest[0].definition;
@@ -132,15 +132,15 @@ export class Geocoder {
      */
     public getClosestDefinitionToFilteredWithDistance(
         origin: BuildingLocationWithEntrances,
-        predicate: (definition: IGeocoderDefinition) => boolean,
+        predicate: (definition: GeocoderDefinition) => boolean,
         distance: (from: BuildingLocationWithEntrances, to: BuildingLocationWithEntrances) => Option<number>
-    ): Option<IGeocoderDefinition> {
+    ): Option<GeocoderDefinition> {
         return [...this.definitionsByLocation.entries()]
             .filter(([_location, definition]) => predicate(definition))
             .map(([location, definition]) => t(distance(origin, location), definition))
             .filter(([distance, _definition]) => distance.isSome())
             .map(([distance, definition]) => t(distance.unwrap(), definition))
-            .reduce<Option<[number, IGeocoderDefinition]>>((min, curr) => {
+            .reduce<Option<[number, GeocoderDefinition]>>((min, curr) => {
                 return min.isNone() || curr[0] < min.unwrap()[0] ? Some(curr) : min;
              }, None)
             .map(([_distance, definition]) => definition);
@@ -150,11 +150,11 @@ export class Geocoder {
 interface KDTreeEntry {
     x: number,
     y: number,
-    definition: Option<IGeocoderDefinition>
+    definition: Option<GeocoderDefinition>
 }
 type BuildingKDTree = kdTree<KDTreeEntry>;
 
-function definitionToKDTreeEntry(definition: IGeocoderDefinition): KDTreeEntry {
+function definitionToKDTreeEntry(definition: GeocoderDefinition): KDTreeEntry {
     const location = definition.getLocation().getXY();
     return {
         x: location.lng,

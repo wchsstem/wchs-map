@@ -140,8 +140,7 @@ export function deepCopy<T>(a: T): T {
     }
 
     if (Array.isArray(a)) {
-        // eslint-disable-next-line
-        // @ts-ignore: TS can't tell that each element will be the same type, so this is okay
+        // @ts-expect-error: TS can't tell that each element will be the same type, so this is okay
         return a.map(entry => deepCopy(entry));
     } else if (a !== null && a !== undefined && typeof a === "object") {
         return Object.getOwnPropertyNames(a)
@@ -149,8 +148,7 @@ export function deepCopy<T>(a: T): T {
                 const descriptor = Object.getOwnPropertyDescriptor(a, property);
                 if (descriptor !== undefined) {
                     Object.defineProperty(copy, property, descriptor);
-                    // eslint-disable-next-line
-                    // @ts-ignore: TS can't tell that indexing here is okay and the types will be the same
+                    // @ts-expect-error: TS can't tell that indexing here is okay and the types will be the same
                     copy[property] = deepCopy(a[property]);
                 }
                 return copy;
