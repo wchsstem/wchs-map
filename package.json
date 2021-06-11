@@ -6,6 +6,7 @@
   "scripts": {
     "compileMapJson": "compile_map_json src/data/map.json src/data/map_compiled.json",
     "test": "jest",
+    "test-ci": "jest --ci --reporters=default --reporters=jest-junit",
     "lint": "eslint . --max-warnings 0",
     "check": "tsc --noEmit --strict --noFallthroughCasesInSwitch",
     "build": "rollup -c",
@@ -21,7 +22,11 @@
       ".tsx?": "ts-jest"
     },
     "testRegex": "/src/test/.*\\.test\\.tsx?$",
-    "moduleFileExtensions": ["js", "ts", "tsx"]
+    "moduleFileExtensions": [
+      "js",
+      "ts",
+      "tsx"
+    ]
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.1.0",
@@ -37,6 +42,7 @@
     "@typescript-eslint/parser": "^4.25.0",
     "eslint": "^7.27.0",
     "jest": "^27.0.4",
+    "jest-junit": "^12.2.0",
     "rollup": "^2.38.4",
     "rollup-plugin-copy": "^2.0.1",
     "rollup-plugin-json": "^4.0.0",

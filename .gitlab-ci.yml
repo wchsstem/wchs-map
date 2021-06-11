@@ -69,6 +69,18 @@ lint:
   script:
     - npm run lint
 
+test:
+  stage: check
+  needs: [install_npm_deps]
+  script:
+    - npm run test
+  artifacts:
+    when: always
+    paths:
+      - junit.xml
+    reports:
+      junit: junit.xml
+
 # Deploy stage
 deploy-app:
   stage: deploy
