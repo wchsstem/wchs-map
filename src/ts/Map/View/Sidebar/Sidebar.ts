@@ -123,4 +123,12 @@ export class Sidebar {
     public displayNav(layers: Set<LSomeLayerWithFloor>): void {
         this.navigationPane.displayNav(layers);
     }
+
+    public moveFromPin(location: BuildingLocation): void {
+        this.navigationPane.moveFromPin(location);
+    }
+
+    public moveToPin(location: BuildingLocation): void {
+        this.navigationPane.moveToPin(location);
+    }
 }

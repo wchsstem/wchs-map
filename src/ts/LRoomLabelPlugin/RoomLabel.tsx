@@ -15,7 +15,7 @@ import { ICON_FOR_ROOM_TAG, ICON_FOR_VERTEX_TAG } from "../config";
 import { Logger } from "../LogPane/LogPane";
 import { TextMeasurer } from "../TextMeasurer";
 import { DefinitionTag } from "../Geocoder/DefinitionTag";
-import { IMapController } from "../Map/Controller/IMapController";
+import { MapController } from "../Map/Controller/MapController";
 
 export interface RoomLabelLayerOptions extends LayerOptions {
     minNativeZoom: number,
@@ -36,7 +36,7 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
 
     public constructor(
         map: MapData,
-        mapController: IMapController,
+        mapController: MapController,
         private readonly settings: ISettings,
         private readonly logger: Logger,
         private readonly textMeasurer: TextMeasurer,

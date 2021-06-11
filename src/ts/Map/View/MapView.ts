@@ -22,4 +22,10 @@ export interface MapView {
 
     /** Display given navigation route */
     displayNav(layers: Set<LSomeLayerWithFloor>): void;
+
+    /** Set the location of the from pin */
+    moveFromPin(location: BuildingLocation): void;
+
+    /** Set the location of the to pin */
+    moveToPin(location: BuildingLocation): void;
 }

@@ -6,8 +6,8 @@ export interface EventMap {
     "clickNavigateFromSuggestion": (suggestion: GeocoderSuggestion) => void,
     "clickNavigateToSuggestion": (suggestion: GeocoderSuggestion) => void,
     "swapNav": () => void,
-    "moveFromPin": (movedTo: BuildingLocation) => void,
-    "moveToPin": (movedTo: BuildingLocation) => void,
+    "dragFromPin": (movedTo: BuildingLocation) => void,
+    "dragToPin": (movedTo: BuildingLocation) => void,
     "clickResult": (result: GeocoderSuggestion) => void,
     "clickClosestButton": (closestDefinition: GeocoderDefinition, starting: BuildingLocation) => void,
     "clickNavigateToDefinitionButton": (definition: GeocoderDefinition) => void

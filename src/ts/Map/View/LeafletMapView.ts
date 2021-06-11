@@ -13,6 +13,14 @@ export class LeafletMapView implements MapView {
         private readonly sidebar: Sidebar
     ) {}
 
+    public moveFromPin(location: BuildingLocation): void {
+        this.sidebar.moveFromPin(location);
+    }
+
+    public moveToPin(location: BuildingLocation): void {
+        this.sidebar.moveToPin(location);
+    }
+
     /** Remove search suggestions from typing in the navigate from or to fields */
     public clearNavSuggestions(): void {
         this.sidebar.clearNavSuggestions();

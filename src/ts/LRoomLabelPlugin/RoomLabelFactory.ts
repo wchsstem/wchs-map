@@ -3,13 +3,13 @@ import { MapData } from "../MapData";
 import { ISettings } from "../settings/ISettings";
 import { TextMeasurer } from "../TextMeasurer";
 import { RoomLabel, RoomLabelLayerOptions } from "./RoomLabel";
-import { IMapController } from "../Map/Controller/IMapController";
+import { MapController } from "../Map/Controller/MapController";
 
 export class RoomLabelFactory {    
     static inject = ["mapData", "mapController", "settings", "logger", "textMeasurer"] as const;
     public constructor(
         private readonly mapData: MapData,
-        private readonly mapController: IMapController,
+        private readonly mapController: MapController,
         private readonly settings: ISettings,
         private readonly logger: Logger,
         private readonly textMeasurer: TextMeasurer
