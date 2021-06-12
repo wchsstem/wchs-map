@@ -1,7 +1,3 @@
-import { fromMap, Result, Err, Ok } from "@nvarner/monads";
-
-import "./floors.scss";
-import { MapData } from "../MapData";
 import {
     imageOverlay,
     Layer,
@@ -9,9 +5,14 @@ import {
     LayerGroup,
     LayerOptions,
 } from "leaflet";
+
+import { fromMap, Result, Err, Ok } from "@nvarner/monads";
+
+import { IInjectableFactory } from "../IInjectableFactory";
+import { MapData } from "../MapData";
 import { zip } from "../utils";
 import { FloorsControl } from "./FloorsControl";
-import { IInjectableFactory } from "../IInjectableFactory";
+import "./floors.scss";
 
 export function floorsFactoryFactory(
     defaultFloorNumber: string,

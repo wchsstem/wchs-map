@@ -1,4 +1,3 @@
-import { fromMap } from "@nvarner/monads";
 import {
     Coords,
     GridLayer,
@@ -13,9 +12,12 @@ import {
     PointExpression,
 } from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
-import { LABEL_FONT, LABEL_MIN_SPACING_PX } from "../../config";
+
+import { fromMap } from "@nvarner/monads";
+
 import { h } from "../../JSX";
 import { Logger } from "../../LogPane/LogPane";
+import { LABEL_FONT, LABEL_MIN_SPACING_PX } from "../../config";
 import { ClickListener } from "../RoomLabel";
 
 /**

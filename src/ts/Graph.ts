@@ -1,5 +1,7 @@
-import { fromMap, None, Option, Some } from "@nvarner/monads";
 import { FibonacciHeap, INode } from "@tyriar/fibonacci-heap";
+
+import { fromMap, None, Option, Some } from "@nvarner/monads";
+
 import { t } from "./utils";
 
 type AdjList<K> = Map<K, [K, number][]>;

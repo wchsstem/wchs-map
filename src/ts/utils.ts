@@ -1,4 +1,5 @@
 import { Ok, Option, Result, Some } from "@nvarner/monads";
+
 import { GeocoderSuggestion } from "./Geocoder/GeocoderSuggestion";
 
 // Tuple

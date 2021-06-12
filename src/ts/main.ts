@@ -1,34 +1,33 @@
-import * as mapDataJson from "../data/map_compiled.json";
+import { control, CRS, map as lMap } from "leaflet";
+import "leaflet-sidebar-v2";
 
+import { createInjector } from "@nvarner/fallible-typed-inject";
+
+import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../assets/fontawesome/all.min.css";
-
-import { Settings } from "./settings/Settings";
-import { JsonMap, mapDataFactoryFactory } from "./MapData";
-import { floorsFactoryFactory } from "./LFloorsPlugin/LFloorsPlugin";
-import "../../node_modules/leaflet/dist/leaflet.css";
+import * as mapDataJson from "../data/map_compiled.json";
 import "../style.scss";
-import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
-import "leaflet-sidebar-v2";
-import { LLocation } from "./LLocationPlugin/LLocationPlugin";
-import { Logger } from "./LogPane/LogPane";
-import { Geocoder } from "./Geocoder/Geocoder";
-import { Locator } from "./Locator";
-import { Sidebar } from "./Map/View/Sidebar/Sidebar";
-import { control, CRS, map as lMap } from "leaflet";
-import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
-import { goRes } from "./utils";
-import { textMeasurerFactory } from "./TextMeasurer";
-import { createInjector } from "@nvarner/fallible-typed-inject";
-import { ATTRIBUTION } from "./config";
-import { RoomLabelFactory } from "./LRoomLabelPlugin/RoomLabelFactory";
 import { DeveloperModeService } from "./DeveloperModeService";
-import { SearchPane } from "./Map/View/Sidebar/SearchPane/SearchPane";
-import { NavigationPane } from "./Map/View/Sidebar/NavigationPane/NavigationPane";
+import { Geocoder } from "./Geocoder/Geocoder";
+import { floorsFactoryFactory } from "./LFloorsPlugin/LFloorsPlugin";
+import { LLocation } from "./LLocationPlugin/LLocationPlugin";
+import { RoomLabelFactory } from "./LRoomLabelPlugin/RoomLabelFactory";
+import { Locator } from "./Locator";
+import { Logger } from "./LogPane/LogPane";
 import { LeafletMapController } from "./Map/Controller/LeafletMapController";
-import { LeafletMapView } from "./Map/View/LeafletMapView";
 import { LeafletMapModel } from "./Map/Model/LeafletMapModel";
+import { LeafletMapView } from "./Map/View/LeafletMapView";
+import { NavigationPane } from "./Map/View/Sidebar/NavigationPane/NavigationPane";
+import { SearchPane } from "./Map/View/Sidebar/SearchPane/SearchPane";
+import { Sidebar } from "./Map/View/Sidebar/Sidebar";
+import { JsonMap, mapDataFactoryFactory } from "./MapData";
+import { textMeasurerFactory } from "./TextMeasurer";
+import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
+import { ATTRIBUTION } from "./config";
 import { Events } from "./events/Events";
+import { Settings } from "./settings/Settings";
+import { goRes } from "./utils";
 
 function main(): void {
     if ("serviceWorker" in navigator) {

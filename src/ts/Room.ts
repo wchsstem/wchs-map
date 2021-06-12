@@ -1,10 +1,11 @@
 import { latLng } from "leaflet";
+
 import { BuildingLocation } from "./BuildingLocation/BuildingLocation";
 import { BuildingLocationBBox } from "./BuildingLocation/BuildingLocationBBox";
 import { BuildingLocationWithEntrances } from "./BuildingLocation/BuildingLocationWithEntrances";
-import { EMERGENCY_TAGS, INFRASTRUCTURE_TAGS } from "./config";
 import { DefinitionTag } from "./Geocoder/DefinitionTag";
 import { GeocoderDefinition } from "./Geocoder/GeocoderDefinition";
+import { EMERGENCY_TAGS, INFRASTRUCTURE_TAGS } from "./config";
 import { deepCopy } from "./utils";
 
 export default class Room implements GeocoderDefinition {

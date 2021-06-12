@@ -1,6 +1,6 @@
 import { BuildingLocation } from "../BuildingLocation/BuildingLocation";
-import { GeocoderSuggestion } from "../Geocoder/GeocoderSuggestion";
 import { GeocoderDefinition } from "../Geocoder/GeocoderDefinition";
+import { GeocoderSuggestion } from "../Geocoder/GeocoderSuggestion";
 
 export interface EventMap {
     clickNavigateFromSuggestion: (suggestion: GeocoderSuggestion) => void;

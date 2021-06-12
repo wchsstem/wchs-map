@@ -1,4 +1,5 @@
 import { LatLng } from "leaflet";
+
 import { BuildingLocation } from "./BuildingLocation/BuildingLocation";
 import { JsonVertex } from "./MapData";
 

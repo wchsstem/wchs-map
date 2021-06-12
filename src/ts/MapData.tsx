@@ -1,21 +1,21 @@
+import { circle, divIcon, LatLng, marker, polyline } from "leaflet";
+
 import { Err, fromMap, None, Ok, Option, Result, Some } from "@nvarner/monads";
 
+import { BuildingLocation } from "./BuildingLocation/BuildingLocation";
+import { DefinitionTag } from "./Geocoder/DefinitionTag";
+import { GeocoderDefinition } from "./Geocoder/GeocoderDefinition";
 import { Graph } from "./Graph";
-import Room from "./Room";
-import { Vertex, VertexTag } from "./Vertex";
+import { IInjectableFactory } from "./IInjectableFactory";
+import { h } from "./JSX";
 import {
     LSomeLayerWithFloor,
     LLayerGroupWithFloor,
 } from "./LFloorsPlugin/LFloorsPlugin";
-import { BuildingLocation } from "./BuildingLocation/BuildingLocation";
-
-import { h } from "./JSX";
-import { circle, divIcon, LatLng, marker, polyline } from "leaflet";
-import { extractOption, flatten, goRes, t, zip, zipInto } from "./utils";
+import Room from "./Room";
+import { Vertex, VertexTag } from "./Vertex";
 import { STAIR_WEIGHT } from "./config";
-import { IInjectableFactory } from "./IInjectableFactory";
-import { DefinitionTag } from "./Geocoder/DefinitionTag";
-import { GeocoderDefinition } from "./Geocoder/GeocoderDefinition";
+import { extractOption, flatten, goRes, t, zip, zipInto } from "./utils";
 
 type Floor = {
     number: string;

@@ -1,7 +1,9 @@
-import { None, Option, Some } from "@nvarner/monads";
 import { LatLng } from "leaflet";
-import { MOVEMENT_SENSITIVITY } from "./config";
+
+import { None, Option, Some } from "@nvarner/monads";
+
 import { Logger } from "./LogPane/LogPane";
+import { MOVEMENT_SENSITIVITY } from "./config";
 import { ISettings } from "./settings/ISettings";
 
 export class Locator {

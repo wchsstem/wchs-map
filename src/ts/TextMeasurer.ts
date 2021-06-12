@@ -1,5 +1,6 @@
-import { Err, Ok, Result } from "@nvarner/monads";
 import { point, Point } from "leaflet";
+
+import { Err, Ok, Result } from "@nvarner/monads";
 
 export function textMeasurerFactory(): Result<TextMeasurer, string> {
     return TextMeasurer.new();

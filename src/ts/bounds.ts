@@ -1,5 +1,4 @@
 // Churchill is 600ft long and 400ft across; portables add to that
-
 import { LatLngBounds } from "leaflet";
 
 // bounds used to just be defined in terms of constants, but due to mistakes made when choosing those constants and

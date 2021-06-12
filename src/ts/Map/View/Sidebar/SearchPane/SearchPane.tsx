@@ -1,21 +1,21 @@
 import { genPaneElement, genTextInput } from "../../../../GenHtml/GenHtml";
 import { Geocoder } from "../../../../Geocoder/Geocoder";
-import { Pane } from "../Pane";
+import { GeocoderSuggestion } from "../../../../Geocoder/GeocoderSuggestion";
 import { h } from "../../../../JSX";
-import { ClosestBathroomButton } from "./ClosestBathroomButton";
-import { ClosestBottleFillingStationButton } from "./ClosestBottleFillingStationButton";
+import { LFloors } from "../../../../LFloorsPlugin/LFloorsPlugin";
 import { Locator } from "../../../../Locator";
 import { MapData } from "../../../../MapData";
-import { LFloors } from "../../../../LFloorsPlugin/LFloorsPlugin";
-import { ClosestHandSanitizerStationButton } from "./ClosestHandSanitizerStationButton";
-import { ClosestBleedingControlKitButton } from "./ClosestBleedingControlKitButton";
+import { Events } from "../../../../events/Events";
+import { ISettings } from "../../../../settings/ISettings";
+import { Pane } from "../Pane";
 import { ClosestAedButton } from "./ClosestAedButton";
 import { ClosestAhuButton } from "./ClosestAhuButton";
-import { ClosestEcButton } from "./ClosestEcButton";
+import { ClosestBathroomButton } from "./ClosestBathroomButton";
+import { ClosestBleedingControlKitButton } from "./ClosestBleedingControlKitButton";
+import { ClosestBottleFillingStationButton } from "./ClosestBottleFillingStationButton";
 import { ClosestBscButton } from "./ClosestBscButton";
-import { ISettings } from "../../../../settings/ISettings";
-import { GeocoderSuggestion } from "../../../../Geocoder/GeocoderSuggestion";
-import { Events } from "../../../../events/Events";
+import { ClosestEcButton } from "./ClosestEcButton";
+import { ClosestHandSanitizerStationButton } from "./ClosestHandSanitizerStationButton";
 
 export class SearchPane extends Pane {
     private readonly pane: HTMLElement;

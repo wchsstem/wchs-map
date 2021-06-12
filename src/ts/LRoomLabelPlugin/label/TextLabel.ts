@@ -1,6 +1,7 @@
 import { LatLng, point, Point } from "leaflet";
-import { LABEL_FONT, LABEL_LINE_SPACING_PX } from "../../config";
+
 import { TextMeasurer } from "../../TextMeasurer";
+import { LABEL_FONT, LABEL_LINE_SPACING_PX } from "../../config";
 import { zip } from "../../utils";
 import { Label } from "./LabelLayer";
 

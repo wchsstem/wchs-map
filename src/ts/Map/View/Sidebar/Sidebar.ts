@@ -1,20 +1,21 @@
 import { Control } from "leaflet";
 
-import "./sidebar.scss";
-import { Geocoder } from "../../../Geocoder/Geocoder";
 import { None, Option, Some } from "@nvarner/monads";
-import { NavigationPane } from "./NavigationPane/NavigationPane";
+
+import { BuildingLocation } from "../../../BuildingLocation/BuildingLocation";
+import { Geocoder } from "../../../Geocoder/Geocoder";
+import { GeocoderDefinition } from "../../../Geocoder/GeocoderDefinition";
+import { LSomeLayerWithFloor } from "../../../LFloorsPlugin/LFloorsPlugin";
 import { Logger, LogPane } from "../../../LogPane/LogPane";
-import { SynergyPane } from "./SynergyPane/SynergyPane";
+import { Events } from "../../../events/Events";
+import { ISettings } from "../../../settings/ISettings";
+import { InfoPane } from "./InfoPane";
+import { NavigationPane } from "./NavigationPane/NavigationPane";
 import { Pane } from "./Pane";
 import { SearchPane } from "./SearchPane/SearchPane";
-import { InfoPane } from "./InfoPane";
 import { SettingsPane } from "./SettingsPane/SettingsPane";
-import { ISettings } from "../../../settings/ISettings";
-import { GeocoderDefinition } from "../../../Geocoder/GeocoderDefinition";
-import { BuildingLocation } from "../../../BuildingLocation/BuildingLocation";
-import { LSomeLayerWithFloor } from "../../../LFloorsPlugin/LFloorsPlugin";
-import { Events } from "../../../events/Events";
+import { SynergyPane } from "./SynergyPane/SynergyPane";
+import "./sidebar.scss";
 
 export class Sidebar {
     private infoPane: Option<InfoPane>;

@@ -1,11 +1,13 @@
-import { Option, fromMap, Some, None } from "@nvarner/monads";
 import { kdTree } from "kd-tree-javascript";
 import MiniSearch from "minisearch";
+
+import { Option, fromMap, Some, None } from "@nvarner/monads";
+
+import { BuildingLocationWithEntrances } from "../BuildingLocation/BuildingLocationWithEntrances";
 import { MapData } from "../MapData";
 import { t } from "../utils";
 import { GeocoderDefinition } from "./GeocoderDefinition";
 import { GeocoderSuggestion } from "./GeocoderSuggestion";
-import { BuildingLocationWithEntrances } from "../BuildingLocation/BuildingLocationWithEntrances";
 
 export class Geocoder {
     private readonly search: Promise<MiniSearch>;

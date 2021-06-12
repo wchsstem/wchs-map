@@ -1,5 +1,7 @@
-import { fromMap } from "@nvarner/monads";
 import { Control, DomEvent, Util } from "leaflet";
+
+import { fromMap } from "@nvarner/monads";
+
 import { h } from "../JSX";
 import { zip } from "../utils";
 

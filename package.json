@@ -36,6 +36,7 @@
     "@rollup/plugin-node-resolve": "^11.1.1",
     "@rollup/plugin-typescript": "^8.2.0",
     "@sourcegraph/lsif-tsc": "^0.6.8",
+    "@trivago/prettier-plugin-sort-imports": "^2.0.2",
     "@types/domhandler": "^2.4.1",
     "@types/fontfaceobserver": "^0.0.6",
     "@types/jest": "^26.0.23",

@@ -1,12 +1,13 @@
-import { MapView } from "./MapView";
 import { Map as LMap } from "leaflet";
+
+import { BuildingLocation } from "../../BuildingLocation/BuildingLocation";
+import { GeocoderDefinition } from "../../Geocoder/GeocoderDefinition";
 import {
     LFloors,
     LSomeLayerWithFloor,
 } from "../../LFloorsPlugin/LFloorsPlugin";
+import { MapView } from "./MapView";
 import { Sidebar } from "./Sidebar/Sidebar";
-import { GeocoderDefinition } from "../../Geocoder/GeocoderDefinition";
-import { BuildingLocation } from "../../BuildingLocation/BuildingLocation";
 
 export class LeafletMapView implements MapView {
     static inject = ["map", "floors", "sidebar"] as const;

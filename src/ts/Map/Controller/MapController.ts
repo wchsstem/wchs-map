@@ -1,6 +1,7 @@
-import { GeocoderDefinition } from "../../Geocoder/GeocoderDefinition";
 import { Option } from "@nvarner/monads";
+
 import { BuildingLocation } from "../../BuildingLocation/BuildingLocation";
+import { GeocoderDefinition } from "../../Geocoder/GeocoderDefinition";
 
 export interface MapController {
     /** Move the map's focus to a definition and display info about it */

@@ -1,8 +1,8 @@
 /**
  * @jest-environment jsdom
  */
-
 import { latLng } from "leaflet";
+
 import { BuildingLocation } from "../ts/BuildingLocation/BuildingLocation";
 import Room from "../ts/Room";
 

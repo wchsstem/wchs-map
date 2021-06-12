@@ -1,5 +1,6 @@
-import { Option, Some, None } from "@nvarner/monads";
 import { LatLng } from "leaflet";
+
+import { Option, Some, None } from "@nvarner/monads";
 
 export class BuildingLocation {
     constructor(private readonly xy: LatLng, private readonly floor: string) {}

@@ -1,6 +1,7 @@
 import { Marker, MarkerOptions } from "leaflet";
-import { LSomeLayerWithFloor } from "../../../../LFloorsPlugin/LFloorsPlugin";
+
 import { BuildingLocation } from "../../../../BuildingLocation/BuildingLocation";
+import { LSomeLayerWithFloor } from "../../../../LFloorsPlugin/LFloorsPlugin";
 
 export function flooredMarker(
     position: BuildingLocation,

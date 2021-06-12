@@ -1,9 +1,9 @@
 import { Logger } from "../LogPane/LogPane";
-import { MapData } from "../MapData";
-import { ISettings } from "../settings/ISettings";
-import { TextMeasurer } from "../TextMeasurer";
-import { RoomLabel, RoomLabelLayerOptions } from "./RoomLabel";
 import { MapController } from "../Map/Controller/MapController";
+import { MapData } from "../MapData";
+import { TextMeasurer } from "../TextMeasurer";
+import { ISettings } from "../settings/ISettings";
+import { RoomLabel, RoomLabelLayerOptions } from "./RoomLabel";
 
 export class RoomLabelFactory {
     static inject = [

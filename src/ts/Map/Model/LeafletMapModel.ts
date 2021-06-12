@@ -1,5 +1,6 @@
-import { GeocoderDefinition } from "../../Geocoder/GeocoderDefinition";
 import { None, Option } from "@nvarner/monads";
+
+import { GeocoderDefinition } from "../../Geocoder/GeocoderDefinition";
 import { IMapModel } from "./IMapModel";
 
 export class LeafletMapModel implements IMapModel {

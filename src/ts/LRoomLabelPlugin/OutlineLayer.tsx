@@ -9,11 +9,12 @@ import {
     Point,
     point,
 } from "leaflet";
-import RBush, { BBox } from "rbush/rbush";
-import { h } from "../JSX";
-import { ClickListener } from "./RoomLabel";
 import pointInPolygon from "point-in-polygon";
+import RBush, { BBox } from "rbush/rbush";
+
+import { h } from "../JSX";
 import { Logger } from "../LogPane/LogPane";
+import { ClickListener } from "./RoomLabel";
 
 export interface OutlineLayerOptions extends GridLayerOptions {
     outlines: Outline[];

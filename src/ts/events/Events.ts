@@ -1,4 +1,5 @@
 import { fromMap } from "@nvarner/monads";
+
 import { GeocoderSuggestion } from "../Geocoder/GeocoderSuggestion";
 import { EventMap } from "./EventMap";
 

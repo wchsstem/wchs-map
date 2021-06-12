@@ -1,6 +1,5 @@
-import "./generated.scss";
-
 import Room from "../Room";
+import "./generated.scss";
 
 export function genElText(element: string, text: string): HTMLElement {
     const tn = document.createTextNode(text);

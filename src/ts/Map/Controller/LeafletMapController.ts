@@ -1,15 +1,16 @@
+import { Option, Some } from "@nvarner/monads";
+
+import { BuildingLocation } from "../../BuildingLocation/BuildingLocation";
+import { BuildingLocationWithEntrances } from "../../BuildingLocation/BuildingLocationWithEntrances";
+import { Geocoder } from "../../Geocoder/Geocoder";
 import { GeocoderDefinition } from "../../Geocoder/GeocoderDefinition";
+import { LocationOnlyDefinition } from "../../LocationOnlyDefinition";
+import { Logger } from "../../LogPane/LogPane";
+import { MapData } from "../../MapData";
+import { Events } from "../../events/Events";
 import { IMapModel } from "../Model/IMapModel";
 import { MapView } from "../View/MapView";
 import { MapController } from "./MapController";
-import { Option, Some } from "@nvarner/monads";
-import { BuildingLocationWithEntrances } from "../../BuildingLocation/BuildingLocationWithEntrances";
-import { LocationOnlyDefinition } from "../../LocationOnlyDefinition";
-import { MapData } from "../../MapData";
-import { Logger } from "../../LogPane/LogPane";
-import { Geocoder } from "../../Geocoder/Geocoder";
-import { BuildingLocation } from "../../BuildingLocation/BuildingLocation";
-import { Events } from "../../events/Events";
 
 export class LeafletMapController implements MapController {
     static inject = [

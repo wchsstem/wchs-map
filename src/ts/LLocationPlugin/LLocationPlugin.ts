@@ -1,8 +1,10 @@
-import { LLocationControl } from "./LLocationControl";
-import { None, Option, Some } from "@nvarner/monads";
-import { Locator, PositionState } from "../Locator";
 import { circle, circleMarker, LayerGroup } from "leaflet";
+
+import { None, Option, Some } from "@nvarner/monads";
+
+import { Locator, PositionState } from "../Locator";
 import { ISettings } from "../settings/ISettings";
+import { LLocationControl } from "./LLocationControl";
 
 export class LLocation extends LayerGroup {
     private readonly locator: Locator;

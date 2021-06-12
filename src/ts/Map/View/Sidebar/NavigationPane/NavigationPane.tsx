@@ -1,18 +1,19 @@
 import { divIcon, Map } from "leaflet";
-import { genTextInput, genPaneElement } from "../../../../GenHtml/GenHtml";
-import { BuildingLocation } from "../../../../BuildingLocation/BuildingLocation";
+
 import { None, Option, Some } from "@nvarner/monads";
-import { clearResults, updateWithResults } from "../../../../utils";
+
+import { BuildingLocation } from "../../../../BuildingLocation/BuildingLocation";
+import { genTextInput, genPaneElement } from "../../../../GenHtml/GenHtml";
+import { Geocoder } from "../../../../Geocoder/Geocoder";
+import { h } from "../../../../JSX";
 import {
     LFloors,
     LSomeLayerWithFloor,
 } from "../../../../LFloorsPlugin/LFloorsPlugin";
-
-import { h } from "../../../../JSX";
-import { FlooredMarker, flooredMarker } from "./FlooredMarker";
-import { Geocoder } from "../../../../Geocoder/Geocoder";
-import { Pane } from "../Pane";
 import { Events } from "../../../../events/Events";
+import { clearResults, updateWithResults } from "../../../../utils";
+import { Pane } from "../Pane";
+import { FlooredMarker, flooredMarker } from "./FlooredMarker";
 
 export class NavigationPane extends Pane {
     private snapPinHandler: (location: BuildingLocation) => BuildingLocation;

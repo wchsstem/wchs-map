@@ -1,7 +1,7 @@
-import { Events } from "../../../events/Events";
 import { genButtonIcon, genPaneElement } from "../../../GenHtml/GenHtml";
 import { GeocoderDefinition } from "../../../Geocoder/GeocoderDefinition";
 import { h } from "../../../JSX";
+import { Events } from "../../../events/Events";
 import { NavigationPane } from "./NavigationPane/NavigationPane";
 import { Pane } from "./Pane";
 

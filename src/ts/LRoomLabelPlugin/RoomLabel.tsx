@@ -1,9 +1,4 @@
-import { MapData } from "../MapData";
-import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
-import Room from "../Room";
-
-import { Vertex } from "../Vertex";
-import { Some, None, Option } from "@nvarner/monads";
+import FontFaceObserver from "fontfaceobserver";
 import {
     LayerGroup,
     LayerOptions,
@@ -12,17 +7,23 @@ import {
     LeafletMouseEvent,
     LatLngBounds,
 } from "leaflet";
+
+import { Some, None, Option } from "@nvarner/monads";
+
+import { DefinitionTag } from "../Geocoder/DefinitionTag";
+import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
+import { Logger } from "../LogPane/LogPane";
+import { MapController } from "../Map/Controller/MapController";
+import { MapData } from "../MapData";
+import Room from "../Room";
+import { TextMeasurer } from "../TextMeasurer";
+import { Vertex } from "../Vertex";
+import { ICON_FOR_ROOM_TAG, ICON_FOR_VERTEX_TAG } from "../config";
+import { ISettings } from "../settings/ISettings";
+import { Outline, OutlineLayer } from "./OutlineLayer";
+import { IconLabel } from "./label/IconLabel";
 import { Label, LabelLayer, isClickable } from "./label/LabelLayer";
 import { TextLabel } from "./label/TextLabel";
-import { IconLabel } from "./label/IconLabel";
-import { Outline, OutlineLayer } from "./OutlineLayer";
-import FontFaceObserver from "fontfaceobserver";
-import { ISettings } from "../settings/ISettings";
-import { ICON_FOR_ROOM_TAG, ICON_FOR_VERTEX_TAG } from "../config";
-import { Logger } from "../LogPane/LogPane";
-import { TextMeasurer } from "../TextMeasurer";
-import { DefinitionTag } from "../Geocoder/DefinitionTag";
-import { MapController } from "../Map/Controller/MapController";
 
 export interface RoomLabelLayerOptions extends LayerOptions {
     minNativeZoom: number;

@@ -1,8 +1,9 @@
 import { LatLng, Point, point, Map as LMap, LeafletMouseEvent } from "leaflet";
-import { ClickableLabel } from "./LabelLayer";
-import { ClickListener } from "../RoomLabel";
+
 import { TextMeasurer } from "../../TextMeasurer";
 import { ICON_FONT } from "../../config";
+import { ClickListener } from "../RoomLabel";
+import { ClickableLabel } from "./LabelLayer";
 
 export class IconLabel implements ClickableLabel {
     private readonly iconSize: Point;
