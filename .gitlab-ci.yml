@@ -90,6 +90,7 @@ test:
       - junit.xml
     reports:
       junit: junit.xml
+      cobertura: coverage/cobertura-coverage.xml
 
 # Deploy stage
 deploy-app:

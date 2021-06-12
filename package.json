@@ -6,7 +6,8 @@
   "scripts": {
     "compileMapJson": "compile_map_json src/data/map.json src/data/map_compiled.json",
     "test": "jest",
-    "test-ci": "jest --ci --reporters=default --reporters=jest-junit",
+    "test-coverage": "jest --coverage --coverage-reporters text",
+    "test-ci": "jest --ci --reporters=default --reporters=jest-junit --coverage --coverage-reporters cobertura",
     "lint": "eslint . --max-warnings 0",
     "check": "tsc --noEmit --strict --noFallthroughCasesInSwitch",
     "fmt": "prettier --config .prettierrc.json 'src/**/*.(ts|tsx)' --write",
