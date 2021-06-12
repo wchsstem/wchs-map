@@ -60,7 +60,6 @@ export class InfoPane extends Pane {
         header.appendChild(roomName);
 
         const viewRoomButton = genButtonIcon("fa-map-pin", () => {
-            console.log("focus", definition.getName(), definition.getLocation());
             this.events.trigger("clickFocusDefinitionButton", definition);
         }, "Show room");
         viewRoomButton.classList.add("push-right");
