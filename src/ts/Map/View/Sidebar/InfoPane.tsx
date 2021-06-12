@@ -55,7 +55,7 @@ export class InfoPane extends Pane {
     private createHeader(
         paneElements: HTMLElement[],
         definition: GeocoderDefinition,
-    ) {
+    ): void {
         const header = document.createElement("div");
         header.classList.add("wrapper");
         header.classList.add("header-wrapper");

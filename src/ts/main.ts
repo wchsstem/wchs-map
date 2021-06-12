@@ -30,7 +30,7 @@ import { LeafletMapView } from "./Map/View/LeafletMapView";
 import { LeafletMapModel } from "./Map/Model/LeafletMapModel";
 import { Events } from "./events/Events";
 
-function main() {
+function main(): void {
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("/serviceWorker.js");
     }

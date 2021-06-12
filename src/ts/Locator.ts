@@ -92,10 +92,12 @@ export class Locator {
     }
 
     private initialize(): void {
-        const onPositionUpdate = (latestPosition: GeolocationPosition) => {
+        const onPositionUpdate = (
+            latestPosition: GeolocationPosition,
+        ): void => {
             this.onPositionUpdate(latestPosition);
         };
-        const onPositionError = (error: GeolocationPositionError) => {
+        const onPositionError = (error: GeolocationPositionError): void => {
             this.onPositionError(error);
         };
 

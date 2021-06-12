@@ -145,7 +145,7 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
 
             this.createLabelLayer();
 
-            const recreateLabelLayer = () => this.createLabelLayer();
+            const recreateLabelLayer = (): void => this.createLabelLayer();
             settings.addWatcher(
                 "show-infrastructure",
                 recreateLabelLayer,
@@ -191,7 +191,7 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
     public onAdd(map: LMap): this {
         super.onAdd(map);
 
-        const watcher = (shouldShowUnknown: unknown) => {
+        const watcher = (shouldShowUnknown: unknown): void => {
             const shouldShow = shouldShowUnknown as boolean;
             if (shouldShow) {
                 super.onAdd(map);

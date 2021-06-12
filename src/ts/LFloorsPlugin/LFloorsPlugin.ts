@@ -17,7 +17,7 @@ export function floorsFactoryFactory(
     defaultFloorNumber: string,
     options: L.LayerOptions,
 ): IInjectableFactory<LFloors, readonly ["mapData"]> {
-    const factory = (map: MapData) => {
+    const factory = (map: MapData): Result<LFloors, string> => {
         return LFloors.new(map, defaultFloorNumber, options);
     };
     factory.inject = ["mapData"] as const;
@@ -128,7 +128,7 @@ export class LFloors extends LayerGroup {
      * @param floor Floor to start rendering
      * @param floorNumber Number of the floor to render
      */
-    private startDrawingFloor(floor: L.LayerGroup, floorNumber: string) {
+    private startDrawingFloor(floor: L.LayerGroup, floorNumber: string): void {
         super.addLayer(floor);
         fromMap(this.additions, floorNumber).ifSome((additions) => {
             additions.forEach((addition) => floor.addLayer(addition));
@@ -140,7 +140,7 @@ export class LFloors extends LayerGroup {
      * @param floor Floor to stop rendering
      * @param floorNumber Number of the floor to stop rendering
      */
-    private stopDrawingFloor(floor: L.LayerGroup, floorNumber: string) {
+    private stopDrawingFloor(floor: L.LayerGroup, floorNumber: string): void {
         fromMap(this.additions, floorNumber).ifSome((additions) => {
             additions.forEach((addition) => floor.removeLayer(addition));
         });

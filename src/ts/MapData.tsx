@@ -82,7 +82,7 @@ export function mapDataFactoryFactory(
     mapData: JsonMap,
     bounds: L.LatLngBounds,
 ): IInjectableFactory<MapData, readonly []> {
-    const factory = () => {
+    const factory = (): Result<MapData, string> => {
         return MapData.new(mapData, bounds);
     };
     factory.inject = [] as const;

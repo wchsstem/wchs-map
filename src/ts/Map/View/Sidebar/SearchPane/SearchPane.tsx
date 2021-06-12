@@ -187,7 +187,7 @@ export class SearchPane extends Pane {
         query: string,
         results: GeocoderSuggestion[],
         onClickResult: (result: GeocoderSuggestion) => void,
-    ) {
+    ): void {
         if (query === "") {
             this.resultContainer.classList.add("hidden");
             return;

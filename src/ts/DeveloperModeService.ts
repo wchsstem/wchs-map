@@ -36,7 +36,7 @@ export class DeveloperModeService {
         });
     }
 
-    private onDevSettingChange(dev: boolean) {
+    private onDevSettingChange(dev: boolean): void {
         if (dev) {
             this.onEnableDevSetting();
         } else {
@@ -44,7 +44,7 @@ export class DeveloperModeService {
         }
     }
 
-    private onEnableDevSetting() {
+    private onEnableDevSetting(): void {
         if (this.devLayers.isNone()) {
             const layersErr = goRes(this.createDevLayers());
             if (layersErr[1] !== null) {
@@ -61,7 +61,7 @@ export class DeveloperModeService {
         this.map.on("click", this.showClickLoc, this);
     }
 
-    private onDisableDevSetting() {
+    private onDisableDevSetting(): void {
         this.devLayers.ifSome((devLayers) =>
             devLayers.forEach((devLayer) => this.floors.removeLayer(devLayer)),
         );

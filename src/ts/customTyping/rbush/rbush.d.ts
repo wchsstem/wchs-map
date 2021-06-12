@@ -48,7 +48,7 @@ declare module "rbush/rbush" {
          *
          * @param items The items to load.
          */
-        load(items: ReadonlyArray<T>): RBush<T>;
+        load(items: readonly T[]): RBush<T>;
 
         /**
          * Removes a previously inserted item, comparing by reference.

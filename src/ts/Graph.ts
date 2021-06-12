@@ -25,7 +25,7 @@ export class Graph<K, V> {
     private static addEdgeTo<K>(
         adjList: AdjList<K>,
         [from, to, weight, directed]: Edge<K>,
-    ) {
+    ): void {
         this.addDirectedEdge(adjList, from, to, weight);
         if (!directed) {
             this.addDirectedEdge(adjList, to, from, weight);
@@ -37,7 +37,7 @@ export class Graph<K, V> {
         from: K,
         to: K,
         weight: number,
-    ) {
+    ): void {
         const neighborList = adjList.get(from) ?? [];
         neighborList.push([to, weight]);
         adjList.set(from, neighborList);

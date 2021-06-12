@@ -36,7 +36,7 @@ export class ClosestDefinitionButton {
         );
     }
 
-    private handleClick() {
+    private handleClick(): void {
         if (this.locator.isNearChurchill()) {
             this.locator.getLatestPosition().ifSome((position) => {
                 const starting = new BuildingLocation(
