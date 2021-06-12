@@ -4,13 +4,15 @@ import { Graph } from "./Graph";
 import Room from "./Room";
 import { Vertex, VertexTag } from "./Vertex";
 import { LSomeLayerWithFloor, LLayerGroupWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
-import { DefinitionTag, GeocoderDefinition } from "./Geocoder";
-import { BuildingLocation } from "./BuildingLocation";
+import { BuildingLocation } from "./BuildingLocation/BuildingLocation";
 
 import { h } from "./JSX";
 import { circle, divIcon, LatLng, marker, polyline } from "leaflet";
 import { extractOption, flatten, goRes, t, zip, zipInto } from "./utils";
 import { STAIR_WEIGHT } from "./config";
+import { IInjectableFactory } from "./IInjectableFactory";
+import { DefinitionTag } from "./Geocoder/DefinitionTag";
+import { GeocoderDefinition } from "./Geocoder/GeocoderDefinition";
 
 type Floor = {
     number: string,
@@ -73,15 +75,16 @@ export type JsonMap = {
     rooms: JsonRooms
 }
 
+export function mapDataFactoryFactory(mapData: JsonMap, bounds: L.LatLngBounds): IInjectableFactory<MapData, readonly []> {
+    const factory = () => {
+        return MapData.new(mapData, bounds);
+    }
+    factory.inject = [] as const;
+    return factory;
+}
+
 /** Represents and stores all data known about the map */
 export class MapData {
-    private readonly vertexStringToId: Map<string, number>;
-    private readonly graph: Graph<number, Vertex>;
-    private readonly rooms: Map<string, Room>;
-    private readonly floors: Floor[];
-    private readonly edges: Edge[];
-    private readonly bounds: L.LatLngBounds;
-
     public static new(mapData: JsonMap, bounds: L.LatLngBounds): Result<MapData, string> {
         const vertexStringToId = MapData.createVertexNameMapping(mapData.vertices);
 
@@ -99,20 +102,13 @@ export class MapData {
     }
 
     private constructor(
-        vertexStringToId: Map<string, number>,
-        graph: Graph<number, Vertex>,
-        rooms: Map<string, Room>,
-        floors: Floor[],
-        edges: Edge[],
-        bounds: L.LatLngBounds
-    ) {
-        this.vertexStringToId = vertexStringToId;
-        this.graph = graph;
-        this.rooms = rooms;
-        this.floors = floors;
-        this.edges = edges;
-        this.bounds = bounds;
-    }
+        private readonly vertexStringToId: Map<string, number>,
+        private readonly graph: Graph<number, Vertex>,
+        private readonly rooms: Map<string, Room>,
+        private readonly floors: Floor[],
+        private readonly edges: Edge[],
+        private readonly bounds: L.LatLngBounds
+    ) {}
 
     /**
      * Creates a map from vertex names to integer IDs

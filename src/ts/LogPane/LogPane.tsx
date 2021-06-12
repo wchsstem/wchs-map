@@ -8,13 +8,9 @@ export class Logger {
     private queue: Either<string, string>[];
     private logPane: Option<LogPane>;
 
-    private constructor(queue: Either<string, string>[], logPane: Option<LogPane>) {
-        this.queue = queue;
-        this.logPane = logPane;
-    }
-
-    public static new(): Logger {
-        return new Logger([], None);
+    public constructor() {
+        this.queue = [];
+        this.logPane = None;
     }
 
     public log(logData: string): void {

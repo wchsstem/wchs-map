@@ -1,5 +1,11 @@
 image: node:12
 
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .npm/
+    - node_modules/
+
 stages:
   - install_deps
   - prebuild
@@ -12,10 +18,8 @@ install_npm_deps:
   stage: install_deps
   needs: []
   script:
-    - npm install --unsafe-perm=true --allow-root --loglevel verbose
-  artifacts:
-    paths:
-      - node_modules/
+    - unset NODE_ENV
+    - npm ci --cache .npm --prefer-offline --unsafe-perm=true --allow-root --loglevel verbose
 
 install_compile_map_json:
   stage: install_deps
@@ -64,6 +68,18 @@ lint:
   needs: [install_npm_deps]
   script:
     - npm run lint
+
+test:
+  stage: check
+  needs: [install_npm_deps]
+  script:
+    - npm run test-ci
+  artifacts:
+    when: always
+    paths:
+      - junit.xml
+    reports:
+      junit: junit.xml
 
 # Deploy stage
 deploy-app:

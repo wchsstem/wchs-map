@@ -2,11 +2,10 @@ import { LLocationControl } from "./LLocationControl";
 import { None, Option, Some } from "@nvarner/monads";
 import { Locator, PositionState } from "../Locator";
 import { circle, circleMarker, LayerGroup } from "leaflet";
-import { Settings } from "../settings";
+import { ISettings } from "../settings/ISettings";
 
 export class LLocation extends LayerGroup {
     private readonly locator: Locator;
-    private readonly settings: Settings;
     private readonly control: LLocationControl;
 
     private hidingLocation: boolean;
@@ -14,20 +13,17 @@ export class LLocation extends LayerGroup {
 
     private map: Option<L.Map>;
 
+    static inject = ["locator", "settings"] as const;
     /**
      * Creates a new layer that shows the user's location on the map.
      * @param options Any extra Leaflet layer options
      */
-    constructor(locator: Locator, settings: Settings, options?: L.LayerOptions) {
-        options = options ?? {};
-        if (!("attribution" in options)) {
-            options.attribution = "© OpenStreetMap contributors";
-        }
-
-        super([], options);
+    public constructor(locator: Locator, settings: ISettings) {
+        super([], {
+            attribution: "© OpenStreetMap contributors"
+        });
 
         this.locator = locator;
-        this.settings = settings;
         this.control = new LLocationControl(() => { this.locate() }, { position: "topright" });
 
         this.positionMarker = None;

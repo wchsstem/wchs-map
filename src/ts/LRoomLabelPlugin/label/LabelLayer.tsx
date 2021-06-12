@@ -4,7 +4,7 @@ import RBush, { BBox } from "rbush/rbush";
 import { LABEL_FONT, LABEL_MIN_SPACING_PX } from "../../config";
 import { h } from "../../JSX";
 import { Logger } from "../../LogPane/LogPane";
-import { ClickListener } from "../LRoomLabelPlugin";
+import { ClickListener } from "../RoomLabel";
 
 /**
  * RBush entry representing the LatLang bounding box around a Label
@@ -25,16 +25,13 @@ export interface LabelLayerOptions extends GridLayerOptions {
 }
 
 export class LabelLayer extends GridLayer {
-    private readonly logger: Logger;
-
     private readonly labels: Label[];
     private readonly visibleLabels: Map<number, VisibleLabels>;
     private readonly tileCache: Map<string, HTMLElement>;
 
-    public constructor(logger: Logger, options: LabelLayerOptions) {
+    public constructor(private readonly logger: Logger, options: LabelLayerOptions) {
         super(options);
 
-        this.logger = logger;
         this.labels = options.labels;
         this.visibleLabels = new Map();
         this.tileCache = new Map();

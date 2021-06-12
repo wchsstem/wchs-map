@@ -1,34 +1,26 @@
-import { BuildingLocation, BuildingLocationWithEntrances } from "./BuildingLocation";
-import { DefinitionTag, GeocoderDefinition } from "./Geocoder";
+import { latLng } from "leaflet";
+import { BuildingLocation } from "./BuildingLocation/BuildingLocation";
+import { BuildingLocationBBox } from "./BuildingLocation/BuildingLocationBBox";
+import { BuildingLocationWithEntrances } from "./BuildingLocation/BuildingLocationWithEntrances";
 import { EMERGENCY_TAGS, INFRASTRUCTURE_TAGS } from "./config";
+import { DefinitionTag } from "./Geocoder/DefinitionTag";
+import { GeocoderDefinition } from "./Geocoder/GeocoderDefinition";
 import { deepCopy } from "./utils";
 
 export default class Room implements GeocoderDefinition {
-    public readonly entrances: BuildingLocation[];
-    public readonly roomNumber: string;
-    public readonly names: string[];
-    // The center may not be the geometric center. It can be any point that represents the room.
-    public readonly center: BuildingLocation;
-    public readonly outline: [number, number][];
-    public readonly area: number;
-    public readonly tags: DefinitionTag[];
+    private readonly boundingBox: BuildingLocationBBox;
 
     public constructor(
-        entrances: BuildingLocation[],
-        roomNumber: string,
-        names: string[],
-        outline: [number, number][],
-        center: BuildingLocation,
-        area: number,
-        tags: DefinitionTag[]
+        public readonly entrances: BuildingLocation[],
+        public readonly roomNumber: string,
+        public readonly names: string[],
+        public readonly outline: [number, number][],
+        /** The center may not be the geometric center. It can be any point that represents the room. */
+        public readonly center: BuildingLocation,
+        public readonly area: number,
+        public readonly tags: DefinitionTag[]
     ) {
-        this.entrances = entrances;
-        this.roomNumber = roomNumber;
-        this.names = names;
-        this.center = center;
-        this.outline = outline;
-        this.area = area;
-        this.tags = tags;
+        this.boundingBox = BuildingLocationBBox.fromPoints(outline.map(latLng), center.getFloor());
     }
 
     /**
@@ -90,6 +82,10 @@ export default class Room implements GeocoderDefinition {
     
     public getLocation(): BuildingLocationWithEntrances {
         return new BuildingLocationWithEntrances(this.center, this.entrances);
+    }
+
+    public getBoundingBox(): BuildingLocationBBox {
+        return this.boundingBox;
     }
 
     public estimateImportance(): number {

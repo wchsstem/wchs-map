@@ -1,7 +1,7 @@
 import { Coords, GridLayer, GridLayerOptions, LatLng, LatLngBounds, LeafletEventHandlerFn, LeafletMouseEvent, Point, point } from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
 import { h } from "../JSX";
-import { ClickListener } from "./LRoomLabelPlugin";
+import { ClickListener } from "./RoomLabel";
 import pointInPolygon from "point-in-polygon";
 import { Logger } from "../LogPane/LogPane";
 
@@ -15,14 +15,13 @@ export interface OutlineLayerOptions extends GridLayerOptions {
 export class OutlineLayer extends GridLayer {
     private readonly outlines: RBush<Outline>;
     private readonly tileCache: Map<string, HTMLElement>;
-    private readonly logger: Logger;
 
-    public constructor(options: OutlineLayerOptions, logger: Logger) {
+    public constructor(options: OutlineLayerOptions, private readonly logger: Logger) {
         super(options);
+
         this.outlines = new RBush();
         this.outlines.load(options.outlines);
         this.tileCache = new Map();
-        this.logger = logger;
     }
 
     protected createTile(coords: Coords): HTMLElement {

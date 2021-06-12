@@ -1,16 +1,11 @@
 import { LatLng, Point, point, Map as LMap, LeafletMouseEvent } from "leaflet";
 import { ClickableLabel } from "./LabelLayer";
-import { ClickListener } from "../LRoomLabelPlugin";
+import { ClickListener } from "../RoomLabel";
 import { TextMeasurer } from "../../TextMeasurer";
 import { ICON_FONT } from "../../config";
 
 export class IconLabel implements ClickableLabel {
-    private readonly textMeasurer: TextMeasurer;
-
-    private readonly center: LatLng;
-    private readonly icon: string;
     private readonly iconSize: Point;
-    private readonly closed: boolean;
     private readonly clickListeners: ClickListener[];
 
     private static readonly RADIUS_PX = 14;
@@ -25,12 +20,13 @@ export class IconLabel implements ClickableLabel {
     private static readonly CLOSED_BACKGROUND_COLOR = "#a7a7a7";
     private static readonly CLOSED_ICON_COLOR = "#c93d3d";
 
-    public constructor(textMeasurer: TextMeasurer, center: LatLng, icon: string, closed: boolean) {
-        this.textMeasurer = textMeasurer;
-        this.center = center;
-        this.icon = icon;
+    public constructor(
+        private readonly textMeasurer: TextMeasurer,
+        private readonly center: LatLng,
+        private readonly icon: string,
+        private readonly closed: boolean
+    ) {
         this.iconSize = this.measureIcon(icon);
-        this.closed = closed;
         this.clickListeners = [];
     }
 

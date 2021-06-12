@@ -3,32 +3,39 @@ import * as mapDataJson from "../data/map_compiled.json";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../assets/fontawesome/all.min.css";
 
-import { Settings } from "./settings";
-import { JsonMap, MapData } from "./MapData";
-import { LFloors, LSomeLayerWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
+import { Settings } from "./settings/Settings";
+import { JsonMap, mapDataFactoryFactory } from "./MapData";
+import { floorsFactoryFactory } from "./LFloorsPlugin/LFloorsPlugin";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../style.scss";
-import LRoomLabel from "./LRoomLabelPlugin/LRoomLabelPlugin";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "leaflet-sidebar-v2";
 import { LLocation } from "./LLocationPlugin/LLocationPlugin";
 import { Logger } from "./LogPane/LogPane";
-import { Geocoder } from "./Geocoder";
+import { Geocoder } from "./Geocoder/Geocoder";
 import { Locator } from "./Locator";
-import { Sidebar } from "./Sidebar/SidebarController";
-import { CRS, map as lMap, popup } from "leaflet";
-import { None, Some, Option } from "@nvarner/monads";
+import { Sidebar } from "./Map/View/Sidebar/Sidebar";
+import { control, CRS, map as lMap } from "leaflet";
 import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
-import { extractResult } from "./utils";
-import { TextMeasurer } from "./TextMeasurer";
+import { goRes } from "./utils";
+import { textMeasurerFactory } from "./TextMeasurer";
+import { createInjector } from "@nvarner/fallible-typed-inject";
+import { ATTRIBUTION } from "./config";
+import { RoomLabelFactory } from "./LRoomLabelPlugin/RoomLabelFactory";
+import { DeveloperModeService } from "./DeveloperModeService";
+import { SearchPane } from "./Map/View/Sidebar/SearchPane/SearchPane";
+import { NavigationPane } from "./Map/View/Sidebar/NavigationPane/NavigationPane";
+import { LeafletMapController } from "./Map/Controller/LeafletMapController";
+import { LeafletMapView } from "./Map/View/LeafletMapView";
+import { LeafletMapModel } from "./Map/Model/LeafletMapModel";
+import { Events } from "./events/Events";
 
 function main() {
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("/serviceWorker.js");
     }
 
-    const settings = defaultSettings();
-    const logger = Logger.new();
+    const logger = new Logger();
 
     // Create map
     const map = lMap("map", {
@@ -46,96 +53,61 @@ function main() {
     });
     map.fitBounds(BOUNDS.pad(0.05));
 
-    // mapDataJson is actually valid as JsonMap, but TS can't tell (yet?), so the unknown hack is needed
-    const resMapData = MapData.new(mapDataJson as unknown as JsonMap, BOUNDS);
-    if (resMapData.isErr()) {
-        logger.logError(`Error constructing MapData: ${resMapData.unwrapErr()}`);
+    const lSidebar = control.sidebar({
+        container: "sidebar",
+        closeButton: true
+    });
+
+    const injectorErr = goRes(createInjector()
+        .provideValue("logger", logger)
+        .provideValue("map", map)
+        .provideValue("lSidebar", lSidebar)
+        // mapDataJson is actually valid as JsonMap, but TS can't tell (yet?), so the unknown hack is needed
+        .provideResultFactory("mapData", mapDataFactoryFactory(mapDataJson as unknown as JsonMap, BOUNDS))
+        .provideResultFactory("floors", floorsFactoryFactory("1", { attribution: ATTRIBUTION }))
+        .provideResultFactory("textMeasurer", textMeasurerFactory)
+        .provideFactory("settings", defaultSettings)
+        .provideClass("geocoder", Geocoder)
+        .provideClass("locator", Locator)
+        .provideClass("events", Events)
+        .provideClass("navigationPane", NavigationPane)
+        .provideClass("searchPane", SearchPane)
+        .provideClass("sidebar", Sidebar)
+        .provideClass("mapView", LeafletMapView)
+        .provideClass("mapModel", LeafletMapModel)
+        .provideClass("mapController", LeafletMapController)
+        .build());
+    if (injectorErr[1] !== null) {
+        logger.logError(`Error building injector: ${injectorErr[1]}`);
         // TODO: Error handling
         return;
     }
-    const mapData = resMapData.unwrap();
+    const injector = injectorErr[0];
 
-    // Create geocoder
-    const geocoder = new Geocoder();
-    mapData.getAllRooms().forEach(room => geocoder.addDefinition(room));
-
-    // Initialize locator
-    const locator = new Locator(logger, settings);
-
-    const resTextMeasurer = TextMeasurer.new();
-    if (resTextMeasurer.isErr()) {
-        logger.logError(`Error constructing text measurer: ${resTextMeasurer.unwrapErr()}`);
-        // TODO: Error handling
-        return;
-    }
-    const textMeasurer = resTextMeasurer.unwrap();
+    const floors = injector.resolve("floors");
+    floors.addTo(map);
 
     // Add location dot if we might be able to use it
+    const locator = injector.resolve("locator");
     if (locator.getCanEverGeolocate()) {
-        const location = new LLocation(locator, settings);
+        const location = injector.injectClass(LLocation);
         location.addTo(map);
     }
 
-    const attribution = "<a href='https://www.nathanvarner.com' target='_blank' rel='noopener'>© Nathan Varner</a>";
-
-    const resFloors = LFloors.new(mapData, "1", { attribution: attribution });
-    if (resFloors.isErr()) {
-        logger.logError(`Error constructing LFloors: ${resFloors.unwrapErr()}`);
-    }
-    const floors = resFloors.unwrap();
-
-    floors.addTo(map);
-
-    // Create sidebar
-    const sidebar = new Sidebar(map, mapData, geocoder, locator, logger, settings, floors);
-
     // Create room label layers
+    const mapData = injector.resolve("mapData");
     mapData
         .getAllFloors()
         .map(floorData => floorData.number)
-        .map(floor => new LRoomLabel(mapData, sidebar, settings, logger, textMeasurer, floor, {
+        .map(floor => injector.injectClass(RoomLabelFactory).build(floor, {
             minNativeZoom: MIN_ZOOM,
             maxNativeZoom: MAX_ZOOM,
             bounds: BOUNDS
         }))
         .forEach(layer => floors.addLayer(layer));
 
-    // Lazily set up dev mode when enabled
-    // Displays vertices, edges, mouse click location
-    let devLayers: Option<LSomeLayerWithFloor[]> = None;
-
-    const locationPopup = popup();
-    function showClickLoc(e: L.LeafletMouseEvent): void {
-        locationPopup.setLatLng(e.latlng)
-            .setContent(`${e.latlng.lng}, ${e.latlng.lat}`)
-            .openOn(map);
-    }
-
-    settings.addWatcher("dev", devUnknown => {
-        const dev = devUnknown as boolean;
-
-        if (dev) {
-            if (devLayers.isNone()) {
-                const resLayers = extractResult(mapData
-                    .getAllFloors()
-                    .map(floorData => floorData.number)
-                    .map(floor => mapData.createDevLayerGroup(floor)));
-                if (resLayers.isErr()) {
-                    logger.logError(`Error in dev mode watcher constructing dev layers: ${resLayers.unwrapErr()}`);
-                    return;
-                } else {
-                    devLayers = Some(resLayers.unwrap());
-                }
-            }
-            devLayers.unwrap().forEach(devLayer => floors.addLayer(devLayer));
-            map.on("click", showClickLoc);
-        } else {
-            devLayers.ifSome(layers => {
-                layers.forEach(devLayer => floors.removeLayer(devLayer));
-                map.off("click", showClickLoc);
-            });
-        }
-    });
+    // Set up developer mode
+    injector.injectClass(DeveloperModeService);
 }
 
 function defaultSettings(): Settings {

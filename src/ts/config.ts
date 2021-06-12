@@ -1,7 +1,10 @@
-// Icons
-
-import { DefinitionTag } from "./Geocoder";
+import { DefinitionTag } from "./Geocoder/DefinitionTag";
 import { VertexTag } from "./Vertex";
+
+// Map
+export const ATTRIBUTION = "<a href='https://www.nathanvarner.com' target='_blank' rel='noopener'>© Nathan Varner</a>";
+
+// Icons
 
 // TODO: Wow these icons are bad. Get new ones.
 /**

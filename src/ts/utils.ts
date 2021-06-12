@@ -1,5 +1,5 @@
-import { GeocoderSuggestion } from "./Geocoder";
 import { Ok, Option, Result, Some } from "@nvarner/monads";
+import { GeocoderSuggestion } from "./Geocoder/GeocoderSuggestion";
 
 // Tuple
 
@@ -84,8 +84,8 @@ export function extractOption<T>(a: Option<T>[]): Option<T[]> {
 }
 
 /**
- * Turn an array of `Option`s into an `Option` of an array. If any `None`s exist in the array, returns `None`.
- * Otherwise, returns `Some` of the entire array of unwrapped elements.
+ * Turn an array of `Result`s into a `Result` of an array. If any `Err`s exist in the array, returns one of those
+ * `Err`s. Otherwise, returns `Ok` of the entire array of unwrapped elements.
  */
 export function extractResult<T, E>(a: Result<T, E>[]): Result<T[], E> {
     return a.reduce((optAcc, optCurr) => optCurr.andThen(curr => optAcc.map(acc => {
@@ -140,8 +140,7 @@ export function deepCopy<T>(a: T): T {
     }
 
     if (Array.isArray(a)) {
-        // eslint-disable-next-line
-        // @ts-ignore: TS can't tell that each element will be the same type, so this is okay
+        // @ts-expect-error: TS can't tell that each element will be the same type, so this is okay
         return a.map(entry => deepCopy(entry));
     } else if (a !== null && a !== undefined && typeof a === "object") {
         return Object.getOwnPropertyNames(a)
@@ -149,8 +148,7 @@ export function deepCopy<T>(a: T): T {
                 const descriptor = Object.getOwnPropertyDescriptor(a, property);
                 if (descriptor !== undefined) {
                     Object.defineProperty(copy, property, descriptor);
-                    // eslint-disable-next-line
-                    // @ts-ignore: TS can't tell that indexing here is okay and the types will be the same
+                    // @ts-expect-error: TS can't tell that indexing here is okay and the types will be the same
                     copy[property] = deepCopy(a[property]);
                 }
                 return copy;
