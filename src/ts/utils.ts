@@ -24,8 +24,11 @@ export function t<T extends unknown[]>(...a: T): T {
  */
 export function zip<T, U>(a: T[], b: U[]): [T, U][] {
     if (a.length > b.length) {
+        // i is known to be an integer index
+        // eslint-disable-next-line security/detect-object-injection
         return b.map((el, i) => [a[i], el]);
     } else {
+        // eslint-disable-next-line security/detect-object-injection
         return a.map((el, i) => [el, b[i]]);
     }
 }
@@ -58,8 +61,11 @@ export function zipInto<T, U, V, W>(a: [T, U, V][], b: W[]): [T, U, V, W][];
  */
 export function zipInto(a: unknown[][], b: unknown[]): unknown[] {
     if (a.length > b.length) {
+        // i is known to be an integer index
+        // eslint-disable-next-line security/detect-object-injection
         return b.map((el, i) => [...a[i], el]);
     } else {
+        // eslint-disable-next-line security/detect-object-injection
         return a.map((el, i) => [...el, b[i]]);
     }
 }
@@ -163,7 +169,9 @@ export function deepCopy<T>(a: T): T {
             const descriptor = Object.getOwnPropertyDescriptor(a, property);
             if (descriptor !== undefined) {
                 Object.defineProperty(copy, property, descriptor);
-                // @ts-expect-error: TS can't tell that indexing here is okay and the types will be the same
+                // Indexing is appropriate because the types will match up and we want all properties of a on copy
+                // @ts-expect-error: TS can't tell that the types will work out
+                // eslint-disable-next-line security/detect-object-injection
                 copy[property] = deepCopy(a[property]);
             }
             return copy;

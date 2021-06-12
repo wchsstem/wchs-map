@@ -40,6 +40,8 @@ export class Geocoder {
                 storeFields: ["getName"],
                 // Call the function instead of getting the value of a field
                 extractField: (definition, fieldName) =>
+                    // This function is only called with our known-to-be-valid input
+                    // eslint-disable-next-line security/detect-object-injection
                     definition[fieldName](),
                 searchOptions: {
                     prefix: true,
