@@ -3,13 +3,13 @@ import { GeocoderDefinition } from "../../../../Geocoder/GeocoderDefinition";
 import { Logger } from "../../../../LogPane/LogPane";
 
 const COURSE_NAME_REGEX = /course-title.*">([^:]*): ([^<]*)<\//g;
-const ROOM_NUMBER_REGEX = /teacher-room.*">Room: ([^<]+)<\//g
+const ROOM_NUMBER_REGEX = /teacher-room.*">Room: ([^<]+)<\//g;
 
 export class Course {
     constructor(
         private readonly period: string,
         private readonly name: string,
-        private readonly room: GeocoderDefinition
+        private readonly room: GeocoderDefinition,
     ) {
         this.period = period;
         this.name = name;
@@ -40,7 +40,9 @@ export class Synergy {
         const courses = [];
 
         let courseNameMatch;
-        while ((courseNameMatch = COURSE_NAME_REGEX.exec(synergyPage)) !== null) {
+        while (
+            (courseNameMatch = COURSE_NAME_REGEX.exec(synergyPage)) !== null
+        ) {
             const period = courseNameMatch[1];
             const name = courseNameMatch[2];
 
@@ -51,11 +53,13 @@ export class Synergy {
             }
             const roomNumber = roomNumberResult[1];
             const room = geocoder.getDefinitionFromName(roomNumber).match({
-                some: room => room,
+                some: (room) => room,
                 none: () => {
-                    logger.logError(`Could not find room number for ${roomNumber}`);
+                    logger.logError(
+                        `Could not find room number for ${roomNumber}`,
+                    );
                     return null;
-                }
+                },
             });
             if (room === null) {
                 continue;
@@ -64,7 +68,9 @@ export class Synergy {
             const course = new Course(period, name, room);
             courses.push(course);
 
-            const courseRoom = room.extendedWithAlternateName(course.toString());
+            const courseRoom = room.extendedWithAlternateName(
+                course.toString(),
+            );
             geocoder.addDefinition(courseRoom);
         }
 

@@ -9,7 +9,7 @@ export class LLocationControl extends Control {
      * @param locateCallback Callback function for when the user wants to be located on the map
      * @param options Any extra Leaflet layer options
      */
-    constructor(locateCallback: () => void,  options?: L.ControlOptions) {
+    constructor(locateCallback: () => void, options?: L.ControlOptions) {
         super(options);
         this.locateCallback = locateCallback;
         this.locateButton = LLocationControl.createLocateButton();

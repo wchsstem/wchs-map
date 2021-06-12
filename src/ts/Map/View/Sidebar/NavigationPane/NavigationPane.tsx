@@ -3,7 +3,10 @@ import { genTextInput, genPaneElement } from "../../../../GenHtml/GenHtml";
 import { BuildingLocation } from "../../../../BuildingLocation/BuildingLocation";
 import { None, Option, Some } from "@nvarner/monads";
 import { clearResults, updateWithResults } from "../../../../utils";
-import { LFloors, LSomeLayerWithFloor } from "../../../../LFloorsPlugin/LFloorsPlugin";
+import {
+    LFloors,
+    LSomeLayerWithFloor,
+} from "../../../../LFloorsPlugin/LFloorsPlugin";
 
 import { h } from "../../../../JSX";
 import { FlooredMarker, flooredMarker } from "./FlooredMarker";
@@ -31,7 +34,7 @@ export class NavigationPane extends Pane {
         private readonly floors: LFloors,
         private readonly map: Map,
         geocoder: Geocoder,
-        private readonly events: Events
+        private readonly events: Events,
     ) {
         super();
 
@@ -42,63 +45,117 @@ export class NavigationPane extends Pane {
         this.fromPin = None;
         this.toPin = None;
 
-        const fromPinButton = <a class="leaflet-style button" href="#" role="button" title="Choose starting point">
-            <i class="fas fa-map-marker-alt"/>
-        </a> as HTMLAnchorElement;
+        const fromPinButton = (
+            <a
+                class="leaflet-style button"
+                href="#"
+                role="button"
+                title="Choose starting point"
+            >
+                <i class="fas fa-map-marker-alt" />
+            </a>
+        ) as HTMLAnchorElement;
         this.fromInput = genTextInput();
 
-        const toPinButton = <a class="leaflet-style button" href="#" role="button" title="Choose destination">
-            <i class="fas fa-flag-checkered"/>
-        </a> as HTMLAnchorElement;
+        const toPinButton = (
+            <a
+                class="leaflet-style button"
+                href="#"
+                role="button"
+                title="Choose destination"
+            >
+                <i class="fas fa-flag-checkered" />
+            </a>
+        ) as HTMLAnchorElement;
         this.toInput = genTextInput();
 
-        const swapToFrom = <a class="leaflet-style button swap-button" href="#" role="button" title="Swap to/from">
-            <i class="fas fa-exchange-alt"/>
-        </a> as HTMLAnchorElement;
+        const swapToFrom = (
+            <a
+                class="leaflet-style button swap-button"
+                href="#"
+                role="button"
+                title="Swap to/from"
+            >
+                <i class="fas fa-exchange-alt" />
+            </a>
+        ) as HTMLAnchorElement;
 
-        const toFromContainer = <div class="wrapper">
-            <div class="wrapper input-wrapper">
-                <div class="wrapper">
-                    <label class="leaflet-style no-border nav-label">From</label>
-                    {fromPinButton}
-                    {this.fromInput}
+        const toFromContainer = (
+            <div class="wrapper">
+                <div class="wrapper input-wrapper">
+                    <div class="wrapper">
+                        <label class="leaflet-style no-border nav-label">
+                            From
+                        </label>
+                        {fromPinButton}
+                        {this.fromInput}
+                    </div>
+                    <div class="wrapper">
+                        <label class="leaflet-style no-border nav-label">
+                            To
+                        </label>
+                        {toPinButton}
+                        {this.toInput}
+                    </div>
                 </div>
-                <div class="wrapper">
-                    <label class="leaflet-style no-border nav-label">To</label>
-                    {toPinButton}
-                    {this.toInput}
-                </div>
+                {swapToFrom}
             </div>
-            {swapToFrom}
-        </div>;
+        );
 
-        this.resultContainer = <div class="wrapper results-wrapper leaflet-style hidden"/>;
+        this.resultContainer = (
+            <div class="wrapper results-wrapper leaflet-style hidden" />
+        );
 
-        this.pane = genPaneElement("Navigation", [toFromContainer, this.resultContainer]);
+        this.pane = genPaneElement("Navigation", [
+            toFromContainer,
+            this.resultContainer,
+        ]);
 
-        fromPinButton.addEventListener("click", _event => {
-            const pinLocation = new BuildingLocation(this.map.getCenter(), this.floors.getCurrentFloor());
+        fromPinButton.addEventListener("click", (_event) => {
+            const pinLocation = new BuildingLocation(
+                this.map.getCenter(),
+                this.floors.getCurrentFloor(),
+            );
             this.createFromPin(pinLocation);
         });
-        toPinButton.addEventListener("click", _event => {
-            const pinLocation = new BuildingLocation(this.map.getCenter(), this.floors.getCurrentFloor());
+        toPinButton.addEventListener("click", (_event) => {
+            const pinLocation = new BuildingLocation(
+                this.map.getCenter(),
+                this.floors.getCurrentFloor(),
+            );
             this.createToPin(pinLocation);
         });
 
-        swapToFrom.addEventListener("click", _event => this.swapNav());
-        this.fromInput.addEventListener("input", async _event => {
+        swapToFrom.addEventListener("click", (_event) => this.swapNav());
+        this.fromInput.addEventListener("input", async (_event) => {
             const query = this.fromInput.value;
             const results = await geocoder.getSuggestionsFrom(query);
-            updateWithResults(query, results, this.resultContainer, suggestion => {
-                this.events.trigger("clickNavigateFromSuggestion", suggestion);
-            });
+            updateWithResults(
+                query,
+                results,
+                this.resultContainer,
+                (suggestion) => {
+                    this.events.trigger(
+                        "clickNavigateFromSuggestion",
+                        suggestion,
+                    );
+                },
+            );
         });
-        this.toInput.addEventListener("input", async _event => {
+        this.toInput.addEventListener("input", async (_event) => {
             const query = this.toInput.value;
             const results = await geocoder.getSuggestionsFrom(query);
-            updateWithResults(query, results, this.resultContainer, suggestion => {
-                this.events.trigger("clickNavigateFromSuggestion", suggestion);
-            });
+            updateWithResults(
+                query,
+                results,
+                this.resultContainer,
+                (suggestion) => {
+                    this.events.trigger(
+                        "clickNavigateFromSuggestion",
+                        suggestion,
+                    );
+                },
+            );
         });
     }
 
@@ -126,7 +183,7 @@ export class NavigationPane extends Pane {
      * Create and add the from pin, or delete and recreate it if it exists
      */
     private createFromPin(location: BuildingLocation): void {
-        this.fromPin.ifSome(pin => {
+        this.fromPin.ifSome((pin) => {
             this.floors.removeLayer(pin);
         });
 
@@ -139,7 +196,7 @@ export class NavigationPane extends Pane {
      * Create and add the to pin, or delete and recreate it if it exists
      */
     private createToPin(location: BuildingLocation): void {
-        this.toPin.ifSome(pin => {
+        this.toPin.ifSome((pin) => {
             this.floors.removeLayer(pin);
         });
 
@@ -154,12 +211,12 @@ export class NavigationPane extends Pane {
     }
 
     public clearNav(): void {
-        this.pathLayers.forEach(layer => this.floors.removeLayer(layer));
+        this.pathLayers.forEach((layer) => this.floors.removeLayer(layer));
     }
 
     public displayNav(layers: Set<LSomeLayerWithFloor>): void {
         this.pathLayers = layers;
-        this.pathLayers.forEach(layer => this.floors.addLayer(layer));
+        this.pathLayers.forEach((layer) => this.floors.addLayer(layer));
     }
 
     public moveFromPin(location: BuildingLocation): void {
@@ -183,7 +240,9 @@ export class NavigationPane extends Pane {
      * ie. no snapping.
      * @param snapPin The callback, which takes in the location of the pin and returns the location to snap to
      */
-    public setSnapPinHandler(snapPin: (location: BuildingLocation) => BuildingLocation): void {
+    public setSnapPinHandler(
+        snapPin: (location: BuildingLocation) => BuildingLocation,
+    ): void {
         this.snapPinHandler = snapPin;
     }
 
@@ -191,8 +250,8 @@ export class NavigationPane extends Pane {
         return this.genDraggableSnappingPin(
             location,
             "fa-map-marker-alt",
-            location => this.events.trigger("dragFromPin", location),
-            location => this.snapPinHandler(location)
+            (location) => this.events.trigger("dragFromPin", location),
+            (location) => this.snapPinHandler(location),
         );
     }
 
@@ -200,8 +259,8 @@ export class NavigationPane extends Pane {
         return this.genDraggableSnappingPin(
             location,
             "fa-flag-checkered",
-            location => this.events.trigger("dragToPin", location),
-            location => this.snapPinHandler(location)
+            (location) => this.events.trigger("dragToPin", location),
+            (location) => this.snapPinHandler(location),
         );
     }
 
@@ -216,9 +275,9 @@ export class NavigationPane extends Pane {
         location: BuildingLocation,
         iconClass: string,
         onMove: (location: BuildingLocation) => void,
-        snapToDefinition: (snapFrom: BuildingLocation) => BuildingLocation
+        snapToDefinition: (snapFrom: BuildingLocation) => BuildingLocation,
     ): FlooredMarker {
-        const icon = <i class="fas"></i> as HTMLElement;
+        const icon = (<i class="fas"></i>) as HTMLElement;
         icon.classList.add(iconClass);
 
         const snapLocation = snapToDefinition(location);
@@ -227,17 +286,20 @@ export class NavigationPane extends Pane {
             autoPan: true,
             icon: divIcon({
                 className: "draggable-pin",
-                html: icon
-            })
+                html: icon,
+            }),
         });
         onMove(snapLocation);
 
-        pin.on("move", event => {
+        pin.on("move", (event) => {
             // @ts-expect-error: event does have latlng for move event
             const latLng = event.latlng;
-            const pinLocation = new BuildingLocation(latLng, pin.getFloorNumber());
+            const pinLocation = new BuildingLocation(
+                latLng,
+                pin.getFloorNumber(),
+            );
             onMove(pinLocation);
-        }).on("dragend", _event => {
+        }).on("dragend", (_event) => {
             const snappedLocation = snapToDefinition(pin.getLocation());
             pin.setLocation(snappedLocation);
             onMove(snappedLocation);

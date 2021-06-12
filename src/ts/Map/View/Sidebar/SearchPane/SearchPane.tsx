@@ -21,25 +21,36 @@ export class SearchPane extends Pane {
     private readonly pane: HTMLElement;
     private readonly resultContainer: HTMLElement;
 
-    static inject = ["geocoder", "locator", "settings", "mapData", "floors", "events"] as const;
+    static inject = [
+        "geocoder",
+        "locator",
+        "settings",
+        "mapData",
+        "floors",
+        "events",
+    ] as const;
     public constructor(
         geocoder: Geocoder,
         locator: Locator,
         settings: ISettings,
         mapData: MapData,
         floorsLayer: LFloors,
-        events: Events
+        events: Events,
     ) {
         super();
 
         const searchBar = genTextInput();
         const searchBarContainer = <div class="wrapper">{searchBar}</div>;
-        this.resultContainer = <div class="wrapper results-wrapper leaflet-style hidden" />;
+        this.resultContainer = (
+            <div class="wrapper results-wrapper leaflet-style hidden" />
+        );
 
         searchBar.addEventListener("input", async () => {
             const query = searchBar.value;
             const results = await geocoder.getSuggestionsFrom(query);
-            this.updateWithResults(query, results, result => events.trigger("clickResult", result));
+            this.updateWithResults(query, results, (result) =>
+                events.trigger("clickResult", result),
+            );
         });
 
         const closestBathroomButton = new ClosestBathroomButton(
@@ -48,39 +59,47 @@ export class SearchPane extends Pane {
             settings,
             mapData,
             floorsLayer,
-            (closest, starting) => events.trigger("clickClosestButton", closest, starting)
+            (closest, starting) =>
+                events.trigger("clickClosestButton", closest, starting),
         ).getHtml();
-        const closestBottleFillingButton = new ClosestBottleFillingStationButton(
-            geocoder,
-            locator,
-            mapData,
-            floorsLayer,
-            (closest, starting) => events.trigger("clickClosestButton", closest, starting)
-        ).getHtml();
-        const closestHandSanitizerButton = new ClosestHandSanitizerStationButton(
-            geocoder,
-            locator,
-            mapData,
-            floorsLayer,
-            (closest, starting) => events.trigger("clickClosestButton", closest, starting)
-        ).getHtml();
+        const closestBottleFillingButton =
+            new ClosestBottleFillingStationButton(
+                geocoder,
+                locator,
+                mapData,
+                floorsLayer,
+                (closest, starting) =>
+                    events.trigger("clickClosestButton", closest, starting),
+            ).getHtml();
+        const closestHandSanitizerButton =
+            new ClosestHandSanitizerStationButton(
+                geocoder,
+                locator,
+                mapData,
+                floorsLayer,
+                (closest, starting) =>
+                    events.trigger("clickClosestButton", closest, starting),
+            ).getHtml();
 
         // Emergency
-        const closestBleedingControlKitButton = new ClosestBleedingControlKitButton(
-            geocoder,
-            locator,
-            mapData,
-            floorsLayer,
-            (closest, starting) => events.trigger("clickClosestButton", closest, starting)
-        ).getHtml();
+        const closestBleedingControlKitButton =
+            new ClosestBleedingControlKitButton(
+                geocoder,
+                locator,
+                mapData,
+                floorsLayer,
+                (closest, starting) =>
+                    events.trigger("clickClosestButton", closest, starting),
+            ).getHtml();
         const closestAedButton = new ClosestAedButton(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            (closest, starting) => events.trigger("clickClosestButton", closest, starting)
+            (closest, starting) =>
+                events.trigger("clickClosestButton", closest, starting),
         ).getHtml();
-        settings.addWatcher("show-emergency", show => {
+        settings.addWatcher("show-emergency", (show) => {
             if (show) {
                 closestBleedingControlKitButton.classList.remove("hidden");
                 closestAedButton.classList.remove("hidden");
@@ -96,23 +115,26 @@ export class SearchPane extends Pane {
             locator,
             mapData,
             floorsLayer,
-            (closest, starting) => events.trigger("clickClosestButton", closest, starting)
+            (closest, starting) =>
+                events.trigger("clickClosestButton", closest, starting),
         ).getHtml();
         const closestEcButton = new ClosestEcButton(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            (closest, starting) => events.trigger("clickClosestButton", closest, starting)
+            (closest, starting) =>
+                events.trigger("clickClosestButton", closest, starting),
         ).getHtml();
         const closestBscButton = new ClosestBscButton(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            (closest, starting) => events.trigger("clickClosestButton", closest, starting)
+            (closest, starting) =>
+                events.trigger("clickClosestButton", closest, starting),
         ).getHtml();
-        settings.addWatcher("show-infrastructure", show => {
+        settings.addWatcher("show-infrastructure", (show) => {
             if (show) {
                 closestAhuButton.classList.remove("hidden");
                 closestEcButton.classList.remove("hidden");
@@ -124,25 +146,25 @@ export class SearchPane extends Pane {
             }
         });
 
-        const categoryButtonContainer = <div class="wrapper">
-            {closestBathroomButton}
-            {closestBottleFillingButton}
-            {closestHandSanitizerButton}
-            {closestBleedingControlKitButton}
-            {closestAedButton}
-            {closestAhuButton}
-            {closestEcButton}
-            {closestBscButton}
-        </div>;
-
-        this.pane = genPaneElement("Search",
-            [
-                searchBarContainer,
-                <h2>Find Nearest</h2>,
-                categoryButtonContainer,
-                this.resultContainer
-            ]
+        const categoryButtonContainer = (
+            <div class="wrapper">
+                {closestBathroomButton}
+                {closestBottleFillingButton}
+                {closestHandSanitizerButton}
+                {closestBleedingControlKitButton}
+                {closestAedButton}
+                {closestAhuButton}
+                {closestEcButton}
+                {closestBscButton}
+            </div>
         );
+
+        this.pane = genPaneElement("Search", [
+            searchBarContainer,
+            <h2>Find Nearest</h2>,
+            categoryButtonContainer,
+            this.resultContainer,
+        ]);
     }
 
     public getPaneId(): string {
@@ -164,7 +186,7 @@ export class SearchPane extends Pane {
     private updateWithResults(
         query: string,
         results: GeocoderSuggestion[],
-        onClickResult: (result: GeocoderSuggestion) => void
+        onClickResult: (result: GeocoderSuggestion) => void,
     ) {
         if (query === "") {
             this.resultContainer.classList.add("hidden");

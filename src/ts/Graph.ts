@@ -9,8 +9,8 @@ export class Graph<K, V> {
     private readonly adjList: AdjList<K>;
 
     public constructor(private readonly vertices: Map<K, V>, edges: Edge<K>[]) {
-        const adjList = new Map([...vertices.keys()].map(key => t(key, [])));
-        edges.forEach(edge => Graph.addEdgeTo(adjList, edge));
+        const adjList = new Map([...vertices.keys()].map((key) => t(key, [])));
+        edges.forEach((edge) => Graph.addEdgeTo(adjList, edge));
         this.adjList = adjList;
     }
 
@@ -22,14 +22,22 @@ export class Graph<K, V> {
      * @param weight Weight of the edge
      * @param directed True if the edge should be one-way, false if it should be two-way
      */
-    private static addEdgeTo<K>(adjList: AdjList<K>, [from, to, weight, directed]: Edge<K>) {
+    private static addEdgeTo<K>(
+        adjList: AdjList<K>,
+        [from, to, weight, directed]: Edge<K>,
+    ) {
         this.addDirectedEdge(adjList, from, to, weight);
         if (!directed) {
             this.addDirectedEdge(adjList, to, from, weight);
         }
     }
 
-    private static addDirectedEdge<K>(adjList: AdjList<K>, from: K, to: K, weight: number) {
+    private static addDirectedEdge<K>(
+        adjList: AdjList<K>,
+        from: K,
+        to: K,
+        weight: number,
+    ) {
         const neighborList = adjList.get(from) ?? [];
         neighborList.push([to, weight]);
         adjList.set(from, neighborList);
@@ -51,7 +59,9 @@ export class Graph<K, V> {
      * @param v ID of the vertex to find the neighbors of
      */
     public getNeighbors(v: K): K[] {
-        return fromMap(this.adjList, v).unwrapOr([]).map(([to, _weight]) => to);
+        return fromMap(this.adjList, v)
+            .unwrapOr([])
+            .map(([to, _weight]) => to);
     }
 
     /**
@@ -68,12 +78,10 @@ export class Graph<K, V> {
         }
         const neighbors = maybeNeighbors.unwrap();
         const maybeNeighbor = neighbors
-            .filter(neighbor => neighbor[0] === u)
-            .map(neighbor => neighbor[1]);
-        if (maybeNeighbor.length > 0)
-            return Some(maybeNeighbor[0]);
-        else
-            return None;
+            .filter((neighbor) => neighbor[0] === u)
+            .map((neighbor) => neighbor[1]);
+        if (maybeNeighbor.length > 0) return Some(maybeNeighbor[0]);
+        else return None;
     }
 
     /**
@@ -152,8 +160,8 @@ export class Graph<K, V> {
 
         const pathToPrev = this.pathFromPrev(src, prevVertex, prev);
         return pathToPrev.match({
-            some: path => Some([dest, ...path]),
-            none: None as Option<K[]>
+            some: (path) => Some([dest, ...path]),
+            none: None as Option<K[]>,
         });
     }
 }

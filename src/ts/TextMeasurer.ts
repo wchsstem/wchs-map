@@ -36,8 +36,12 @@ export class TextMeasurer {
     public measureOneLine(line: string, font: string): Point {
         this.ctx.font = font;
         const lineMetrics = this.ctx.measureText(line);
-        const width = lineMetrics.actualBoundingBoxLeft + lineMetrics.actualBoundingBoxRight;
-        const height = lineMetrics.actualBoundingBoxAscent + lineMetrics.actualBoundingBoxDescent;
+        const width =
+            lineMetrics.actualBoundingBoxLeft +
+            lineMetrics.actualBoundingBoxRight;
+        const height =
+            lineMetrics.actualBoundingBoxAscent +
+            lineMetrics.actualBoundingBoxDescent;
         return point(width, height);
     }
 
@@ -50,8 +54,12 @@ export class TextMeasurer {
      * @returns `[total size, size of each line[]]`; The total size is the combined size of each line plus the line
      * spacing between each line, and each line's size is the size of the text without extra spacing
      */
-    public measureLines(lines: string[], lineSpacingPx: number, font: string): [Point, Point[]] {
-        const linesSizes = lines.map(line => this.measureOneLine(line, font));
+    public measureLines(
+        lines: string[],
+        lineSpacingPx: number,
+        font: string,
+    ): [Point, Point[]] {
+        const linesSizes = lines.map((line) => this.measureOneLine(line, font));
         const size = linesSizes.reduce((totalSize, lineSize) => {
             const width = Math.max(totalSize.x, lineSize.x);
             const height = totalSize.y + lineSize.y;

@@ -21,7 +21,7 @@ export function t<T extends unknown[]>(...a: T): T {
  * @param b Second array to merge
  * @returns Array of pairs of corresponding elements of `a` and `b`
  */
- export function zip<T, U>(a: T[], b: U[]): [T, U][] {
+export function zip<T, U>(a: T[], b: U[]): [T, U][] {
     if (a.length > b.length) {
         return b.map((el, i) => [a[i], el]);
     } else {
@@ -77,10 +77,16 @@ export function flatten<T>(a: T[][]): T[] {
  * Otherwise, returns `Some` of the entire array of unwrapped elements.
  */
 export function extractOption<T>(a: Option<T>[]): Option<T[]> {
-    return a.reduce((optAcc, optCurr) => optCurr.andThen(curr => optAcc.map(acc => {
-        acc.push(curr);
-        return acc;
-    })), Some([] as T[]));
+    return a.reduce(
+        (optAcc, optCurr) =>
+            optCurr.andThen((curr) =>
+                optAcc.map((acc) => {
+                    acc.push(curr);
+                    return acc;
+                }),
+            ),
+        Some([] as T[]),
+    );
 }
 
 /**
@@ -88,21 +94,27 @@ export function extractOption<T>(a: Option<T>[]): Option<T[]> {
  * `Err`s. Otherwise, returns `Ok` of the entire array of unwrapped elements.
  */
 export function extractResult<T, E>(a: Result<T, E>[]): Result<T[], E> {
-    return a.reduce((optAcc, optCurr) => optCurr.andThen(curr => optAcc.map(acc => {
-        acc.push(curr);
-        return acc;
-    })), Ok([] as T[]) as Result<T[], E>);
+    return a.reduce(
+        (optAcc, optCurr) =>
+            optCurr.andThen((curr) =>
+                optAcc.map((acc) => {
+                    acc.push(curr);
+                    return acc;
+                }),
+            ),
+        Ok([] as T[]) as Result<T[], E>,
+    );
 }
 
 /**
  * Due to TypeScript's lack of something like Rust's `?` operator, working with `Result`s can be cumbersome. This
  * function converts `Result`s into something like Go's error handling paradigm, which is at least more concise and type
  * safe than a naive TypeScript-Result paradigm.
- * 
+ *
  * ## Example
  * ```typescript
  * const resultRandom: Result<number, string> = maybeRandom();
- * 
+ *
  * const randErr = goRes(resultRandom, "could not get random number");
  * if (randErr[1] !== null) { return Err(randErr[1]); }
  * const rand: number = randErr[0];
@@ -112,17 +124,20 @@ export function extractResult<T, E>(a: Result<T, E>[]): Result<T[], E> {
  * const randErr = goRes(maybeRandom(), "could not get random number");
  * if (randErr[1] !== null) { return Err(randErr[1]); }
  * const rand = randErr[0];
- * ``` 
- * 
+ * ```
+ *
  * @param a Result to Go-ify
  * @param errorMessage Error message prefix to use in case of `Err`
  * @returns If `a` is `Ok(something)`, returns `[something, null]`. If `a` is `Err(error)`, returns
  * `[null, errorMessage + error]`.
  */
-export function goRes<T, U>(a: Result<T, U>, errorMessage = ""): [T, null] | [null, string] {
+export function goRes<T, U>(
+    a: Result<T, U>,
+    errorMessage = "",
+): [T, null] | [null, string] {
     return a.match<[T, null] | [null, string]>({
-        ok: value => [value, null],
-        err: error => [null, `${errorMessage}${error}`]
+        ok: (value) => [value, null],
+        err: (error) => [null, `${errorMessage}${error}`],
     });
 }
 
@@ -141,18 +156,17 @@ export function deepCopy<T>(a: T): T {
 
     if (Array.isArray(a)) {
         // @ts-expect-error: TS can't tell that each element will be the same type, so this is okay
-        return a.map(entry => deepCopy(entry));
+        return a.map((entry) => deepCopy(entry));
     } else if (a !== null && a !== undefined && typeof a === "object") {
-        return Object.getOwnPropertyNames(a)
-            .reduce((copy, property) => {
-                const descriptor = Object.getOwnPropertyDescriptor(a, property);
-                if (descriptor !== undefined) {
-                    Object.defineProperty(copy, property, descriptor);
-                    // @ts-expect-error: TS can't tell that indexing here is okay and the types will be the same
-                    copy[property] = deepCopy(a[property]);
-                }
-                return copy;
-            }, Object.create(Object.getPrototypeOf(a)));
+        return Object.getOwnPropertyNames(a).reduce((copy, property) => {
+            const descriptor = Object.getOwnPropertyDescriptor(a, property);
+            if (descriptor !== undefined) {
+                Object.defineProperty(copy, property, descriptor);
+                // @ts-expect-error: TS can't tell that indexing here is okay and the types will be the same
+                copy[property] = deepCopy(a[property]);
+            }
+            return copy;
+        }, Object.create(Object.getPrototypeOf(a)));
     } else {
         return a as T;
     }
@@ -160,7 +174,7 @@ export function deepCopy<T>(a: T): T {
 
 /**
  * Determine if a key is present in an object. Allows TypeScript to permit indexing into objects.
- * 
+ *
  * Example:
  * ```typescript
  * const a = { hello: "world" };
@@ -188,7 +202,7 @@ export function updateWithResults(
     query: string,
     results: GeocoderSuggestion[],
     resultContainer: HTMLElement,
-    onClickResult: (result: GeocoderSuggestion) => void
+    onClickResult: (result: GeocoderSuggestion) => void,
 ): void {
     if (query === "") {
         resultContainer.classList.add("hidden");

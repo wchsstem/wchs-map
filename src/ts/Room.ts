@@ -18,9 +18,12 @@ export default class Room implements GeocoderDefinition {
         /** The center may not be the geometric center. It can be any point that represents the room. */
         public readonly center: BuildingLocation,
         public readonly area: number,
-        public readonly tags: DefinitionTag[]
+        public readonly tags: DefinitionTag[],
     ) {
-        this.boundingBox = BuildingLocationBBox.fromPoints(outline.map(latLng), center.getFloor());
+        this.boundingBox = BuildingLocationBBox.fromPoints(
+            outline.map(latLng),
+            center.getFloor(),
+        );
     }
 
     /**
@@ -79,7 +82,7 @@ export default class Room implements GeocoderDefinition {
     public getEntranceLocations(): BuildingLocation[] {
         return this.entrances;
     }
-    
+
     public getLocation(): BuildingLocationWithEntrances {
         return new BuildingLocationWithEntrances(this.center, this.entrances);
     }
@@ -89,15 +92,20 @@ export default class Room implements GeocoderDefinition {
     }
 
     public estimateImportance(): number {
-        return this.area + (100 * this.tags.filter(tag => tag !== DefinitionTag.Closed).length);
+        return (
+            this.area +
+            100 * this.tags.filter((tag) => tag !== DefinitionTag.Closed).length
+        );
     }
 
     public isInfrastructure(): boolean {
-        return this.tags.filter(tag => INFRASTRUCTURE_TAGS.has(tag)).length !== 0;
+        return (
+            this.tags.filter((tag) => INFRASTRUCTURE_TAGS.has(tag)).length !== 0
+        );
     }
 
     public isEmergency(): boolean {
-        return this.tags.filter(tag => EMERGENCY_TAGS.has(tag)).length !== 0;
+        return this.tags.filter((tag) => EMERGENCY_TAGS.has(tag)).length !== 0;
     }
 
     public isClosed(): boolean {

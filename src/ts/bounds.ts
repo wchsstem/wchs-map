@@ -10,7 +10,10 @@ const WIDTH = 161.31325; // width of 1st floor from Inkscape; arbitrary unit
 const HEIGHT = 123.15513; // height of 1nd floor from Inkscape; same unit as width
 const SCALE = 3.78;
 const PUSH_X = 5;
-export const BOUNDS = new LatLngBounds([0, PUSH_X], [SCALE * HEIGHT, (SCALE * WIDTH) + PUSH_X]);
+export const BOUNDS = new LatLngBounds(
+    [0, PUSH_X],
+    [SCALE * HEIGHT, SCALE * WIDTH + PUSH_X],
+);
 
 export const MIN_ZOOM = -1;
 export const MAX_ZOOM = 3;

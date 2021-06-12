@@ -15,33 +15,35 @@ export class Logger {
 
     public log(logData: string): void {
         this.logPane.match({
-            some: logPane => {
+            some: (logPane) => {
                 logPane.log(logData);
             },
             none: () => {
                 this.queue.push(Left(logData));
-            }
+            },
         });
         console.log(logData);
     }
 
     public logError(logData: string): void {
         this.logPane.match({
-            some: logPane => {
+            some: (logPane) => {
                 logPane.logError(logData);
             },
             none: () => {
                 this.queue.push(Right(logData));
-            }
+            },
         });
         console.error(logData);
     }
 
     public associateWithLogPane(logPane: LogPane): void {
-        this.queue.forEach(queued => queued.match({
-            left: logData => logPane.log(logData),
-            right: logData => logPane.logError(logData)
-        }));
+        this.queue.forEach((queued) =>
+            queued.match({
+                left: (logData) => logPane.log(logData),
+                right: (logData) => logPane.logError(logData),
+            }),
+        );
         this.queue = [];
         this.logPane = Some(logPane);
     }
@@ -57,20 +59,20 @@ export class LogPane {
     }
 
     public static new(): LogPane {
-        const logs = <ul></ul> as HTMLUListElement;
+        const logs = (<ul></ul>) as HTMLUListElement;
         const pane = genPaneElement("Log", logs);
 
         return new LogPane(logs, pane);
     }
 
     public log(logData: string): void {
-        const logElement = <li>{ logData }</li>;
+        const logElement = <li>{logData}</li>;
         this.logs.appendChild(logElement);
     }
 
     public logError(logData: string): void {
         // TODO: Include styling to make these stand out
-        const logElement = <li class="error">{ logData }</li>;
+        const logElement = <li class="error">{logData}</li>;
         this.logs.appendChild(logElement);
     }
 
@@ -81,10 +83,10 @@ export class LogPane {
     public getPanelOptions(): PanelOptions {
         return {
             id: this.getId(),
-            tab: "<i class=\"fas fa-stream\"></i>",
+            tab: '<i class="fas fa-stream"></i>',
             title: "Log Pane",
             pane: this.pane,
-            position: "bottom"
-        }
+            position: "bottom",
+        };
     }
 }

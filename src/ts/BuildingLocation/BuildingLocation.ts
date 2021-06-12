@@ -16,7 +16,7 @@ export class BuildingLocation {
         if (this.floor === other.floor) {
             const dlat = other.xy.lat - this.xy.lat;
             const dlng = other.xy.lng - this.xy.lng;
-            return Some(Math.sqrt((dlat * dlat) + (dlng * dlng)));
+            return Some(Math.sqrt(dlat * dlat + dlng * dlng));
         } else {
             return None;
         }
@@ -26,11 +26,9 @@ export class BuildingLocation {
         if (this.floor === other.floor) {
             const dlat = other.xy.lat - this.xy.lat;
             const dlng = other.xy.lng - this.xy.lng;
-            return Some((dlat * dlat) + (dlng * dlng));
+            return Some(dlat * dlat + dlng * dlng);
         } else {
             return None;
         }
     }
 }
-
-

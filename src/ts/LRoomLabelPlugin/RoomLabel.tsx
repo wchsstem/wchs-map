@@ -4,7 +4,14 @@ import Room from "../Room";
 
 import { Vertex } from "../Vertex";
 import { Some, None, Option } from "@nvarner/monads";
-import { LayerGroup, LayerOptions, Map as LMap, latLng, LeafletMouseEvent, LatLngBounds } from "leaflet";
+import {
+    LayerGroup,
+    LayerOptions,
+    Map as LMap,
+    latLng,
+    LeafletMouseEvent,
+    LatLngBounds,
+} from "leaflet";
 import { Label, LabelLayer, isClickable } from "./label/LabelLayer";
 import { TextLabel } from "./label/TextLabel";
 import { IconLabel } from "./label/IconLabel";
@@ -18,9 +25,9 @@ import { DefinitionTag } from "../Geocoder/DefinitionTag";
 import { MapController } from "../Map/Controller/MapController";
 
 export interface RoomLabelLayerOptions extends LayerOptions {
-    minNativeZoom: number,
-    maxNativeZoom: number,
-    bounds: LatLngBounds
+    minNativeZoom: number;
+    maxNativeZoom: number;
+    bounds: LatLngBounds;
 }
 
 export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
@@ -41,7 +48,7 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
         private readonly logger: Logger,
         private readonly textMeasurer: TextMeasurer,
         private readonly floorNumber: string,
-        options: RoomLabelLayerOptions
+        options: RoomLabelLayerOptions,
     ) {
         super([], options);
 
@@ -52,9 +59,15 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
         // First room will be least important, last will be most important
         // Later rooms' labels will end up on top of earlier rooms'
         // So this prioritizes more important rooms
-        const rooms = map.getAllRooms().sort((a: Room, b: Room) => b.estimateImportance() - a.estimateImportance());
+        const rooms = map
+            .getAllRooms()
+            .sort(
+                (a: Room, b: Room) =>
+                    b.estimateImportance() - a.estimateImportance(),
+            );
 
-        const vertices = map.getGraph()
+        const vertices = map
+            .getGraph()
             .getIdsAndVertices()
             .map(([_id, vertex]) => vertex);
 
@@ -68,8 +81,12 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
         for (const room of rooms) {
             if (room.center.getFloor() === floorNumber) {
                 if (room.outline.length !== 0) {
-                    const outline = new Outline(room.outline.map(point => latLng(point[1], point[0])));
-                    outline.addClickListener(() => mapController.focusOnDefinition(room));
+                    const outline = new Outline(
+                        room.outline.map((point) => latLng(point[1], point[0])),
+                    );
+                    outline.addClickListener(() =>
+                        mapController.focusOnDefinition(room),
+                    );
                     outlines.push(outline);
                 } else {
                     console.log(`Room has no outline: ${room.getName()}`);
@@ -77,7 +94,9 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
 
                 const roomLabel = this.getRoomLabel(room);
                 if (isClickable(roomLabel)) {
-                    roomLabel.addClickListener(() => mapController.focusOnDefinition(room));
+                    roomLabel.addClickListener(() =>
+                        mapController.focusOnDefinition(room),
+                    );
                 }
                 if (room.isInfrastructure()) {
                     infrastructureLabels.push(roomLabel);
@@ -92,9 +111,12 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
         }
 
         vertices
-            .filter(vertex => vertex.getLocation().getFloor() === floorNumber)
-            .forEach(vertex => this.getVertexLabel(vertex).ifSome(label => labels.push(label)));
-
+            .filter((vertex) => vertex.getLocation().getFloor() === floorNumber)
+            .forEach((vertex) =>
+                this.getVertexLabel(vertex).ifSome((label) =>
+                    labels.push(label),
+                ),
+            );
 
         this.normalLabels = labels;
         this.infrastructureLabels = infrastructureLabels;
@@ -102,24 +124,33 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
         this.closedLabels = closedLabels;
 
         // Wait for FontAwesome to load so icons render properly
-        const fontAwesome = new FontFaceObserver("Font Awesome 5 Free", { weight: 900 });
+        const fontAwesome = new FontFaceObserver("Font Awesome 5 Free", {
+            weight: 900,
+        });
         fontAwesome.load("\uf462").then(() => {
-            const outlineLayer = new OutlineLayer({
-                outlines: outlines,
-                minZoom: -Infinity,
-                maxZoom: Infinity,
-                minNativeZoom: this.options.minNativeZoom,
-                maxNativeZoom: this.options.maxNativeZoom,
-                bounds: this.options.bounds,
-                pane: "overlayPane",
-                tileSize: 2048
-            }, logger);
+            const outlineLayer = new OutlineLayer(
+                {
+                    outlines: outlines,
+                    minZoom: -Infinity,
+                    maxZoom: Infinity,
+                    minNativeZoom: this.options.minNativeZoom,
+                    maxNativeZoom: this.options.maxNativeZoom,
+                    bounds: this.options.bounds,
+                    pane: "overlayPane",
+                    tileSize: 2048,
+                },
+                logger,
+            );
             super.addLayer(outlineLayer);
 
             this.createLabelLayer();
-            
+
             const recreateLabelLayer = () => this.createLabelLayer();
-            settings.addWatcher("show-infrastructure", recreateLabelLayer, false);
+            settings.addWatcher(
+                "show-infrastructure",
+                recreateLabelLayer,
+                false,
+            );
             settings.addWatcher("show-emergency", recreateLabelLayer, false);
             settings.addWatcher("show-closed", recreateLabelLayer, false);
         });
@@ -148,7 +179,7 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
             labels: labels,
             minNativeZoom: this.options.minNativeZoom,
             maxNativeZoom: this.options.maxNativeZoom,
-            bounds: this.options.bounds
+            bounds: this.options.bounds,
         });
         super.addLayer(this.labelLayer);
     }
@@ -178,14 +209,21 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
     public onRemove(map: LMap): this {
         super.onRemove(map);
 
-        this.settings.removeWatcher("show-markers", this.removeWatcher.unwrap());
+        this.settings.removeWatcher(
+            "show-markers",
+            this.removeWatcher.unwrap(),
+        );
         this.removeWatcher = None;
 
         return this;
     }
 
-    private static getIcon(pairs: [string, string][], tags: string[]): Option<string> {
-        return pairs.map(([tag, icon]) => tags.includes(tag) ? Some(icon) : None)
+    private static getIcon(
+        pairs: [string, string][],
+        tags: string[],
+    ): Option<string> {
+        return pairs
+            .map(([tag, icon]) => (tags.includes(tag) ? Some(icon) : None))
             .reduce((acc, className) => acc.or(className));
     }
 
@@ -193,19 +231,35 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
         const icon = RoomLabel.getIcon(ICON_FOR_ROOM_TAG, room.getTags());
 
         return icon.match({
-            some: icon => {
-                return new IconLabel(this.textMeasurer, room.center.getXY(), icon, room.hasTag(DefinitionTag.Closed)) as Label;
+            some: (icon) => {
+                return new IconLabel(
+                    this.textMeasurer,
+                    room.center.getXY(),
+                    icon,
+                    room.hasTag(DefinitionTag.Closed),
+                ) as Label;
             },
             none: () => {
                 const text = room.getShortName();
-                return new TextLabel(this.textMeasurer, room.center.getXY(), text);
-            }
+                return new TextLabel(
+                    this.textMeasurer,
+                    room.center.getXY(),
+                    text,
+                );
+            },
         });
     }
 
     private getVertexLabel(vertex: Vertex): Option<Label> {
-        return RoomLabel.getIcon(ICON_FOR_VERTEX_TAG, vertex.getTags())
-            .map(icon => new IconLabel(this.textMeasurer, vertex.getLocation().getXY(), icon, false));
+        return RoomLabel.getIcon(ICON_FOR_VERTEX_TAG, vertex.getTags()).map(
+            (icon) =>
+                new IconLabel(
+                    this.textMeasurer,
+                    vertex.getLocation().getXY(),
+                    icon,
+                    false,
+                ),
+        );
     }
 }
 

@@ -11,7 +11,7 @@ export class InfoPane extends Pane {
     public constructor(
         definition: GeocoderDefinition,
         private readonly navigationPane: NavigationPane,
-        private readonly events: Events
+        private readonly events: Events,
     ) {
         super();
 
@@ -19,17 +19,21 @@ export class InfoPane extends Pane {
 
         this.createHeader(paneElements, definition);
 
-        const roomFloor = <span>Floor: {definition.getLocation().getFloor()}</span>
+        const roomFloor = (
+            <span>Floor: {definition.getLocation().getFloor()}</span>
+        );
         paneElements.push(roomFloor);
 
         if (definition.getDescription.length !== 0) {
             const descriptionEl = document.createElement("p");
-            const descriptionText = document.createTextNode(definition.getDescription());
+            const descriptionText = document.createTextNode(
+                definition.getDescription(),
+            );
             descriptionEl.appendChild(descriptionText);
             paneElements.push(descriptionEl);
         }
 
-        this.pane = genPaneElement("Room Info", paneElements)
+        this.pane = genPaneElement("Room Info", paneElements);
     }
 
     public getPaneId(): string {
@@ -48,7 +52,10 @@ export class InfoPane extends Pane {
         return this.pane;
     }
 
-    private createHeader(paneElements: HTMLElement[], definition: GeocoderDefinition) {
+    private createHeader(
+        paneElements: HTMLElement[],
+        definition: GeocoderDefinition,
+    ) {
         const header = document.createElement("div");
         header.classList.add("wrapper");
         header.classList.add("header-wrapper");
@@ -59,15 +66,26 @@ export class InfoPane extends Pane {
         roomName.appendChild(roomNameText);
         header.appendChild(roomName);
 
-        const viewRoomButton = genButtonIcon("fa-map-pin", () => {
-            this.events.trigger("clickFocusDefinitionButton", definition);
-        }, "Show room");
+        const viewRoomButton = genButtonIcon(
+            "fa-map-pin",
+            () => {
+                this.events.trigger("clickFocusDefinitionButton", definition);
+            },
+            "Show room",
+        );
         viewRoomButton.classList.add("push-right");
         header.appendChild(viewRoomButton);
 
-        const navButton = genButtonIcon("fa-location-arrow", () => {
-            this.events.trigger("clickNavigateToDefinitionButton", definition);
-        }, "Navigate");
+        const navButton = genButtonIcon(
+            "fa-location-arrow",
+            () => {
+                this.events.trigger(
+                    "clickNavigateToDefinitionButton",
+                    definition,
+                );
+            },
+            "Navigate",
+        );
         header.appendChild(navButton);
     }
 }

@@ -24,7 +24,7 @@ export class IconLabel implements ClickableLabel {
         private readonly textMeasurer: TextMeasurer,
         private readonly center: LatLng,
         private readonly icon: string,
-        private readonly closed: boolean
+        private readonly closed: boolean,
     ) {
         this.iconSize = this.measureIcon(icon);
         this.clickListeners = [];
@@ -39,23 +39,45 @@ export class IconLabel implements ClickableLabel {
     }
 
     public render(ctx: CanvasRenderingContext2D, centeredAt: Point): void {
-        ctx.fillStyle = this.closed ? IconLabel.CLOSED_BACKGROUND_COLOR : IconLabel.BACKGROUND_COLOR;
+        ctx.fillStyle = this.closed
+            ? IconLabel.CLOSED_BACKGROUND_COLOR
+            : IconLabel.BACKGROUND_COLOR;
         ctx.beginPath();
-        ctx.arc(centeredAt.x, centeredAt.y, IconLabel.RADIUS_PX, 0, 2 * Math.PI);
+        ctx.arc(
+            centeredAt.x,
+            centeredAt.y,
+            IconLabel.RADIUS_PX,
+            0,
+            2 * Math.PI,
+        );
         ctx.fill();
 
-        ctx.strokeStyle = this.closed ? IconLabel.CLOSED_BORDER_COLOR : IconLabel.BORDER_COLOR;
+        ctx.strokeStyle = this.closed
+            ? IconLabel.CLOSED_BORDER_COLOR
+            : IconLabel.BORDER_COLOR;
         ctx.lineWidth = IconLabel.BORDER_PX;
         ctx.beginPath();
-        ctx.arc(centeredAt.x, centeredAt.y, IconLabel.RADIUS_PX - (IconLabel.BORDER_PX / 2), 0, 2 * Math.PI);
+        ctx.arc(
+            centeredAt.x,
+            centeredAt.y,
+            IconLabel.RADIUS_PX - IconLabel.BORDER_PX / 2,
+            0,
+            2 * Math.PI,
+        );
         ctx.stroke();
 
         const oldFont = ctx.font;
         ctx.font = ICON_FONT;
         ctx.textAlign = "center";
-        ctx.fillStyle = this.closed ? IconLabel.CLOSED_ICON_COLOR : IconLabel.ICON_COLOR;
+        ctx.fillStyle = this.closed
+            ? IconLabel.CLOSED_ICON_COLOR
+            : IconLabel.ICON_COLOR;
         const topLeft = centeredAt.subtract(this.iconSize.divideBy(2));
-        ctx.fillText(this.icon, topLeft.x + (this.iconSize.x / 2), topLeft.y + this.iconSize.y - IconLabel.ICON_VERTICAL_OFFSET_PX);
+        ctx.fillText(
+            this.icon,
+            topLeft.x + this.iconSize.x / 2,
+            topLeft.y + this.iconSize.y - IconLabel.ICON_VERTICAL_OFFSET_PX,
+        );
         ctx.font = oldFont;
     }
 

@@ -15,16 +15,18 @@ export class ClosestBathroomButton extends ClosestDefinitionButton {
         settings: ISettings,
         mapData: MapData,
         floorsLayer: LFloors,
-        onGetClosest: (closest: GeocoderDefinition, starting: BuildingLocation) => void
+        onGetClosest: (
+            closest: GeocoderDefinition,
+            starting: BuildingLocation,
+        ) => void,
     ) {
         super(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            definition => {
-                if (definition.hasTag(DefinitionTag.Closed))
-                    return false;
+            (definition) => {
+                if (definition.hasTag(DefinitionTag.Closed)) return false;
 
                 const gender = settings.getData("bathroom-gender").unwrap();
                 if (gender === "m") {
@@ -32,8 +34,10 @@ export class ClosestBathroomButton extends ClosestDefinitionButton {
                 } else if (gender === "w") {
                     return definition.hasTag(DefinitionTag.WomenBathroom);
                 } else {
-                    return definition.hasTag(DefinitionTag.MenBathroom)
-                        || definition.hasTag(DefinitionTag.WomenBathroom);
+                    return (
+                        definition.hasTag(DefinitionTag.MenBathroom) ||
+                        definition.hasTag(DefinitionTag.WomenBathroom)
+                    );
                 }
             },
             "fas fa-restroom",

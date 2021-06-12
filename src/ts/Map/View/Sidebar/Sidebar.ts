@@ -19,7 +19,16 @@ import { Events } from "../../../events/Events";
 export class Sidebar {
     private infoPane: Option<InfoPane>;
 
-    static inject = ["map", "geocoder", "logger", "settings", "lSidebar", "navigationPane", "searchPane", "events"] as const;
+    static inject = [
+        "map",
+        "geocoder",
+        "logger",
+        "settings",
+        "lSidebar",
+        "navigationPane",
+        "searchPane",
+        "events",
+    ] as const;
     public constructor(
         private readonly map: L.Map,
         geocoder: Geocoder,
@@ -28,7 +37,7 @@ export class Sidebar {
         private readonly sidebar: Control.Sidebar,
         private readonly navigationPane: NavigationPane,
         private readonly searchPane: SearchPane,
-        private readonly events: Events
+        private readonly events: Events,
     ) {
         this.sidebar.addTo(this.map);
 
@@ -44,7 +53,7 @@ export class Sidebar {
 
         const logPane = LogPane.new();
         logger.associateWithLogPane(logPane);
-        settings.addWatcher("logger", enable => {
+        settings.addWatcher("logger", (enable) => {
             if (enable) {
                 this.sidebar.addPanel(logPane.getPanelOptions());
             } else {
@@ -52,7 +61,7 @@ export class Sidebar {
             }
         });
 
-        settings.addWatcher("synergy", enable => {
+        settings.addWatcher("synergy", (enable) => {
             if (enable) {
                 this.addPane(synergyPane);
             } else {
@@ -80,11 +89,11 @@ export class Sidebar {
      * @returns New info pane
      */
     private setUpInfoPane(definition: GeocoderDefinition): InfoPane {
-        this.infoPane.ifSome(infoPane => this.removePane(infoPane));
+        this.infoPane.ifSome((infoPane) => this.removePane(infoPane));
         const infoPane = new InfoPane(
             definition,
             this.navigationPane,
-            this.events
+            this.events,
         );
         this.infoPane = Some(infoPane);
 
@@ -101,7 +110,9 @@ export class Sidebar {
      * ie. no snapping.
      * @param snapPin The callback, which takes in the location of the pin and returns the location to snap to
      */
-    public setSnapPinHandler(snapPin: (location: BuildingLocation) => BuildingLocation): void {
+    public setSnapPinHandler(
+        snapPin: (location: BuildingLocation) => BuildingLocation,
+    ): void {
         this.navigationPane.setSnapPinHandler(snapPin);
     }
 
@@ -113,9 +124,11 @@ export class Sidebar {
     }
 
     public openInfoForName(geocoder: Geocoder, name: string): void {
-        geocoder.getDefinitionFromName(name).ifSome(location => this.openInfoFor(location));
+        geocoder
+            .getDefinitionFromName(name)
+            .ifSome((location) => this.openInfoFor(location));
     }
-    
+
     public clearNav(): void {
         this.navigationPane.clearNav();
     }
