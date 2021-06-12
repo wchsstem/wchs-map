@@ -26,7 +26,7 @@ export class Geocoder {
     /** Spatial indices of room center locations, indexed by floor */
     private readonly roomCenterIndices: Map<string, BuildingKDTree>;
 
-    static inject = ["mapData"] as const;
+    public static inject = ["mapData"] as const;
     public constructor(mapData: MapData) {
         this.search = (async () => {
             return new MiniSearch({

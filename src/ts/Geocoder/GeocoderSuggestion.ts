@@ -1,7 +1,3 @@
 export class GeocoderSuggestion {
-    public readonly name: string;
-
-    constructor(name: string) {
-        this.name = name;
-    }
+    public constructor(public readonly name: string) {}
 }

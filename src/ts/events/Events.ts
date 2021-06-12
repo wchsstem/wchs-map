@@ -6,7 +6,7 @@ import { EventMap } from "./EventMap";
 export class Events {
     private readonly eventHandlers: Map<string, unknown[]>;
 
-    static inject = [] as const;
+    public static inject = [] as const;
     public constructor() {
         this.eventHandlers = new Map();
     }

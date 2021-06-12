@@ -21,7 +21,7 @@ export class SearchPane extends Pane {
     private readonly pane: HTMLElement;
     private readonly resultContainer: HTMLElement;
 
-    static inject = [
+    public static inject = [
         "geocoder",
         "locator",
         "settings",

@@ -7,7 +7,6 @@ import { ISettings } from "../settings/ISettings";
 import { LLocationControl } from "./LLocationControl";
 
 export class LLocation extends LayerGroup {
-    private readonly locator: Locator;
     private readonly control: LLocationControl;
 
     private hidingLocation: boolean;
@@ -15,17 +14,16 @@ export class LLocation extends LayerGroup {
 
     private map: Option<L.Map>;
 
-    static inject = ["locator", "settings"] as const;
+    public static inject = ["locator", "settings"] as const;
     /**
      * Creates a new layer that shows the user's location on the map.
      * @param options Any extra Leaflet layer options
      */
-    public constructor(locator: Locator, settings: ISettings) {
+    public constructor(private readonly locator: Locator, settings: ISettings) {
         super([], {
             attribution: "© OpenStreetMap contributors",
         });
 
-        this.locator = locator;
         this.control = new LLocationControl(
             () => {
                 this.locate();
@@ -49,7 +47,7 @@ export class LLocation extends LayerGroup {
         this.onLocationStateChange(locator.getPositionState(), None, None);
     }
 
-    onAdd(map: L.Map): this {
+    public onAdd(map: L.Map): this {
         super.onAdd(map);
         this.control.addTo(map);
         this.map = Some(map);
@@ -57,7 +55,7 @@ export class LLocation extends LayerGroup {
         return this;
     }
 
-    onRemove(map: L.Map): this {
+    public onRemove(map: L.Map): this {
         super.onRemove(map);
         map.removeControl(this.control);
         return this;
@@ -143,7 +141,11 @@ export class LLocation extends LayerGroup {
 }
 
 class PositionMarker extends LayerGroup {
-    constructor(position: L.LatLng, accuracyRadius: number, unsure = false) {
+    public constructor(
+        position: L.LatLng,
+        accuracyRadius: number,
+        unsure = false,
+    ) {
         const color = unsure ? "#bcbcbc" : "#3388ff";
 
         const positionPoint = circleMarker(position, {

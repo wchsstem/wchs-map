@@ -6,7 +6,7 @@ const COURSE_NAME_REGEX = /course-title.*">([^:]*): ([^<]*)<\//g;
 const ROOM_NUMBER_REGEX = /teacher-room.*">Room: ([^<]+)<\//g;
 
 export class Course {
-    constructor(
+    public constructor(
         private readonly period: string,
         private readonly name: string,
         private readonly room: GeocoderDefinition,
@@ -36,7 +36,11 @@ export class Course {
 export class Synergy {
     private courses: Course[];
 
-    constructor(synergyPage: string, geocoder: Geocoder, logger: Logger) {
+    public constructor(
+        synergyPage: string,
+        geocoder: Geocoder,
+        logger: Logger,
+    ) {
         const courses = [];
 
         let courseNameMatch;

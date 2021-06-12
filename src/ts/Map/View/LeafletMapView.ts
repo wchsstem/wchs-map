@@ -10,7 +10,7 @@ import { MapView } from "./MapView";
 import { Sidebar } from "./Sidebar/Sidebar";
 
 export class LeafletMapView implements MapView {
-    static inject = ["map", "floors", "sidebar"] as const;
+    public static inject = ["map", "floors", "sidebar"] as const;
     public constructor(
         private readonly map: LMap,
         private readonly floors: LFloors,

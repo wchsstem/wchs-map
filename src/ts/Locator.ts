@@ -20,7 +20,7 @@ export class Locator {
 
     private readonly canEverGeolocate: boolean;
 
-    static inject = ["logger", "settings"] as const;
+    public static inject = ["logger", "settings"] as const;
     public constructor(
         private readonly logger: Logger,
         private readonly settings: ISettings,

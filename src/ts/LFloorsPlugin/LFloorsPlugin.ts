@@ -245,9 +245,9 @@ export class LLayerGroupWithFloor
     extends LayerGroup
     implements LSomeLayerWithFloor
 {
-    private floorNumber: string;
+    private readonly floorNumber: string;
 
-    constructor(layers: L.Layer[], options: LLayerWithFloorOptions) {
+    public constructor(layers: L.Layer[], options: LLayerWithFloorOptions) {
         super(layers, options);
         this.floorNumber = options.floorNumber || "";
     }

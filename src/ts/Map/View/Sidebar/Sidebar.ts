@@ -20,7 +20,7 @@ import "./sidebar.scss";
 export class Sidebar {
     private infoPane: Option<InfoPane>;
 
-    static inject = [
+    public static inject = [
         "map",
         "geocoder",
         "logger",

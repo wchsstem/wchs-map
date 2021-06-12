@@ -13,7 +13,7 @@ export function flooredMarker(
 export class FlooredMarker extends Marker implements LSomeLayerWithFloor {
     private floorNumber: string;
 
-    constructor(
+    public constructor(
         position: BuildingLocation,
         options?: MarkerOptions | undefined,
     ) {

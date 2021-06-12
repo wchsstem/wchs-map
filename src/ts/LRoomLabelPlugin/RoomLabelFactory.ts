@@ -6,7 +6,7 @@ import { ISettings } from "../settings/ISettings";
 import { RoomLabel, RoomLabelLayerOptions } from "./RoomLabel";
 
 export class RoomLabelFactory {
-    static inject = [
+    public static inject = [
         "mapData",
         "mapController",
         "settings",

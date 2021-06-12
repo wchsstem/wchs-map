@@ -3,7 +3,10 @@ import { LatLng } from "leaflet";
 import { Option, Some, None } from "@nvarner/monads";
 
 export class BuildingLocation {
-    constructor(private readonly xy: LatLng, private readonly floor: string) {}
+    public constructor(
+        private readonly xy: LatLng,
+        private readonly floor: string,
+    ) {}
 
     public getXY(): LatLng {
         return this.xy;

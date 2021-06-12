@@ -15,7 +15,13 @@ export class DeveloperModeService {
     private readonly locationPopup: Popup;
     private devLayers: Option<LSomeLayerWithFloor[]>;
 
-    static inject = ["settings", "map", "mapData", "floors", "logger"] as const;
+    public static inject = [
+        "settings",
+        "map",
+        "mapData",
+        "floors",
+        "logger",
+    ] as const;
     public constructor(
         settings: ISettings,
         private readonly map: LMap,

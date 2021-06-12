@@ -13,7 +13,7 @@ import { MapView } from "../View/MapView";
 import { MapController } from "./MapController";
 
 export class LeafletMapController implements MapController {
-    static inject = [
+    public static inject = [
         "mapView",
         "mapModel",
         "mapData",

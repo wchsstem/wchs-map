@@ -5,17 +5,17 @@ import { BuildingLocation } from "./BuildingLocation";
  */
 
 export class BuildingLocationWithEntrances extends BuildingLocation {
-    private readonly entrances: BuildingLocation[];
-
     /**
      * @param center Single point that represents the location, usually its center. Used as the only entrance iff there
      * are no provided entrances.
      * @param entrances Location of entrance(s). If any are specified, the center is not treated as an entrance unless
      * it is included in this list. If none are specified, the center is treated as the only entrance.
      */
-    constructor(center: BuildingLocation, entrances: BuildingLocation[]) {
+    public constructor(
+        center: BuildingLocation,
+        private readonly entrances: BuildingLocation[],
+    ) {
         super(center.getXY(), center.getFloor());
-        this.entrances = entrances;
     }
 
     public getEntrances(): BuildingLocation[] {

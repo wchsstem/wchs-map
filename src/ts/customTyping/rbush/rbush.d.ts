@@ -3,6 +3,7 @@
 // Definitions by: Dan Vanderkam <https://github.com/danvk>
 //                 Chris Lewis <https://github.com/cmslewis>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
+// Modified by Nathan Varner
 
 declare module "rbush/rbush" {
     export interface BBox {
@@ -24,14 +25,14 @@ declare module "rbush/rbush" {
          *                   value means faster insertion and slower search, and
          *                   vice versa.
          */
-        constructor(maxEntries?: number);
+        public constructor(maxEntries?: number);
 
         /**
          * Inserts an item. To insert many items at once, use `load()`.
          *
          * @param item The item to insert.
          */
-        insert(item: T): RBush<T>;
+        public insert(item: T): RBush<T>;
 
         /**
          * Bulk-inserts the given items into the tree.
@@ -48,7 +49,7 @@ declare module "rbush/rbush" {
          *
          * @param items The items to load.
          */
-        load(items: readonly T[]): RBush<T>;
+        public load(items: readonly T[]): RBush<T>;
 
         /**
          * Removes a previously inserted item, comparing by reference.
@@ -60,12 +61,12 @@ declare module "rbush/rbush" {
          *               Useful when you have only a copy of the object you need
          *               removed (e.g. loaded from server).
          */
-        remove(item: T, equals?: (a: T, b: T) => boolean): RBush<T>;
+        public remove(item: T, equals?: (a: T, b: T) => boolean): RBush<T>;
 
         /**
          * Removes all items.
          */
-        clear(): RBush<T>;
+        public clear(): RBush<T>;
 
         /**
          * Returns an array of data items (points or rectangles) that the given
@@ -76,12 +77,12 @@ declare module "rbush/rbush" {
          *
          * @param box The bounding box in which to search.
          */
-        search(box: BBox): T[];
+        public search(box: BBox): T[];
 
         /**
          * Returns all items contained in the tree.
          */
-        all(): T[];
+        public all(): T[];
 
         /**
          * Returns `true` if there are any items intersecting the given bounding
@@ -89,7 +90,7 @@ declare module "rbush/rbush" {
          *
          * @param box The bounding box in which to search.
          */
-        collides(box: BBox): boolean;
+        public collides(box: BBox): boolean;
 
         /**
          * Returns the bounding box for the provided item.
@@ -110,7 +111,7 @@ declare module "rbush/rbush" {
          *
          * @param item The item whose bounding box should be returned.
          */
-        toBBox(item: T): BBox;
+        public toBBox(item: T): BBox;
 
         /**
          * Compares the minimum x coordinate of two items. Returns -1 if `a`'s
@@ -134,7 +135,7 @@ declare module "rbush/rbush" {
          * @param a The first item to compare.
          * @param b The second item to compare.
          */
-        compareMinX(a: T, b: T): number;
+        public compareMinX(a: T, b: T): number;
 
         /**
          * Compares the minimum y coordinate of two items. Returns -1 if `a`'s
@@ -158,7 +159,7 @@ declare module "rbush/rbush" {
          * @param a The first item to compare.
          * @param b The second item to compare.
          */
-        compareMinY(a: T, b: T): number;
+        public compareMinY(a: T, b: T): number;
 
         /**
          * Exports the tree's contents as a JSON object.
@@ -171,7 +172,7 @@ declare module "rbush/rbush" {
          * Note that the `maxEntries` option from the constructor must be the same
          * in both trees for export/import to work properly.
          */
-        toJSON(): unknown;
+        public toJSON(): unknown;
 
         /**
          * Imports previously exported data into the tree (i.e., data that was
@@ -187,6 +188,6 @@ declare module "rbush/rbush" {
          *
          * @param data The previously exported JSON data.
          */
-        fromJSON(data: unknown): RBush<T>;
+        public fromJSON(data: unknown): RBush<T>;
     }
 }

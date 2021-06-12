@@ -30,7 +30,7 @@ export class NavigationPane extends Pane {
 
     private readonly pane: HTMLElement;
 
-    static inject = ["floors", "map", "geocoder", "events"] as const;
+    public static inject = ["floors", "map", "geocoder", "events"] as const;
     public constructor(
         private readonly floors: LFloors,
         private readonly map: Map,
