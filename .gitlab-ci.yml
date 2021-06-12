@@ -5,6 +5,7 @@ variables:
 
 include:
   - template: Security/SAST.gitlab-ci.yml
+  - template: Code-Quality.gitlab-ci.yml
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -86,8 +87,12 @@ lint:
     - npm run lint
 
 sast:
+  stage: check
+  needs: []
   variables:
     SAST_EXCLUDED_PATHS: src/test
+
+code_quality:
   stage: check
 
 test:
