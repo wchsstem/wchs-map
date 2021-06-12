@@ -11,8 +11,4 @@ describe("Room.getName()", () => {
         const room = new Room([], "123", [], [], new BuildingLocation(latLng(0, 0), "1"), 5, []);
         expect(room.getName()).toBe<string>("123");
     });
-
-    test("should fail", () => {
-        expect(false).toBe(true);
-    });
 });
