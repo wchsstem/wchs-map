@@ -31,6 +31,7 @@
         "@typescript-eslint/explicit-member-accessibility": ["error"],
         "@typescript-eslint/member-delimiter-style": ["error"],
         "@typescript-eslint/no-require-imports": ["error"],
-        "@typescript-eslint/prefer-for-of": ["error"]
+        "@typescript-eslint/prefer-for-of": ["error"],
+        "@typescript-eslint/prefer-ts-expect-error": ["error"]
     }
 }
