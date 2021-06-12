@@ -13,7 +13,8 @@
     "build": "rollup -c",
     "serve-build": "rollup -c && npx serve dist",
     "watch": "rollup -c rollup.dev.config.js -w",
-    "doc": "typedoc --out docs --includeVersion src/ts/*"
+    "doc": "typedoc --out docs --includeVersion src/ts/*",
+    "gen-code-nav": "npx lsif-tsc -p ."
   },
   "keywords": [],
   "author": "Nathan Varner",
@@ -33,6 +34,7 @@
     "@rollup/plugin-commonjs": "^17.1.0",
     "@rollup/plugin-node-resolve": "^11.1.1",
     "@rollup/plugin-typescript": "^8.2.0",
+    "@sourcegraph/lsif-tsc": "^0.6.8",
     "@types/domhandler": "^2.4.1",
     "@types/fontfaceobserver": "^0.0.6",
     "@types/jest": "^26.0.23",
