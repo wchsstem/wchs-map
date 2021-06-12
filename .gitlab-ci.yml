@@ -82,6 +82,11 @@ lint:
   script:
     - npm run lint
 
+sast:
+  variables:
+    SAST_EXCLUDED_PATHS: src/test
+  stage: check
+
 test:
   stage: check
   needs: [install_npm_deps]
