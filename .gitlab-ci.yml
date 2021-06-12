@@ -88,6 +88,7 @@ test:
     when: always
     paths:
       - junit.xml
+      - coverage/cobertura-coverage.xml
     reports:
       junit: junit.xml
       cobertura: coverage/cobertura-coverage.xml
