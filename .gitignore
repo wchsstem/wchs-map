@@ -1,5 +1,4 @@
 .cache
-.vscode
 dist/
 docs/
 node_modules/
