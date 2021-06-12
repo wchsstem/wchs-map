@@ -7,3 +7,5 @@ src/data/map_compiled.json
 ssl/
 # Created by `npm run test-ci` for GitLab
 junit.xml
+# Created by lsif-tsc on GitLab CI
+dump.lsif

@@ -62,6 +62,17 @@ doc:
     paths:
       - docs/
 
+code_navigation:
+  stage: build
+  image: sourcegraph/lsif-node:v0.6
+  needs: [install_npm_deps, compile_map_json]
+  allow_failure: true
+  script:
+    - lsif-node -p .
+  artifacts:
+    reports:
+      lsif: dump.lsif
+
 # Check stage
 lint:
   stage: check
