@@ -1,5 +1,11 @@
 image: node:12
 
+variables:
+  SAST_EXCLUDED_ANALYZERS: "nodejs-scan, semgrep"
+
+include:
+  - template: Security/SAST.gitlab-ci.yml
+
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
@@ -62,12 +68,28 @@ doc:
     paths:
       - docs/
 
+code_navigation:
+  stage: build
+  needs: [install_npm_deps, compile_map_json]
+  allow_failure: true
+  script:
+    - npm run gen-code-nav
+  artifacts:
+    reports:
+      lsif: dump.lsif
+
 # Check stage
 lint:
   stage: check
   needs: [install_npm_deps]
   script:
     - npm run lint
+
+sast:
+  stage: check
+  needs: []
+  variables:
+    SAST_EXCLUDED_PATHS: src/test
 
 test:
   stage: check
@@ -78,8 +100,10 @@ test:
     when: always
     paths:
       - junit.xml
+      - coverage/cobertura-coverage.xml
     reports:
       junit: junit.xml
+      cobertura: coverage/cobertura-coverage.xml
 
 # Deploy stage
 deploy-app:

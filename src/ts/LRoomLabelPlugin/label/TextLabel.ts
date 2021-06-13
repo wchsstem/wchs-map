@@ -1,6 +1,7 @@
 import { LatLng, point, Point } from "leaflet";
-import { LABEL_FONT, LABEL_LINE_SPACING_PX } from "../../config";
+
 import { TextMeasurer } from "../../TextMeasurer";
+import { LABEL_FONT, LABEL_LINE_SPACING_PX } from "../../config";
 import { zip } from "../../utils";
 import { Label } from "./LabelLayer";
 
@@ -8,9 +9,17 @@ export class TextLabel implements Label {
     private readonly size: Point;
     private readonly linesSizes: [string, Point][];
 
-    public constructor(textMeasurer: TextMeasurer, private readonly center: LatLng, content: string) {
+    public constructor(
+        textMeasurer: TextMeasurer,
+        private readonly center: LatLng,
+        content: string,
+    ) {
         const lines = content.split(" ");
-        const [size, lineSizes] = textMeasurer.measureLines(lines, LABEL_LINE_SPACING_PX, LABEL_FONT);
+        const [size, lineSizes] = textMeasurer.measureLines(
+            lines,
+            LABEL_LINE_SPACING_PX,
+            LABEL_FONT,
+        );
 
         this.size = size;
         this.linesSizes = zip(lines, lineSizes);
@@ -36,10 +45,14 @@ export class TextLabel implements Label {
         this.renderLines(this.linesSizes, ctx, centeredAt);
     }
 
-    private renderLines(linesSizes: [string, Point][], ctx: CanvasRenderingContext2D, centeredAt: Point): void {
+    private renderLines(
+        linesSizes: [string, Point][],
+        ctx: CanvasRenderingContext2D,
+        centeredAt: Point,
+    ): void {
         const lineTopLeft = centeredAt.subtract(this.size.divideBy(2));
         for (const [line, size] of linesSizes) {
-            const left = lineTopLeft.x + (this.size.x / 2);
+            const left = lineTopLeft.x + this.size.x / 2;
             const bottom = lineTopLeft.y + size.y;
             ctx.fillText(line, left, bottom);
             lineTopLeft.y += size.y + LABEL_LINE_SPACING_PX;

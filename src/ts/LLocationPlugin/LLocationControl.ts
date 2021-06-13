@@ -1,17 +1,18 @@
 import { Control, DomEvent, Map } from "leaflet";
 
 export class LLocationControl extends Control {
-    private locateCallback: () => void;
-    private locateButton: HTMLElement;
+    private readonly locateButton: HTMLElement;
 
     /**
      * Creates a new control that moves the map to the user's location.
      * @param locateCallback Callback function for when the user wants to be located on the map
      * @param options Any extra Leaflet layer options
      */
-    constructor(locateCallback: () => void,  options?: L.ControlOptions) {
+    public constructor(
+        private readonly locateCallback: () => void,
+        options?: L.ControlOptions,
+    ) {
         super(options);
-        this.locateCallback = locateCallback;
         this.locateButton = LLocationControl.createLocateButton();
     }
 
@@ -28,7 +29,7 @@ export class LLocationControl extends Control {
         return button;
     }
 
-    onAdd(_map: Map): HTMLElement {
+    public onAdd(_map: Map): HTMLElement {
         const base = document.createElement("div");
         base.classList.add("leaflet-bar");
         base.classList.add("leaflet-control");

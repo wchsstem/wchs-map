@@ -1,11 +1,13 @@
 {
     "env": {
         "browser": true,
-        "es2021": true
+        "es6": true
     },
     "extends": [
         "eslint:recommended",
-        "plugin:@typescript-eslint/recommended"
+        "plugin:@typescript-eslint/recommended",
+        "prettier",
+        "plugin:security/recommended"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
@@ -13,12 +15,26 @@
         "sourceType": "module"
     },
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "prettier",
+        "security"
     ],
     "rules": {
         "@typescript-eslint/no-unused-vars": ["warn", {
             "argsIgnorePattern": "^_",
             "varsIgnorePattern": "^_|^h$"
-        }]
+        }],
+        "prettier/prettier": ["error"],
+        "complexity": ["error", 10],
+        "@typescript-eslint/array-type": ["error"],
+        "@typescript-eslint/explicit-function-return-type": ["error", {
+            "allowExpressions": true
+        }],
+        "@typescript-eslint/explicit-member-accessibility": ["error"],
+        "@typescript-eslint/member-delimiter-style": ["error"],
+        "@typescript-eslint/no-require-imports": ["error"],
+        "@typescript-eslint/prefer-for-of": ["error"],
+        "@typescript-eslint/prefer-ts-expect-error": ["error"],
+        "security/detect-non-literal-fs-filename": "off"
     }
 }

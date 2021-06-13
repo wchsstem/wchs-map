@@ -1,4 +1,8 @@
-export function h(tag: string, props: Props | null, ...children: HTMLElement[]): HTMLElement {
+export function h(
+    tag: string,
+    props: Props | null,
+    ...children: HTMLElement[]
+): HTMLElement {
     const element = document.createElement(tag);
 
     if (props !== null) {
@@ -12,7 +16,7 @@ export function h(tag: string, props: Props | null, ...children: HTMLElement[]):
         });
     }
 
-    children.forEach(child => appendChild(element, child));
+    children.forEach((child) => appendChild(element, child));
 
     return element;
 }
@@ -23,7 +27,7 @@ export namespace h {
     // eslint-disable-next-line
     export declare namespace JSX {
         interface IntrinsicElements {
-            [name: string]: unknown
+            [name: string]: unknown;
         }
     }
 }
@@ -37,9 +41,12 @@ function removeOnFromEvent(onEvent: string): string {
     return firstChar + latterChars;
 }
 
-function appendChild(parent: HTMLElement, child: HTMLElement | string | (HTMLElement | string)[]): void {
+function appendChild(
+    parent: HTMLElement,
+    child: HTMLElement | string | (HTMLElement | string)[],
+): void {
     if (Array.isArray(child)) {
-        child.forEach(inner => appendChild(parent, inner));
+        child.forEach((inner) => appendChild(parent, inner));
     } else {
         if (typeof child === "string") {
             parent.appendChild(document.createTextNode(child));
@@ -50,5 +57,5 @@ function appendChild(parent: HTMLElement, child: HTMLElement | string | (HTMLEle
 }
 
 type Props = {
-    [name: string]: unknown
-}
+    [name: string]: unknown;
+};

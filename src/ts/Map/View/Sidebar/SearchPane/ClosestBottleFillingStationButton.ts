@@ -13,14 +13,19 @@ export class ClosestBottleFillingStationButton extends ClosestDefinitionButton {
         locator: Locator,
         mapData: MapData,
         floorsLayer: LFloors,
-        onGetClosest: (closest: GeocoderDefinition, starting: BuildingLocation) => void
+        onGetClosest: (
+            closest: GeocoderDefinition,
+            starting: BuildingLocation,
+        ) => void,
     ) {
         super(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            definition => !definition.hasTag(DefinitionTag.Closed) && definition.hasTag(DefinitionTag.WF),
+            (definition) =>
+                !definition.hasTag(DefinitionTag.Closed) &&
+                definition.hasTag(DefinitionTag.WF),
             "fas fa-tint",
             "Nearest Bottle Filling Station",
             onGetClosest,

@@ -1,19 +1,26 @@
+import {
+    imageOverlay,
+    Layer,
+    layerGroup,
+    LayerGroup,
+    LayerOptions,
+} from "leaflet";
+
 import { fromMap, Result, Err, Ok } from "@nvarner/monads";
 
-import "./floors.scss";
+import { IInjectableFactory } from "../IInjectableFactory";
 import { MapData } from "../MapData";
-import { imageOverlay, Layer, layerGroup, LayerGroup, LayerOptions } from "leaflet";
 import { zip } from "../utils";
 import { FloorsControl } from "./FloorsControl";
-import { IInjectableFactory } from "../IInjectableFactory";
+import "./floors.scss";
 
 export function floorsFactoryFactory(
     defaultFloorNumber: string,
-    options: L.LayerOptions
-): IInjectableFactory<LFloors, readonly["mapData"]> {
-    const factory = (map: MapData) => {
+    options: L.LayerOptions,
+): IInjectableFactory<LFloors, readonly ["mapData"]> {
+    const factory = (map: MapData): Result<LFloors, string> => {
         return LFloors.new(map, defaultFloorNumber, options);
-    }
+    };
     factory.inject = ["mapData"] as const;
     return factory;
 }
@@ -39,24 +46,35 @@ export class LFloors extends LayerGroup {
      * @param defaultFloorNumber The number of the floor to start on
      * @param options Any extra Leaflet layer options
      */
-    public static new(map: MapData, defaultFloorNumber: string, options: L.LayerOptions): Result<LFloors, string> {
+    public static new(
+        map: MapData,
+        defaultFloorNumber: string,
+        options: L.LayerOptions,
+    ): Result<LFloors, string> {
         const allFloorData = map
             .getAllFloors()
             // Reversing the array means that floors are ordered intuitively in the JSON (1, 2, 3...) and intuitively in
             // the control (higher floors on top)
-            .reverse()
+            .reverse();
 
         const floorImages = allFloorData
-            .map(floorData => imageOverlay(floorData.image, map.getBounds(), { pane: "tilePane" }))
-            .map(image => layerGroup([image]));
-        
-        const floorNumbers = allFloorData.map(floorData => floorData.number);
+            .map((floorData) =>
+                imageOverlay(floorData.image, map.getBounds(), {
+                    pane: "tilePane",
+                }),
+            )
+            .map((image) => layerGroup([image]));
+
+        const floorNumbers = allFloorData.map((floorData) => floorData.number);
 
         const allFloors = new Map(zip(floorNumbers, floorImages));
 
         const resCurrentFloor = fromMap(allFloors, defaultFloorNumber).match({
-            some: floor => Ok(floor),
-            none: Err(`could not find floor ${defaultFloorNumber}`) as Result<LayerGroup, string>
+            some: (floor) => Ok(floor),
+            none: Err(`could not find floor ${defaultFloorNumber}`) as Result<
+                LayerGroup,
+                string
+            >,
         });
         if (resCurrentFloor.isErr()) {
             return Err(resCurrentFloor.unwrapErr());
@@ -64,7 +82,14 @@ export class LFloors extends LayerGroup {
         const currentFloor = resCurrentFloor.unwrap();
 
         return Ok(
-            new LFloors(options, allFloors, defaultFloorNumber, currentFloor, defaultFloorNumber, new Map())
+            new LFloors(
+                options,
+                allFloors,
+                defaultFloorNumber,
+                currentFloor,
+                defaultFloorNumber,
+                new Map(),
+            ),
         );
     }
 
@@ -74,7 +99,7 @@ export class LFloors extends LayerGroup {
         defaultFloorNumber: string,
         currentFloor: L.LayerGroup,
         currentFloorNumber: string,
-        additions: Map<string, Set<Layer>>
+        additions: Map<string, Set<Layer>>,
     ) {
         super([], options);
         super.addLayer(currentFloor);
@@ -82,10 +107,10 @@ export class LFloors extends LayerGroup {
         this.control = new FloorsControl(
             [...allFloors.keys()],
             defaultFloorNumber,
-            floor => {
+            (floor) => {
                 this.setFloor(floor);
             },
-            { position: "bottomleft" }
+            { position: "bottomleft" },
         );
 
         this.allFloors = allFloors;
@@ -104,10 +129,10 @@ export class LFloors extends LayerGroup {
      * @param floor Floor to start rendering
      * @param floorNumber Number of the floor to render
      */
-    private startDrawingFloor(floor: L.LayerGroup, floorNumber: string) {
+    private startDrawingFloor(floor: L.LayerGroup, floorNumber: string): void {
         super.addLayer(floor);
-        fromMap(this.additions, floorNumber).ifSome(additions => {
-            additions.forEach(addition => floor.addLayer(addition));
+        fromMap(this.additions, floorNumber).ifSome((additions) => {
+            additions.forEach((addition) => floor.addLayer(addition));
         });
     }
 
@@ -116,28 +141,34 @@ export class LFloors extends LayerGroup {
      * @param floor Floor to stop rendering
      * @param floorNumber Number of the floor to stop rendering
      */
-    private stopDrawingFloor(floor: L.LayerGroup, floorNumber: string) {
-        fromMap(this.additions, floorNumber).ifSome(additions => {
-            additions.forEach(addition => floor.removeLayer(addition));
+    private stopDrawingFloor(floor: L.LayerGroup, floorNumber: string): void {
+        fromMap(this.additions, floorNumber).ifSome((additions) => {
+            additions.forEach((addition) => floor.removeLayer(addition));
         });
         super.removeLayer(floor);
     }
-    
+
     /**
      * Switch the currently rendered floor to `floor`. Has no effect if `floor` is already the currently rendered floor.
      * @param floor Floor to switch to
      */
     public setFloor(floor: string): this {
-        fromMap(this.allFloors, floor).ifSome(newFloor => {
+        fromMap(this.allFloors, floor).ifSome((newFloor) => {
             if (newFloor !== this.currentFloor) {
                 this.control.setFloor(this.currentFloorNumber, floor);
 
-                this.stopDrawingFloor(this.currentFloor, this.currentFloorNumber);
+                this.stopDrawingFloor(
+                    this.currentFloor,
+                    this.currentFloorNumber,
+                );
 
                 this.currentFloor = newFloor;
                 this.currentFloorNumber = floor;
 
-                this.startDrawingFloor(this.currentFloor, this.currentFloorNumber);
+                this.startDrawingFloor(
+                    this.currentFloor,
+                    this.currentFloorNumber,
+                );
             }
         });
 
@@ -163,7 +194,9 @@ export class LFloors extends LayerGroup {
      * @param floorNumber Floor number to add the floor on
      */
     public addLayerToFloor(layer: L.Layer, floorNumber: string): this {
-        const floorLayers = fromMap(this.additions, floorNumber).unwrapOr(new Set());
+        const floorLayers = fromMap(this.additions, floorNumber).unwrapOr(
+            new Set(),
+        );
         floorLayers.add(layer);
         this.additions.set(floorNumber, floorLayers);
 
@@ -208,10 +241,13 @@ export interface LLayerWithFloorOptions extends L.LayerOptions {
     floorNumber?: string;
 }
 
-export class LLayerGroupWithFloor extends LayerGroup implements LSomeLayerWithFloor {
-    private floorNumber: string;
+export class LLayerGroupWithFloor
+    extends LayerGroup
+    implements LSomeLayerWithFloor
+{
+    private readonly floorNumber: string;
 
-    constructor(layers: L.Layer[], options: LLayerWithFloorOptions) {
+    public constructor(layers: L.Layer[], options: LLayerWithFloorOptions) {
         super(layers, options);
         this.floorNumber = options.floorNumber || "";
     }

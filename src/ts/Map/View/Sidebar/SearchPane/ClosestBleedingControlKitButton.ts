@@ -13,14 +13,19 @@ export class ClosestBleedingControlKitButton extends ClosestDefinitionButton {
         locator: Locator,
         mapData: MapData,
         floorsLayer: LFloors,
-        onGetClosest: (closest: GeocoderDefinition, starting: BuildingLocation) => void
+        onGetClosest: (
+            closest: GeocoderDefinition,
+            starting: BuildingLocation,
+        ) => void,
     ) {
         super(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            definition => !definition.hasTag(DefinitionTag.Closed) && definition.hasTag(DefinitionTag.BleedControl),
+            (definition) =>
+                !definition.hasTag(DefinitionTag.Closed) &&
+                definition.hasTag(DefinitionTag.BleedControl),
             "fas fa-band-aid",
             "Nearest Bleeding Control Kit",
             onGetClosest,

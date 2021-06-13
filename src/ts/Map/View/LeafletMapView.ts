@@ -1,16 +1,20 @@
-import { MapView } from "./MapView";
 import { Map as LMap } from "leaflet";
-import { LFloors, LSomeLayerWithFloor } from "../../LFloorsPlugin/LFloorsPlugin";
-import { Sidebar } from "./Sidebar/Sidebar";
-import { GeocoderDefinition } from "../../Geocoder/GeocoderDefinition";
+
 import { BuildingLocation } from "../../BuildingLocation/BuildingLocation";
+import { GeocoderDefinition } from "../../Geocoder/GeocoderDefinition";
+import {
+    LFloors,
+    LSomeLayerWithFloor,
+} from "../../LFloorsPlugin/LFloorsPlugin";
+import { MapView } from "./MapView";
+import { Sidebar } from "./Sidebar/Sidebar";
 
 export class LeafletMapView implements MapView {
-    static inject = ["map", "floors", "sidebar"] as const;
+    public static inject = ["map", "floors", "sidebar"] as const;
     public constructor(
         private readonly map: LMap,
         private readonly floors: LFloors,
-        private readonly sidebar: Sidebar
+        private readonly sidebar: Sidebar,
     ) {}
 
     public moveFromPin(location: BuildingLocation): void {
@@ -39,13 +43,17 @@ export class LeafletMapView implements MapView {
      * ie. no snapping.
      * @param snapPin The callback, which takes in the location of the pin and returns the location to snap to
      */
-    public setSnapPinHandler(snapPin: (location: BuildingLocation) => BuildingLocation): void {
+    public setSnapPinHandler(
+        snapPin: (location: BuildingLocation) => BuildingLocation,
+    ): void {
         this.sidebar.setSnapPinHandler(snapPin);
     }
 
     private goToDefinition(definition: GeocoderDefinition): void {
         const location = definition.getLocation();
-        this.map.fitBounds(definition.getBoundingBox().toLatLngBounds().pad(0.1));
+        this.map.fitBounds(
+            definition.getBoundingBox().toLatLngBounds().pad(0.1),
+        );
         this.floors.setFloor(location.getFloor());
     }
 

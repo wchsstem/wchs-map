@@ -1,8 +1,12 @@
-import { Option, Some, None } from "@nvarner/monads";
 import { LatLng } from "leaflet";
 
+import { Option, Some, None } from "@nvarner/monads";
+
 export class BuildingLocation {
-    constructor(private readonly xy: LatLng, private readonly floor: string) {}
+    public constructor(
+        private readonly xy: LatLng,
+        private readonly floor: string,
+    ) {}
 
     public getXY(): LatLng {
         return this.xy;
@@ -16,7 +20,7 @@ export class BuildingLocation {
         if (this.floor === other.floor) {
             const dlat = other.xy.lat - this.xy.lat;
             const dlng = other.xy.lng - this.xy.lng;
-            return Some(Math.sqrt((dlat * dlat) + (dlng * dlng)));
+            return Some(Math.sqrt(dlat * dlat + dlng * dlng));
         } else {
             return None;
         }
@@ -26,11 +30,9 @@ export class BuildingLocation {
         if (this.floor === other.floor) {
             const dlat = other.xy.lat - this.xy.lat;
             const dlng = other.xy.lng - this.xy.lng;
-            return Some((dlat * dlat) + (dlng * dlng));
+            return Some(dlat * dlat + dlng * dlng);
         } else {
             return None;
         }
     }
 }
-
-

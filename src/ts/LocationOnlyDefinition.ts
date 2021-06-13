@@ -7,11 +7,15 @@ import { deepCopy } from "./utils";
 export class LocationOnlyDefinition implements GeocoderDefinition {
     public constructor(
         private readonly location: BuildingLocationWithEntrances,
-        private readonly alternateNames: string[] = []
+        private readonly alternateNames: string[] = [],
     ) {}
 
     public getBoundingBox(): BuildingLocationBBox {
-        return new BuildingLocationBBox(this.location.getXY(), this.location.getXY(), this.location.getFloor());
+        return new BuildingLocationBBox(
+            this.location.getXY(),
+            this.location.getXY(),
+            this.location.getFloor(),
+        );
     }
 
     public getLocation(): BuildingLocationWithEntrances {

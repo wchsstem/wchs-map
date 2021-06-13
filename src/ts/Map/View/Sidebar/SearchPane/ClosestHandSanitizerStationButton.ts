@@ -13,14 +13,19 @@ export class ClosestHandSanitizerStationButton extends ClosestDefinitionButton {
         locator: Locator,
         mapData: MapData,
         floorsLayer: LFloors,
-        onGetClosest: (closest: GeocoderDefinition, starting: BuildingLocation) => void
+        onGetClosest: (
+            closest: GeocoderDefinition,
+            starting: BuildingLocation,
+        ) => void,
     ) {
         super(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            definition => !definition.hasTag(DefinitionTag.Closed) && definition.hasTag(DefinitionTag.HS),
+            (definition) =>
+                !definition.hasTag(DefinitionTag.Closed) &&
+                definition.hasTag(DefinitionTag.HS),
             "fas fa-pump-soap",
             "Nearest Hand Sanitizer Station",
             onGetClosest,

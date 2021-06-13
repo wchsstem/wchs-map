@@ -1,22 +1,36 @@
-import { Coords, GridLayer, GridLayerOptions, LatLng, LatLngBounds, LeafletEventHandlerFn, LeafletMouseEvent, Point, point } from "leaflet";
-import RBush, { BBox } from "rbush/rbush";
-import { h } from "../JSX";
-import { ClickListener } from "./RoomLabel";
+import {
+    Coords,
+    GridLayer,
+    GridLayerOptions,
+    LatLng,
+    LatLngBounds,
+    LeafletEventHandlerFn,
+    LeafletMouseEvent,
+    Point,
+    point,
+} from "leaflet";
 import pointInPolygon from "point-in-polygon";
+import RBush, { BBox } from "rbush/rbush";
+
+import { h } from "../JSX";
 import { Logger } from "../LogPane/LogPane";
+import { ClickListener } from "./RoomLabel";
 
 export interface OutlineLayerOptions extends GridLayerOptions {
-    outlines: Outline[],
-    maxNativeZoom: number,
-    minNativeZoom: number,
-    bounds: LatLngBounds
+    outlines: Outline[];
+    maxNativeZoom: number;
+    minNativeZoom: number;
+    bounds: LatLngBounds;
 }
 
 export class OutlineLayer extends GridLayer {
     private readonly outlines: RBush<Outline>;
     private readonly tileCache: Map<string, HTMLElement>;
 
-    public constructor(options: OutlineLayerOptions, private readonly logger: Logger) {
+    public constructor(
+        options: OutlineLayerOptions,
+        private readonly logger: Logger,
+    ) {
         super(options);
 
         this.outlines = new RBush();
@@ -32,7 +46,9 @@ export class OutlineLayer extends GridLayer {
 
         const tileSize = this.getTileSize();
 
-        const tile = <canvas width={tileSize.x} height={tileSize.y} /> as HTMLCanvasElement;
+        const tile = (
+            <canvas width={tileSize.x} height={tileSize.y} />
+        ) as HTMLCanvasElement;
         const ctx = tile.getContext("2d");
         if (ctx !== null) {
             ctx.fillStyle = "rgba(125, 181, 52, 0.2)";
@@ -44,11 +60,17 @@ export class OutlineLayer extends GridLayer {
 
             const renderableOutlines = this.outlines.search(tileBBox);
             for (const outline of renderableOutlines) {
-                outline.render(ctx, latLng => this._map.project(latLng, coords.z).subtract(tileTopLeftPoint));
+                outline.render(ctx, (latLng) =>
+                    this._map
+                        .project(latLng, coords.z)
+                        .subtract(tileTopLeftPoint),
+                );
             }
         } else {
             // TODO: Tell user to use reasonable browser
-            this.logger.logError("cannot get 2d canvas context in OutlineLayer");
+            this.logger.logError(
+                "cannot get 2d canvas context in OutlineLayer",
+            );
         }
 
         this.tileCache.set(JSON.stringify(coords), tile);
@@ -59,17 +81,18 @@ export class OutlineLayer extends GridLayer {
         const events = super.getEvents ? super.getEvents() : {};
         // Prevent layers from being invalidated after panning
         delete events["viewprereset"];
-        events["click"] = e => {
+        events["click"] = (e) => {
             const me = e as LeafletMouseEvent;
-            const clickedOutlines = this.outlines.search({
-                maxX: me.latlng.lng + 1,
-                maxY: me.latlng.lat + 1,
-                minX: me.latlng.lng,
-                minY: me.latlng.lat
-            })
-            .filter(outline => outline.didClick(me))
-            // Assume that user intends to click on smallest target
-            .sort((a, b) => a.bboxArea() - b.bboxArea());
+            const clickedOutlines = this.outlines
+                .search({
+                    maxX: me.latlng.lng + 1,
+                    maxY: me.latlng.lat + 1,
+                    minX: me.latlng.lng,
+                    minY: me.latlng.lat,
+                })
+                .filter((outline) => outline.didClick(me))
+                // Assume that user intends to click on smallest target
+                .sort((a, b) => a.bboxArea() - b.bboxArea());
             if (clickedOutlines.length > 0) {
                 clickedOutlines[0].onClick(me);
             }
@@ -82,13 +105,16 @@ export class OutlineLayer extends GridLayer {
         const tileTopLeft = this._map.unproject(tileTopLeftPoint, coords.z);
 
         const tileBottomRightPoint = coords.add(point(1, 1)).scaleBy(tileSize);
-        const tileBottomRight = this._map.unproject(tileBottomRightPoint, coords.z);
+        const tileBottomRight = this._map.unproject(
+            tileBottomRightPoint,
+            coords.z,
+        );
 
         return {
             maxX: tileBottomRight.lng,
             maxY: tileTopLeft.lat,
             minX: tileTopLeft.lng,
-            minY: tileBottomRight.lat
+            minY: tileBottomRight.lat,
         };
     }
 }
@@ -108,10 +134,17 @@ export class Outline implements BBox {
 
         const [maxX, maxY, minX, minY] = points.reduce(
             ([maxX, maxY, minX, minY], point) => [
-                Math.max(maxX, point.lng), Math.max(maxY, point.lat),
-                Math.min(minX, point.lng), Math.min(minY, point.lat)
+                Math.max(maxX, point.lng),
+                Math.max(maxY, point.lat),
+                Math.min(minX, point.lng),
+                Math.min(minY, point.lat),
             ],
-            [-Infinity, -Infinity, Infinity, Infinity] as [number, number, number, number]
+            [-Infinity, -Infinity, Infinity, Infinity] as [
+                number,
+                number,
+                number,
+                number,
+            ],
         );
         this.maxX = maxX;
         this.maxY = maxY;
@@ -119,8 +152,11 @@ export class Outline implements BBox {
         this.minY = minY;
     }
 
-    public render(ctx: CanvasRenderingContext2D, toPoint: (latLng: LatLng) => Point): void {
-        const points = this.points.map(latLng => toPoint(latLng));
+    public render(
+        ctx: CanvasRenderingContext2D,
+        toPoint: (latLng: LatLng) => Point,
+    ): void {
+        const points = this.points.map((latLng) => toPoint(latLng));
 
         ctx.beginPath();
         ctx.moveTo(points[0].x, points[0].y);
@@ -136,7 +172,7 @@ export class Outline implements BBox {
     }
 
     public didClick(e: LeafletMouseEvent): boolean {
-        const polygon = this.points.map(latlng => [latlng.lng, latlng.lat]);
+        const polygon = this.points.map((latlng) => [latlng.lng, latlng.lat]);
         return pointInPolygon([e.latlng.lng, e.latlng.lat], polygon);
     }
 

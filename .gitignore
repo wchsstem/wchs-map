@@ -1,5 +1,4 @@
 .cache
-.vscode
 dist/
 docs/
 node_modules/
@@ -7,3 +6,6 @@ src/data/map_compiled.json
 ssl/
 # Created by `npm run test-ci` for GitLab
 junit.xml
+coverage/
+# Created by `gen-code-nav` on GitLab CI
+dump.lsif

@@ -2,7 +2,8 @@ import { DefinitionTag } from "./Geocoder/DefinitionTag";
 import { VertexTag } from "./Vertex";
 
 // Map
-export const ATTRIBUTION = "<a href='https://www.nathanvarner.com' target='_blank' rel='noopener'>© Nathan Varner</a>";
+export const ATTRIBUTION =
+    "<a href='https://www.nathanvarner.com' target='_blank' rel='noopener'>© Nathan Varner</a>";
 
 // Icons
 
@@ -33,11 +34,11 @@ export const ICON_FOR_ROOM_TAG: [DefinitionTag, string][] = [
     [DefinitionTag.AHU, "\uf72e"], // fa-wind
     [DefinitionTag.IDF, "\uf6ff"], // fa-network-wired
     [DefinitionTag.ERU, "\uf128"], // fa-question
-    [DefinitionTag.CP, "\uf023"]
+    [DefinitionTag.CP, "\uf023"],
 ];
 
 /** CSS font string for icons */
-export const ICON_FONT = "900 14px \"Font Awesome 5 Free\"";
+export const ICON_FONT = '900 14px "Font Awesome 5 Free"';
 
 // Labels
 
@@ -45,7 +46,8 @@ export const ICON_FONT = "900 14px \"Font Awesome 5 Free\"";
 export const LABEL_LINE_SPACING_PX = 3;
 
 /** CSS font string for map labels */
-export const LABEL_FONT = "12px/1.5 \"Helvetica Neue\", Arial, Helvetica, sans-serif";
+export const LABEL_FONT =
+    '12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif';
 
 /** Minimum distance in pixels between two map labels */
 export const LABEL_MIN_SPACING_PX = 3;
@@ -76,7 +78,17 @@ type InputTypeAndData = ["dropdown", DropdownData];
  *  - dropdown: dropdown to choose between the finite set of options specified in `DROPDOWN_DATA`
  */
 export const SETTING_INPUT_TYPE: Map<string, InputTypeAndData> = new Map([
-    ["bathroom-gender", ["dropdown", [["", "no-selection"], ["Man", "m"], ["Woman", "w"]]]]
+    [
+        "bathroom-gender",
+        [
+            "dropdown",
+            [
+                ["", "no-selection"],
+                ["Man", "m"],
+                ["Woman", "w"],
+            ],
+        ],
+    ],
 ]);
 
 /**
@@ -85,8 +97,16 @@ export const SETTING_INPUT_TYPE: Map<string, InputTypeAndData> = new Map([
  */
 export const SETTING_SECTIONS: [string, string[]][] = [
     ["Personal", ["bathroom-gender"]],
-    ["Visibility", ["show-closed", "show-infrastructure", "show-emergency", "hiding-location"]],
-    ["Advanced", ["synergy", "dev", "logger", "show-markers"]]
+    [
+        "Visibility",
+        [
+            "show-closed",
+            "show-infrastructure",
+            "show-emergency",
+            "hiding-location",
+        ],
+    ],
+    ["Advanced", ["synergy", "dev", "logger", "show-markers"]],
 ];
 
 export const NAME_MAPPING = new Map([
@@ -98,9 +118,8 @@ export const NAME_MAPPING = new Map([
     ["show-infrastructure", "Show Infrastructure Icons"],
     ["show-emergency", "Show Emergency Icons"],
     ["logger", "Show Logger"],
-    ["show-markers", "Show Markers"]
+    ["show-markers", "Show Markers"],
 ]);
-
 
 // Tags
 
@@ -111,7 +130,10 @@ export const INFRASTRUCTURE_TAGS: Set<DefinitionTag> = new Set([
     DefinitionTag.IDF,
     DefinitionTag.MDF,
     DefinitionTag.ERU,
-    DefinitionTag.CP
+    DefinitionTag.CP,
 ]);
 
-export const EMERGENCY_TAGS: Set<DefinitionTag> = new Set([DefinitionTag.AED, DefinitionTag.BleedControl]);
+export const EMERGENCY_TAGS: Set<DefinitionTag> = new Set([
+    DefinitionTag.AED,
+    DefinitionTag.BleedControl,
+]);

@@ -1,4 +1,5 @@
 import { LatLng } from "leaflet";
+
 import { BuildingLocation } from "./BuildingLocation/BuildingLocation";
 import { JsonVertex } from "./MapData";
 
@@ -10,7 +11,10 @@ export class Vertex {
     private readonly tags: VertexTag[];
 
     public constructor(vertex: JsonVertex) {
-        this.location = new BuildingLocation(new LatLng(vertex.location[1], vertex.location[0]), vertex.floor);
+        this.location = new BuildingLocation(
+            new LatLng(vertex.location[1], vertex.location[0]),
+            vertex.floor,
+        );
         this.tags = vertex.tags ?? [];
     }
 
@@ -21,7 +25,7 @@ export class Vertex {
     public hasTag(tag: VertexTag): boolean {
         return this.tags.includes(tag);
     }
-    
+
     public getTags(): VertexTag[] {
         return this.tags;
     }

@@ -1,27 +1,41 @@
-import { fromMap } from "@nvarner/monads";
-import { Coords, GridLayer, GridLayerOptions, LatLng, LatLngBounds, LeafletEventHandlerFn, LeafletMouseEvent, Map as LMap, Point, point, PointExpression } from "leaflet";
+import {
+    Coords,
+    GridLayer,
+    GridLayerOptions,
+    LatLng,
+    LatLngBounds,
+    LeafletEventHandlerFn,
+    LeafletMouseEvent,
+    Map as LMap,
+    Point,
+    point,
+    PointExpression,
+} from "leaflet";
 import RBush, { BBox } from "rbush/rbush";
-import { LABEL_FONT, LABEL_MIN_SPACING_PX } from "../../config";
+
+import { fromMap } from "@nvarner/monads";
+
 import { h } from "../../JSX";
 import { Logger } from "../../LogPane/LogPane";
+import { LABEL_FONT, LABEL_MIN_SPACING_PX } from "../../config";
 import { ClickListener } from "../RoomLabel";
 
 /**
  * RBush entry representing the LatLang bounding box around a Label
  */
 type RBushEntry = {
-    minX: number,
-    minY: number,
-    maxX: number,
-    maxY: number,
-    label: Label
-}
+    minX: number;
+    minY: number;
+    maxX: number;
+    maxY: number;
+    label: Label;
+};
 
 export interface LabelLayerOptions extends GridLayerOptions {
-    labels: Label[],
-    maxNativeZoom: number,
-    minNativeZoom: number,
-    bounds: LatLngBounds
+    labels: Label[];
+    maxNativeZoom: number;
+    minNativeZoom: number;
+    bounds: LatLngBounds;
 }
 
 export class LabelLayer extends GridLayer {
@@ -29,7 +43,10 @@ export class LabelLayer extends GridLayer {
     private readonly visibleLabels: Map<number, VisibleLabels>;
     private readonly tileCache: Map<string, HTMLElement>;
 
-    public constructor(private readonly logger: Logger, options: LabelLayerOptions) {
+    public constructor(
+        private readonly logger: Logger,
+        options: LabelLayerOptions,
+    ) {
         super(options);
 
         this.labels = options.labels;
@@ -46,7 +63,12 @@ export class LabelLayer extends GridLayer {
         const tileSize = this.getTileSize();
 
         const pixelRatio = devicePixelRatio ?? 1;
-        const tile = <canvas width={tileSize.x * pixelRatio} height={tileSize.y * pixelRatio} /> as HTMLCanvasElement;
+        const tile = (
+            <canvas
+                width={tileSize.x * pixelRatio}
+                height={tileSize.y * pixelRatio}
+            />
+        ) as HTMLCanvasElement;
         const ctx = tile.getContext("2d");
         if (ctx !== null) {
             ctx.scale(pixelRatio, pixelRatio);
@@ -55,14 +77,20 @@ export class LabelLayer extends GridLayer {
 
             const tileTopLeftPoint = coords.scaleBy(tileSize);
 
-            const tileCenterPoint = coords.add(point(0.5, 0.5)).scaleBy(tileSize);
+            const tileCenterPoint = coords
+                .add(point(0.5, 0.5))
+                .scaleBy(tileSize);
             const tileCenter = this._map.unproject(tileCenterPoint, coords.z);
 
             const visibleLabels =
-                this.visibleLabels.get(coords.z) ?? new VisibleLabels(this.labels, coords.z, this._map);
+                this.visibleLabels.get(coords.z) ??
+                new VisibleLabels(this.labels, coords.z, this._map);
             this.visibleLabels.set(coords.z, visibleLabels);
 
-            const renderableLabels = visibleLabels.getLabels(tileSize, tileCenter);
+            const renderableLabels = visibleLabels.getLabels(
+                tileSize,
+                tileCenter,
+            );
             for (const label of renderableLabels) {
                 const latLng = label.getCenter();
                 const point = this._map.project(latLng, coords.z);
@@ -82,17 +110,26 @@ export class LabelLayer extends GridLayer {
         const events = super.getEvents ? super.getEvents() : {};
         // Prevent layers from being invalidated after panning
         delete events["viewprereset"];
-        events["click"] = e => {
+        events["click"] = (e) => {
             const me = e as LeafletMouseEvent;
-            fromMap(this.visibleLabels, this._map.getZoom()).ifSome(visibleLabels => {
-                const clickedLabels = visibleLabels.getLabels(point(1, 1), me.latlng)
-                    .filter(label =>
-                        isClickable(label)
-                        && label.didClick(me, this._map, this._map.getZoom())) as ClickableLabel[];
-                if (clickedLabels.length > 0) {
-                    clickedLabels[0].onClick(me);
-                }
-            });
+            fromMap(this.visibleLabels, this._map.getZoom()).ifSome(
+                (visibleLabels) => {
+                    const clickedLabels = visibleLabels
+                        .getLabels(point(1, 1), me.latlng)
+                        .filter(
+                            (label) =>
+                                isClickable(label) &&
+                                label.didClick(
+                                    me,
+                                    this._map,
+                                    this._map.getZoom(),
+                                ),
+                        ) as ClickableLabel[];
+                    if (clickedLabels.length > 0) {
+                        clickedLabels[0].onClick(me);
+                    }
+                },
+            );
         };
         return events;
     }
@@ -131,7 +168,7 @@ class VisibleLabels {
     public getLabels(within: Point, center: LatLng): Label[] {
         // TODO: Replace 100 with a number calculated as the max label bbox width/height
         const bbox = this.bbox(within, center);
-        return this.visibleLabelIndex.search(bbox).map(entry => entry.label);
+        return this.visibleLabelIndex.search(bbox).map((entry) => entry.label);
     }
 
     private rBushEntryFrom(label: Label): RBushEntry {
@@ -159,7 +196,7 @@ class VisibleLabels {
             minX: topLeft.lng,
             maxX: bottomRight.lng,
             minY: bottomRight.lat,
-            maxY: topLeft.lat
+            maxY: topLeft.lat,
         };
     }
 }
@@ -177,5 +214,7 @@ export interface ClickableLabel extends Label {
 }
 
 export function isClickable(label: Label): label is ClickableLabel {
-    return "addClickListener" in label && "didClick" in label && "onClick" in label;
+    return (
+        "addClickListener" in label && "didClick" in label && "onClick" in label
+    );
 }

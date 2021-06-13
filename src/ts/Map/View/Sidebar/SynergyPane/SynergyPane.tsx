@@ -15,7 +15,9 @@ export class SynergyPane extends Pane {
         super();
 
         const beta = <p>Currently in alpha. Doesn't fully work yet.</p>;
-        const info = <p>Download your Synergy page and upload the HTML file here.</p>;
+        const info = (
+            <p>Download your Synergy page and upload the HTML file here.</p>
+        );
 
         const siteUpload = <input type="file" accept="text/html" />;
 
@@ -46,7 +48,7 @@ export class SynergyPane extends Pane {
                 errorBox.innerText = "There was an error reading the file.";
             });
 
-            reader.addEventListener("load", result => {
+            reader.addEventListener("load", (result) => {
                 if (result.target === null || result.target.result === null) {
                     errorBox.innerText = "There was an error loading the file.";
                     return;
@@ -62,7 +64,13 @@ export class SynergyPane extends Pane {
             reader.readAsText(file);
         });
 
-        this.pane = genPaneElement("Synergy", [beta, info, siteUpload, errorBox, courses]);
+        this.pane = genPaneElement("Synergy", [
+            beta,
+            info,
+            siteUpload,
+            errorBox,
+            courses,
+        ]);
     }
 
     public getPaneId(): string {

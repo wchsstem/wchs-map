@@ -34,5 +34,5 @@ export enum DefinitionTag {
     /** ERU, unknown meaning but likely HVAC-related; some doors are labeled as ERUs */
     ERU = "eru",
     /** Control Panel, security rooms housing a control panel and other such equipment */
-    CP = "cp"
+    CP = "cp",
 }

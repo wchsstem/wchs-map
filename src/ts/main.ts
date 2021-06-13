@@ -1,36 +1,35 @@
-import * as mapDataJson from "../data/map_compiled.json";
+import { control, CRS, map as lMap } from "leaflet";
+import "leaflet-sidebar-v2";
 
+import { createInjector } from "@nvarner/fallible-typed-inject";
+
+import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../assets/fontawesome/all.min.css";
-
-import { Settings } from "./settings/Settings";
-import { JsonMap, mapDataFactoryFactory } from "./MapData";
-import { floorsFactoryFactory } from "./LFloorsPlugin/LFloorsPlugin";
-import "../../node_modules/leaflet/dist/leaflet.css";
+import * as mapDataJson from "../data/map_compiled.json";
 import "../style.scss";
-import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
-import "leaflet-sidebar-v2";
-import { LLocation } from "./LLocationPlugin/LLocationPlugin";
-import { Logger } from "./LogPane/LogPane";
-import { Geocoder } from "./Geocoder/Geocoder";
-import { Locator } from "./Locator";
-import { Sidebar } from "./Map/View/Sidebar/Sidebar";
-import { control, CRS, map as lMap } from "leaflet";
-import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
-import { goRes } from "./utils";
-import { textMeasurerFactory } from "./TextMeasurer";
-import { createInjector } from "@nvarner/fallible-typed-inject";
-import { ATTRIBUTION } from "./config";
-import { RoomLabelFactory } from "./LRoomLabelPlugin/RoomLabelFactory";
 import { DeveloperModeService } from "./DeveloperModeService";
-import { SearchPane } from "./Map/View/Sidebar/SearchPane/SearchPane";
-import { NavigationPane } from "./Map/View/Sidebar/NavigationPane/NavigationPane";
+import { Geocoder } from "./Geocoder/Geocoder";
+import { floorsFactoryFactory } from "./LFloorsPlugin/LFloorsPlugin";
+import { LLocation } from "./LLocationPlugin/LLocationPlugin";
+import { RoomLabelFactory } from "./LRoomLabelPlugin/RoomLabelFactory";
+import { Locator } from "./Locator";
+import { Logger } from "./LogPane/LogPane";
 import { LeafletMapController } from "./Map/Controller/LeafletMapController";
-import { LeafletMapView } from "./Map/View/LeafletMapView";
 import { LeafletMapModel } from "./Map/Model/LeafletMapModel";
+import { LeafletMapView } from "./Map/View/LeafletMapView";
+import { NavigationPane } from "./Map/View/Sidebar/NavigationPane/NavigationPane";
+import { SearchPane } from "./Map/View/Sidebar/SearchPane/SearchPane";
+import { Sidebar } from "./Map/View/Sidebar/Sidebar";
+import { JsonMap, mapDataFactoryFactory } from "./MapData";
+import { textMeasurerFactory } from "./TextMeasurer";
+import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
+import { ATTRIBUTION } from "./config";
 import { Events } from "./events/Events";
+import { Settings } from "./settings/Settings";
+import { goRes } from "./utils";
 
-function main() {
+function main(): void {
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("/serviceWorker.js");
     }
@@ -41,7 +40,7 @@ function main() {
     const map = lMap("map", {
         crs: CRS.Simple,
         center: BOUNDS.getCenter(),
-        transform3DLimit: 2^20, // Prevents room overlay from drifting off the map in Firefox
+        transform3DLimit: 2 ^ 20, // Prevents room overlay from drifting off the map in Firefox
         maxZoom: MAX_ZOOM,
         minZoom: MIN_ZOOM,
         maxBounds: BOUNDS.pad(0.5),
@@ -49,34 +48,45 @@ function main() {
         zoomSnap: 1,
         zoomDelta: 1,
         wheelPxPerZoomLevel: 150,
-        fadeAnimation: false
+        fadeAnimation: false,
     });
     map.fitBounds(BOUNDS.pad(0.05));
 
     const lSidebar = control.sidebar({
         container: "sidebar",
-        closeButton: true
+        closeButton: true,
     });
 
-    const injectorErr = goRes(createInjector()
-        .provideValue("logger", logger)
-        .provideValue("map", map)
-        .provideValue("lSidebar", lSidebar)
-        // mapDataJson is actually valid as JsonMap, but TS can't tell (yet?), so the unknown hack is needed
-        .provideResultFactory("mapData", mapDataFactoryFactory(mapDataJson as unknown as JsonMap, BOUNDS))
-        .provideResultFactory("floors", floorsFactoryFactory("1", { attribution: ATTRIBUTION }))
-        .provideResultFactory("textMeasurer", textMeasurerFactory)
-        .provideFactory("settings", defaultSettings)
-        .provideClass("geocoder", Geocoder)
-        .provideClass("locator", Locator)
-        .provideClass("events", Events)
-        .provideClass("navigationPane", NavigationPane)
-        .provideClass("searchPane", SearchPane)
-        .provideClass("sidebar", Sidebar)
-        .provideClass("mapView", LeafletMapView)
-        .provideClass("mapModel", LeafletMapModel)
-        .provideClass("mapController", LeafletMapController)
-        .build());
+    const injectorErr = goRes(
+        createInjector()
+            .provideValue("logger", logger)
+            .provideValue("map", map)
+            .provideValue("lSidebar", lSidebar)
+            // mapDataJson is actually valid as JsonMap, but TS can't tell (yet?), so the unknown hack is needed
+            .provideResultFactory(
+                "mapData",
+                mapDataFactoryFactory(
+                    mapDataJson as unknown as JsonMap,
+                    BOUNDS,
+                ),
+            )
+            .provideResultFactory(
+                "floors",
+                floorsFactoryFactory("1", { attribution: ATTRIBUTION }),
+            )
+            .provideResultFactory("textMeasurer", textMeasurerFactory)
+            .provideFactory("settings", defaultSettings)
+            .provideClass("geocoder", Geocoder)
+            .provideClass("locator", Locator)
+            .provideClass("events", Events)
+            .provideClass("navigationPane", NavigationPane)
+            .provideClass("searchPane", SearchPane)
+            .provideClass("sidebar", Sidebar)
+            .provideClass("mapView", LeafletMapView)
+            .provideClass("mapModel", LeafletMapModel)
+            .provideClass("mapController", LeafletMapController)
+            .build(),
+    );
     if (injectorErr[1] !== null) {
         logger.logError(`Error building injector: ${injectorErr[1]}`);
         // TODO: Error handling
@@ -98,13 +108,15 @@ function main() {
     const mapData = injector.resolve("mapData");
     mapData
         .getAllFloors()
-        .map(floorData => floorData.number)
-        .map(floor => injector.injectClass(RoomLabelFactory).build(floor, {
-            minNativeZoom: MIN_ZOOM,
-            maxNativeZoom: MAX_ZOOM,
-            bounds: BOUNDS
-        }))
-        .forEach(layer => floors.addLayer(layer));
+        .map((floorData) => floorData.number)
+        .map((floor) =>
+            injector.injectClass(RoomLabelFactory).build(floor, {
+                minNativeZoom: MIN_ZOOM,
+                maxNativeZoom: MAX_ZOOM,
+                bounds: BOUNDS,
+            }),
+        )
+        .forEach((layer) => floors.addLayer(layer));
 
     // Set up developer mode
     injector.injectClass(DeveloperModeService);

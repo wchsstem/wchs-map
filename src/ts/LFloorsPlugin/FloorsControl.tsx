@@ -1,5 +1,7 @@
-import { fromMap } from "@nvarner/monads";
 import { Control, DomEvent, Util } from "leaflet";
+
+import { fromMap } from "@nvarner/monads";
+
 import { h } from "../JSX";
 import { zip } from "../utils";
 
@@ -12,11 +14,15 @@ export class FloorsControl extends Control {
         floors: string[],
         defaultFloor: string,
         setFloor: (floor: string) => void,
-        options?: L.ControlOptions
+        options?: L.ControlOptions,
     ) {
         super(options);
 
-        [this.controlElement, this.floorControls] = FloorsControl.createElement(floors, defaultFloor, setFloor);
+        [this.controlElement, this.floorControls] = FloorsControl.createElement(
+            floors,
+            defaultFloor,
+            setFloor,
+        );
     }
 
     public initialize(options: L.ControlOptions): void {
@@ -31,8 +37,12 @@ export class FloorsControl extends Control {
      * Set the styling of the control to reflect a new floor being set
      */
     public setFloor(oldFloorNumber: string, newFloorNumber: string): void {
-        fromMap(this.floorControls, oldFloorNumber).ifSome(oldControl => FloorsControl.deselectControl(oldControl));
-        fromMap(this.floorControls, newFloorNumber).ifSome(newControl => FloorsControl.selectControl(newControl));
+        fromMap(this.floorControls, oldFloorNumber).ifSome((oldControl) =>
+            FloorsControl.deselectControl(oldControl),
+        );
+        fromMap(this.floorControls, newFloorNumber).ifSome((newControl) =>
+            FloorsControl.selectControl(newControl),
+        );
     }
 
     /**
@@ -44,25 +54,36 @@ export class FloorsControl extends Control {
     private static createElement(
         floors: string[],
         defaultFloor: string,
-        setFloor: (floor: string) => void
+        setFloor: (floor: string) => void,
     ): [HTMLElement, Map<string, HTMLElement>] {
-        const controls = floors.map(floor => <a href="#">{floor}</a> as HTMLElement);
+        const controls = floors.map(
+            (floor) => (<a href="#">{floor}</a>) as HTMLElement,
+        );
         zip(floors, controls)
             .filter(([floor, _control]) => floor === defaultFloor)
             .map(([_floor, control]) => FloorsControl.selectControl(control));
 
-        const callbacks = zip(floors, controls).map(([floor, control]) => () => {
-            setFloor(floor);
-            controls.forEach(otherControl => FloorsControl.deselectControl(otherControl));
-            FloorsControl.selectControl(control);
-        });
+        const callbacks = zip(floors, controls).map(
+            ([floor, control]) =>
+                () => {
+                    setFloor(floor);
+                    controls.forEach((otherControl) =>
+                        FloorsControl.deselectControl(otherControl),
+                    );
+                    FloorsControl.selectControl(control);
+                },
+        );
 
-        zip(controls, callbacks).forEach(([control, callback]) => control.addEventListener("click", callback));
-        
+        zip(controls, callbacks).forEach(([control, callback]) =>
+            control.addEventListener("click", callback),
+        );
+
         const floorControls = new Map(zip(floors, controls));
 
-        const base = <div class="leaflet-bar leaflet-control leaflet-control-floors" /> as HTMLElement;
-        controls.forEach(control => base.appendChild(control));
+        const base = (
+            <div class="leaflet-bar leaflet-control leaflet-control-floors" />
+        ) as HTMLElement;
+        controls.forEach((control) => base.appendChild(control));
 
         DomEvent.disableClickPropagation(base);
         DomEvent.disableScrollPropagation(base);

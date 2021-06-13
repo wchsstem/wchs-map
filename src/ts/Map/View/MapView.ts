@@ -12,7 +12,9 @@ export interface MapView {
      * ie. no snapping.
      * @param snapPin The callback, which takes in the location of the pin and returns the location to snap to
      */
-    setSnapPinHandler(snapPin: (location: BuildingLocation) => BuildingLocation): void;
+    setSnapPinHandler(
+        snapPin: (location: BuildingLocation) => BuildingLocation,
+    ): void;
 
     /** Move the map's focus to a definition and display info about it */
     focusOnDefinition(definition: GeocoderDefinition): void;

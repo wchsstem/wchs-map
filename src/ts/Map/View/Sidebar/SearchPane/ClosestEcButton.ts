@@ -13,14 +13,19 @@ export class ClosestEcButton extends ClosestDefinitionButton {
         locator: Locator,
         mapData: MapData,
         floorsLayer: LFloors,
-        onGetClosest: (closest: GeocoderDefinition, starting: BuildingLocation) => void
+        onGetClosest: (
+            closest: GeocoderDefinition,
+            starting: BuildingLocation,
+        ) => void,
     ) {
         super(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            definition => !definition.hasTag(DefinitionTag.Closed) && definition.hasTag(DefinitionTag.EC),
+            (definition) =>
+                !definition.hasTag(DefinitionTag.Closed) &&
+                definition.hasTag(DefinitionTag.EC),
             "fas fa-bolt",
             "Nearest Electrical Closet",
             onGetClosest,

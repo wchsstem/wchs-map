@@ -11,54 +11,58 @@ const toCache = [
     "/assets/fontawesome/webfonts/fa-solid-900.woff2",
     "/assets/app-icon/icon-192.png",
     "/assets/app-icon/icon-512.png",
-    "/assets/app-icon/favicon_v1.ico"
+    "/assets/app-icon/favicon_v1.ico",
 ];
 
 // @ts-expect-error: poor TS support for service workers leads to no proper types here
-self.oninstall = e => {
+self.oninstall = (e) => {
     e.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                return cache.addAll(toCache);
-            })
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.addAll(toCache);
+        }),
     );
 };
 
 // @ts-expect-error: poor TS support for service workers leads to no proper types here
-self.onfetch = e => {
+self.onfetch = (e) => {
     const request: Request = e.request;
 
-    e.respondWith(async function() {
-        return await caches.match(request)
-            .then((response) => {
+    e.respondWith(
+        (async function () {
+            return await caches.match(request).then((response) => {
                 if (response) {
                     return response;
                 }
                 return fetch(request).then((response) => {
-                    if (!response || response.status !== 200 || response.type !== "basic") {
+                    if (
+                        !response ||
+                        response.status !== 200 ||
+                        response.type !== "basic"
+                    ) {
                         return response;
                     }
 
                     const responseToCache = response.clone();
-                    caches.open(CACHE_NAME)
-                        .then((cache) => {
-                            cache.put(request, responseToCache);
-                        });
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(request, responseToCache);
+                    });
                     return response;
                 });
             });
-    }());
+        })(),
+    );
 };
 
 // @ts-expect-error: poor TS support for service workers leads to no proper types here
-self.onactivate = e => {
+self.onactivate = (e) => {
     // Clear all old caches when a new service worker takes over
     e.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.filter(cacheName => cacheName !== CACHE_NAME)
-                    .map(cacheName => caches.delete(cacheName))
-            )
-        })
-    )
+                cacheNames
+                    .filter((cacheName) => cacheName !== CACHE_NAME)
+                    .map((cacheName) => caches.delete(cacheName)),
+            );
+        }),
+    );
 };

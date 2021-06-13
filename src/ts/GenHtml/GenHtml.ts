@@ -1,6 +1,5 @@
-import "./generated.scss";
-
 import Room from "../Room";
+import "./generated.scss";
 
 export function genElText(element: string, text: string): HTMLElement {
     const tn = document.createTextNode(text);
@@ -11,7 +10,7 @@ export function genElText(element: string, text: string): HTMLElement {
 
 export function genButtonLabel(
     label: string,
-    onClickHandler?: (this: HTMLAnchorElement, ev: MouseEvent) => unknown
+    onClickHandler?: (this: HTMLAnchorElement, ev: MouseEvent) => unknown,
 ): HTMLElement {
     const labelEl = genElText("span", label);
 
@@ -31,7 +30,7 @@ export function genButtonLabel(
 export function genButtonIcon(
     iconClass: string,
     onClickHandler?: (this: HTMLAnchorElement, ev: MouseEvent) => unknown,
-    title?: string
+    title?: string,
 ): HTMLAnchorElement {
     const button = document.createElement("a");
     button.classList.add("button");
@@ -53,7 +52,11 @@ export function genButtonIcon(
     return button;
 }
 
-export function genTextInput(placeholder?: string, content?: string, border = true): HTMLInputElement {
+export function genTextInput(
+    placeholder?: string,
+    content?: string,
+    border = true,
+): HTMLInputElement {
     const inputEl = document.createElement("input");
     inputEl.classList.add("leaflet-style");
     inputEl.classList.add("search-bar");
@@ -70,11 +73,14 @@ export function genTextInput(placeholder?: string, content?: string, border = tr
     if (content) {
         inputEl.value = content;
     }
-    
+
     return inputEl;
 }
 
-export function genRoomPopup(room: Room, navigateToHandler: () => void): HTMLElement {
+export function genRoomPopup(
+    room: Room,
+    navigateToHandler: () => void,
+): HTMLElement {
     const roomNameTn = document.createTextNode(room.getName());
     const roomNameEl = document.createElement("h2");
     roomNameEl.appendChild(roomNameTn);
@@ -84,11 +90,13 @@ export function genRoomPopup(room: Room, navigateToHandler: () => void): HTMLEle
     const rootEl = document.createElement("div");
     rootEl.appendChild(roomNameEl);
     rootEl.appendChild(navToButton);
-    
+
     return rootEl;
 }
 
-export function htmlDropdown(displayAndIds: [string, string][]): HTMLSelectElement {
+export function htmlDropdown(
+    displayAndIds: [string, string][],
+): HTMLSelectElement {
     const select = document.createElement("select");
     for (const [display, id] of displayAndIds) {
         const option = document.createElement("option");
@@ -102,7 +110,10 @@ export function htmlDropdown(displayAndIds: [string, string][]): HTMLSelectEleme
     return select;
 }
 
-export function genPaneElement(title: string, content: HTMLElement | HTMLElement[]): HTMLElement {
+export function genPaneElement(
+    title: string,
+    content: HTMLElement | HTMLElement[],
+): HTMLElement {
     const pane = document.createElement("div");
     pane.classList.add("leaflet-sidebar-pane");
 
@@ -129,7 +140,7 @@ export function genPaneElement(title: string, content: HTMLElement | HTMLElement
     } else {
         pane.appendChild(content);
     }
-    
+
     return pane;
 }
 

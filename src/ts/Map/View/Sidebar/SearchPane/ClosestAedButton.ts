@@ -13,14 +13,19 @@ export class ClosestAedButton extends ClosestDefinitionButton {
         locator: Locator,
         mapData: MapData,
         floorsLayer: LFloors,
-        onGetClosest: (closest: GeocoderDefinition, starting: BuildingLocation) => void
+        onGetClosest: (
+            closest: GeocoderDefinition,
+            starting: BuildingLocation,
+        ) => void,
     ) {
         super(
             geocoder,
             locator,
             mapData,
             floorsLayer,
-            definition => !definition.hasTag(DefinitionTag.Closed) && definition.hasTag(DefinitionTag.AED),
+            (definition) =>
+                !definition.hasTag(DefinitionTag.Closed) &&
+                definition.hasTag(DefinitionTag.AED),
             "fas fa-heartbeat",
             "Nearest AED",
             onGetClosest,
