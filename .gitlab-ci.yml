@@ -110,7 +110,7 @@ deploy-app:
   stage: deploy
   script:
   - apt update -qq && apt install -y -qq lftp
-  - lftp -e "mirror -R dist ." -u $FTP_USERNAME,$FTP_PASSWORD $FTP_HOST 
+  - lftp -e "set ssl:verify-certificate no; mirror -R dist ." -u $FTP_USERNAME,$FTP_PASSWORD $FTP_HOST 
   artifacts:
     paths:
       - dist
