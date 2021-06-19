@@ -55,7 +55,7 @@ type JsonRoom = {
      * IDs of vertices which are entrances to the room
      */
     vertices: string[];
-    center?: [number, number];
+    center: [number, number] | null;
     outline: [number, number][];
     /**
      * Names of the room. If none are provided, the name is generated from the room number (stored as the key in the
@@ -86,6 +86,8 @@ export function mapDataFactoryFactory(
         return MapData.new(mapData, bounds);
     };
     factory.inject = [] as const;
+    console.log("factory", factory);
+    console.log("things", mapData, bounds);
     return factory;
 }
 
@@ -332,7 +334,7 @@ export class MapData {
             zip(jsonRooms, vertices),
             roomFloorNumbers,
         ).map(([room, vertex, floor]) =>
-            room.center !== undefined
+            room.center !== null
                 ? new BuildingLocation(
                       new LatLng(room.center[1], room.center[0]),
                       floor,
