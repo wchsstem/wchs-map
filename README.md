@@ -3,3 +3,8 @@ This is a PWA map of Churchill HS. This project aims to provide a high quality, 
 
 ## Building
 Use `npm run watch` to launch a development server. It will automatically pick up changes to TypeScript files. Changes to `map.json` need to be compiled into `map_compiled.json` via [`indoor-map-lib`](https://gitlab.com/nvarner/indoor-map-lib), a Rust library. It should be installed with the `compile_map_json` feature so it includes the `compile_map_json` binary. After installation, it can be used via `npm run compileMapJson`.
+
+## Docker
+To run the containerized version of the map, run the following commands with the `compile_map_json` file present:
+`docker build -t churchill-map .`
+`docker run -p 10001:10001 churchill-map`
