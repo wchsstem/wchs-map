@@ -86,8 +86,6 @@ export function mapDataFactoryFactory(
         return MapData.new(mapData, bounds);
     };
     factory.inject = [] as const;
-    console.log("factory", factory);
-    console.log("things", mapData, bounds);
     return factory;
 }
 
