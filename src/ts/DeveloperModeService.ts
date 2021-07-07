@@ -3,7 +3,7 @@ import { popup, Map as LMap, Popup, LeafletMouseEvent } from "leaflet";
 import { None, Option, Result, Some } from "@nvarner/monads";
 
 import { LFloors, LSomeLayerWithFloor } from "./LFloorsPlugin/LFloorsPlugin";
-import { Logger } from "./LogPane/LogPane";
+import { Logger } from "./Map/View/Sidebar/LogPane/LogPane";
 import { MapData } from "./MapData";
 import { ISettings } from "./settings/ISettings";
 import { extractResult, goRes } from "./utils";

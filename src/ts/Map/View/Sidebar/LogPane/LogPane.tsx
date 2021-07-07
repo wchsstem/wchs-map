@@ -2,8 +2,8 @@ import { PanelOptions } from "leaflet";
 
 import { Either, Left, None, Option, Right, Some } from "@nvarner/monads";
 
-import { genPaneElement } from "../GenHtml/GenHtml";
-import { h } from "../JSX";
+import { genPaneElement } from "../../../../GenHtml/GenHtml";
+import { h } from "../../../../JSX";
 
 export class Logger {
     /** Queue for logs to post ASAP; left is normal log, right is error log */

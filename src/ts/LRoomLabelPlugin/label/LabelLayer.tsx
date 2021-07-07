@@ -16,7 +16,7 @@ import RBush, { BBox } from "rbush/rbush";
 import { fromMap } from "@nvarner/monads";
 
 import { h } from "../../JSX";
-import { Logger } from "../../LogPane/LogPane";
+import { Logger } from "../../Map/View/Sidebar/LogPane/LogPane";
 import { LABEL_FONT, LABEL_MIN_SPACING_PX } from "../../config";
 import { ClickListener } from "../RoomLabel";
 

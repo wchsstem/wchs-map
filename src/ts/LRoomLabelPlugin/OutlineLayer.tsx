@@ -13,7 +13,7 @@ import pointInPolygon from "point-in-polygon";
 import RBush, { BBox } from "rbush/rbush";
 
 import { h } from "../JSX";
-import { Logger } from "../LogPane/LogPane";
+import { Logger } from "../Map/View/Sidebar/LogPane/LogPane";
 import { ClickListener } from "./RoomLabel";
 
 export interface OutlineLayerOptions extends GridLayerOptions {

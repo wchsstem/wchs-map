@@ -2,7 +2,7 @@ import { LatLng } from "leaflet";
 
 import { None, Option, Some } from "@nvarner/monads";
 
-import { Logger } from "./LogPane/LogPane";
+import { Logger } from "./Map/View/Sidebar/LogPane/LogPane";
 import { MOVEMENT_SENSITIVITY } from "./config";
 import { ISettings } from "./settings/ISettings";
 
