@@ -94,11 +94,7 @@ export class Sidebar {
      */
     private setUpInfoPane(definition: GeocoderDefinition): InfoPane {
         this.infoPane.ifSome((infoPane) => this.removePane(infoPane));
-        const infoPane = new InfoPane(
-            definition,
-            this.navigationPane,
-            this.events,
-        );
+        const infoPane = new InfoPane(definition, this.events);
         this.infoPane = Some(infoPane);
 
         return infoPane;
