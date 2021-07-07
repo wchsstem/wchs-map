@@ -17,10 +17,13 @@ import { Locator } from "./Locator";
 import { LeafletMapController } from "./Map/Controller/LeafletMapController";
 import { LeafletMapModel } from "./Map/Model/LeafletMapModel";
 import { LeafletMapView } from "./Map/View/LeafletMapView";
-import { Logger } from "./Map/View/Sidebar/LogPane/LogPane";
+import { HelpPane } from "./Map/View/Sidebar/HelpPane";
+import { Logger, LogPane } from "./Map/View/Sidebar/LogPane/LogPane";
 import { NavigationPane } from "./Map/View/Sidebar/NavigationPane/NavigationPane";
 import { SearchPane } from "./Map/View/Sidebar/SearchPane/SearchPane";
+import { SettingsPane } from "./Map/View/Sidebar/SettingsPane/SettingsPane";
 import { Sidebar } from "./Map/View/Sidebar/Sidebar";
+import { SynergyPane } from "./Map/View/Sidebar/SynergyPane/SynergyPane";
 import { JsonMap, mapDataFactoryFactory } from "./MapData";
 import { textMeasurerFactory } from "./TextMeasurer";
 import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
@@ -80,7 +83,15 @@ function main(): void {
             .provideClass("locator", Locator)
             .provideClass("events", Events)
             .provideClass("navigationPane", NavigationPane)
+            .provideClass("synergyPane", SynergyPane)
             .provideClass("searchPane", SearchPane)
+            .provideClass("helpPane", HelpPane)
+            .provideClass("settingsPane", SettingsPane)
+            .provideFactory("logPane", () => {
+                const logPane = LogPane.new();
+                logger.associateWithLogPane(logPane);
+                return logPane;
+            })
             .provideClass("sidebar", Sidebar)
             .provideClass("mapView", LeafletMapView)
             .provideClass("mapModel", LeafletMapModel)

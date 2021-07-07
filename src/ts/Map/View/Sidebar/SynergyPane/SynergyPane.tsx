@@ -11,6 +11,7 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024;
 export class SynergyPane extends Pane {
     private readonly pane: HTMLElement;
 
+    public static inject = ["geocoder", "logger"] as const;
     public constructor(geocoder: Geocoder, logger: Logger) {
         super();
 

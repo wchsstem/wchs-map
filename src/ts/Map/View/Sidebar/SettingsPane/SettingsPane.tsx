@@ -14,6 +14,7 @@ import { Pane } from "../Pane";
 export class SettingsPane extends Pane {
     private readonly pane: HTMLElement;
 
+    public static inject = ["settings"] as const;
     public constructor(private readonly settings: ISettings) {
         super();
 

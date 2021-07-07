@@ -8,8 +8,9 @@ import { GeocoderDefinition } from "../../../Geocoder/GeocoderDefinition";
 import { LSomeLayerWithFloor } from "../../../LFloorsPlugin/LFloorsPlugin";
 import { Events } from "../../../events/Events";
 import { ISettings } from "../../../settings/ISettings";
+import { HelpPane } from "./HelpPane";
 import { InfoPane } from "./InfoPane";
-import { Logger, LogPane } from "./LogPane/LogPane";
+import { LogPane } from "./LogPane/LogPane";
 import { NavigationPane } from "./NavigationPane/NavigationPane";
 import { Pane } from "./Pane";
 import { SearchPane } from "./SearchPane/SearchPane";
@@ -22,22 +23,26 @@ export class Sidebar {
 
     public static inject = [
         "map",
-        "geocoder",
-        "logger",
         "settings",
         "lSidebar",
         "navigationPane",
+        "synergyPane",
         "searchPane",
+        "helpPane",
+        "settingsPane",
+        "logPane",
         "events",
     ] as const;
     public constructor(
         private readonly map: L.Map,
-        geocoder: Geocoder,
-        logger: Logger,
         settings: ISettings,
         private readonly sidebar: Control.Sidebar,
         private readonly navigationPane: NavigationPane,
-        private readonly searchPane: SearchPane,
+        synergyPane: SynergyPane,
+        searchPane: SearchPane,
+        helpPane: HelpPane,
+        settingsPane: SettingsPane,
+        logPane: LogPane,
         private readonly events: Events,
     ) {
         this.sidebar.addTo(this.map);
@@ -48,17 +53,15 @@ export class Sidebar {
 
         this.addPane(navigationPane);
 
-        const synergyPane = new SynergyPane(geocoder, logger);
+        this.addPane(helpPane);
 
-        this.addPane(new SettingsPane(settings));
+        this.addPane(settingsPane);
 
-        const logPane = LogPane.new();
-        logger.associateWithLogPane(logPane);
         settings.addWatcher("logger", (enable) => {
             if (enable) {
-                this.sidebar.addPanel(logPane.getPanelOptions());
+                this.addPane(logPane);
             } else {
-                this.sidebar.removePanel(logPane.getId());
+                this.removePane(logPane);
             }
         });
 
