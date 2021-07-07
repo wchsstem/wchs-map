@@ -68,6 +68,8 @@ well exemplified in the Office (144) and Counseling (107).
 
 Incomplete list of rooms within rooms with unknown numbers:
  - 124Z
+ - 130Y
+ - 130Z
  - 139Z
  - 147Z
  - 153Y
