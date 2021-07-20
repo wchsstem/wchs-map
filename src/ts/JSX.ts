@@ -1,24 +1,30 @@
+import { ElementCreator, Props } from "./html/ElementCreator";
+import { CustomElement } from "./html/custom/CustomElement";
+
+class JSXHelper {
+    static elementCreator: ElementCreator;
+}
+
+export function injectElementCreator(elementCreator: ElementCreator) {
+    JSXHelper.elementCreator = elementCreator;
+}
+
 export function h(
-    tag: string,
+    tag: string | { new (): CustomElement },
     props: Props | null,
     ...children: HTMLElement[]
 ): HTMLElement {
-    const element = document.createElement(tag);
-
-    if (props !== null) {
-        Object.entries(props).forEach(([name, value]) => {
-            if (name.startsWith("on")) {
-                const callback = value as EventListenerOrEventListenerObject;
-                element.addEventListener(removeOnFromEvent(name), callback);
-            } else {
-                element.setAttribute(name, value as string);
-            }
-        });
+    console.log(tag, props, children);
+    if (typeof tag === "string") {
+        return JSXHelper.elementCreator.create(tag, props, children);
+    } else {
+        console.log("pre", tag);
+        const a = new tag();
+        console.log("a", a);
+        const b = a.render(props, children);
+        console.log("b", b);
+        return b;
     }
-
-    children.forEach((child) => appendChild(element, child));
-
-    return element;
 }
 
 // namespaces seem to be required for JSX to work properly
@@ -31,31 +37,3 @@ export namespace h {
         }
     }
 }
-
-/**
- * Removes the "on" from the name of an event, eg. "onClick" => "click"
- */
-function removeOnFromEvent(onEvent: string): string {
-    const firstChar = onEvent.substring(2, 3).toLowerCase();
-    const latterChars = onEvent.substring(3);
-    return firstChar + latterChars;
-}
-
-function appendChild(
-    parent: HTMLElement,
-    child: HTMLElement | string | (HTMLElement | string)[],
-): void {
-    if (Array.isArray(child)) {
-        child.forEach((inner) => appendChild(parent, inner));
-    } else {
-        if (typeof child === "string") {
-            parent.appendChild(document.createTextNode(child));
-        } else {
-            parent.appendChild(child);
-        }
-    }
-}
-
-type Props = {
-    [name: string]: unknown;
-};

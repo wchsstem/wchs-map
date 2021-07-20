@@ -10,6 +10,7 @@ import * as mapDataJson from "../data/map_compiled.json";
 import "../style.scss";
 import { DeveloperModeService } from "./DeveloperModeService";
 import { Geocoder } from "./Geocoder/Geocoder";
+import { injectElementCreator } from "./JSX";
 import { floorsFactoryFactory } from "./LFloorsPlugin/LFloorsPlugin";
 import { LLocation } from "./LLocationPlugin/LLocationPlugin";
 import { RoomLabelFactory } from "./LRoomLabelPlugin/RoomLabelFactory";
@@ -29,6 +30,8 @@ import { textMeasurerFactory } from "./TextMeasurer";
 import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
 import { ATTRIBUTION } from "./config";
 import { Events } from "./events/Events";
+import { CustomElementCreator } from "./html/CustomElementCreator";
+import { roomSearchBoxFactory } from "./html/custom/RoomSearchBox";
 import { Settings } from "./settings/Settings";
 import { goRes } from "./utils";
 
@@ -38,6 +41,9 @@ function main(): void {
     }
 
     const logger = new Logger();
+
+    const elementCreator = new CustomElementCreator(roomSearchBoxFactory);
+    injectElementCreator(elementCreator);
 
     // Create map
     const map = lMap("map", {

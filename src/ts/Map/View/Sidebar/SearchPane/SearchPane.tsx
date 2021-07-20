@@ -6,6 +6,7 @@ import { LFloors } from "../../../../LFloorsPlugin/LFloorsPlugin";
 import { Locator } from "../../../../Locator";
 import { MapData } from "../../../../MapData";
 import { Events } from "../../../../events/Events";
+import { RoomSearchBox } from "../../../../html/custom/RoomSearchBox";
 import { ISettings } from "../../../../settings/ISettings";
 import { Pane } from "../Pane";
 import { ClosestAedButton } from "./ClosestAedButton";
@@ -156,6 +157,7 @@ export class SearchPane extends Pane {
                 {closestAhuButton}
                 {closestEcButton}
                 {closestBscButton}
+                <RoomSearchBox />
             </div>
         );
 
