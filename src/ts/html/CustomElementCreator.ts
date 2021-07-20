@@ -1,6 +1,5 @@
-import { fromMap, Option } from "@nvarner/monads";
-
 import { ElementCreator, Props } from "./ElementCreator";
+import { CustomElement } from "./custom/CustomElement";
 
 export type ElementFactory = (
     props: Props | null,
@@ -8,25 +7,16 @@ export type ElementFactory = (
 ) => HTMLElement;
 
 /**
- * Element creator which supports custom elements (ie. elements starting with lowercase letters that are not standard).
- * Note that custom elements starting with uppercase letters are technically known as value-based elements and are
- * supported by TypeScript and the custom JSX implementation, not this code.
+ * Element creator which supports custom elements (ie. elements starting with uppercase letters that are implemented in
+ * terms of lower level elements).
  */
 export class CustomElementCreator implements ElementCreator {
-    private readonly elementFromName: Map<string, ElementFactory>;
-
-    public constructor(roomSearchBoxFactory: ElementFactory) {
-        this.elementFromName = new Map([]);
-    }
-
     private createIfCustom(
-        tag: string,
+        tag: { new (): CustomElement },
         props: Props | null,
         children: HTMLElement[],
-    ): Option<HTMLElement> {
-        return fromMap(this.elementFromName, tag).map((factory) =>
-            factory(props, children),
-        );
+    ): HTMLElement {
+        return new tag().render(props, children);
     }
 
     /**
@@ -57,7 +47,7 @@ export class CustomElementCreator implements ElementCreator {
         tag: string,
         props: Props | null,
         children: HTMLElement[],
-    ) {
+    ): HTMLElement {
         const element = document.createElement(tag);
 
         if (props !== null) {
@@ -81,12 +71,14 @@ export class CustomElementCreator implements ElementCreator {
     }
 
     public create(
-        tag: string,
+        tag: string | { new (): CustomElement },
         props: Props | null,
         children: HTMLElement[],
     ): HTMLElement {
-        return this.createIfCustom(tag, props, children).unwrapOrElse(() =>
-            this.createIfNotCustom(tag, props, children),
-        );
+        if (typeof tag === "string") {
+            return this.createIfNotCustom(tag, props, children);
+        } else {
+            return this.createIfCustom(tag, props, children);
+        }
     }
 }

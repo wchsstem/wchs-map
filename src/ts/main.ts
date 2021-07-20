@@ -31,7 +31,6 @@ import { BOUNDS, MAX_ZOOM, MIN_ZOOM } from "./bounds";
 import { ATTRIBUTION } from "./config";
 import { Events } from "./events/Events";
 import { CustomElementCreator } from "./html/CustomElementCreator";
-import { roomSearchBoxFactory } from "./html/custom/RoomSearchBox";
 import { Settings } from "./settings/Settings";
 import { goRes } from "./utils";
 
@@ -42,7 +41,7 @@ function main(): void {
 
     const logger = new Logger();
 
-    const elementCreator = new CustomElementCreator(roomSearchBoxFactory);
+    const elementCreator = new CustomElementCreator();
     injectElementCreator(elementCreator);
 
     // Create map
