@@ -21,7 +21,6 @@ import { ClosestHandSanitizerStationButton } from "./ClosestHandSanitizerStation
 
 export class SearchPane extends Pane {
     private readonly pane: HTMLElement;
-    private readonly resultContainer: HTMLElement;
 
     public static inject = [
         "geocoder",
@@ -40,33 +39,6 @@ export class SearchPane extends Pane {
         events: Events,
     ) {
         super();
-
-        // const searchBar = (
-        //     <TextBox
-        //         onInput={async () => {
-        //             const query = searchBar.value;
-        //             const results = await geocoder.getSuggestionsFrom(query);
-        //             this.updateWithResults(query, results, (result) =>
-        //                 events.trigger("clickResult", result),
-        //             );
-        //         }}
-        //     />
-        // );
-        // const searchBarContainer = <div class="wrapper">{searchBar}</div>;
-        // const searchBarContainer = searchBar;
-        this.resultContainer = (
-            <div class="wrapper results-wrapper leaflet-style hidden" />
-        );
-
-        const searchBarContainer = (
-            <RoomSearchBox
-                resultIcon={<FaIcon faClass="search" />}
-                geocoder={geocoder}
-                onChooseResult={(result: GeocoderSuggestion) =>
-                    events.trigger("clickResult", result)
-                }
-            />
-        );
 
         const closestBathroomButton = new ClosestBathroomButton(
             geocoder,
@@ -175,10 +147,15 @@ export class SearchPane extends Pane {
         );
 
         this.pane = genPaneElement("Search", [
-            searchBarContainer,
+            <RoomSearchBox
+                resultIcon={<FaIcon faClass="search" />}
+                geocoder={geocoder}
+                onChooseResult={(result: GeocoderSuggestion) =>
+                    events.trigger("clickResult", result)
+                }
+            />,
             <h2>Find Nearest</h2>,
             categoryButtonContainer,
-            this.resultContainer,
         ]);
     }
 
@@ -196,47 +173,5 @@ export class SearchPane extends Pane {
 
     public getPaneElement(): HTMLElement {
         return this.pane;
-    }
-
-    private updateWithResults(
-        query: string,
-        results: GeocoderSuggestion[],
-        onClickResult: (result: GeocoderSuggestion) => void,
-    ): void {
-        if (query === "") {
-            this.resultContainer.classList.add("hidden");
-            return;
-        }
-
-        this.resultContainer.classList.remove("hidden");
-
-        while (this.resultContainer.firstChild !== null) {
-            this.resultContainer.removeChild(this.resultContainer.firstChild);
-        }
-
-        const list = document.createElement("ul");
-        if (results.length > 0) {
-            for (const result of results) {
-                const resultElement = document.createElement("li");
-                resultElement.classList.add("search-result");
-                resultElement.appendChild(document.createTextNode(result.name));
-                resultElement.addEventListener("click", () => {
-                    onClickResult(result);
-                });
-                list.appendChild(resultElement);
-            }
-
-            this.resultContainer.appendChild(list);
-        } else {
-            const container = document.createElement("li");
-            container.classList.add("search-result");
-
-            const noResults = document.createTextNode("No results");
-            container.appendChild(noResults);
-
-            list.appendChild(container);
-
-            this.resultContainer.appendChild(list);
-        }
     }
 }
