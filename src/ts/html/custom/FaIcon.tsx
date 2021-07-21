@@ -21,7 +21,7 @@ export class FaIcon implements CustomElement {
         _children: HTMLElement[],
     ): HTMLElement {
         if (props !== null) {
-            return <i class={`fa fas-${props.faClass}`} />;
+            return <i class={`fas fa-${props.faClass}`} />;
         } else {
             throw new Error("FA icon must have required properties");
         }

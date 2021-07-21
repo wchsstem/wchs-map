@@ -14,6 +14,10 @@ export interface RoomSearchBoxProps extends Props {
      */
     geocoder: Geocoder;
     /**
+     * Icon to place next to results
+     */
+    resultIcon: HTMLElement;
+    /**
      * Handler called when a result is chosen (eg. when a result is clicked)
      */
     onChooseResult: (result: GeocoderSuggestion) => void;
@@ -42,6 +46,7 @@ export class RoomSearchBox implements CustomElement {
 
     private updateWithResults(
         query: string,
+        resultIcon: HTMLElement,
         resultContainer: HTMLElement,
         results: GeocoderSuggestion[],
         searchBoxWriter: TextBoxWriter,
@@ -69,7 +74,7 @@ export class RoomSearchBox implements CustomElement {
                 const resultElement = (
                     <li class="search-result" onClick={onClick}>
                         <a href="#">
-                            <i class="fas fa-search" />
+                            {resultIcon.cloneNode()}
                             {result.name}
                         </a>
                     </li>
@@ -85,6 +90,7 @@ export class RoomSearchBox implements CustomElement {
 
     public async handleInput(
         query: string,
+        resultIcon: HTMLElement,
         resultContainer: HTMLElement,
         geocoder: Geocoder,
         searchBoxWriter: TextBoxWriter,
@@ -93,6 +99,7 @@ export class RoomSearchBox implements CustomElement {
         const results = await geocoder.getSuggestionsFrom(query);
         this.updateWithResults(
             query,
+            resultIcon,
             resultContainer,
             results,
             searchBoxWriter,
@@ -116,6 +123,7 @@ export class RoomSearchBox implements CustomElement {
                     if (props !== null) {
                         this.handleInput(
                             input,
+                            props.resultIcon,
                             resultContainer,
                             props.geocoder,
                             searchBoxWriter,

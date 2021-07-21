@@ -6,6 +6,7 @@ import { LFloors } from "../../../../LFloorsPlugin/LFloorsPlugin";
 import { Locator } from "../../../../Locator";
 import { MapData } from "../../../../MapData";
 import { Events } from "../../../../events/Events";
+import { FaIcon } from "../../../../html/custom/FaIcon";
 import { RoomSearchBox } from "../../../../html/custom/roomSearchBox/RoomSearchBox";
 import { ISettings } from "../../../../settings/ISettings";
 import { Pane } from "../Pane";
@@ -59,6 +60,7 @@ export class SearchPane extends Pane {
 
         const searchBarContainer = (
             <RoomSearchBox
+                resultIcon={<FaIcon faClass="search" />}
                 geocoder={geocoder}
                 onChooseResult={(result: GeocoderSuggestion) =>
                     events.trigger("clickResult", result)
