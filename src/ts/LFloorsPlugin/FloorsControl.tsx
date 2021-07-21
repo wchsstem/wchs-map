@@ -56,9 +56,7 @@ export class FloorsControl extends Control {
         defaultFloor: string,
         setFloor: (floor: string) => void,
     ): [HTMLElement, Map<string, HTMLElement>] {
-        const controls = floors.map(
-            (floor) => (<a href="#">{floor}</a>) as HTMLElement,
-        );
+        const controls = floors.map((floor) => <a href="#">{floor}</a>);
         zip(floors, controls)
             .filter(([floor, _control]) => floor === defaultFloor)
             .map(([_floor, control]) => FloorsControl.selectControl(control));
@@ -81,8 +79,8 @@ export class FloorsControl extends Control {
         const floorControls = new Map(zip(floors, controls));
 
         const base = (
-            <div class="leaflet-bar leaflet-control leaflet-control-floors" />
-        ) as HTMLElement;
+            <div className="leaflet-bar leaflet-control leaflet-control-floors" />
+        );
         controls.forEach((control) => base.appendChild(control));
 
         DomEvent.disableClickPropagation(base);

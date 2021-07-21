@@ -134,7 +134,7 @@ export class SearchPane extends Pane {
         });
 
         const categoryButtonContainer = (
-            <div class="wrapper">
+            <div className="wrapper">
                 {closestBathroomButton}
                 {closestBottleFillingButton}
                 {closestHandSanitizerButton}

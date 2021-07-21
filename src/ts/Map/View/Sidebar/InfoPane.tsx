@@ -66,7 +66,7 @@ export class InfoPane extends Pane {
         );
 
         return (
-            <div class="wrapper header-wrapper">
+            <div className="wrapper header-wrapper">
                 <h2>{definition.getName()}</h2>
                 {viewRoomButton}
                 {navButton}

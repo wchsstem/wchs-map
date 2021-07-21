@@ -18,14 +18,14 @@ export class SettingsPane extends Pane {
     public constructor(private readonly settings: ISettings) {
         super();
 
-        const settingsContainer = <ul class="wrapper settings-container" />;
+        const settingsContainer = <ul className="wrapper settings-container" />;
 
         SETTING_SECTIONS.forEach(([category, categorySettings]) => {
             const categorySettingsContainer = <ul />;
 
             categorySettings
                 .map((name) => {
-                    const container = <li class="setting-container"></li>;
+                    const container = <li className="setting-container"></li>;
 
                     settings.addWatcher(name, (data) => {
                         removeChildren(container);

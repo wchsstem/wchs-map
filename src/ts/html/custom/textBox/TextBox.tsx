@@ -44,7 +44,7 @@ export class TextBox implements CustomElement {
         _children: HTMLElement[],
     ): HTMLElement {
         const inputEl = (
-            <input class="leaflet-style" type="text" />
+            <input className="leaflet-style" type="text" />
         ) as HTMLInputElement;
 
         if (props !== null) {

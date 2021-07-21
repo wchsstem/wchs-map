@@ -27,7 +27,7 @@ export class ClosestDefinitionButton {
         return (
             <a
                 href="#"
-                class="leaflet-style button"
+                className="leaflet-style button"
                 onClick={() => this.handleClick()}
                 title={this.titleText}
             >

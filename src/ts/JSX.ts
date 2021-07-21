@@ -39,13 +39,18 @@ export function h(
     return JSXHelper.elementCreator.create(tag, props, children);
 }
 
+interface JsxHtmlElement extends Omit<Partial<HTMLElement>, "children"> {
+    children?: (Node | string)[] | Node | string;
+    [extraProp: string]: unknown;
+}
+
 // namespaces seem to be required for JSX to work properly
 // eslint-disable-next-line
 export namespace h {
     // eslint-disable-next-line
     export declare namespace JSX {
         interface IntrinsicElements {
-            [name: string]: unknown;
+            [name: string]: JsxHtmlElement;
         }
     }
 }

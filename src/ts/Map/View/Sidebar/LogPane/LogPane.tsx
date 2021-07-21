@@ -75,7 +75,7 @@ export class LogPane extends Pane {
 
     public logError(logData: string): void {
         // TODO: Include styling to make these stand out
-        const logElement = <li class="error">{logData}</li>;
+        const logElement = <li className="error">{logData}</li>;
         this.logs.appendChild(logElement);
     }
 

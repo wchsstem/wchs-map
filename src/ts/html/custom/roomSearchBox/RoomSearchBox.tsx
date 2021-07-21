@@ -93,7 +93,7 @@ export class RoomSearchBox implements CustomElement {
                     );
                 };
                 const resultElement = (
-                    <li class="search-result" onClick={onClick}>
+                    <li className="search-result" onclick={onClick}>
                         <a href="#">
                             {resultIcon.cloneNode()}
                             {result.name}
@@ -103,7 +103,7 @@ export class RoomSearchBox implements CustomElement {
                 list.appendChild(resultElement);
             }
         } else {
-            const container = <li class="search-result">No results</li>;
+            const container = <li className="search-result">No results</li>;
             list.appendChild(container);
         }
         resultContainer.appendChild(list);
@@ -136,11 +136,11 @@ export class RoomSearchBox implements CustomElement {
         props: RoomSearchBoxProps | null,
         _children: HTMLElement[],
     ): HTMLElement {
-        const container = (<div class="room-search-box" />) as HTMLElement;
+        const container = <div className="room-search-box" />;
         this.container = container;
 
         const resultContainer = (
-            <div class="results-wrapper leaflet-style hidden" />
+            <div className="results-wrapper leaflet-style hidden" />
         );
 
         const searchBoxWriter = new TextBoxWriter();

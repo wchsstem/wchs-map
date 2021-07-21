@@ -48,51 +48,51 @@ export class NavigationPane extends Pane {
 
         const fromPinButton = (
             <a
-                class="leaflet-style button"
+                className="leaflet-style button"
                 href="#"
                 role="button"
                 title="Choose starting point"
             >
-                <i class="fas fa-map-marker-alt" />
+                <i className="fas fa-map-marker-alt" />
             </a>
         ) as HTMLAnchorElement;
         this.fromInput = genTextInput();
 
         const toPinButton = (
             <a
-                class="leaflet-style button"
+                className="leaflet-style button"
                 href="#"
                 role="button"
                 title="Choose destination"
             >
-                <i class="fas fa-flag-checkered" />
+                <i className="fas fa-flag-checkered" />
             </a>
         ) as HTMLAnchorElement;
         this.toInput = genTextInput();
 
         const swapToFrom = (
             <a
-                class="leaflet-style button swap-button"
+                className="leaflet-style button swap-button"
                 href="#"
                 role="button"
                 title="Swap to/from"
             >
-                <i class="fas fa-exchange-alt" />
+                <i className="fas fa-exchange-alt" />
             </a>
         ) as HTMLAnchorElement;
 
         const toFromContainer = (
-            <div class="wrapper">
-                <div class="wrapper input-wrapper">
-                    <div class="wrapper">
-                        <label class="leaflet-style no-border nav-label">
+            <div className="wrapper">
+                <div className="wrapper input-wrapper">
+                    <div className="wrapper">
+                        <label className="leaflet-style no-border nav-label">
                             From
                         </label>
                         {fromPinButton}
                         {this.fromInput}
                     </div>
-                    <div class="wrapper">
-                        <label class="leaflet-style no-border nav-label">
+                    <div className="wrapper">
+                        <label className="leaflet-style no-border nav-label">
                             To
                         </label>
                         {toPinButton}
@@ -104,7 +104,7 @@ export class NavigationPane extends Pane {
         );
 
         this.resultContainer = (
-            <div class="wrapper results-wrapper leaflet-style hidden" />
+            <div className="wrapper results-wrapper leaflet-style hidden" />
         );
 
         this.pane = genPaneElement("Navigation", [
@@ -278,7 +278,7 @@ export class NavigationPane extends Pane {
         onMove: (location: BuildingLocation) => void,
         snapToDefinition: (snapFrom: BuildingLocation) => BuildingLocation,
     ): FlooredMarker {
-        const icon = (<i class="fas"></i>) as HTMLElement;
+        const icon = <i className="fas"></i>;
         icon.classList.add(iconClass);
 
         const snapLocation = snapToDefinition(location);
