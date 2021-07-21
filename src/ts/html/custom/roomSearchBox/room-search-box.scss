@@ -6,7 +6,7 @@
     overflow-y: auto;
     border-radius: 4px;
 
-    &:focus-within {
+    &.showing-results, &:focus-within {
         box-shadow: 1px 1px 5px 0px #00000025;
     }
 

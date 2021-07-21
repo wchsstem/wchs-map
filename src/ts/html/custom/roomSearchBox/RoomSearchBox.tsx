@@ -21,6 +21,10 @@ export interface RoomSearchBoxProps extends Props {
      * Handler called when a result is chosen (eg. when a result is clicked)
      */
     onChooseResult: (result: GeocoderSuggestion) => void;
+    /**
+     * Maximum number of search suggestions to display. Set to `-1` to show all. Defaults to `5`.
+     */
+    maxResults?: number;
 }
 
 /**
@@ -28,8 +32,20 @@ export interface RoomSearchBoxProps extends Props {
  * @see RoomSearchBoxProps
  */
 export class RoomSearchBox implements CustomElement {
+    /**
+     * Default maximum number of search suggestions to display
+     */
+    private static readonly DEFAULT_MAX_RESULTS: number = 5;
+
+    private container?: HTMLElement;
+
     private clearResults(resultContainer: HTMLElement): void {
+        if (!this.container) {
+            throw new Error("did not set all fields in RoomSearchBox");
+        }
+
         resultContainer.classList.add("hidden");
+        this.container.classList.remove("showing-results");
         DomUtils.clearChildren(resultContainer);
     }
 
@@ -52,6 +68,10 @@ export class RoomSearchBox implements CustomElement {
         searchBoxWriter: TextBoxWriter,
         onChooseResult: (result: GeocoderSuggestion) => void,
     ): void {
+        if (!this.container) {
+            throw new Error("did not set all fields in RoomSearchBox");
+        }
+
         this.clearResults(resultContainer);
 
         if (query === "") {
@@ -59,6 +79,7 @@ export class RoomSearchBox implements CustomElement {
         }
 
         resultContainer.classList.remove("hidden");
+        this.container.classList.add("showing-results");
 
         const list = <ul />;
         if (results.length > 0) {
@@ -90,13 +111,17 @@ export class RoomSearchBox implements CustomElement {
 
     public async handleInput(
         query: string,
+        maxResults: number,
         resultIcon: HTMLElement,
         resultContainer: HTMLElement,
         geocoder: Geocoder,
         searchBoxWriter: TextBoxWriter,
         onChooseResult: (result: GeocoderSuggestion) => void,
     ): Promise<void> {
-        const results = await geocoder.getSuggestionsFrom(query);
+        let results = await geocoder.getSuggestionsFrom(query);
+        if (maxResults >= 0) {
+            results = results.slice(0, maxResults);
+        }
         this.updateWithResults(
             query,
             resultIcon,
@@ -111,6 +136,9 @@ export class RoomSearchBox implements CustomElement {
         props: RoomSearchBoxProps | null,
         _children: HTMLElement[],
     ): HTMLElement {
+        const container = (<div class="room-search-box" />) as HTMLElement;
+        this.container = container;
+
         const resultContainer = (
             <div class="results-wrapper leaflet-style hidden" />
         );
@@ -121,8 +149,13 @@ export class RoomSearchBox implements CustomElement {
                 noBottomMargin={true}
                 onInput={(input: string) => {
                     if (props !== null) {
+                        const maxResults =
+                            props.maxResults === undefined
+                                ? RoomSearchBox.DEFAULT_MAX_RESULTS
+                                : props.maxResults;
                         this.handleInput(
                             input,
+                            maxResults,
                             props.resultIcon,
                             resultContainer,
                             props.geocoder,
@@ -135,11 +168,8 @@ export class RoomSearchBox implements CustomElement {
             />
         );
 
-        return (
-            <div class="room-search-box">
-                {searchBox}
-                {resultContainer}
-            </div>
-        );
+        container.appendChild(searchBox);
+        container.appendChild(resultContainer);
+        return container;
     }
 }
