@@ -1,6 +1,7 @@
-import { h } from "../../JSX";
-import { Props } from "../ElementCreator";
-import { CustomElement } from "./CustomElement";
+import { h } from "../../../JSX";
+import { Props } from "../../ElementCreator";
+import { CustomElement } from "../CustomElement";
+import { TextBoxWriter } from "./TextBoxWriter";
 
 export interface TextBoxProps extends Props {
     /**
@@ -26,6 +27,10 @@ export interface TextBoxProps extends Props {
      * character. Defaults to no event listener.
      */
     onInput?: (newContent: string) => void;
+    /**
+     * Text box writer to link to this text box. This allows changing the contents of the text box using the writer.
+     */
+    linkToWriter?: TextBoxWriter;
 }
 
 /**
@@ -68,6 +73,10 @@ export class TextBox implements CustomElement {
                     props.onInput(inputEl.value);
                 }
             });
+
+            if (props.linkToWriter !== undefined) {
+                props.linkToWriter.linkToInput(inputEl);
+            }
         }
 
         return inputEl;

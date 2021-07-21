@@ -39,19 +39,26 @@
             flex-grow: 1;
 
             li {
-                padding: 3px 8px;
-
-                &:first-child {
-                    padding-top: 8px;
-                }
+                display: flex;
+                flex-direction: column;
 
                 &:hover {
                     background-color: #00000017;
                 }
 
-                .fas {
-                    color: #00000048;
-                    margin-right: 5px;
+                &:first-child a {
+                    padding-top: 8px;
+                }
+
+                a {
+                    padding: 3px 8px;
+                    color: #000000;
+                    text-decoration: none;
+
+                    .fas {
+                        color: #00000048;
+                        margin-right: 5px;
+                    }
                 }
             }
         }

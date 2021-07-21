@@ -6,7 +6,6 @@ import { LFloors } from "../../../../LFloorsPlugin/LFloorsPlugin";
 import { Locator } from "../../../../Locator";
 import { MapData } from "../../../../MapData";
 import { Events } from "../../../../events/Events";
-import { TextBox } from "../../../../html/custom/TextBox";
 import { RoomSearchBox } from "../../../../html/custom/roomSearchBox/RoomSearchBox";
 import { ISettings } from "../../../../settings/ISettings";
 import { Pane } from "../Pane";
@@ -59,7 +58,12 @@ export class SearchPane extends Pane {
         );
 
         const searchBarContainer = (
-            <RoomSearchBox geocoder={geocoder} events={events} />
+            <RoomSearchBox
+                geocoder={geocoder}
+                onChooseResult={(result: GeocoderSuggestion) =>
+                    events.trigger("clickResult", result)
+                }
+            />
         );
 
         const closestBathroomButton = new ClosestBathroomButton(

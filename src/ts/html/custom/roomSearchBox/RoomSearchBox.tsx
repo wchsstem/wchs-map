@@ -1,48 +1,77 @@
 import { Geocoder } from "../../../Geocoder/Geocoder";
 import { GeocoderSuggestion } from "../../../Geocoder/GeocoderSuggestion";
 import { h } from "../../../JSX";
-import { Events } from "../../../events/Events";
 import { DomUtils } from "../../DomUtils";
 import { Props } from "../../ElementCreator";
 import { CustomElement } from "../CustomElement";
-import { TextBox } from "../TextBox";
+import { TextBox } from "../textBox/TextBox";
+import { TextBoxWriter } from "../textBox/TextBoxWriter";
 import "./room-search-box.scss";
 
 export interface RoomSearchBoxProps extends Props {
+    /**
+     * Geocoder to use for room searches
+     */
     geocoder: Geocoder;
-    events: Events;
+    /**
+     * Handler called when a result is chosen (eg. when a result is clicked)
+     */
+    onChooseResult: (result: GeocoderSuggestion) => void;
 }
 
 /**
  * Represents a search box with room search suggestions.
+ * @see RoomSearchBoxProps
  */
 export class RoomSearchBox implements CustomElement {
+    private clearResults(resultContainer: HTMLElement): void {
+        resultContainer.classList.add("hidden");
+        DomUtils.clearChildren(resultContainer);
+    }
+
+    private chooseResult(
+        result: GeocoderSuggestion,
+        onChooseResult: (result: GeocoderSuggestion) => void,
+        searchBoxWriter: TextBoxWriter,
+        resultContainer: HTMLElement,
+    ): void {
+        onChooseResult(result);
+        searchBoxWriter.write(result.name);
+        this.clearResults(resultContainer);
+    }
+
     private updateWithResults(
         query: string,
         resultContainer: HTMLElement,
         results: GeocoderSuggestion[],
-        onClickResult: (result: GeocoderSuggestion) => void,
+        searchBoxWriter: TextBoxWriter,
+        onChooseResult: (result: GeocoderSuggestion) => void,
     ): void {
+        this.clearResults(resultContainer);
+
         if (query === "") {
-            resultContainer.classList.add("hidden");
             return;
         }
 
         resultContainer.classList.remove("hidden");
-        DomUtils.clearChildren(resultContainer);
 
         const list = <ul />;
         if (results.length > 0) {
             for (const result of results) {
+                const onClick = (): void => {
+                    this.chooseResult(
+                        result,
+                        onChooseResult,
+                        searchBoxWriter,
+                        resultContainer,
+                    );
+                };
                 const resultElement = (
-                    <li
-                        class="search-result"
-                        onClick={() => {
-                            onClickResult(result);
-                        }}
-                    >
-                        <i class="fas fa-search" />
-                        {result.name}
+                    <li class="search-result" onClick={onClick}>
+                        <a href="#">
+                            <i class="fas fa-search" />
+                            {result.name}
+                        </a>
                     </li>
                 );
                 list.appendChild(resultElement);
@@ -58,11 +87,16 @@ export class RoomSearchBox implements CustomElement {
         query: string,
         resultContainer: HTMLElement,
         geocoder: Geocoder,
-        events: Events,
+        searchBoxWriter: TextBoxWriter,
+        onChooseResult: (result: GeocoderSuggestion) => void,
     ): Promise<void> {
         const results = await geocoder.getSuggestionsFrom(query);
-        this.updateWithResults(query, resultContainer, results, (result) =>
-            events.trigger("clickResult", result),
+        this.updateWithResults(
+            query,
+            resultContainer,
+            results,
+            searchBoxWriter,
+            onChooseResult,
         );
     }
 
@@ -74,21 +108,28 @@ export class RoomSearchBox implements CustomElement {
             <div class="results-wrapper leaflet-style hidden" />
         );
 
+        const searchBoxWriter = new TextBoxWriter();
+        const searchBox = (
+            <TextBox
+                noBottomMargin={true}
+                onInput={(input: string) => {
+                    if (props !== null) {
+                        this.handleInput(
+                            input,
+                            resultContainer,
+                            props.geocoder,
+                            searchBoxWriter,
+                            props.onChooseResult,
+                        );
+                    }
+                }}
+                linkToWriter={searchBoxWriter}
+            />
+        );
+
         return (
             <div class="room-search-box">
-                <TextBox
-                    noBottomMargin={true}
-                    onInput={(input: string) => {
-                        if (props !== null) {
-                            this.handleInput(
-                                input,
-                                resultContainer,
-                                props.geocoder,
-                                props.events,
-                            );
-                        }
-                    }}
-                />
+                {searchBox}
                 {resultContainer}
             </div>
         );
