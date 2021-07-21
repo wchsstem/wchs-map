@@ -1,4 +1,4 @@
-import { genPaneElement, genTextInput } from "../../../../GenHtml/GenHtml";
+import { genPaneElement } from "../../../../GenHtml/GenHtml";
 import { Geocoder } from "../../../../Geocoder/Geocoder";
 import { GeocoderSuggestion } from "../../../../Geocoder/GeocoderSuggestion";
 import { h } from "../../../../JSX";
@@ -6,7 +6,8 @@ import { LFloors } from "../../../../LFloorsPlugin/LFloorsPlugin";
 import { Locator } from "../../../../Locator";
 import { MapData } from "../../../../MapData";
 import { Events } from "../../../../events/Events";
-import { RoomSearchBox } from "../../../../html/custom/RoomSearchBox";
+import { TextBox } from "../../../../html/custom/TextBox";
+import { RoomSearchBox } from "../../../../html/custom/roomSearchBox/RoomSearchBox";
 import { ISettings } from "../../../../settings/ISettings";
 import { Pane } from "../Pane";
 import { ClosestAedButton } from "./ClosestAedButton";
@@ -40,19 +41,26 @@ export class SearchPane extends Pane {
     ) {
         super();
 
-        const searchBar = genTextInput();
-        const searchBarContainer = <div class="wrapper">{searchBar}</div>;
+        // const searchBar = (
+        //     <TextBox
+        //         onInput={async () => {
+        //             const query = searchBar.value;
+        //             const results = await geocoder.getSuggestionsFrom(query);
+        //             this.updateWithResults(query, results, (result) =>
+        //                 events.trigger("clickResult", result),
+        //             );
+        //         }}
+        //     />
+        // );
+        // const searchBarContainer = <div class="wrapper">{searchBar}</div>;
+        // const searchBarContainer = searchBar;
         this.resultContainer = (
             <div class="wrapper results-wrapper leaflet-style hidden" />
         );
 
-        searchBar.addEventListener("input", async () => {
-            const query = searchBar.value;
-            const results = await geocoder.getSuggestionsFrom(query);
-            this.updateWithResults(query, results, (result) =>
-                events.trigger("clickResult", result),
-            );
-        });
+        const searchBarContainer = (
+            <RoomSearchBox geocoder={geocoder} events={events} />
+        );
 
         const closestBathroomButton = new ClosestBathroomButton(
             geocoder,
@@ -157,7 +165,6 @@ export class SearchPane extends Pane {
                 {closestAhuButton}
                 {closestEcButton}
                 {closestBscButton}
-                <RoomSearchBox />
             </div>
         );
 

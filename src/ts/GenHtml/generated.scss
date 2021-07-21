@@ -11,6 +11,10 @@
     border: 0;
 }
 
+.no-bottom-margin {
+    margin-bottom: 0;
+}
+
 a.button {
     text-decoration: none;
     color: #000000 !important;
@@ -20,9 +24,4 @@ a.button {
 
 a:hover.button {
     background-color: #f4f4f4;
-}
-
-.search-bar {
-    margin-bottom: 5px;
-    width: 100%;
 }

@@ -6,14 +6,14 @@ import { CustomElement } from "./html/custom/CustomElement";
  * elements, but TS does not appear to support this.
  */
 class JSXHelper {
-    static elementCreator: ElementCreator;
+    public static elementCreator: ElementCreator;
 }
 
 /**
  * Give JSX the element creator to use. This must be called before using JSX tags.
  * @param elementCreator Element creator for the JSX to use
  */
-export function injectElementCreator(elementCreator: ElementCreator) {
+export function injectElementCreator(elementCreator: ElementCreator): void {
     JSXHelper.elementCreator = elementCreator;
 }
 
@@ -26,6 +26,16 @@ export function h(
     props: Props | null,
     ...children: HTMLElement[]
 ): HTMLElement {
+    if (props !== null) {
+        // JSX doesn't like the `class` attribute and prefers `className`, but `ElementCreators` like using the correct
+        // attribute names
+        props = Object.fromEntries(
+            Object.entries(props).map(([key, value]) => [
+                key === "className" ? "class" : key,
+                value,
+            ]),
+        );
+    }
     return JSXHelper.elementCreator.create(tag, props, children);
 }
 
