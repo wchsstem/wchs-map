@@ -47,6 +47,11 @@ export class RoomSearchBox implements CustomElement {
     private static readonly DEFAULT_MAX_RESULTS: number = 5;
 
     private resultClearer?: ResultClearer;
+    private searchBoxWriter?: TextBoxWriter;
+
+    private onChooseResult?: (result: GeocoderSuggestion) => void;
+
+    private topResult?: GeocoderSuggestion;
 
     private container?: HTMLElement;
     private searchBox?: HTMLElement;
@@ -60,19 +65,16 @@ export class RoomSearchBox implements CustomElement {
         this.resultContainer.classList.add("hidden");
         this.container.classList.remove("showing-results");
         DomUtils.clearChildren(this.resultContainer);
+        this.topResult = undefined;
     }
 
-    private chooseResult(
-        result: GeocoderSuggestion,
-        onChooseResult: (result: GeocoderSuggestion) => void,
-        searchBoxWriter: TextBoxWriter,
-    ): void {
-        if (!this.searchBox) {
+    private chooseResult(result: GeocoderSuggestion): void {
+        if (!this.searchBox || !this.onChooseResult || !this.searchBoxWriter) {
             throw new Error("did not set all fields in RoomSearchBox");
         }
 
-        onChooseResult(result);
-        searchBoxWriter.write(result.name);
+        this.onChooseResult(result);
+        this.searchBoxWriter.write(result.name);
         this.clearResults();
 
         this.searchBox.focus();
@@ -81,11 +83,9 @@ export class RoomSearchBox implements CustomElement {
     private createResultElement(
         result: GeocoderSuggestion,
         icon: Node,
-        searchBoxWriter: TextBoxWriter,
-        onChoose: (result: GeocoderSuggestion) => void,
     ): HTMLElement {
         const onClick = (): void => {
-            this.chooseResult(result, onChoose, searchBoxWriter);
+            this.chooseResult(result);
         };
 
         const resultElement = (
@@ -144,8 +144,6 @@ export class RoomSearchBox implements CustomElement {
         query: string,
         resultIcon: HTMLElement,
         results: GeocoderSuggestion[],
-        searchBoxWriter: TextBoxWriter,
-        onChooseResult: (result: GeocoderSuggestion) => void,
     ): void {
         if (!this.container || !this.resultContainer) {
             throw new Error("did not set all fields in RoomSearchBox");
@@ -162,12 +160,11 @@ export class RoomSearchBox implements CustomElement {
 
         const list = <ul />;
         if (results.length > 0) {
+            this.topResult = results[0];
             for (const result of results) {
                 const resultElement = this.createResultElement(
                     result,
                     resultIcon.cloneNode(),
-                    searchBoxWriter,
-                    onChooseResult,
                 );
                 list.appendChild(resultElement);
             }
@@ -183,20 +180,12 @@ export class RoomSearchBox implements CustomElement {
         maxResults: number,
         resultIcon: HTMLElement,
         geocoder: Geocoder,
-        searchBoxWriter: TextBoxWriter,
-        onChooseResult: (result: GeocoderSuggestion) => void,
     ): Promise<void> {
         let results = await geocoder.getSuggestionsFrom(query);
         if (maxResults >= 0) {
             results = results.slice(0, maxResults);
         }
-        this.updateWithResults(
-            query,
-            resultIcon,
-            results,
-            searchBoxWriter,
-            onChooseResult,
-        );
+        this.updateWithResults(query, resultIcon, results);
     }
 
     public handleKeypressInInput(e: KeyboardEvent): void {
@@ -213,6 +202,11 @@ export class RoomSearchBox implements CustomElement {
                 ul.firstChild.firstChild instanceof HTMLElement
             ) {
                 ul.firstChild.firstChild.focus();
+            }
+        } else if (e.key === "Enter") {
+            e.preventDefault();
+            if (this.topResult) {
+                this.chooseResult(this.topResult);
             }
         }
     }
@@ -233,12 +227,20 @@ export class RoomSearchBox implements CustomElement {
             props !== null && props.searchBoxWriter !== undefined
                 ? props.searchBoxWriter
                 : new TextBoxWriter();
+        this.searchBoxWriter = searchBoxWriter;
 
         this.resultClearer =
             props !== null && props.resultClearer !== undefined
                 ? props.resultClearer
                 : new ResultClearer();
         this.resultClearer.linkRoomSearchBox(() => this.clearResults());
+
+        const onChooseResult = props
+            ? props.onChooseResult
+            : (_result: GeocoderSuggestion) => {
+                  // No handler specified, so do nothing
+              };
+        this.onChooseResult = onChooseResult;
 
         this.searchBox = (
             <TextBox
@@ -254,8 +256,6 @@ export class RoomSearchBox implements CustomElement {
                             maxResults,
                             props.resultIcon,
                             props.geocoder,
-                            searchBoxWriter,
-                            props.onChooseResult,
                         );
                     }
                 }}
