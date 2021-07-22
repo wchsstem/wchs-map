@@ -17,7 +17,7 @@ export class HelpPane extends Pane {
                     <li>Nate Hollingsworths '21</li>
                 </ul>
             </div>
-        ) as HTMLDivElement;
+        );
         this.pane = genPaneElement("Help", contents);
     }
 

@@ -62,7 +62,7 @@ export class LogPane extends Pane {
     }
 
     public static new(): LogPane {
-        const logs = (<ul></ul>) as HTMLUListElement;
+        const logs = <ul />;
         const pane = genPaneElement("Log", logs);
 
         return new LogPane(logs, pane);

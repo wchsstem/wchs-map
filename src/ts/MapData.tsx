@@ -650,7 +650,7 @@ export class MapData {
                         ? "fas fa-sort-amount-up-alt"
                         : "fas fa-sort-amount-down-alt";
                 const stairIcon = divIcon({
-                    html: <i class={iconClass}></i>,
+                    html: <i className={iconClass} />,
                     className: "icon nav",
                 });
                 marker(pLoc.getXY(), { icon: stairIcon }).addTo(

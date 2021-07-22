@@ -28,10 +28,10 @@ export class ClosestDefinitionButton {
             <a
                 href="#"
                 className="leaflet-style button"
-                onClick={() => this.handleClick()}
+                onclick={() => this.handleClick()}
                 title={this.titleText}
             >
-                <i class={this.iconClass}></i>
+                <i className={this.iconClass} />
             </a>
         );
     }

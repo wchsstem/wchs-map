@@ -20,7 +20,9 @@ export class SynergyPane extends Pane {
             <p>Download your Synergy page and upload the HTML file here.</p>
         );
 
-        const siteUpload = <input type="file" accept="text/html" />;
+        const siteUpload = (
+            <input type="file" accept="text/html" />
+        ) as HTMLInputElement;
 
         const errorBox = <p />;
         const courses = <ol />;

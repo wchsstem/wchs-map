@@ -55,7 +55,7 @@ export class NavigationPane extends Pane {
             >
                 <i className="fas fa-map-marker-alt" />
             </a>
-        ) as HTMLAnchorElement;
+        );
         this.fromInput = genTextInput();
 
         const toPinButton = (
@@ -67,7 +67,7 @@ export class NavigationPane extends Pane {
             >
                 <i className="fas fa-flag-checkered" />
             </a>
-        ) as HTMLAnchorElement;
+        );
         this.toInput = genTextInput();
 
         const swapToFrom = (
@@ -79,7 +79,7 @@ export class NavigationPane extends Pane {
             >
                 <i className="fas fa-exchange-alt" />
             </a>
-        ) as HTMLAnchorElement;
+        );
 
         const toFromContainer = (
             <div className="wrapper">
@@ -278,7 +278,7 @@ export class NavigationPane extends Pane {
         onMove: (location: BuildingLocation) => void,
         snapToDefinition: (snapFrom: BuildingLocation) => BuildingLocation,
     ): FlooredMarker {
-        const icon = <i className="fas"></i>;
+        const icon = <i className="fas" />;
         icon.classList.add(iconClass);
 
         const snapLocation = snapToDefinition(location);
