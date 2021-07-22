@@ -57,7 +57,7 @@
                 flex-direction: column;
                 padding: 0 6px;
 
-                &:hover {
+                &:hover, &:focus-within {
                     background-color: #00000017;
                 }
 

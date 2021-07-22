@@ -28,6 +28,11 @@ export interface TextBoxProps extends Props {
      */
     onInput?: (newContent: string) => void;
     /**
+     * Event handler called every time the `keydown` event is triggered, eg. whenever the user presses a key, including,
+     * eg, arrow keys or Shift. Defaults to no event listener.
+     */
+    onKeydown?: (event: KeyboardEvent) => void;
+    /**
      * Text box writer to link to this text box. This allows changing the contents of the text box using the writer.
      */
     linkToWriter?: TextBoxWriter;
@@ -71,6 +76,12 @@ export class TextBox implements CustomElement {
             inputEl.addEventListener("input", () => {
                 if ("onInput" in props && props.onInput !== undefined) {
                     props.onInput(inputEl.value);
+                }
+            });
+
+            inputEl.addEventListener("keydown", (e) => {
+                if (props.onKeydown !== undefined) {
+                    props.onKeydown(e);
                 }
             });
 
