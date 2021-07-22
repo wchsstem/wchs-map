@@ -18,6 +18,7 @@ import { RoomSearchBox } from "../../../../html/custom/roomSearchBox/RoomSearchB
 import { TextBoxWriter } from "../../../../html/custom/textBox/TextBoxWriter";
 import { Pane } from "../Pane";
 import { FlooredMarker, flooredMarker } from "./FlooredMarker";
+import "./navigation-pane.scss";
 
 export class NavigationPane extends Pane {
     private snapPinHandler: (location: BuildingLocation) => BuildingLocation;
@@ -63,17 +64,6 @@ export class NavigationPane extends Pane {
             </a>
         );
         this.fromInputWriter = new TextBoxWriter();
-        const fromInput = (
-            <RoomSearchBox
-                geocoder={geocoder}
-                resultIcon={<FaIcon faClass="location-arrow" />}
-                onChooseResult={(result: GeocoderSuggestion) => {
-                    this.events.trigger("clickNavigateFromSuggestion", result);
-                }}
-                searchBoxWriter={this.fromInputWriter}
-                resultClearer={this.fromToResultClearer}
-            />
-        );
 
         const toPinButton = (
             <a
@@ -86,17 +76,6 @@ export class NavigationPane extends Pane {
             </a>
         );
         this.toInputWriter = new TextBoxWriter();
-        const toInput = (
-            <RoomSearchBox
-                geocoder={geocoder}
-                resultIcon={<FaIcon faClass="location-arrow" />}
-                onChooseResult={(result: GeocoderSuggestion) => {
-                    this.events.trigger("clickNavigateToSuggestion", result);
-                }}
-                searchBoxWriter={this.toInputWriter}
-                resultClearer={this.fromToResultClearer}
-            />
-        );
 
         const swapToFrom = (
             <a
@@ -110,21 +89,39 @@ export class NavigationPane extends Pane {
         );
 
         const toFromContainer = (
-            <div className="wrapper">
-                <div className="wrapper input-wrapper">
-                    <div>
-                        <label className="leaflet-style no-border nav-label">
-                            From
-                        </label>
+            <div className="navigation-container">
+                <div className="directions-container">
+                    <div className="direction-container">
+                        <label className="leaflet-style no-border">From</label>
                         {fromPinButton}
-                        {fromInput}
+                        <RoomSearchBox
+                            geocoder={geocoder}
+                            resultIcon={<FaIcon faClass="location-arrow" />}
+                            onChooseResult={(result: GeocoderSuggestion) => {
+                                this.events.trigger(
+                                    "clickNavigateFromSuggestion",
+                                    result,
+                                );
+                            }}
+                            searchBoxWriter={this.fromInputWriter}
+                            resultClearer={this.fromToResultClearer}
+                        />
                     </div>
-                    <div className="wrapper">
-                        <label className="leaflet-style no-border nav-label">
-                            To
-                        </label>
+                    <div className="direction-container">
+                        <label className="leaflet-style no-border">To</label>
                         {toPinButton}
-                        {toInput}
+                        <RoomSearchBox
+                            geocoder={geocoder}
+                            resultIcon={<FaIcon faClass="location-arrow" />}
+                            onChooseResult={(result: GeocoderSuggestion) => {
+                                this.events.trigger(
+                                    "clickNavigateToSuggestion",
+                                    result,
+                                );
+                            }}
+                            searchBoxWriter={this.toInputWriter}
+                            resultClearer={this.fromToResultClearer}
+                        />
                     </div>
                 </div>
                 {swapToFrom}

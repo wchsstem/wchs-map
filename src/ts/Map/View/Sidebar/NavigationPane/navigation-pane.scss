@@ -1,0 +1,24 @@
+.navigation-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+
+    .directions-container {
+        flex-grow: 1;
+
+        .direction-container {
+            display: flex;
+            padding: 4px;
+
+            * {
+                margin-top: auto;
+                margin-bottom: auto;
+            }
+
+            label {
+                width: 2em;
+                text-align: right;
+            }
+        }
+    }
+}

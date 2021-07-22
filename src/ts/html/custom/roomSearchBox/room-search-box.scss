@@ -6,13 +6,10 @@
     flex-direction: column;
     box-sizing: border-box;
     border-radius: 4px;
-
-    &.showing-results, &:focus-within {
-        box-shadow: 1px 1px 5px 0px #00000025;
-    }
+    flex-grow: 1;
 
     input {
-        margin: 0 4px;
+        margin: 0;
         z-index: 2;
         padding: 6px;
         box-sizing: border-box;
@@ -25,18 +22,23 @@
         border-bottom: 0;
     }
 
+    &.showing-results .results-wrapper, &:focus-within .results-wrapper {
+        box-shadow: 0 2px 2px 0px #00000025;
+    }
+
     .results-wrapper {
         position: absolute;
         display: block;
         box-sizing: border-box;
         width: 100%;
-        margin: 0 4px;
-        padding: 0 0;
+        margin: 0;
+        padding: 0;
         top: 32px;
         border-top: 0;
         border-top-left-radius: 0;
         border-top-right-radius: 0;
         z-index: 500;
+        background-color: #ffffff;
 
         &.hidden {
             display: none;
