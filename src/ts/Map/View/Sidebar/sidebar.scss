@@ -14,6 +14,10 @@
         overflow-y: auto;
     }
 
+    .col {
+        flex-direction: column;
+    }
+
     .swap-button {
         align-self: center;
         transform: rotate(90deg);
@@ -26,30 +30,6 @@
 
     .header-wrapper {
         margin-top: 0.8em;
-    }
-
-    .results-wrapper {
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-    
-            li {
-                border-bottom: 1px solid #ccc;
-                padding: 5px;
-            }
-    
-            li:last-child {
-                border-bottom: none;
-            }
-        }
-    }
-    
-    .results-wrapper.hidden {
-        display: none;
     }
 
     h2 {

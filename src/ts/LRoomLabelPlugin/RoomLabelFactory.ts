@@ -1,5 +1,5 @@
-import { Logger } from "../LogPane/LogPane";
 import { MapController } from "../Map/Controller/MapController";
+import { Logger } from "../Map/View/Sidebar/LogPane/LogPane";
 import { MapData } from "../MapData";
 import { TextMeasurer } from "../TextMeasurer";
 import { ISettings } from "../settings/ISettings";

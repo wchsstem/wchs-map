@@ -16,6 +16,8 @@
         "typeRoots": [
             "node_modules/@types",
             "src/ts/customTyping"
-        ]
+        ],
+        "target": "ES2017",
+        "lib": ["ES2019", "DOM"]
     }
 }

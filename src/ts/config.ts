@@ -3,7 +3,7 @@ import { VertexTag } from "./Vertex";
 
 // Map
 export const ATTRIBUTION =
-    "<a href='https://www.nathanvarner.com' target='_blank' rel='noopener'>© Nathan Varner</a>";
+    "© <a href='https://www.nathanvarner.com' target='_blank' rel='noopener'>Nathan Varner</a> and contributors";
 
 // Icons
 

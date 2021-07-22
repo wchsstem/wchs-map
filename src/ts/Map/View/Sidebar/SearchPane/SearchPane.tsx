@@ -1,4 +1,4 @@
-import { genPaneElement, genTextInput } from "../../../../GenHtml/GenHtml";
+import { genPaneElement } from "../../../../GenHtml/GenHtml";
 import { Geocoder } from "../../../../Geocoder/Geocoder";
 import { GeocoderSuggestion } from "../../../../Geocoder/GeocoderSuggestion";
 import { h } from "../../../../JSX";
@@ -6,6 +6,8 @@ import { LFloors } from "../../../../LFloorsPlugin/LFloorsPlugin";
 import { Locator } from "../../../../Locator";
 import { MapData } from "../../../../MapData";
 import { Events } from "../../../../events/Events";
+import { FaIcon } from "../../../../html/custom/FaIcon";
+import { RoomSearchBox } from "../../../../html/custom/roomSearchBox/RoomSearchBox";
 import { ISettings } from "../../../../settings/ISettings";
 import { Pane } from "../Pane";
 import { ClosestAedButton } from "./ClosestAedButton";
@@ -19,7 +21,6 @@ import { ClosestHandSanitizerStationButton } from "./ClosestHandSanitizerStation
 
 export class SearchPane extends Pane {
     private readonly pane: HTMLElement;
-    private readonly resultContainer: HTMLElement;
 
     public static inject = [
         "geocoder",
@@ -38,20 +39,6 @@ export class SearchPane extends Pane {
         events: Events,
     ) {
         super();
-
-        const searchBar = genTextInput();
-        const searchBarContainer = <div class="wrapper">{searchBar}</div>;
-        this.resultContainer = (
-            <div class="wrapper results-wrapper leaflet-style hidden" />
-        );
-
-        searchBar.addEventListener("input", async () => {
-            const query = searchBar.value;
-            const results = await geocoder.getSuggestionsFrom(query);
-            this.updateWithResults(query, results, (result) =>
-                events.trigger("clickResult", result),
-            );
-        });
 
         const closestBathroomButton = new ClosestBathroomButton(
             geocoder,
@@ -147,7 +134,7 @@ export class SearchPane extends Pane {
         });
 
         const categoryButtonContainer = (
-            <div class="wrapper">
+            <div className="wrapper">
                 {closestBathroomButton}
                 {closestBottleFillingButton}
                 {closestHandSanitizerButton}
@@ -160,10 +147,15 @@ export class SearchPane extends Pane {
         );
 
         this.pane = genPaneElement("Search", [
-            searchBarContainer,
+            <RoomSearchBox
+                resultIcon={<FaIcon faClass="search" />}
+                geocoder={geocoder}
+                onChooseResult={(result: GeocoderSuggestion) =>
+                    events.trigger("clickResult", result)
+                }
+            />,
             <h2>Find Nearest</h2>,
             categoryButtonContainer,
-            this.resultContainer,
         ]);
     }
 
@@ -181,47 +173,5 @@ export class SearchPane extends Pane {
 
     public getPaneElement(): HTMLElement {
         return this.pane;
-    }
-
-    private updateWithResults(
-        query: string,
-        results: GeocoderSuggestion[],
-        onClickResult: (result: GeocoderSuggestion) => void,
-    ): void {
-        if (query === "") {
-            this.resultContainer.classList.add("hidden");
-            return;
-        }
-
-        this.resultContainer.classList.remove("hidden");
-
-        while (this.resultContainer.firstChild !== null) {
-            this.resultContainer.removeChild(this.resultContainer.firstChild);
-        }
-
-        const list = document.createElement("ul");
-        if (results.length > 0) {
-            for (const result of results) {
-                const resultElement = document.createElement("li");
-                resultElement.classList.add("search-result");
-                resultElement.appendChild(document.createTextNode(result.name));
-                resultElement.addEventListener("click", () => {
-                    onClickResult(result);
-                });
-                list.appendChild(resultElement);
-            }
-
-            this.resultContainer.appendChild(list);
-        } else {
-            const container = document.createElement("li");
-            container.classList.add("search-result");
-
-            const noResults = document.createTextNode("No results");
-            container.appendChild(noResults);
-
-            list.appendChild(container);
-
-            this.resultContainer.appendChild(list);
-        }
     }
 }

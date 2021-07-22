@@ -55,7 +55,7 @@ type JsonRoom = {
      * IDs of vertices which are entrances to the room
      */
     vertices: string[];
-    center?: [number, number];
+    center: [number, number] | null;
     outline: [number, number][];
     /**
      * Names of the room. If none are provided, the name is generated from the room number (stored as the key in the
@@ -332,7 +332,7 @@ export class MapData {
             zip(jsonRooms, vertices),
             roomFloorNumbers,
         ).map(([room, vertex, floor]) =>
-            room.center !== undefined
+            room.center !== null
                 ? new BuildingLocation(
                       new LatLng(room.center[1], room.center[0]),
                       floor,
@@ -650,7 +650,7 @@ export class MapData {
                         ? "fas fa-sort-amount-up-alt"
                         : "fas fa-sort-amount-down-alt";
                 const stairIcon = divIcon({
-                    html: <i class={iconClass}></i>,
+                    html: <i className={iconClass} />,
                     className: "icon nav",
                 });
                 marker(pLoc.getXY(), { icon: stairIcon }).addTo(

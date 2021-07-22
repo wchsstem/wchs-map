@@ -1,7 +1,7 @@
 import { genPaneElement } from "../../../../GenHtml/GenHtml";
 import { Geocoder } from "../../../../Geocoder/Geocoder";
 import { h } from "../../../../JSX";
-import { Logger } from "../../../../LogPane/LogPane";
+import { Logger } from "../LogPane/LogPane";
 import { Pane } from "../Pane";
 import { Synergy } from "./Synergy";
 
@@ -11,6 +11,7 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024;
 export class SynergyPane extends Pane {
     private readonly pane: HTMLElement;
 
+    public static inject = ["geocoder", "logger"] as const;
     public constructor(geocoder: Geocoder, logger: Logger) {
         super();
 
@@ -19,7 +20,9 @@ export class SynergyPane extends Pane {
             <p>Download your Synergy page and upload the HTML file here.</p>
         );
 
-        const siteUpload = <input type="file" accept="text/html" />;
+        const siteUpload = (
+            <input type="file" accept="text/html" />
+        ) as HTMLInputElement;
 
         const errorBox = <p />;
         const courses = <ol />;

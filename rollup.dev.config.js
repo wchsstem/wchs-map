@@ -74,9 +74,7 @@ export default [
             sourcemap: true
         },
         plugins: [
-            typescript({
-                target: "es2017"
-            }),
+            typescript(),
             versionInjector({
                 injectInComments: false
             }),

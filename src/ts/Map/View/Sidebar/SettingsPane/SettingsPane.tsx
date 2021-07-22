@@ -14,17 +14,18 @@ import { Pane } from "../Pane";
 export class SettingsPane extends Pane {
     private readonly pane: HTMLElement;
 
+    public static inject = ["settings"] as const;
     public constructor(private readonly settings: ISettings) {
         super();
 
-        const settingsContainer = <ul class="wrapper settings-container" />;
+        const settingsContainer = <ul className="wrapper settings-container" />;
 
         SETTING_SECTIONS.forEach(([category, categorySettings]) => {
             const categorySettingsContainer = <ul />;
 
             categorySettings
                 .map((name) => {
-                    const container = <li class="setting-container"></li>;
+                    const container = <li className="setting-container" />;
 
                     settings.addWatcher(name, (data) => {
                         removeChildren(container);
@@ -116,7 +117,7 @@ export class SettingsPane extends Pane {
         return setting;
     }
 
-    private createSetting(name: string, control: HTMLElement): HTMLDivElement {
+    private createSetting(name: string, control: HTMLElement): HTMLElement {
         return (
             <div>
                 <label>{name}</label>
@@ -129,7 +130,7 @@ export class SettingsPane extends Pane {
         name: string,
         value: string,
         nameMapping: Map<string, string>,
-    ): HTMLDivElement {
+    ): HTMLElement {
         const control = genTextInput("", value);
         control.addEventListener("change", () => {
             this.settings.updateData(name, control.value);
@@ -144,7 +145,7 @@ export class SettingsPane extends Pane {
         value: boolean,
         nameMapping: Map<string, string>,
     ): HTMLElement {
-        const control = <input type="checkbox" />;
+        const control = (<input type="checkbox" />) as HTMLInputElement;
         control.checked = value;
         control.addEventListener("change", () => {
             this.settings.updateData(name, control.checked);
@@ -160,7 +161,7 @@ export class SettingsPane extends Pane {
         optionDisplayAndIds: [string, string][],
         nameMapping: Map<string, string>,
     ): HTMLElement {
-        const control = <select />;
+        const control = (<select />) as HTMLSelectElement;
         for (const [display, id] of optionDisplayAndIds) {
             const option = <option value={id}>{display}</option>;
             if (id == value) {

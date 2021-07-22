@@ -5,11 +5,11 @@ import { BuildingLocationWithEntrances } from "../../BuildingLocation/BuildingLo
 import { Geocoder } from "../../Geocoder/Geocoder";
 import { GeocoderDefinition } from "../../Geocoder/GeocoderDefinition";
 import { LocationOnlyDefinition } from "../../LocationOnlyDefinition";
-import { Logger } from "../../LogPane/LogPane";
 import { MapData } from "../../MapData";
 import { Events } from "../../events/Events";
 import { IMapModel } from "../Model/IMapModel";
 import { MapView } from "../View/MapView";
+import { Logger } from "../View/Sidebar/LogPane/LogPane";
 import { MapController } from "./MapController";
 
 export class LeafletMapController implements MapController {

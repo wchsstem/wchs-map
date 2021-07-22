@@ -2,7 +2,6 @@ import { genButtonIcon, genPaneElement } from "../../../GenHtml/GenHtml";
 import { GeocoderDefinition } from "../../../Geocoder/GeocoderDefinition";
 import { h } from "../../../JSX";
 import { Events } from "../../../events/Events";
-import { NavigationPane } from "./NavigationPane/NavigationPane";
 import { Pane } from "./Pane";
 
 export class InfoPane extends Pane {
@@ -10,14 +9,11 @@ export class InfoPane extends Pane {
 
     public constructor(
         definition: GeocoderDefinition,
-        private readonly navigationPane: NavigationPane,
         private readonly events: Events,
     ) {
         super();
 
-        const paneElements: HTMLElement[] = [];
-
-        this.createHeader(paneElements, definition);
+        const paneElements: HTMLElement[] = [this.createHeader(definition)];
 
         const roomFloor = (
             <span>Floor: {definition.getLocation().getFloor()}</span>
@@ -25,12 +21,8 @@ export class InfoPane extends Pane {
         paneElements.push(roomFloor);
 
         if (definition.getDescription.length !== 0) {
-            const descriptionEl = document.createElement("p");
-            const descriptionText = document.createTextNode(
-                definition.getDescription(),
-            );
-            descriptionEl.appendChild(descriptionText);
-            paneElements.push(descriptionEl);
+            const description = <p>{definition.getDescription()}</p>;
+            paneElements.push(description);
         }
 
         this.pane = genPaneElement("Room Info", paneElements);
@@ -52,20 +44,7 @@ export class InfoPane extends Pane {
         return this.pane;
     }
 
-    private createHeader(
-        paneElements: HTMLElement[],
-        definition: GeocoderDefinition,
-    ): void {
-        const header = document.createElement("div");
-        header.classList.add("wrapper");
-        header.classList.add("header-wrapper");
-        paneElements.push(header);
-
-        const roomName = document.createElement("h2");
-        const roomNameText = document.createTextNode(definition.getName());
-        roomName.appendChild(roomNameText);
-        header.appendChild(roomName);
-
+    private createHeader(definition: GeocoderDefinition): HTMLElement {
         const viewRoomButton = genButtonIcon(
             "fa-map-pin",
             () => {
@@ -74,7 +53,6 @@ export class InfoPane extends Pane {
             "Show room",
         );
         viewRoomButton.classList.add("push-right");
-        header.appendChild(viewRoomButton);
 
         const navButton = genButtonIcon(
             "fa-location-arrow",
@@ -86,6 +64,13 @@ export class InfoPane extends Pane {
             },
             "Navigate",
         );
-        header.appendChild(navButton);
+
+        return (
+            <div className="wrapper header-wrapper">
+                <h2>{definition.getName()}</h2>
+                {viewRoomButton}
+                {navButton}
+            </div>
+        );
     }
 }

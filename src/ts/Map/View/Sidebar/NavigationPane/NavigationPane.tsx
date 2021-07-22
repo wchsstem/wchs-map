@@ -3,30 +3,35 @@ import { divIcon, Map } from "leaflet";
 import { None, Option, Some } from "@nvarner/monads";
 
 import { BuildingLocation } from "../../../../BuildingLocation/BuildingLocation";
-import { genTextInput, genPaneElement } from "../../../../GenHtml/GenHtml";
+import { genPaneElement } from "../../../../GenHtml/GenHtml";
 import { Geocoder } from "../../../../Geocoder/Geocoder";
+import { GeocoderSuggestion } from "../../../../Geocoder/GeocoderSuggestion";
 import { h } from "../../../../JSX";
 import {
     LFloors,
     LSomeLayerWithFloor,
 } from "../../../../LFloorsPlugin/LFloorsPlugin";
 import { Events } from "../../../../events/Events";
-import { clearResults, updateWithResults } from "../../../../utils";
+import { FaIcon } from "../../../../html/custom/FaIcon";
+import { ResultClearer } from "../../../../html/custom/roomSearchBox/ResultClearer";
+import { RoomSearchBox } from "../../../../html/custom/roomSearchBox/RoomSearchBox";
+import { TextBoxWriter } from "../../../../html/custom/textBox/TextBoxWriter";
 import { Pane } from "../Pane";
 import { FlooredMarker, flooredMarker } from "./FlooredMarker";
+import "./navigation-pane.scss";
 
 export class NavigationPane extends Pane {
     private snapPinHandler: (location: BuildingLocation) => BuildingLocation;
 
     private pathLayers: Set<LSomeLayerWithFloor>;
 
+    private readonly fromToResultClearer: ResultClearer;
+
     private fromPin: Option<FlooredMarker>;
     private toPin: Option<FlooredMarker>;
 
-    private readonly fromInput: HTMLInputElement;
-    private readonly toInput: HTMLInputElement;
-    /** Holds search suggestions while typing in the from and to inputs */
-    private readonly resultContainer: HTMLElement;
+    private readonly fromInputWriter: TextBoxWriter;
+    private readonly toInputWriter: TextBoxWriter;
 
     private readonly pane: HTMLElement;
 
@@ -43,74 +48,87 @@ export class NavigationPane extends Pane {
 
         this.pathLayers = new Set();
 
+        this.fromToResultClearer = new ResultClearer();
+
         this.fromPin = None;
         this.toPin = None;
 
         const fromPinButton = (
             <a
-                class="leaflet-style button"
+                className="leaflet-style button"
                 href="#"
                 role="button"
                 title="Choose starting point"
             >
-                <i class="fas fa-map-marker-alt" />
+                <FaIcon faClass="map-marker-alt" />
             </a>
-        ) as HTMLAnchorElement;
-        this.fromInput = genTextInput();
+        );
+        this.fromInputWriter = new TextBoxWriter();
 
         const toPinButton = (
             <a
-                class="leaflet-style button"
+                className="leaflet-style button"
                 href="#"
                 role="button"
                 title="Choose destination"
             >
-                <i class="fas fa-flag-checkered" />
+                <i className="fas fa-flag-checkered" />
             </a>
-        ) as HTMLAnchorElement;
-        this.toInput = genTextInput();
+        );
+        this.toInputWriter = new TextBoxWriter();
 
         const swapToFrom = (
             <a
-                class="leaflet-style button swap-button"
+                className="leaflet-style button swap-button"
                 href="#"
                 role="button"
                 title="Swap to/from"
             >
-                <i class="fas fa-exchange-alt" />
+                <FaIcon faClass="exchange-alt" />
             </a>
-        ) as HTMLAnchorElement;
+        );
 
         const toFromContainer = (
-            <div class="wrapper">
-                <div class="wrapper input-wrapper">
-                    <div class="wrapper">
-                        <label class="leaflet-style no-border nav-label">
-                            From
-                        </label>
+            <div className="navigation-container">
+                <div className="directions-container">
+                    <div className="direction-container">
+                        <label className="leaflet-style no-border">From</label>
                         {fromPinButton}
-                        {this.fromInput}
+                        <RoomSearchBox
+                            geocoder={geocoder}
+                            resultIcon={<FaIcon faClass="location-arrow" />}
+                            onChooseResult={(result: GeocoderSuggestion) => {
+                                this.events.trigger(
+                                    "clickNavigateFromSuggestion",
+                                    result,
+                                );
+                            }}
+                            searchBoxWriter={this.fromInputWriter}
+                            resultClearer={this.fromToResultClearer}
+                        />
                     </div>
-                    <div class="wrapper">
-                        <label class="leaflet-style no-border nav-label">
-                            To
-                        </label>
+                    <div className="direction-container">
+                        <label className="leaflet-style no-border">To</label>
                         {toPinButton}
-                        {this.toInput}
+                        <RoomSearchBox
+                            geocoder={geocoder}
+                            resultIcon={<FaIcon faClass="location-arrow" />}
+                            onChooseResult={(result: GeocoderSuggestion) => {
+                                this.events.trigger(
+                                    "clickNavigateToSuggestion",
+                                    result,
+                                );
+                            }}
+                            searchBoxWriter={this.toInputWriter}
+                            resultClearer={this.fromToResultClearer}
+                        />
                     </div>
                 </div>
                 {swapToFrom}
             </div>
         );
 
-        this.resultContainer = (
-            <div class="wrapper results-wrapper leaflet-style hidden" />
-        );
-
-        this.pane = genPaneElement("Navigation", [
-            toFromContainer,
-            this.resultContainer,
-        ]);
+        this.pane = genPaneElement("Navigation", toFromContainer);
 
         fromPinButton.addEventListener("click", (_event) => {
             const pinLocation = new BuildingLocation(
@@ -128,36 +146,6 @@ export class NavigationPane extends Pane {
         });
 
         swapToFrom.addEventListener("click", (_event) => this.swapNav());
-        this.fromInput.addEventListener("input", async (_event) => {
-            const query = this.fromInput.value;
-            const results = await geocoder.getSuggestionsFrom(query);
-            updateWithResults(
-                query,
-                results,
-                this.resultContainer,
-                (suggestion) => {
-                    this.events.trigger(
-                        "clickNavigateFromSuggestion",
-                        suggestion,
-                    );
-                },
-            );
-        });
-        this.toInput.addEventListener("input", async (_event) => {
-            const query = this.toInput.value;
-            const results = await geocoder.getSuggestionsFrom(query);
-            updateWithResults(
-                query,
-                results,
-                this.resultContainer,
-                (suggestion) => {
-                    this.events.trigger(
-                        "clickNavigateFromSuggestion",
-                        suggestion,
-                    );
-                },
-            );
-        });
     }
 
     public getPaneId(): string {
@@ -208,7 +196,7 @@ export class NavigationPane extends Pane {
 
     /** Remove search suggestions from typing in the navigate from or to fields */
     public clearNavSuggestions(): void {
-        clearResults(this.resultContainer);
+        this.fromToResultClearer.clear();
     }
 
     public clearNav(): void {
@@ -229,11 +217,11 @@ export class NavigationPane extends Pane {
     }
 
     public setNavigateFromInputContents(contents: string): void {
-        this.fromInput.value = contents;
+        this.fromInputWriter.write(contents);
     }
 
     public setNavigateToInputContents(contents: string): void {
-        this.toInput.value = contents;
+        this.toInputWriter.write(contents);
     }
 
     /**
@@ -278,7 +266,7 @@ export class NavigationPane extends Pane {
         onMove: (location: BuildingLocation) => void,
         snapToDefinition: (snapFrom: BuildingLocation) => BuildingLocation,
     ): FlooredMarker {
-        const icon = (<i class="fas"></i>) as HTMLElement;
+        const icon = <i className="fas" />;
         icon.classList.add(iconClass);
 
         const snapLocation = snapToDefinition(location);

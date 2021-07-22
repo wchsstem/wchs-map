@@ -1,9 +1,8 @@
-import { PanelOptions } from "leaflet";
-
 import { Either, Left, None, Option, Right, Some } from "@nvarner/monads";
 
-import { genPaneElement } from "../GenHtml/GenHtml";
-import { h } from "../JSX";
+import { genPaneElement } from "../../../../GenHtml/GenHtml";
+import { h } from "../../../../JSX";
+import { Pane } from "../Pane";
 
 export class Logger {
     /** Queue for logs to post ASAP; left is normal log, right is error log */
@@ -51,17 +50,19 @@ export class Logger {
     }
 }
 
-export class LogPane {
+export class LogPane extends Pane {
     private readonly logs: HTMLElement;
     private readonly pane: HTMLElement;
 
     private constructor(logs: HTMLElement, pane: HTMLElement) {
+        super();
+
         this.logs = logs;
         this.pane = pane;
     }
 
     public static new(): LogPane {
-        const logs = (<ul></ul>) as HTMLUListElement;
+        const logs = <ul />;
         const pane = genPaneElement("Log", logs);
 
         return new LogPane(logs, pane);
@@ -74,21 +75,27 @@ export class LogPane {
 
     public logError(logData: string): void {
         // TODO: Include styling to make these stand out
-        const logElement = <li class="error">{logData}</li>;
+        const logElement = <li className="error">{logData}</li>;
         this.logs.appendChild(logElement);
     }
 
-    public getId(): string {
+    public getPaneId(): string {
         return "log";
     }
 
-    public getPanelOptions(): PanelOptions {
-        return {
-            id: this.getId(),
-            tab: '<i class="fas fa-stream"></i>',
-            title: "Log Pane",
-            pane: this.pane,
-            position: "bottom",
-        };
+    public getPaneIconClass(): string {
+        return "fa-stream";
+    }
+
+    public getPaneTitle(): string {
+        return "Log Pane";
+    }
+
+    public getPaneElement(): HTMLElement {
+        return this.pane;
+    }
+
+    public getPosition(): "top" | "bottom" {
+        return "bottom";
     }
 }

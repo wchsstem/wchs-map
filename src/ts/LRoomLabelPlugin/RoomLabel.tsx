@@ -12,8 +12,8 @@ import { Some, None, Option } from "@nvarner/monads";
 
 import { DefinitionTag } from "../Geocoder/DefinitionTag";
 import { LSomeLayerWithFloor } from "../LFloorsPlugin/LFloorsPlugin";
-import { Logger } from "../LogPane/LogPane";
 import { MapController } from "../Map/Controller/MapController";
+import { Logger } from "../Map/View/Sidebar/LogPane/LogPane";
 import { MapData } from "../MapData";
 import Room from "../Room";
 import { TextMeasurer } from "../TextMeasurer";

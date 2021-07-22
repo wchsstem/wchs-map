@@ -15,4 +15,4 @@ export const BOUNDS = new LatLngBounds(
 );
 
 export const MIN_ZOOM = -1;
-export const MAX_ZOOM = 3;
+export const MAX_ZOOM = 4;
