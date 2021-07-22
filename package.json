@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.1.0",
+    "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^11.1.1",
     "@rollup/plugin-typescript": "^8.2.0",
     "@sourcegraph/lsif-tsc": "^0.6.8",
@@ -54,7 +55,6 @@
     "prettier": "^2.3.1",
     "rollup": "^2.38.4",
     "rollup-plugin-copy": "^2.0.1",
-    "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-progress": "^1.1.2",
     "rollup-plugin-serve": "^1.1.0",
     "rollup-plugin-styles": "^3.14.1",
