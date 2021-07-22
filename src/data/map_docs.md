@@ -93,7 +93,7 @@ Current list of standalone rooms with unknown numbers:
  - x200 (Office)
  - x201 (Storage)
  - x202 (Storage)
- - x203
+ - x203 (Laundry; I don't know why this room exists, but you can see a washer and dryer through a window on the door)
 
 ## Vertex IDs
 Vertex IDs follow a specific pattern based on their location. The IDs chosen are not important for the mapping software,
