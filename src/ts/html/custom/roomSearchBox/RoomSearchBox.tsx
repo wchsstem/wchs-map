@@ -103,7 +103,7 @@ export class RoomSearchBox implements CustomElement {
                 list.appendChild(resultElement);
             }
         } else {
-            const container = <li className="search-result">No results</li>;
+            const container = <li className="no-results">No results</li>;
             list.appendChild(container);
         }
         resultContainer.appendChild(list);
