@@ -28,6 +28,14 @@ between floors, which is acceptable.
 Note: these are called "bathrooms" internally so the initial (R) doesn't conflict with the initial of room (R), but
 these should be called "restrooms" in the UI.
 
+#### Staff bathrooms
+Staff bathrooms should be given a room number in the form of 'SB{gender}{floor number}{id}'. The gender should be 'M' or
+'W' for men's and women's rooms, respectively. The id is a unique two-digit ID identifying the bathroom on the floor.
+
+Current list of staff bathrooms:
+ - SBx200: Bulldog Lobby
+ - SBx201: near central intersection
+
 #### Bathroom Supply Closets (BSCs)
 These should be given a room number in the form of 'BSC{id}'. The id should correspond to its given ID if known, or the
 floor number with the ID of the bathrooms with which it is associated if not.
@@ -42,6 +50,8 @@ on the floor.
 
 Current list of non-room POIs:
  - POI200 (Art Gallery, across from 278 and 276)
+ - POI201 (_Winston_, statue of a bulldog)
+ - POI202 (_"!"_, artwork in the cutout in the floor on the hall between the library and gym)
 
 ##### Water fountains/bottle filling stations
 These should be given a room number in the form 'WF{floor number}{id}', where the id is a unique two-digit ID
