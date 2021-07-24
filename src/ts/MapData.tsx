@@ -591,6 +591,8 @@ export class MapData {
         const layers = new Map();
         let last = path[0];
 
+        const lines: Map<string, LatLng[]> = new Map();
+
         for (const vert of path) {
             const resP = this.graph.getVertex(last);
             if (resP.isNone()) {
@@ -621,9 +623,13 @@ export class MapData {
                         new LLayerGroupWithFloor([], { floorNumber: pFloor }),
                     );
                 }
-                polyline([pLoc.getXY(), qLoc.getXY()], {
-                    color: "#ff0000",
-                }).addTo(layers.get(pFloor));
+
+                const lineArray = fromMap(lines, pFloor).unwrapOr([]);
+                if (lineArray.length == 0) {
+                    lineArray.push(pLoc.getXY());
+                }
+                lineArray.push(qLoc.getXY());
+                lines.set(pFloor, lineArray);
             } else {
                 // Different floor, change floors
                 if (!layers.has(pFloor)) {
@@ -663,6 +669,18 @@ export class MapData {
             }
             last = vert;
         }
+
+        lines.forEach((path, floor) => {
+            const lineLayer = layers.get(floor);
+            polyline(path, {
+                color: "#af2f26",
+                weight: 7,
+            }).addTo(lineLayer);
+            polyline(path, {
+                color: "#f4675d",
+                weight: 4,
+            }).addTo(lineLayer);
+        });
 
         return Ok(new Set(layers.values()));
     }
