@@ -25,8 +25,8 @@ should be invoked once after building the Docker image with
 `map.json` or a floor SVG file.
 
 ### Development
-Run `docker run -p 10001:10001 -v $PWD:/usr/src/map churchill-map npm run watch`
-(`docker run -p 10001:10001 -v $CD:/usr/src/map churchill-map npm run watch` on Windows) to launch the development
+Run `docker run -p 10001:10001 -it -v $PWD:/usr/src/map churchill-map npm run watch`
+(`docker run -p 10001:10001 -it -v $CD:/usr/src/map churchill-map npm run watch` on Windows) to launch the development
 server in a Docker container.
 
 To stop a running container, you may need to run `docker ps` to find the hex string ID of the running container, then
@@ -44,6 +44,6 @@ When you need to run other commands within the Docker container, there are two g
 
 1. Open a terminal with `docker run -p 10001:10001 -it -v $PWD:/usr/src/map churchill-map bash`, then run commands
 2. Put a command at the end of `docker run`, ie.
-`docker run -p 10001:10001 -v $PWD:/usr/src/map churchill-map <your command here>`
+`docker run -p 10001:10001 -it -v $PWD:/usr/src/map churchill-map <your command here>`
 
 On Windows, replace `$PWD` with `$CD`.
