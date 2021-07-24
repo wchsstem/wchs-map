@@ -1,7 +1,7 @@
 import commonjs from "@rollup/plugin-commonjs";
 import copy from "rollup-plugin-copy";
 import html from "@web/rollup-plugin-html";
-import json from "rollup-plugin-json";
+import json from "@rollup/plugin-json";
 import progress from "rollup-plugin-progress";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import styles from "rollup-plugin-styles";

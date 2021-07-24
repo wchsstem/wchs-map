@@ -6,7 +6,7 @@ import { createInjector } from "@nvarner/fallible-typed-inject";
 import "../../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../assets/fontawesome/all.min.css";
-import * as mapDataJson from "../data/map_compiled.json";
+import mapDataJson from "../data/map_compiled.json";
 import "../style.scss";
 import { DeveloperModeService } from "./DeveloperModeService";
 import { Geocoder } from "./Geocoder/Geocoder";

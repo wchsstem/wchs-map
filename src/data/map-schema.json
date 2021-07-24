@@ -132,6 +132,8 @@
                      "closed",
                      "women-bathroom",
                      "men-bathroom",
+                     "staff-women-bathroom",
+                     "staff-men-bathroom",
                      "unknown-bathroom",
                      "bsc",
                      "ec",
