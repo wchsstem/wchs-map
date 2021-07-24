@@ -33,8 +33,9 @@ Staff bathrooms should be given a room number in the form of 'SB{gender}{floor n
 'W' for men's and women's rooms, respectively. The id is a unique two-digit ID identifying the bathroom on the floor.
 
 Current list of staff bathrooms:
- - SBx200: Bulldog Lobby
- - SBx201: near central intersection
+ - SBx200: upstairs Bulldog Lobby
+ - SBx201: upstairs near central intersection
+ - SBx100: downstairs Bulldog Lobby
 
 #### Bathroom Supply Closets (BSCs)
 These should be given a room number in the form of 'BSC{id}'. The id should correspond to its given ID if known, or the
@@ -100,6 +101,9 @@ if at all possible, because these room numbers are really placeholders and will 
 
 Current list of standalone rooms with unknown numbers:
  - x100 (Attendance Office)
+ - x101 (Air Filter Storage Room)
+ - x102 (Probably a storage closet)
+ - x103 (Probably a storage closet)
  - x200 (Office)
  - x201 (Storage)
  - x202 (Storage)
