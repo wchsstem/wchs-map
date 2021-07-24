@@ -35,7 +35,7 @@ build:
   script:
     - 'echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin'
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - id=$(docker run -d --rm churchill-map tail -f /dev/null)
+    - id=$(docker run -d --rm $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA tail -f /dev/null)
     - docker exec $id npm run build
     - docker cp $id:/usr/src/map/dist dist
     - docker stop $id -t 1
@@ -51,7 +51,7 @@ doc:
   script:
     - 'echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin'
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - id=$(docker run -d --rm churchill-map tail -f /dev/null)
+    - id=$(docker run -d --rm $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA tail -f /dev/null)
     - docker exec $id npm run doc
     - docker cp $id:/usr/src/map/docs docs
     - docker stop $id -t 1
@@ -68,7 +68,7 @@ code_navigation:
   script:
     - 'echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin'
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - id=$(docker run -d --rm churchill-map tail -f /dev/null)
+    - id=$(docker run -d --rm $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA tail -f /dev/null)
     - docker exec $id npm run gen-code-nav
     - docker cp $id:/usr/src/map/dump.lsif dump.lsif
     - docker stop $id -t 1
@@ -85,7 +85,7 @@ lint:
   script:
     - 'echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin'
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - docker run churchill-map npm run lint
+    - docker run $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA npm run lint
 
 sast:
   stage: check
@@ -101,7 +101,7 @@ test:
   script:
     - 'echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin'
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - id=$(docker run -d --rm churchill-map tail -f /dev/null)
+    - id=$(docker run -d --rm $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA tail -f /dev/null)
     - docker exec $id npm run test-ci
     - docker cp $id:/usr/src/map/junit.xml junit.xml
     - docker cp $id:/usr/src/map/coverage/ coverage/
