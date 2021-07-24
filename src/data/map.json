@@ -290,6 +290,14 @@
             "floor": "1",
             "location": [562.875, 162.375]
         },
+        "H2:14": {
+            "floor": "1",
+            "location": [558, 206.125]
+        },
+        "H2:15": {
+            "floor": "1",
+            "location": [558, 279.375]
+        },
         "H3:0": {
             "floor": "1",
             "location": [494.25, 66.75]
@@ -749,6 +757,22 @@
             "floor": "1",
             "location": [260, 213.25]
         },
+        "H8:30": {
+            "floor": "1",
+            "location": [225.75, 216.625]
+        },
+        "Rx101:0": {
+            "floor": "1",
+            "location": [231.5, 216.625]
+        },
+        "Rx102:0": {
+            "floor": "1",
+            "location": [569.625, 279.375]
+        },
+        "Rx103:0": {
+            "floor": "1",
+            "location": [567.375, 206.125]
+        },
         "H9:0": {
             "floor": "1",
             "location": [485.5, 57]
@@ -849,6 +873,10 @@
             "floor": "1",
             "location": [465, 55]
         },
+        "H9:24": {
+            "floor": "1",
+            "location": [193.75, 43.25]
+        },
         "H10:0": {
             "floor": "1",
             "location": [147.75, 32.75]
@@ -861,6 +889,14 @@
             "floor": "1",
             "location": [567.5, 186.75]
         },
+        "RSBM100:0": {
+            "floor": "1",
+            "location": [348, 63.75]
+        },
+        "RSBW100:0": {
+            "floor": "1",
+            "location": [384, 63.75]
+        },
         "RAHU101:0": {
             "floor": "1",
             "location": [147.75, 139.625]
@@ -868,6 +904,10 @@
         "RAHU102:0": {
             "floor": "1",
             "location": [147.75, 35.875]
+        },
+        "RAHU3:0": {
+            "floor": "1",
+            "location": [205.25, 37.125]
         },
         "RAHU104:0": {
             "floor": "1",
@@ -937,6 +977,10 @@
             "floor": "1",
             "location": [474.5, 271.875]
         },
+        "RCP2:0": {
+            "floor": "1",
+            "location": [436.375, 280.625]
+        },
         "REC1:0": {
             "floor": "1",
             "location": [465, 60]
@@ -952,6 +996,10 @@
         "REC6:0": {
             "floor": "1",
             "location": [132.375, 191.75]
+        },
+        "REC9:0": {
+            "floor": "1",
+            "location": [205.25, 43.25]
         },
         "REC10:0": {
             "floor": "1",
@@ -3418,8 +3466,7 @@
         ["H1:10", "H1:11"],
         ["H1:10", "H1:12"],
         ["H1:10", "I1:9:0"],
-        ["I2:7:0", "H2:0"],
-        ["H2:0", "H2:1"],
+        ["H2:0", "I2:7:0"],
         ["H2:1", "R148:1"],
         ["H2:1", "H2:2"],
         ["H2:2", "R151:0"],
@@ -3429,7 +3476,6 @@
         ["H2:4", "R149:1"],
         ["H2:4", "H2:5"],
         ["H2:5", "R146:0"],
-        ["H2:5", "H2:6"],
         ["H2:6", "R149:0"],
         ["H2:6", "H2:7"],
         ["H2:7", "I2:8:0"],
@@ -3571,7 +3617,6 @@
         ["H8:26", "RWF102:0"],
         ["H8:1", "R128C:0"],
         ["H8:1", "H8:4"],
-        ["H8:4", "H8:5"],
         ["H8:5", "R139:0"],
         ["H8:5", "R141:0"],
         ["H8:4", "H8:2"],
@@ -4061,7 +4106,6 @@
         ["H9:20", "H9:16"],
         ["H9:21", "H9:14"],
         ["H9:21", "I4:9:0"],
-        ["H9:21", "H9:22"],
         ["H9:22", "RHS107:0"],
         ["I4:6:1", "RHS108:0"],
         ["R137:1", "RHS109:0"],
@@ -4248,7 +4292,23 @@
         ["H11:29", "H11:30"],
         ["H11:29", "I11:14:0"],
         ["H11:29", "R274:0"],
-        ["H11:31", "H11:30"]
+        ["H11:31", "H11:30"],
+        ["H2:15", "H2:0"],
+        ["H2:15", "Rx102:0"],
+        ["H2:15", "H2:1"],
+        ["H2:14", "H2:5"],
+        ["H2:14", "Rx103:0"],
+        ["H2:14", "H2:6"],
+        ["H1:11", "RSBM100:0"],
+        ["H1:12", "RSBW100:0"],
+        ["H8:30", "H8:5"],
+        ["H8:30", "Rx101:0"],
+        ["H8:30", "H8:4"],
+        ["RCP2:0", "I1:7:1"],
+        ["H9:24", "H9:21"],
+        ["H9:24", "REC9:0"],
+        ["H9:24", "H9:22"],
+        ["H9:22", "RAHU3:0"]
     ],
     "rooms": {
         "100": {
@@ -5185,6 +5245,11 @@
             "names": ["AHU-2", "Air Handling Unit 2", "HVAC"],
             "tags": ["ahu"]
         },
+        "AHU3": {
+            "vertices": ["RAHU3:0"],
+            "names": ["AHU-3", "Air Handling Unit 3", "HVAC"],
+            "tags": ["ahu"]
+        },
         "AHU4": {
             "vertices": ["RAHU104:0"],
             "names": ["AHU-4", "Air Handling Unit 4", "HVAC"],
@@ -5341,6 +5406,20 @@
             ],
             "tags": ["closed", "men-bathroom"]
         },
+        "SBM100": {
+            "vertices": ["RSBM100:0"],
+            "names": [
+                "Staff Men's Restroom (Downstairs Bulldog Lobby)", "Staff Men's Bathroom (Downstairs Bulldog Lobby)"
+            ],
+            "tags": ["staff-men-bathroom"]
+        },
+        "SBW100": {
+            "vertices": ["RSBW100:0"],
+            "names": [
+                "Staff Women's Restroom (Downstairs Bulldog Lobby)", "Staff Women's Bathroom (Downstairs Bulldog Lobby)"
+            ],
+            "tags": ["staff-women-bathroom"]
+        },
         "SBM200": {
             "vertices": ["RSBM200:0"],
             "names": [
@@ -5369,6 +5448,11 @@
             ],
             "tags": ["staff-women-bathroom"]
         },
+        "CP2": {
+            "vertices": ["RCP2:0"],
+            "names": ["CP-2", "Control Panel 2"],
+            "tags": ["cp"]
+        },
         "EC1": {
             "vertices": ["REC1:0"],
             "names": ["EC-1", "Electrical Closet 1"],
@@ -5387,6 +5471,11 @@
         "EC6": {
             "vertices": ["REC6:0"],
             "names": ["EC-6", "Electrical Closet 6"],
+            "tags": ["ec"]
+        },
+        "EC9": {
+            "vertices": ["REC9:0"],
+            "names": ["EC-9", "Electrical Closet 9"],
             "tags": ["ec"]
         },
         "EC10": {
@@ -5685,6 +5774,18 @@
         "x100": {
             "vertices": ["Rx100:0", "Rx100:1"],
             "names": ["Attendance Office"]
+        },
+        "x101": {
+            "vertices": ["Rx101:0"],
+            "names": ["Air Filter Storage Room"]
+        },
+        "x102": {
+            "vertices": ["Rx102:0"],
+            "names": ["Closet"]
+        },
+        "x103": {
+            "vertices": ["Rx103:0"],
+            "names": ["Closet"]
         },
         "x200": {
             "vertices": ["Rx200:0"],
