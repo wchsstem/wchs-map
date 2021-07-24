@@ -26,10 +26,6 @@ build_image:
     - docker pull $CI_REGISTRY_IMAGE:latest || true
     - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-  artifacts:
-    paths:
-      # Give access to image to later jobs without needing to pull
-      - /var/lib/docker/
 
 # build stage
 build:
@@ -38,6 +34,7 @@ build:
   variables:
     GIT_STRATEGY: none
   script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - id=$(docker run -d --rm churchill-map tail -f /dev/null)
     - docker exec $id npm run build
     - docker cp $id:/usr/src/map/dist dist
@@ -50,6 +47,7 @@ doc:
   stage: build
   needs: [build_image]
   script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - id=$(docker run -d --rm churchill-map tail -f /dev/null)
     - docker exec $id npm run doc
     - docker cp $id:/usr/src/map/docs docs
@@ -63,6 +61,7 @@ code_navigation:
   needs: [build_image]
   allow_failure: true
   script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - id=$(docker run -d --rm churchill-map tail -f /dev/null)
     - docker exec $id npm run gen-code-nav
     - docker cp $id:/usr/src/map/dump.lsif dump.lsif
@@ -76,6 +75,7 @@ lint:
   stage: check
   needs: [build_image]
   script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker run churchill-map npm run lint
 
 sast:
@@ -88,6 +88,7 @@ test:
   stage: check
   needs: [build_image]
   script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - id=$(docker run -d --rm churchill-map tail -f /dev/null)
     - docker exec $id npm run test-ci
     - docker cp $id:/usr/src/map/junit.xml junit.xml
