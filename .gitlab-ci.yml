@@ -133,6 +133,7 @@ test:
 # Deploy stage
 deploy-app:
   stage: deploy
+  image: buildpack-deps:21.04
   variables:
     GIT_STRATEGY: none
   script:
@@ -147,7 +148,6 @@ deploy-app:
 # deploy docs (called pages so docs end up on GitLab Pages)
 pages:
   stage: deploy
-  image: buildpack-deps:21.04
   variables:
     GIT_STRATEGY: none
   script:
