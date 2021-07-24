@@ -10,12 +10,6 @@ services:
 include:
   - template: Security/SAST.gitlab-ci.yml
 
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - .npm/
-    - node_modules/
-
 stages:
   - build_image
   - build
@@ -27,7 +21,7 @@ build_image:
   stage: build_image
   needs: []
   script:
-    - echo $CI_REGISTRY
+    - docker info
     - 'echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin'
     - docker pull $CI_REGISTRY_IMAGE:latest || true
     - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
