@@ -12,6 +12,7 @@ include:
 
 stages:
   - build_image
+  - mark_image
   - build
   - check
   - deploy
@@ -26,8 +27,9 @@ build_image:
     - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
 
+# mark_image stage
 mark_latest:
-  stage: build_image
+  stage: mark_image
   needs: [build_image]
   variables:
     GIT_STRATEGY: none
