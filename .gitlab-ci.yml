@@ -21,7 +21,6 @@ build_image:
   stage: build_image
   needs: []
   script:
-    - docker info
     - 'echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin'
     - docker pull $CI_REGISTRY_IMAGE:latest || true
     - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
@@ -34,6 +33,7 @@ build:
   variables:
     GIT_STRATEGY: none
   script:
+    - 'echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin'
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - id=$(docker run -d --rm churchill-map tail -f /dev/null)
     - docker exec $id npm run build
@@ -46,7 +46,10 @@ build:
 doc:
   stage: build
   needs: [build_image]
+  variables:
+    GIT_STRATEGY: none
   script:
+    - 'echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin'
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - id=$(docker run -d --rm churchill-map tail -f /dev/null)
     - docker exec $id npm run doc
@@ -60,7 +63,10 @@ code_navigation:
   stage: build
   needs: [build_image]
   allow_failure: true
+  variables:
+    GIT_STRATEGY: none
   script:
+    - 'echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin'
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - id=$(docker run -d --rm churchill-map tail -f /dev/null)
     - docker exec $id npm run gen-code-nav
@@ -74,7 +80,10 @@ code_navigation:
 lint:
   stage: check
   needs: [build_image]
+  variables:
+    GIT_STRATEGY: none
   script:
+    - 'echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin'
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker run churchill-map npm run lint
 
@@ -87,7 +96,10 @@ sast:
 test:
   stage: check
   needs: [build_image]
+  variables:
+    GIT_STRATEGY: none
   script:
+    - 'echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin'
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - id=$(docker run -d --rm churchill-map tail -f /dev/null)
     - docker exec $id npm run test-ci
@@ -106,6 +118,8 @@ test:
 # Deploy stage
 deploy-app:
   stage: deploy
+  variables:
+    GIT_STRATEGY: none
   script:
   - apt update -qq && apt install -y -qq lftp
   - lftp -e "set ssl:verify-certificate no; mirror -R dist ." -u $FTP_USERNAME,$FTP_PASSWORD $FTP_HOST 
@@ -118,6 +132,8 @@ deploy-app:
 # deploy docs (called pages so docs end up on GitLab Pages)
 pages:
   stage: deploy
+  variables:
+    GIT_STRATEGY: none
   script:
     - mv docs/ public/
   artifacts:
