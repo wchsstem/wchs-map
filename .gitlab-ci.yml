@@ -1,4 +1,4 @@
-image: node:12
+image: docker:20
 
 variables:
   SAST_EXCLUDED_ANALYZERS: "nodejs-scan, semgrep"
@@ -13,67 +13,61 @@ cache:
     - node_modules/
 
 stages:
-  - install_deps
-  - prebuild
+  - build_image
   - build
   - check
   - deploy
 
-# install_deps stage
-install_npm_deps:
-  stage: install_deps
+# build_image stage
+build_image:
+  stage: build_image
   needs: []
   script:
-    - unset NODE_ENV
-    - npm ci --cache .npm --prefer-offline --unsafe-perm=true --allow-root --loglevel verbose
-
-install_compile_map_json:
-  stage: install_deps
-  needs: []
-  script:
-    - wget https://gitlab.com/wchs-map/indoor-map-lib/-/jobs/artifacts/master/raw/target/release/compile_map_json?job=build -O compile_map_json
-    - chmod +x compile_map_json
+    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - docker build --pull --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
   artifacts:
     paths:
-      - compile_map_json
-
-# prebuild stage
-compile_map_json:
-  stage: prebuild
-  needs: [install_npm_deps, install_compile_map_json]
-  script:
-    - export PATH="$PATH:./"
-    - npm run compileMapJson
-  artifacts:
-    paths:
-      - src/data/map_compiled.json
+      # Give access to image to later jobs without needing to pull
+      - /var/lib/docker/
 
 # build stage
 build:
   stage: build
-  needs: [install_npm_deps, compile_map_json]
+  needs: [build_image]
+  variables:
+    GIT_STRATEGY: none
   script:
-    - npm run build
+    - id=$(docker run -d --rm churchill-map tail -f /dev/null)
+    - docker exec $id npm run build
+    - docker cp $id:/usr/src/map/dist dist
+    - docker stop $id -t 1
   artifacts:
     paths:
       - dist/
 
 doc:
   stage: build
-  # tsdoc freaks out if it can't find map_compiled.json
-  needs: [install_npm_deps, compile_map_json]
+  needs: [build_image]
   script:
-    - npm run doc
+    - id=$(docker run -d --rm churchill-map tail -f /dev/null)
+    - docker exec $id npm run doc
+    - docker cp $id:/usr/src/map/docs docs
+    - docker stop $id -t 1
   artifacts:
     paths:
       - docs/
 
 code_navigation:
   stage: build
-  needs: [install_npm_deps, compile_map_json]
+  needs: [build_image]
   allow_failure: true
   script:
-    - npm run gen-code-nav
+    - id=$(docker run -d --rm churchill-map tail -f /dev/null)
+    - docker exec $id npm run gen-code-nav
+    - docker cp $id:/usr/src/map/dump.lsif dump.lsif
+    - docker stop $id -t 1
   artifacts:
     reports:
       lsif: dump.lsif
@@ -81,9 +75,9 @@ code_navigation:
 # Check stage
 lint:
   stage: check
-  needs: [install_npm_deps]
+  needs: [build_image]
   script:
-    - npm run lint
+    - docker run churchill-map npm run lint
 
 sast:
   stage: check
@@ -93,9 +87,13 @@ sast:
 
 test:
   stage: check
-  needs: [install_npm_deps]
+  needs: [build_image]
   script:
-    - npm run test-ci
+    - id=$(docker run -d --rm churchill-map tail -f /dev/null)
+    - docker exec $id npm run test-ci
+    - docker cp $id:/usr/src/map/junit.xml junit.xml
+    - docker cp $id:/usr/src/map/coverage/ coverage/
+    - docker stop $id -t 1
   artifacts:
     when: always
     paths:

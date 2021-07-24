@@ -16,6 +16,14 @@ have to rebuild if dependencies are added, removed, or updated, or if the `indoo
 Run `docker build -t churchill-map .` to build the image. The first build is slow; subsequent builds will use a cache
 and be much faster.
 
+### Compiling map JSON
+There is a build step that "compiles" `map.json` and the various SVG floor files into `map_compiled.json`. The tool that
+does this is part of the `indoor_map_lib` Rust library. It used to be written in TypeScript, but was too slow. This tool
+should be invoked once after building the Docker image with
+`docker run -v $PWD:/usr/src/map churchill-map npm run compileMapJson`
+(`docker run -v $CD:/usr/src/map churchill-map npm run compileMapJson` on Windows) and after changes are made to
+`map.json` or a floor SVG file.
+
 ### Development
 Run `docker run -p 10001:10001 -v $PWD:/usr/src/map churchill-map npm run watch`
 (`docker run -p 10001:10001 -v $CD:/usr/src/map churchill-map npm run watch` on Windows) to launch the development
@@ -24,6 +32,18 @@ server in a Docker container.
 To stop a running container, you may need to run `docker ps` to find the hex string ID of the running container, then
 run `docker stop <hex string ID>` to force it to exit.
 
+If you need to get a terminal inside the container for debugging purposes, run
+`docker run -p 10001:10001 -it -v $PWD:/usr/src/map churchill-map bash`
+
 ### Production
-Run `docker run -p 10001:10001 -v $PWD:/usr/src/map -e "NODE_ENV=production" churchill-map npm run build` to generate a
+Run `docker run -v $PWD:/usr/src/map -e "NODE_ENV=production" churchill-map npm run build` to generate a
 production build.
+
+### How to run commands in Docker in general
+When you need to run other commands within the Docker container, there are two general methods of doing so.
+
+1. Open a terminal with `docker run -p 10001:10001 -it -v $PWD:/usr/src/map churchill-map bash`, then run commands
+2. Put a command at the end of `docker run`, ie.
+`docker run -p 10001:10001 -v $PWD:/usr/src/map churchill-map <your command here>`
+
+On Windows, replace `$PWD` with `$CD`.

@@ -15,7 +15,8 @@
     "serve-build": "rollup -c && npx serve dist",
     "watch": "rollup -c rollup.dev.config.js -w",
     "doc": "typedoc --out docs --includeVersion src/ts/*",
-    "gen-code-nav": "npx lsif-tsc -p ."
+    "gen-code-nav": "npx lsif-tsc -p .",
+    "who": "whoami"
   },
   "keywords": [],
   "author": "Nathan Varner",
