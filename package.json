@@ -1,6 +1,6 @@
 {
   "name": "churchill-map",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "",
   "private": true,
   "scripts": {
@@ -12,11 +12,10 @@
     "check": "tsc --noEmit --strict --noFallthroughCasesInSwitch",
     "fmt": "prettier --config .prettierrc.json 'src/**/*.(ts|tsx)' --write",
     "build": "rollup -c",
-    "serve-build": "rollup -c && npx serve dist",
+    "serve-build": "rollup -c && npx serve dist -l 10001",
     "watch": "rollup -c rollup.dev.config.js -w",
     "doc": "typedoc --out docs --includeVersion src/ts/*",
-    "gen-code-nav": "npx lsif-tsc -p .",
-    "who": "whoami"
+    "gen-code-nav": "npx lsif-tsc -p ."
   },
   "keywords": [],
   "author": "Nathan Varner",
