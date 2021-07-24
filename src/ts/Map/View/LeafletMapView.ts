@@ -49,6 +49,11 @@ export class LeafletMapView implements MapView {
         this.sidebar.setSnapPinHandler(snapPin);
     }
 
+    public goTo(location: BuildingLocation): void {
+        this.map.flyTo(location.getXY());
+        this.floors.setFloor(location.getFloor());
+    }
+
     private goToDefinition(definition: GeocoderDefinition): void {
         const location = definition.getLocation();
         this.map.fitBounds(

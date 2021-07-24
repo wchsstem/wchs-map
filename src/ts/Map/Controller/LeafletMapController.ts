@@ -118,6 +118,10 @@ export class LeafletMapController implements MapController {
         this.view.moveToPin(location);
     }
 
+    public goTo(location: BuildingLocation): void {
+        this.view.goTo(location);
+    }
+
     public focusOnDefinition(definition: GeocoderDefinition): void {
         this.view.focusOnDefinition(definition);
     }
@@ -126,7 +130,10 @@ export class LeafletMapController implements MapController {
         this.view.clearNav();
         const path = this.mapData.findBestPath(from, to);
         path.ifSome((path) => {
-            const resPathLayers = this.mapData.createLayerGroupsFromPath(path);
+            const resPathLayers = this.mapData.createLayerGroupsFromPath(
+                path,
+                (location: BuildingLocation) => this.goTo(location),
+            );
             resPathLayers.match({
                 ok: (pathLayers) => this.view.displayNav(pathLayers),
                 err: (error) =>

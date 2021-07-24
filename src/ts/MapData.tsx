@@ -586,6 +586,7 @@ export class MapData {
      */
     public createLayerGroupsFromPath(
         path: number[],
+        moveTo: (location: BuildingLocation) => void,
     ): Result<Set<LSomeLayerWithFloor>, string> {
         const layers = new Map();
         let last = path[0];
@@ -653,12 +654,12 @@ export class MapData {
                     html: <i className={iconClass} />,
                     className: "icon nav",
                 });
-                marker(pLoc.getXY(), { icon: stairIcon }).addTo(
-                    layers.get(pFloor),
-                );
-                marker(qLoc.getXY(), { icon: stairIcon }).addTo(
-                    layers.get(qFloor),
-                );
+                marker(pLoc.getXY(), { icon: stairIcon })
+                    .on("click", () => moveTo(qLoc))
+                    .addTo(layers.get(pFloor));
+                marker(qLoc.getXY(), { icon: stairIcon })
+                    .on("click", () => moveTo(pLoc))
+                    .addTo(layers.get(qFloor));
             }
             last = vert;
         }

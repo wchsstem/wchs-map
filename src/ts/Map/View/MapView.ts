@@ -16,6 +16,9 @@ export interface MapView {
         snapPin: (location: BuildingLocation) => BuildingLocation,
     ): void;
 
+    /** Move the map's focus to a location */
+    goTo(location: BuildingLocation): void;
+
     /** Move the map's focus to a definition and display info about it */
     focusOnDefinition(definition: GeocoderDefinition): void;
 
