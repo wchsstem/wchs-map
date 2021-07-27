@@ -1,4 +1,10 @@
-import { isArgumentatedUrl } from "../../ts/url/UrlParser";
+/**
+ * @jest-environment jsdom
+ */
+import { LatLng } from "leaflet";
+
+import { BuildingLocation } from "../../ts/BuildingLocation/BuildingLocation";
+import { isArgumentatedUrl, parseUrl } from "../../ts/url/UrlParser";
 
 describe("isArgumentatedUrl()", () => {
     test("returns url that has no arguments or marker", () => {
@@ -42,5 +48,18 @@ describe("isArgumentatedUrl()", () => {
             "www.example.com/#/pos:(ten,twenty,two)",
         );
         expect(isArg).toBe<boolean>(false);
+    });
+});
+
+describe("parseUrl()", () => {
+    test("returns basic parsed url", () => {
+        const latlng: LatLng = new LatLng(10, 20);
+        const trueLoc: BuildingLocation = new BuildingLocation(latlng, "2");
+
+        const parsedLoc: BuildingLocation = parseUrl(
+            "www.example.com/#/pos:(10,20,2)4234234",
+        );
+
+        expect(parsedLoc).toStrictEqual(trueLoc);
     });
 });

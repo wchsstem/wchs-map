@@ -12,13 +12,16 @@ export function isArgumentatedUrl(url: string): boolean {
 }
 
 export function parseUrl(url: string): BuildingLocation {
-    const startInd: number = url.lastIndexOf("pos:(");
+    const posStart = "pos:(";
+    const startInd: number = url.lastIndexOf(posStart) + posStart.length;
     const clippedString: string = url.substring(startInd);
 
-    const endInd: number = url.lastIndexOf(")");
+    const posEnd = ")";
+    const endInd: number = clippedString.indexOf(posEnd);
     const dataString: string = clippedString.substring(0, endInd);
 
     const data: string[] = dataString.split(",");
+    console.log(data);
     const x: number = +data[0];
     const y: number = +data[1];
     const floor: string = data[2];
