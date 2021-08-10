@@ -53,11 +53,11 @@ describe("isArgumentatedUrl()", () => {
 
 describe("parseUrl()", () => {
     test("returns basic parsed url", () => {
-        const latlng: LatLng = new LatLng(10, 20);
+        const latlng: LatLng = new LatLng(20, 10);
         const trueLoc: BuildingLocation = new BuildingLocation(latlng, "2");
 
         const parsedLoc: BuildingLocation = parseUrl(
-            "www.example.com/#/pos:(10,20,2)4234234",
+            "www.example.com/#/pos:(10,20,2)nonsense_text",
         );
 
         expect(parsedLoc).toStrictEqual(trueLoc);
