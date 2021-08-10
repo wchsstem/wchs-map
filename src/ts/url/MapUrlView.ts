@@ -1,21 +1,24 @@
 import { Map } from "leaflet";
 
 import { BuildingLocation } from "../BuildingLocation/BuildingLocation";
+import { LFloors } from "../LFloorsPlugin/LFloorsPlugin";
 import { isArgumentatedUrl, parseUrl } from "./UrlParser";
 
 const zoomLevel = 5;
-function setViewToBuildLoc(map: Map, loc: BuildingLocation): void {
-    console.log(loc.getXY());
+function setViewToBuildLoc(
+    map: Map,
+    floors: LFloors,
+    loc: BuildingLocation,
+): void {
+    //Handles floor controls
+    floors.setFloor(loc.getFloor());
     map.setView(loc.getXY(), zoomLevel);
 }
 
-export function setMapUrlView(map: Map, url: string): void {
-    console.log(url);
+export function setMapUrlView(map: Map, floors: LFloors, url: string): void {
     const isArgumentated: boolean = isArgumentatedUrl(url);
-    console.log(isArgumentated);
     if (isArgumentated) {
         const loc: BuildingLocation = parseUrl(url);
-        console.log(loc);
-        setViewToBuildLoc(map, loc);
+        setViewToBuildLoc(map, floors, loc);
     }
 }

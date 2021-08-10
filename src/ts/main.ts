@@ -136,7 +136,7 @@ function main(): void {
         .forEach((layer) => floors.addLayer(layer));
 
     // Sets the map view if url is argumentated
-    setMapUrlView(map, window.location.href);
+    setMapUrlView(map, floors, window.location.href);
 
     // Set up developer mode
     injector.injectClass(DeveloperModeService);
