@@ -25,8 +25,7 @@ export function parseUrl(url: string): BuildingLocation {
     const y: number = +data[1];
     const floor: string = data[2];
 
-    //While it isn't necessarily suited for this data, I think this class works
-    const latlng: LatLng = new LatLng(x, y);
+    const latlng: LatLng = new LatLng(y, x);
     const outBuilding: BuildingLocation = new BuildingLocation(latlng, floor);
     return outBuilding;
 }
