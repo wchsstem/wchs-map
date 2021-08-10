@@ -32,6 +32,7 @@ import { ATTRIBUTION } from "./config";
 import { Events } from "./events/Events";
 import { CustomElementCreator } from "./html/CustomElementCreator";
 import { Settings } from "./settings/Settings";
+import { setMapUrlView } from "./url/MapUrlView";
 import { goRes } from "./utils";
 
 function main(): void {
@@ -133,6 +134,9 @@ function main(): void {
             }),
         )
         .forEach((layer) => floors.addLayer(layer));
+
+    // Sets the map view if url is argumentated
+    setMapUrlView(map, window.location.href);
 
     // Set up developer mode
     injector.injectClass(DeveloperModeService);
