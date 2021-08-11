@@ -9,3 +9,5 @@ junit.xml
 coverage/
 # Created by `gen-code-nav` on GitLab CI
 dump.lsif
+# Created by `npm run compile-json-svg`
+src/assets/map/
