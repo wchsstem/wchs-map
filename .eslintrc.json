@@ -24,12 +24,7 @@
             "argsIgnorePattern": "^_",
             "varsIgnorePattern": "^_|^h$"
         }],
-        "prettier/prettier": [
-			"error",
-			{
-				"endOfLine": "auto"
-			}
-		],
+        "prettier/prettier": ["error"],
         "complexity": ["error", 10],
         "@typescript-eslint/array-type": ["error"],
         "@typescript-eslint/explicit-function-return-type": ["error", {
