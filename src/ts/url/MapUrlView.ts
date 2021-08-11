@@ -10,7 +10,7 @@ function setViewToBuildLoc(
     floors: LFloors,
     loc: BuildingLocation,
 ): void {
-    //Handles floor controls
+    // Handles floor controls
     floors.setFloor(loc.getFloor());
     map.setView(loc.getXY(), zoomLevel);
 }
