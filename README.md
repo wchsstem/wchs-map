@@ -13,7 +13,7 @@ A Docker image is basically a snapshot of a computer that was set up according t
 changes, the image should be rebuilt, but if it hasn't changed, you (usually) won't need to rebuild the image. You will
 have to rebuild if dependencies are added, removed, or updated, or if the `indoor_map_lib` Rust tool is updated.
 
-Run `docker build -t churchill-map --build-arg CACHE_BUST=$(date +%s) .` to build the image. The first build is slow; subsequent builds will use a cache
+Run `docker build -t churchill-map .` to build the image. The first build is slow; subsequent builds will use a cache
 and be much faster.
 
 ### Compiling map JSON and SVGs
