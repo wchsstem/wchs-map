@@ -59,9 +59,13 @@ export class LFloors extends LayerGroup {
 
         const floorImages = allFloorData
             .map((floorData) =>
-                imageOverlay(floorData.image, map.getBounds(), {
-                    pane: "tilePane",
-                }),
+                imageOverlay(
+                    `assets/map/${floorData.number}/base.svg`,
+                    map.getBounds(),
+                    {
+                        pane: "tilePane",
+                    },
+                ),
             )
             .map((image) => layerGroup([image]));
 

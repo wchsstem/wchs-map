@@ -20,7 +20,7 @@ import { TextMeasurer } from "../TextMeasurer";
 import { Vertex } from "../Vertex";
 import { ICON_FOR_ROOM_TAG, ICON_FOR_VERTEX_TAG } from "../config";
 import { ISettings } from "../settings/ISettings";
-import { Outline, OutlineLayer } from "./OutlineLayer";
+import { Outline, OutlineClickHandler } from "./OutlineClickHandler";
 import { IconLabel } from "./label/IconLabel";
 import { Label, LabelLayer, isClickable } from "./label/LabelLayer";
 import { TextLabel } from "./label/TextLabel";
@@ -36,6 +36,8 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
     private readonly infrastructureLabels: Label[];
     private readonly emergencyLabels: Label[];
     private readonly closedLabels: Label[];
+
+    private readonly outlineClickHandler: OutlineClickHandler;
 
     private removeWatcher: Option<(newValue: unknown) => void>;
     private labelLayer: LabelLayer | undefined;
@@ -110,6 +112,7 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
                 }
             }
         }
+        this.outlineClickHandler = new OutlineClickHandler(outlines, logger);
 
         vertices
             .filter((vertex) => vertex.getLocation().getFloor() === floorNumber)
@@ -129,21 +132,6 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
             weight: 900,
         });
         fontAwesome.load("\uf462").then(() => {
-            const outlineLayer = new OutlineLayer(
-                {
-                    outlines: outlines,
-                    minZoom: -Infinity,
-                    maxZoom: Infinity,
-                    minNativeZoom: this.options.minNativeZoom,
-                    maxNativeZoom: this.options.maxNativeZoom,
-                    bounds: this.options.bounds,
-                    pane: "overlayPane",
-                    tileSize: 2048,
-                },
-                logger,
-            );
-            super.addLayer(outlineLayer);
-
             this.createLabelLayer();
 
             const recreateLabelLayer = (): void => this.createLabelLayer();
@@ -189,6 +177,10 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
         return this.floorNumber;
     }
 
+    private onMapClick(e: LeafletMouseEvent): void {
+        this.outlineClickHandler.clickOutline(e);
+    }
+
     public onAdd(map: LMap): this {
         super.onAdd(map);
 
@@ -203,6 +195,8 @@ export class RoomLabel extends LayerGroup implements LSomeLayerWithFloor {
 
         this.settings.addWatcher("show-markers", watcher);
         this.removeWatcher = Some(watcher);
+
+        map.on("click", (e) => this.onMapClick(e as LeafletMouseEvent));
 
         return this;
     }

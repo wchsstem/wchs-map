@@ -11,11 +11,15 @@ ENV CARGO_INSTALL_ROOT="/usr/"
 RUN npm config set user 0
 RUN npm config set unsafe-perm true
 
-# Build and install indoor_map_lib code
-RUN mkdir tmp
-RUN git clone https://gitlab.com/wchs-map/indoor-map-lib.git tmp/indoor-map-lib
-RUN cd tmp/indoor-map-lib && cargo install --all-features --path .
-RUN rm -r tmp
+ARG CACHE_BUST
+
+# Build and install indoor_map_lib binaries
+RUN wget https://gitlab.com/wchs-map/indoor-map-lib/-/jobs/artifacts/master/raw/target/release/compile_map_json?job=build -O /usr/bin/compile_map_json
+RUN chmod +x /usr/bin/compile_map_json
+RUN wget https://gitlab.com/wchs-map/indoor-map-lib/-/jobs/artifacts/master/raw/target/release/svg_splitter?job=build -O /usr/bin/svg_splitter
+RUN chmod +x /usr/bin/svg_splitter
+RUN wget https://gitlab.com/wchs-map/indoor-map-lib/-/jobs/artifacts/master/raw/target/release/map_drawer?job=build -O /usr/bin/map_drawer
+RUN chmod +x /usr/bin/map_drawer
 
 # Install Node packages
 COPY package*.json ./
@@ -25,6 +29,6 @@ COPY . .
 
 # Compile map JSON
 RUN /bin/bash -c ""
-RUN npm run compileMapJson
+RUN npm run compile-json-svg
 
 EXPOSE 10001

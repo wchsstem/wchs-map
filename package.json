@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "compile-json": "compile_map_json src/data/map.json src/data/map_compiled.json",
-    "draw-maps": "mkdir -p src/assets/map/1 && map_drawer src/data/map_compiled.json src/assets/map/1 1 && mkdir -p src/assets/map/2 && map_drawer src/data/map_compiled.json src/assets/map/2 2",
+    "draw-maps": "cat src/data/map_compiled.json && mkdir -p src/assets/map/1 && map_drawer src/data/map_compiled.json src/assets/map/1 1 && mkdir -p src/assets/map/2 && map_drawer src/data/map_compiled.json src/assets/map/2 2",
     "optimize-maps": "svgo -f src/assets/map/1 && svgo -f src/assets/map/2",
     "compile-json-svg": "npm run compile-json && npm run draw-maps && npm run optimize-maps",
     "test": "jest",
