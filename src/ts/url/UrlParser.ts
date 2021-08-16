@@ -1,30 +1,22 @@
 import { LatLng } from "leaflet";
 
+import { None, Option, Some } from "@nvarner/monads";
 import { BuildingLocation } from "../BuildingLocation/BuildingLocation";
 
-export function isArgumentatedUrl(url: string): boolean {
-    // This regex could probably be made more efficient, but it's called once
-    // eslint-disable-next-line security/detect-unsafe-regex
-    const urlRegex = /^.*\/pos:\((\d+,){2}\d+\)/u;
-    const matches = url.match(urlRegex);
-    return matches != null;
-}
 
-export function parseUrl(url: string): BuildingLocation {
-    const posStart = "pos:(";
-    const startInd: number = url.lastIndexOf(posStart) + posStart.length;
-    const clippedString: string = url.substring(startInd);
 
-    const posEnd = ")";
-    const endInd: number = clippedString.indexOf(posEnd);
-    const dataString: string = clippedString.substring(0, endInd);
+export function parseUrl(url: string): Option<BuildingLocation> {
+	const urlRegex = /pos:\((\d+),(\d+),(\d+)\)/u;
 
-    const data: string[] = dataString.split(",");
-    const x: number = +data[0];
-    const y: number = +data[1];
-    const floor: string = data[2];
+	const matches = url.match(urlRegex);
+	if(!matches || matches.length < 4) return None;
+
+	const x: number = +matches[1];
+    const y: number = +matches[2];
+    const floor: string = matches[3];
 
     const latlng: LatLng = new LatLng(y, x);
     const outBuilding: BuildingLocation = new BuildingLocation(latlng, floor);
-    return outBuilding;
+	
+    return Some(outBuilding);
 }
