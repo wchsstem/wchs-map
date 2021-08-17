@@ -4,7 +4,7 @@ WORKDIR /usr/src/map
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
 ENV PATH="/root/.cargo/bin:${PATH}"
-RUN rustup toolchain install 1.51.0
+RUN rustup toolchain install 1.53.0
 ENV CARGO_INSTALL_ROOT="/usr/"
 
 # Give Node permissions
