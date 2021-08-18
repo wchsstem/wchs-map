@@ -15,6 +15,8 @@ export class HelpPane extends Pane {
                 <ul>
                     <li>Nathan Varner '21</li>
                     <li>Nate Hollingsworths '21</li>
+                    <li>Elizabeth Qiu '22</li>
+                    <li>Samuel Segal '22</li>
                 </ul>
             </div>
         );
