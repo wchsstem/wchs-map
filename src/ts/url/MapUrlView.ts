@@ -22,6 +22,6 @@ export function setMapUrlView(
         map.setView(loc.getXY(), zoomLevel);
 
         // Sets the pin
-        navPane.moveFromPin(loc);
+        navPane.moveFromPin(loc, false);
     });
 }
