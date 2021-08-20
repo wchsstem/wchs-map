@@ -18,6 +18,7 @@ export class HelpPane extends Pane {
                     <li>Elizabeth Qiu '22</li>
                     <li>Samuel Segal '22</li>
                 </ul>
+                We welcome all feedback! Feel free to contact us at <a href="mailto:wchsmap@gmail.com">wchsmap@gmail.com</a>.
             </div>
         );
         this.pane = genPaneElement("Help", contents);
