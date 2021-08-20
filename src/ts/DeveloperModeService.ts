@@ -29,11 +29,24 @@ export class DeveloperModeService {
         private readonly floors: LFloors,
         private readonly logger: Logger,
     ) {
-        this.showClickLoc = (e) =>
+        this.showClickLoc = (e) => {
+            const link = `/#/loc:(${Math.round(e.latlng.lng)},${Math.round(
+                e.latlng.lat,
+            )},${floors.getCurrentFloor()})`;
             this.locationPopup
                 .setLatLng(e.latlng)
-                .setContent(`${e.latlng.lng}, ${e.latlng.lat}`)
+                .setContent(
+                    `<div>
+                        <p>
+                            ${e.latlng.lng}, ${e.latlng.lat}
+                        </p>
+                        <p>
+                            <a href=${link}>${link}</a>
+                        </p>
+                    </div>`,
+                )
                 .openOn(this.map);
+        };
 
         this.locationPopup = popup();
         this.devLayers = None;
