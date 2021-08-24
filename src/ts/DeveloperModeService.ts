@@ -55,11 +55,11 @@ export class DeveloperModeService {
         });
     }
 
-    private getLink(latlng: LatLng, floors: LFloors): string {
+    public getLink(latlng: LatLng, floors: LFloors): string {
         const x = Math.round(latlng.lng);
         const y = Math.round(latlng.lat);
         const floor = floors.getCurrentFloor();
-        return `/#/loc:(${x},${y},${floor})`;
+        return `/#/pos:(${x},${y},${floor})`;
     }
 
     private onDevSettingChange(dev: boolean): void {
