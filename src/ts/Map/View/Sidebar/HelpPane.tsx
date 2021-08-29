@@ -18,6 +18,16 @@ export class HelpPane extends Pane {
                     <li>Elizabeth Qiu '22</li>
                     <li>Samuel Segal '22</li>
                 </ul>
+                <ul>
+                    <p>
+                        Have questions or feedback? Let us know at
+                        wchsmap@gmail.com
+                    </p>
+                    <p>
+                        Join the Churchill Stem Club by texting "@hellostem" to
+                        81010, or by visiting https://rmd.at/hellostem
+                    </p>
+                </ul>
             </div>
         );
         this.pane = genPaneElement("Help", contents);
