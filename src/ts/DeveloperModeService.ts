@@ -1,4 +1,4 @@
-import { popup, Map as LMap, Popup, LeafletMouseEvent } from "leaflet";
+import { popup, Map as LMap, Popup, LeafletMouseEvent, LatLng } from "leaflet";
 
 import { None, Option, Result, Some } from "@nvarner/monads";
 
@@ -29,11 +29,22 @@ export class DeveloperModeService {
         private readonly floors: LFloors,
         private readonly logger: Logger,
     ) {
-        this.showClickLoc = (e) =>
+        this.showClickLoc = (e) => {
+            const link = this.getLink(e.latlng, floors);
             this.locationPopup
                 .setLatLng(e.latlng)
-                .setContent(`${e.latlng.lng}, ${e.latlng.lat}`)
+                .setContent(
+                    `<div>
+                        <p>
+                            ${e.latlng.lng}, ${e.latlng.lat}
+                        </p>
+                        <p>
+                            <a href=${link}>${link}</a>
+                        </p>
+                    </div>`,
+                )
                 .openOn(this.map);
+        };
 
         this.locationPopup = popup();
         this.devLayers = None;
@@ -42,6 +53,13 @@ export class DeveloperModeService {
             const dev = devUnknown as boolean;
             this.onDevSettingChange(dev);
         });
+    }
+
+    public getLink(latlng: LatLng, floors: LFloors): string {
+        const x = Math.round(latlng.lng);
+        const y = Math.round(latlng.lat);
+        const floor = floors.getCurrentFloor();
+        return `/#/pos:(${x},${y},${floor})`;
     }
 
     private onDevSettingChange(dev: boolean): void {
