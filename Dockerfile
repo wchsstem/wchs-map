@@ -13,7 +13,7 @@ RUN npm config set unsafe-perm true
 
 # Build and install indoor_map_lib code
 RUN mkdir tmp
-RUN git clone https://gitlab.com/wchs-map/indoor-map-lib.git tmp/indoor-map-lib
+RUN git clone https://github.com/wchsstem/indoor-map-lib
 RUN cd tmp/indoor-map-lib && cargo install --all-features --path .
 RUN rm -r tmp
 
