@@ -15,7 +15,7 @@ RUN npm config set unsafe-perm true
 RUN mkdir tmp
 RUN cd tmp
 RUN cargo install --all-features --git https://github.com/wchsstem/indoor-map-lib
-RUN echo export PATH="/home/ereze/.cargo/bin:$PATH"
+#RUN echo export PATH="/home/ereze/.cargo/bin:$PATH"
 #RUN cd indoor-map-lib && cargo install --all-features --path .
 RUN cd ..
 RUN rm -r tmp
