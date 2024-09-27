@@ -32,6 +32,8 @@ server in a Docker container.
 To stop a running container, you may need to run `docker ps` to find the hex string ID of the running container, then
 run `docker stop <hex string ID>` to force it to exit.
 
+Try /src/map if /usr/src/map does not work
+
 If you need to get a terminal inside the container for debugging purposes, run
 `docker run -p 10001:10001 -it -v $PWD:/usr/src/map churchill-map bash`
 
