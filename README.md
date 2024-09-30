@@ -38,7 +38,7 @@ If you need to get a terminal inside the container for debugging purposes, run
 `docker run -p 10001:10001 -it -v $PWD:/usr/src/map churchill-map bash`
 
 ### Production
-Run `docker run -v $PWD:/usr/src/map -e "NODE_ENV=production" churchill-map npm run build` to generate a
+Run `docker run -v $PWD:/src/map -e "NODE_ENV=production" churchill-map npm run build` to generate a
 production build.
 
 ### How to run commands in Docker in general
