@@ -15516,7 +15516,7 @@
 	const floors = [
 		{
 			number: "1",
-			image: "../assets/map/1st_floor.svg",
+			image: "./assets/map/1st_floor.svg",
 			offsets: [
 				5.8,
 				750.7
@@ -15524,7 +15524,7 @@
 		},
 		{
 			number: "2",
-			image: "../assets/map/2nd_floor.svg",
+			image: "./assets/map/2nd_floor.svg",
 			offsets: [
 				5.8,
 				815
