@@ -5,15 +5,15 @@
     const VERSION = "v0.10.4";
     const CACHE_NAME = "WCHS-map-" + VERSION;
     const toCache = [
-        "/",
-        "/bundle.js",
-        "/assets/bundle.css",
-        "/assets/map/1st_floor.svg",
-        "/assets/map/2nd_floor.svg",
-        "/assets/fontawesome/webfonts/fa-solid-900.woff2",
-        "/assets/app-icon/icon-192.png",
-        "/assets/app-icon/icon-512.png",
-        "/assets/app-icon/favicon_v1.ico",
+        "./",
+        "./bundle.js",
+        "./assets/bundle.css",
+        "./assets/map/1st_floor.svg",
+        "./assets/map/2nd_floor.svg",
+        "./assets/fontawesome/webfonts/fa-solid-900.woff2",
+        "./assets/app-icon/icon-192.png",
+        "./assets/app-icon/icon-512.png",
+        "./assets/app-icon/favicon_v1.ico",
     ];
     // @ts-expect-error: poor TS support for service workers leads to no proper types here
     self.oninstall = (e) => {
