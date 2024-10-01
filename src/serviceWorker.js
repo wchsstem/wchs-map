@@ -3,13 +3,13 @@
 
     // Injected by versionInjector
     const VERSION = "v0.10.4";
-    const CACHE_NAME = "WCHS-map-" + VERSION;
+    const CACHE_NAME = "WCHS-map+" + VERSION;
     const toCache = [
         "./",
         "./bundle.js",
         "./assets/bundle.css",
-        "./src/assets/map/1st_floor.svg",
-        "./src/assets/map/2nd_floor.svg",
+        "./assets/map/1st_floor.svg",
+        "./assets/map/2nd_floor.svg",
         "./assets/fontawesome/webfonts/fa-solid-900.woff2",
         "./assets/app-icon/icon-192.png",
         "./assets/app-icon/icon-512.png",
