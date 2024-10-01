@@ -5,10 +5,10 @@
     const VERSION = "v0.10.4";
     const CACHE_NAME = "WCHS-map-" + VERSION;
     const toCache = [
-        "./src",
+        "./src/",
         "./src/bundle.js",
         "./src/assets/bundle.css",
-        "./src/assets/map/1st_floor.svg",
+        "./assets/map/1st_floor.svg",
         "./src/assets/map/2nd_floor.svg",
         "./src/assets/fontawesome/webfonts/fa-solid-900.woff2",
         "./src/assets/app-icon/icon-192.png",
