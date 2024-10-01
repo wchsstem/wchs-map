@@ -8,7 +8,7 @@
         "./src/",
         "./src/bundle.js",
         "./src/assets/bundle.css",
-        "./assets/map/1st_floor.svg",
+        "./src/assets/map/1st_floor.svg",
         "./src/assets/map/2nd_floor.svg",
         "./src/assets/fontawesome/webfonts/fa-solid-900.woff2",
         "./src/assets/app-icon/icon-192.png",
